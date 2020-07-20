@@ -1,0 +1,27 @@
+#board-ascii {
+    font-family: "Lucida Console", Monaco, monospace;   
+}
+
+#board {
+    height: 100%;
+    width: 100%;
+    background-image: url('img/bg.svg');
+}
+
+.row {
+    height: 30px;
+}
+
+.square {
+    height: 30px;
+    width: 30px;
+    display: inline-block;
+}
+
+.piece {
+    height: 100%;
+    width: 100%;
+    display: inline-block;
+    background-image: url('img/_dt.png');
+    background-size: cover;
+}
