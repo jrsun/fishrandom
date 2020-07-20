@@ -60,7 +60,6 @@ export class MySquare extends LitElement {
         detail: this.square,
       })
     );
-    console.log('square clicked');
   }
 }
 

@@ -327,7 +327,7 @@ class Pawn extends Piece {
 
     targets = targets.filter((target) => {
       const square = state.getSquare(target.row, target.col);
-      return !(square?.occupant && square.occupant.color === this.color);
+      return !(square.occupant);
     });
 
     // capture
