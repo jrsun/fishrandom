@@ -1,18 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es2019",
     "module": "es2015",
-    "lib": ["es2017", "dom", "dom.iterable"],
+    "lib": ["es2019", "ES6", "ScriptHost", "dom", "dom.iterable"],
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "./",
+    "outDir": "./build",
     "rootDir": "./src",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
@@ -20,10 +15,9 @@
     "plugins": [
       {
         "name": "ts-lit-plugin",
-        "strict": true
       }
     ]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/*.ts"],
   "exclude": []
 }
