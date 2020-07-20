@@ -15,7 +15,7 @@
 import {LitElement, html, customElement, property, css} from 'lit-element';
 import {BoardState, Game, STD_GAME, Piece, Square} from './chess/piece';
 import './ui/my-square';
-import { styleMap } from 'lit-html/directives/style-map';
+import {styleMap} from 'lit-html/directives/style-map';
 import {SQUARE_SIZE, Color} from './chess/const';
 
 /**
@@ -49,8 +49,8 @@ export class MyElement extends LitElement {
   @property({type: Object}) game: Game = STD_GAME;
 
   // protected
-  @property({type: Object}) selectedPiece: Piece|undefined;
-  @property({type: Object}) selectedSquare: Square|undefined;
+  @property({type: Object}) selectedPiece: Piece | undefined;
+  @property({type: Object}) selectedSquare: Square | undefined;
 
   /**
    * The number of times the button has been clicked.
@@ -71,22 +71,30 @@ export class MyElement extends LitElement {
   render() {
     const state = this.game.state;
 
-    this.style.setProperty('height', `${SQUARE_SIZE*state.squares.length}px`);
-    this.style.setProperty('width', `${SQUARE_SIZE*state.squares[0].length}px`);
+    this.style.setProperty('height', `${SQUARE_SIZE * state.squares.length}px`);
+    this.style.setProperty(
+      'width',
+      `${SQUARE_SIZE * state.squares[0].length}px`
+    );
     if (this.color === Color.BLACK) {
       this.style.setProperty('transform', 'rotate(180deg)');
     }
 
     return html`
       <div id="board">
-        ${state.squares.map(row => html`<div class="row">
-          ${row.map(square => html`<my-square
-            .square=${square}
-            .piece=${square.occupant}
-            .selected=${square === this.selectedSquare}
-            .possible=${this.possibleMoves.includes(square)}
-            .color=${this.color}>`)}
-        </div>`)}
+        ${state.squares.map(
+          (row) => html`<div class="row">
+            ${row.map(
+              (square) => html`<my-square
+                .square=${square}
+                .piece=${square.occupant}
+                .selected=${square === this.selectedSquare}
+                .possible=${this.possibleMoves.includes(square)}
+                .color=${this.color}
+              ></my-square>`
+            )}
+          </div>`
+        )}
       </div>
     `;
   }
@@ -100,7 +108,11 @@ export class MyElement extends LitElement {
         this.selectedPiece = null;
         return;
       }
-      const result = this.game.attemptMove(this.selectedPiece.color, this.selectedPiece, square);
+      const result = this.game.attemptMove(
+        this.selectedPiece.color,
+        this.selectedPiece,
+        square
+      );
       if (result) {
         this.selectedPiece = null;
         return;
@@ -114,7 +126,9 @@ export class MyElement extends LitElement {
   get possibleMoves(): Square[] {
     if (!this.selectedPiece) return [];
 
-    return this.selectedPiece.legalMoves().map(pair => this.game.state.getSquare(pair.row, pair.col));
+    return this.selectedPiece
+      .legalMoves()
+      .map((pair) => this.game.state.getSquare(pair.row, pair.col));
   }
 }
 

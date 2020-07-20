@@ -25,7 +25,6 @@ import {SQUARE_SIZE} from '../chess/const';
 @customElement('my-piece')
 export class MyPiece extends LitElement {
   static styles = css`
-
     .piece {
       height: 100%;
       width: 100%;
@@ -43,8 +42,10 @@ export class MyPiece extends LitElement {
 
   render() {
     return html`
-      <div class="piece" style="background-image:url(../img/${this.piece.img})">
-      </div>
+      <div
+        class="piece"
+        style="background-image:url(../img/${this.piece.img})"
+      ></div>
     `;
   }
 }

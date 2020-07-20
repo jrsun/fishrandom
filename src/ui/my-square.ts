@@ -1,7 +1,7 @@
 import {LitElement, html, customElement, property, css} from 'lit-element';
 import {BoardState, STD_BOARD, Square, Piece} from '../chess/piece';
 import {SQUARE_SIZE, Color} from '../chess/const';
-import { styleMap } from 'lit-html/directives/style-map';
+import {styleMap} from 'lit-html/directives/style-map';
 import './my-piece';
 
 /**
@@ -36,27 +36,32 @@ export class MySquare extends LitElement {
   render() {
     // this.style.setProperty('transform', this.color === Color.BLACK ? 'rotate(180deg)' : '');
     return html`
-      <div class="square" @click=${this._onClick} style="
-        height:100%;width:100%;background-color:${
-          this.selected ? 'rgba(0, 0, 255, 0.3)' :
-          this.possible ? 'rgba(0, 255, 0, 0.3)' : ''
-        };transform:${this.color === Color.BLACK ? 'rotate(180deg)' : ''};
-      ">
-        ${this.piece &&
-        html`<my-piece .piece=${this.piece}></my-piece>`}
+      <div
+        class="square"
+        @click=${this._onClick}
+        style="
+        height:100%;width:100%;background-color:${this.selected
+          ? 'rgba(0, 0, 255, 0.3)'
+          : this.possible
+          ? 'rgba(0, 255, 0, 0.3)'
+          : ''};transform:${this.color === Color.BLACK ? 'rotate(180deg)' : ''};
+      "
+      >
+        ${this.piece && html`<my-piece .piece=${this.piece}></my-piece>`}
       </div>
     `;
   }
 
   private _onClick() {
-      this.dispatchEvent(new CustomEvent('square-clicked', {
+    this.dispatchEvent(
+      new CustomEvent('square-clicked', {
         bubbles: true,
         composed: true,
         detail: this.square,
-      }));
-      console.log('square clicked');
+      })
+    );
+    console.log('square clicked');
   }
-
 }
 
 declare global {
