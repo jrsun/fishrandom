@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><response version="0.92"><br />
-<b>Warning</b>:  file_get_contents(http://commons.wikimedia.org/wiki/File:Chess_pgt45.svg.png?1827128044): failed to open stream: HTTP request failed! HTTP/1.0 404 Not Found
- in <b>/home/httpd/vhosts/utou.ch/subdomains/opendata/httpdocs/glam/magnus-toolserver/commonsapi.php</b> on line <b>303</b><br />
-<error>File does not exist : Chess_pgt45.svg.png</error></response>
