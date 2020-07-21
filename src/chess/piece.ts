@@ -21,10 +21,6 @@ export class Square {
     return this.piece;
   }
 
-  get occupied(): boolean {
-    return !!this.piece;
-  }
-
   toString(): string {
     if (this.occupant) {
       return `[${this.occupant.toString()}]`;
@@ -41,32 +37,11 @@ export class Square {
       result.appendChild(this.occupant.render());
     }
     result.onclick = (e) => {
-      console.log('clicked', this);
       result.dispatchEvent(
         new CustomEvent('square-clicked', {
           detail: this,
         })
       );
-      if (SELECTED_PIECE) {
-        if (
-          SELECTED_PIECE.legalMoves()
-            .map(hash)
-            .includes(hash({row: this.row, col: this.col}))
-        ) {
-          SELECTED_PIECE.game!.attemptMove(
-            SELECTED_PIECE.color,
-            SELECTED_PIECE,
-            this
-          );
-        }
-        SELECTED_PIECE = undefined;
-        return;
-      }
-      if (this.occupant) {
-        // disambiguate sides, highlight possible moves
-        SELECTED_PIECE = this.occupant;
-        return;
-      }
     };
     return result;
   }
@@ -77,7 +52,6 @@ export class Square {
 
   place(piece: Piece) {
     this.piece = piece;
-    this.piece.square = this;
   }
 }
 
@@ -88,12 +62,20 @@ export class Piece {
     public color: Color,
     public game?: Game,
     public state?: BoardState,
-    public square?: Square
   ) {
     // this.squares = this.game?.state.squares;
   }
-  legalMoves(): Pair[] {
-    throw NotImplementedError;
+  legalLeaps(): Pair[] {
+    return [];
+  }
+  legalDirs(): Pair[] {
+    return [];
+  }
+  legalCaptures(): Pair[] {
+    return dedup([
+      ...this.legalLeaps(),
+      ...this.legalDirs(),
+    ]);
   }
   toString(): string {
     return this.name; // graphic here later or unicode
@@ -114,11 +96,7 @@ export class Piece {
 
 class Leaper extends Piece {
   moves: Pair[];
-  legalMoves(): Pair[] {
-    if (!this.square || !this.state) {
-      throw new Error(`piece not on board has no legal moves: ${this}`);
-    }
-    const {square, state} = this;
+  legalLeaps(): Pair[] {
     let targets = this.moves
       .flatMap((move) =>
         [-1, 1]
@@ -135,36 +113,29 @@ class Leaper extends Piece {
               },
             ])
           )
-      )
-      .map((relative) => ({
-        row: relative.row + square.row,
-        col: relative.col + square.col,
-      }));
+      );
 
-    targets = targets.filter(
-      (target) =>
-        !(
-          target.row < 0 ||
-          target.col < 0 ||
-          target.row >= state.ranks ||
-          target.col >= state.files
-        )
-    );
-    targets = targets.filter((target) => {
-      const occupant = state.getSquare(target.row, target.col)?.occupant;
-      return !occupant || occupant.color !== this.color;
-    });
+    // targets = targets.filter(
+    //   (target) =>
+    //     !(
+    //       target.row < 0 ||
+    //       target.col < 0 ||
+    //       target.row >= state.ranks ||
+    //       target.col >= state.files
+    //     )
+    // );
+    // targets = targets.filter((target) => {
+    //   const occupant = state.getSquare(target.row, target.col)?.occupant;
+    //   return !occupant || occupant.color !== this.color;
+    // });
     return dedup(targets);
   }
 }
 
 class Rider extends Piece {
   moves: Pair[];
-  legalMoves(): Pair[] {
-    if (!this.square || !this.state) {
-      throw new Error(`piece not on board has no legal moves: ${this}`);
-    }
-    const directions = dedup(
+  legalDirs(): Pair[] {
+    return dedup(
       this.moves.flatMap((move) =>
         [-1, 1]
           .map((sign) => move.row * sign)
@@ -182,36 +153,8 @@ class Rider extends Piece {
           )
       )
     );
-    const targets: Pair[] = [];
-    for (const dir of directions) {
-      targets.push(...this.ride(dir.row, dir.col));
-    }
-    // TODO: dedup
-    return dedup(targets);
   }
 
-  // ride in one direction until we hit the edge of board or another piece
-  ride(row: number, col: number): Pair[] {
-    if (!this.square || !this.state) {
-      throw new Error(`piece not on board has no legal moves: ${this}`);
-    }
-    const targets: Pair[] = [];
-    let square = this.state.getSquare(
-      this.square.row + row,
-      this.square.col + col
-    );
-
-    while (square) {
-      if (!square.occupant || square.occupant.color !== this.color) {
-        targets.push({row: square.row, col: square.col});
-      }
-      if (square.occupant) {
-        break;
-      }
-      square = this.state.getSquare(square.row + row, square.col + col);
-    }
-    return targets;
-  }
 }
 
 // Pieces
@@ -305,40 +248,24 @@ class King extends Leaper {
 
 class Pawn extends Piece {
   name = 'P';
-  legalMoves(): Pair[] {
-    if (!this.state || !this.square) return [];
-    const {
-      game,
-      state,
-      square: {row, col},
-    } = this;
+  legalLeaps(): Pair[] {
     // normal move. 2 step. capture, en passant
     const yDir = this.color === Color.WHITE ? -1 : 1;
-    let targets = [{row: row + yDir, col: col}];
+    let targets = [{row: yDir, col: 0}];
 
     // 2 move
-    if (
-      (this.square.row === PAWN_HOME_RANK && this.color === Color.BLACK) ||
-      (this.square.row === state.ranks - PAWN_HOME_RANK - 1 &&
-        this.color === Color.WHITE)
-    ) {
-      targets.push({row: row + 2 * yDir, col});
-    }
+    // if (
+    //   (this.square.row === PAWN_HOME_RANK && this.color === Color.BLACK) ||
+    //   (this.square.row === state.ranks - PAWN_HOME_RANK - 1 &&
+    //     this.color === Color.WHITE)
+    // ) {
+    //   targets.push({row: 2 * yDir, col: 0});
+    // }
 
-    targets = targets.filter((target) => {
-      const square = state.getSquare(target.row, target.col);
-      return !(square.occupant);
-    });
-
-    // capture
-    const targetSquares = [-1, 1].map((xDir) =>
-      state.getSquare(row + yDir, col + xDir)
-    );
-    for (const square of targetSquares) {
-      if (square?.occupant?.color && square.occupant.color !== this.color) {
-        targets.push({row: square.row, col: square.col});
-      }
-    }
+    // targets = targets.filter((target) => {
+    //   const square = state.getSquare(target.row, target.col);
+    //   return !(square.occupant);
+    // });
 
     // en passant
     // const victimSquares = [-1, 1].map(xDir => state.getSquare(row, col + xDir));
@@ -353,6 +280,14 @@ class Pawn extends Piece {
     //     }
     // }
     return targets;
+  }
+  legalCaptures(): Pair[] {
+    // override
+    const yDir = this.color === Color.WHITE ? -1 : 1;
+    return [
+      {row: yDir, col: -1},
+      {row: yDir, col: 1},
+    ];
   }
   promote() {
     // TODO
@@ -380,10 +315,6 @@ export class Game {
 
   constructor(initial: BoardState) {
     this.state = initial;
-    initial.game = this;
-    for (const piece of initial.pieces) {
-      piece.game = this;
-    }
     this.moveHistory = [];
     this.stateHistory = [];
   }
@@ -408,34 +339,34 @@ export class Game {
   }
 
   // override in variants
-  attemptMove(mover: Color, piece: Piece, target: Square) {
-    const legalMove = piece
-      .legalMoves()
-      .find((location) => equals(location, target));
+  attemptMove(piece: Piece, row: number, col: number, target: Square) {
+    const legalMove = this.legalMoves(piece, row, col).find(
+      pair => equals(pair, target)
+    );
     if (!legalMove) {
-      console.log('invalid move', piece, target);
+      console.log('invalid move', piece.name, target);
+      console.log('legal moves are', this.legalMoves(piece, row, col));
       return; // invalid move
     }
     // need to copy state for history
     const before = this.state;
-    const start = piece.square;
+    const start = {row, col}
     const end = target;
     const isCapture = !!(
       target.occupant && target.occupant.color !== piece.color
     );
     const captured = isCapture ? [target.occupant!] : [];
-    const color = mover;
+    const color = piece.color;
     const type = MoveType.MOVE;
 
     if (isCapture) {
       this.captureEffects();
     }
 
-    this.state.getSquare(target.row, target.col)!.place(piece);
-    if (start) {
-      this.state.getSquare(start.row, start.col)!.empty();
-    }
-    const after = this.state;
+    const after = new BoardState(this.state.squares)
+      .place(piece, target.row, target.col)
+      .empty(row, col);
+
     const move = {
       before,
       after,
@@ -447,20 +378,81 @@ export class Game {
       color,
       type: 'move',
     };
+
     this.moveHistory.push(move);
-    console.log('moved:', this);
-    return move;
-    // renderBoard(this);
-    //         re: BoardState,
-    //  after: BoardState,
-    //  piece: Piece,
-    //  start: Square,
-    //  end: Square,
-    //  isCapture: boolean,
-    //  isCheck: boolean,
-    //  captured: Piece[],
-    //  color: Color,
-    //  type: string // 'move', 'castle', etc.
+    this.stateHistory.push(after);
+    this.state = after;
+  }
+
+  legalMoves(piece: Piece, row: number, col: number): Pair[] {
+    let targets = [
+      ...piece.legalLeaps()
+        .map(pair => ({row: row + pair.row, col: col + pair.col}))
+        .filter(pair => {
+          const occupant = this.state.getSquare(pair.row, pair.col)?.occupant;
+          return !occupant;
+        }),
+      ...piece.legalDirs().flatMap(pair => this.ride(
+        piece.color,
+        row,
+        col,
+        pair.row,
+        pair.col,
+      )),
+      ...piece.legalCaptures()
+        .map(pair => ({row: row + pair.row, col: col + pair.col}))
+        .filter(pair => {
+          const occupant = this.state.getSquare(pair.row, pair.col)?.occupant;
+          return occupant && occupant.color !== piece.color;
+        }),
+    ];
+    if (piece instanceof Pawn) {
+      targets = [
+        ...targets,
+        ...this.pawnMoves(piece.color, row, col),
+      ];
+    }
+    
+    targets = targets.filter(target => {
+      return target.row >= 0 &&
+      target.row < this.state.ranks &&
+      target.col >= 0 &&
+      target.col < this.state.files;
+    });
+    return targets;
+  }
+
+  private pawnMoves(color: Color, row: number, col: number): Pair[] {
+    const yDir = color === Color.BLACK ? 1 : -1;
+    const targets = []
+    if (
+      (row === PAWN_HOME_RANK && color === Color.BLACK) ||
+      (row === this.state.ranks - PAWN_HOME_RANK - 1 &&
+        color === Color.WHITE)
+    ) {
+      targets.push({row: row + 2 * yDir, col});
+    }
+    return targets;
+  }
+
+  private ride(color: Color, row: number, col: number, rowDir: number, colDir: number): Pair[] {
+    // ride in one direction until we hit the edge of board or another piece
+    const targets: Pair[] = [];
+    let square = this.state.getSquare(
+      row + rowDir,
+      col + colDir,
+    );
+
+    while (square) {
+      if (!square.occupant || square.occupant.color !== color) {
+        targets.push({row: square.row, col: square.col});
+      }
+      if (square.occupant) {
+        break;
+      }
+      square = this.state.getSquare(square.row + row, square.col + col);
+    }
+    return targets;
   }
 
   captureEffects() {
@@ -481,6 +473,16 @@ export class BoardState {
   constructor(squares: Square[][]) {
     this.ranks = squares.length;
     this.files = squares[0].length;
+    for (const row of squares) {
+      const newRow = [];
+      for (const square of row) {
+        const newSquare = new Square(square.row, square.col);
+        newRow.push(newSquare);
+        if (square.occupant) {
+          newSquare.place(square.occupant);
+        }
+      }
+    }
     this.squares = squares;
   }
 
@@ -506,24 +508,34 @@ export class BoardState {
     return state;
   }
 
-  get pieces(): Piece[] {
-    const result: Piece[] = [];
-    for (const row of this.squares) {
-      for (const square of row) {
-        if (square.occupant) {
-          result.push(square.occupant);
-        }
-      }
-    }
-    return result;
-  }
+  // get pieces(): Piece[] {
+  //   const result: Piece[] = [];
+  //   for (const row of this.squares) {
+  //     for (const square of row) {
+  //       if (square.occupant) {
+  //         result.push(square.occupant);
+  //       }
+  //     }
+  //   }
+  //   return result;
+  // }
 
-  place(piece: Piece, row: number, col: number) {
+  place(piece: Piece, row: number, col: number): BoardState {
     const square = this.getSquare(row, col);
     if (!square) {
       throw new Error('square out of bounds' + row + ',' + col);
     }
     square.place(piece);
+    return this;
+  }
+
+  empty(row: number, col: number): BoardState {
+    const square = this.getSquare(row, col);
+    if (!square) {
+      throw new Error('square out of bounds' + row + ',' + col);
+    }
+    square.empty();
+    return this;
   }
 
   getSquare(row: number, col: number): Square | undefined {
@@ -541,27 +553,27 @@ export class BoardState {
     return result;
   }
 
-  isInCheck(color: Color): boolean {
-    const opposingPieces = this.squares
-      .flat()
-      .map((square) => square.occupant)
-      .filter((occupant) => !!occupant && occupant.color !== color);
-    const opposingControlledSquares = dedup(
-      opposingPieces.flatMap((piece) => piece!.legalMoves())
-    );
-    const ownRoyalSquares = this.squares
-      .flat()
-      .filter(
-        (square) =>
-          !!square.occupant &&
-          square.occupant.color === color &&
-          square.occupant.isRoyal
-      );
+  // isInCheck(color: Color): boolean {
+  //   const opposingPieces = this.squares
+  //     .flat()
+  //     .map((square) => square.occupant)
+  //     .filter((occupant) => !!occupant && occupant.color !== color);
+  //   const opposingControlledSquares = dedup(
+  //     opposingPieces.flatMap((piece) => piece!.legalMoves())
+  //   );
+  //   const ownRoyalSquares = this.squares
+  //     .flat()
+  //     .filter(
+  //       (square) =>
+  //         !!square.occupant &&
+  //         square.occupant.color === color &&
+  //         square.occupant.isRoyal
+  //     );
 
-    return ownRoyalSquares.some((square) =>
-      opposingControlledSquares.map(hash).includes(hash(square))
-    );
-  }
+  //   return ownRoyalSquares.some((square) =>
+  //     opposingControlledSquares.map(hash).includes(hash(square))
+  //   );
+  // }
 
   render(): HTMLElement {
     const result = document.createElement('div');
@@ -586,8 +598,8 @@ interface Move {
   before: BoardState;
   after: BoardState;
   piece: Piece;
-  start?: Square;
-  end?: Square;
+  start?: Pair;
+  end?: Pair;
   isCapture: boolean;
   captured: Piece[];
   color: Color;

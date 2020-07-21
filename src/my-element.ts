@@ -102,33 +102,35 @@ export class MyElement extends LitElement {
   private onSquareClicked(e: CustomEvent) {
     // There's a bug here where updating the game using attemptMove doesn't cause rerender.
     const square = e.detail as Square;
-    // this.selectedSquare = square;
     if (this.selectedPiece) {
       if (this.selectedPiece === square.occupant) {
         this.selectedPiece = null;
         return;
       }
       const result = this.game.attemptMove(
-        this.selectedPiece.color,
+        // this.selectedPiece.color,
         this.selectedPiece,
+        this.selectedSquare.row,
+        this.selectedSquare.col,
         square
       );
-      if (result) {
+      // if (result) {
+        this.selectedSquare = null;
         this.selectedPiece = null;
-        return;
-      }
+      //   return;
+      // }
+    } else {
+      this.selectedSquare = square;
+      this.selectedPiece = square.occupant;
     }
-
-    this.selectedPiece = square.occupant;
     this.performUpdate();
   }
 
   get possibleMoves(): Square[] {
     if (!this.selectedPiece) return [];
 
-    return this.selectedPiece
-      .legalMoves()
-      .map((pair) => this.game.state.getSquare(pair.row, pair.col));
+    return this.game.legalMoves(this.selectedPiece, this.selectedSquare.row, this.selectedSquare.col)
+    .map(pair => this.game.state.getSquare(pair.row, pair.col));
   }
 }
 
