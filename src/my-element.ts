@@ -115,8 +115,8 @@ export class MyElement extends LitElement {
         square
       );
       // if (result) {
-        this.selectedSquare = null;
-        this.selectedPiece = null;
+      this.selectedSquare = null;
+      this.selectedPiece = null;
       //   return;
       // }
     } else {
@@ -129,8 +129,10 @@ export class MyElement extends LitElement {
   get possibleMoves(): Square[] {
     if (!this.selectedPiece) return [];
 
-    return this.game.legalMoves(this.selectedPiece, this.selectedSquare.row, this.selectedSquare.col)
-    .map(pair => this.game.state.getSquare(pair.row, pair.col));
+    return this.selectedPiece
+      .legalMoves(this.selectedSquare.row, this.selectedSquare.col, this.game)
+      .filter(this.game.isMoveLegal)
+      .map((move) => this.game.state.getSquare(move.end.row, move.end.col));
   }
 }
 

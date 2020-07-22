@@ -61,21 +61,12 @@ export class Piece {
   constructor(
     public color: Color,
     public game?: Game,
-    public state?: BoardState,
+    public state?: BoardState
   ) {
     // this.squares = this.game?.state.squares;
   }
-  legalLeaps(): Pair[] {
+  legalMoves(row: number, col: number, game: Game): Move[] {
     return [];
-  }
-  legalDirs(): Pair[] {
-    return [];
-  }
-  legalCaptures(): Pair[] {
-    return dedup([
-      ...this.legalLeaps(),
-      ...this.legalDirs(),
-    ]);
   }
   toString(): string {
     return this.name; // graphic here later or unicode
@@ -96,7 +87,8 @@ export class Piece {
 
 class Leaper extends Piece {
   moves: Pair[];
-  legalLeaps(): Pair[] {
+  legalMoves(row: number, col: number, game: Game): Move[] {
+    const {state} = game;
     let targets = this.moves
       .flatMap((move) =>
         [-1, 1]
@@ -113,28 +105,48 @@ class Leaper extends Piece {
               },
             ])
           )
-      );
+      )
+      .map((relative) => ({row: row + relative.row, col: col + relative.col}));
 
-    // targets = targets.filter(
-    //   (target) =>
-    //     !(
-    //       target.row < 0 ||
-    //       target.col < 0 ||
-    //       target.row >= state.ranks ||
-    //       target.col >= state.files
-    //     )
-    // );
-    // targets = targets.filter((target) => {
-    //   const occupant = state.getSquare(target.row, target.col)?.occupant;
-    //   return !occupant || occupant.color !== this.color;
-    // });
-    return dedup(targets);
+    targets = targets.filter(
+      (target) =>
+        !(
+          target.row < 0 ||
+          target.col < 0 ||
+          target.row >= state.ranks ||
+          target.col >= state.files
+        )
+    );
+    targets = targets.filter((target) => {
+      const occupant = state.getSquare(target.row, target.col)?.occupant;
+      return !occupant || occupant.color !== this.color;
+    });
+    const moves: Move[] = [];
+    for (const target of dedup(targets)) {
+      const occupant = state.getSquare(target.row, target.col)?.occupant;
+      const isCapture = occupant && occupant.color !== this.color;
+
+      moves.push({
+        before: state,
+        after: new BoardState(state.squares)
+          .place(this, target.row, target.col)
+          .empty(row, col),
+        piece: this,
+        start: {row, col},
+        end: target,
+        isCapture,
+        captured: occupant ? [occupant] : [],
+        color: this.color,
+        type: MoveType.MOVE,
+      });
+    }
+    return moves;
   }
 }
 
 class Rider extends Piece {
   moves: Pair[];
-  legalDirs(): Pair[] {
+  legalMoves(row: number, col: number, game: Game): Move[] {
     return dedup(
       this.moves.flatMap((move) =>
         [-1, 1]
@@ -152,9 +164,46 @@ class Rider extends Piece {
             ])
           )
       )
-    );
+    ).flatMap((dir) => this.ride(row, col, dir.row, dir.col, game));
   }
 
+  private ride(
+    row: number,
+    col: number,
+    rowDir: number,
+    colDir: number,
+    game: Game
+  ): Move[] {
+    // ride in one direction until we hit the edge of board or another piece
+    const moves: Move[] = [];
+    const {state} = game;
+    let square = this.state.getSquare(row + rowDir, col + colDir);
+
+    while (square) {
+      if (!square.occupant || square.occupant.color !== this.color) {
+        const isCapture =
+          square.occupant && square.occupant.color !== this.color;
+        moves.push({
+          before: state,
+          after: new BoardState(state.squares)
+            .place(this, square.row, square.col)
+            .empty(row, col),
+          piece: this,
+          start: {row, col},
+          end: square,
+          isCapture,
+          captured: isCapture ? [square.occupant] : [],
+          color: this.color,
+          type: MoveType.MOVE,
+        });
+      }
+      if (square.occupant) {
+        break;
+      }
+      square = this.state.getSquare(square.row + row, square.col + col);
+    }
+    return moves;
+  }
 }
 
 // Pieces
@@ -248,46 +297,116 @@ class King extends Leaper {
 
 class Pawn extends Piece {
   name = 'P';
-  legalLeaps(): Pair[] {
+  legalMoves(row: number, col: number, game: Game): Move[] {
+    const {moveHistory, state} = game;
     // normal move. 2 step. capture, en passant
     const yDir = this.color === Color.WHITE ? -1 : 1;
-    let targets = [{row: yDir, col: 0}];
+    let moveTargets = [{row: row + yDir, col}];
 
     // 2 move
-    // if (
-    //   (this.square.row === PAWN_HOME_RANK && this.color === Color.BLACK) ||
-    //   (this.square.row === state.ranks - PAWN_HOME_RANK - 1 &&
-    //     this.color === Color.WHITE)
-    // ) {
-    //   targets.push({row: 2 * yDir, col: 0});
-    // }
+    if (
+      (row === PAWN_HOME_RANK && this.color === Color.BLACK) ||
+      (row === state.ranks - PAWN_HOME_RANK - 1 && this.color === Color.WHITE)
+    ) {
+      moveTargets.push({row: row + 2 * yDir, col});
+    }
 
-    // targets = targets.filter((target) => {
-    //   const square = state.getSquare(target.row, target.col);
-    //   return !(square.occupant);
-    // });
+    moveTargets = moveTargets.filter((target) => {
+      const square = state.getSquare(target.row, target.col);
+      return !square.occupant;
+    });
 
-    // en passant
-    // const victimSquares = [-1, 1].map(xDir => state.getSquare(row, col + xDir));
-    // for (const square of victimSquares) {
-    //     if (square?.occupant && square?.occupant.color !== this.color && square.occupant instanceof Pawn) {
-    //         // check history to see if the pawn here just moved 2 steps
-    //         const lastMove = game.moveHistory[game.moveHistory.length - 1];
-    //         if (lastMove && lastMove.piece instanceof Pawn && lastMove.start.col === y - yDir*2 && lastMove.start.x === square.x) {
-    //             targets.push(square);
-    //             break; // only one pawn can have just moved
-    //         }
-    //     }
-    // }
-    return targets;
-  }
-  legalCaptures(): Pair[] {
-    // override
-    const yDir = this.color === Color.WHITE ? -1 : 1;
-    return [
-      {row: yDir, col: -1},
-      {row: yDir, col: 1},
+    let captureTargets = [
+      {row: row + yDir, col: col - 1},
+      {row: row + yDir, col: col + 1},
     ];
+
+    captureTargets = captureTargets.filter((target) => {
+      const occupant = state.getSquare(target.row, target.col)?.occupant;
+      return occupant && occupant.color !== this.color;
+    });
+
+    const moves: Move[] = [];
+    for (const target of moveTargets) {
+      moves.push({
+        before: state,
+        after: new BoardState(state.squares)
+          .place(this, target.row, target.col)
+          .empty(row, col),
+        piece: this,
+        start: {row, col},
+        end: target,
+        isCapture: false,
+        captured: [],
+        color: this.color,
+        type: MoveType.MOVE,
+      });
+    }
+    for (const target of captureTargets) {
+      moves.push({
+        before: state,
+        after: new BoardState(state.squares)
+          .place(this, target.row, target.col)
+          .empty(row, col),
+        piece: this,
+        start: {row, col},
+        end: target,
+        isCapture: true,
+        captured: [state.getSquare(target.row, target.col).occupant],
+        color: this.color,
+        type: MoveType.MOVE,
+      });
+    }
+    const enpassant = this.enPassant(row, col, state, moveHistory);
+    if (enpassant) {
+      moves.push(enpassant);
+    }
+    return moves;
+  }
+
+  private enPassant(
+    row: number,
+    col: number,
+    state: BoardState,
+    moveHistory: Move[]
+  ): Move | undefined {
+    const yDir = this.color === Color.WHITE ? -1 : 1;
+    // en passant
+    if (moveHistory.length) {
+      const lastMove = moveHistory[moveHistory.length - 1];
+      if (
+        lastMove.piece instanceof Pawn &&
+        lastMove.piece.color !== this.color &&
+        Math.abs(lastMove.end.col - col) === 1 &&
+        Math.abs(lastMove.end.row - lastMove.start.row) === 2 &&
+        lastMove.end.row === row
+      ) {
+        // need to copy state for history
+        const before = state;
+        const start = {row, col};
+        const end = {row: row + yDir, col: lastMove.end.col};
+        const isCapture = true;
+        const captured = isCapture ? [lastMove.piece] : [];
+        const color = this.color;
+        const type = MoveType.ENPASSANT;
+
+        const after = new BoardState(this.state.squares)
+          .place(this, end.row, end.col)
+          .empty(row, col);
+        return {
+          before,
+          after,
+          piece: this,
+          start,
+          end,
+          isCapture,
+          captured,
+          color,
+          type,
+        };
+      }
+    }
+    return;
   }
   promote() {
     // TODO
@@ -340,119 +459,36 @@ export class Game {
 
   // override in variants
   attemptMove(piece: Piece, row: number, col: number, target: Square) {
-    const legalMove = this.legalMoves(piece, row, col).find(
-      pair => equals(pair, target)
-    );
+    const legalMoves = piece
+      .legalMoves(row, col, this)
+      .filter(this.isMoveLegal);
+    const legalMove = legalMoves.find((move) => equals(move.end, target));
     if (!legalMove) {
       console.log('invalid move', piece.name, target);
-      console.log('legal moves are', this.legalMoves(piece, row, col));
+      console.log('legal moves are', legalMoves);
       return; // invalid move
     }
-    // need to copy state for history
-    const before = this.state;
-    const start = {row, col}
-    const end = target;
-    const isCapture = !!(
-      target.occupant && target.occupant.color !== piece.color
-    );
-    const captured = isCapture ? [target.occupant!] : [];
-    const color = piece.color;
-    const type = MoveType.MOVE;
-
-    if (isCapture) {
+    if (legalMove.isCapture) {
       this.captureEffects();
     }
 
-    const after = new BoardState(this.state.squares)
-      .place(piece, target.row, target.col)
-      .empty(row, col);
-
-    const move = {
-      before,
-      after,
-      piece,
-      start,
-      end,
-      isCapture,
-      captured,
-      color,
-      type: 'move',
-    };
-
-    this.moveHistory.push(move);
-    this.stateHistory.push(after);
-    this.state = after;
+    // before and after are same object
+    this.moveHistory.push(legalMove);
+    this.stateHistory.push(legalMove.after);
+    this.state = legalMove.after;
   }
 
-  legalMoves(piece: Piece, row: number, col: number): Pair[] {
-    let targets = [
-      ...piece.legalLeaps()
-        .map(pair => ({row: row + pair.row, col: col + pair.col}))
-        .filter(pair => {
-          const occupant = this.state.getSquare(pair.row, pair.col)?.occupant;
-          return !occupant;
-        }),
-      ...piece.legalDirs().flatMap(pair => this.ride(
-        piece.color,
-        row,
-        col,
-        pair.row,
-        pair.col,
-      )),
-      ...piece.legalCaptures()
-        .map(pair => ({row: row + pair.row, col: col + pair.col}))
-        .filter(pair => {
-          const occupant = this.state.getSquare(pair.row, pair.col)?.occupant;
-          return occupant && occupant.color !== piece.color;
-        }),
-    ];
-    if (piece instanceof Pawn) {
-      targets = [
-        ...targets,
-        ...this.pawnMoves(piece.color, row, col),
-      ];
-    }
-    
-    targets = targets.filter(target => {
-      return target.row >= 0 &&
-      target.row < this.state.ranks &&
-      target.col >= 0 &&
-      target.col < this.state.files;
-    });
-    return targets;
-  }
-
-  private pawnMoves(color: Color, row: number, col: number): Pair[] {
-    const yDir = color === Color.BLACK ? 1 : -1;
-    const targets = []
+  isMoveLegal(move: Move): boolean {
     if (
-      (row === PAWN_HOME_RANK && color === Color.BLACK) ||
-      (row === this.state.ranks - PAWN_HOME_RANK - 1 &&
-        color === Color.WHITE)
+      move.end.row < 0 ||
+      move.end.row >= this.state.ranks ||
+      move.end.col < 0 ||
+      move.end.col >= this.state.files
     ) {
-      targets.push({row: row + 2 * yDir, col});
+      return false;
     }
-    return targets;
-  }
-
-  private ride(color: Color, row: number, col: number, rowDir: number, colDir: number): Pair[] {
-    // ride in one direction until we hit the edge of board or another piece
-    const targets: Pair[] = [];
-    let square = this.state.getSquare(
-      row + rowDir,
-      col + colDir,
-    );
-
-    while (square) {
-      if (!square.occupant || square.occupant.color !== color) {
-        targets.push({row: square.row, col: square.col});
-      }
-      if (square.occupant) {
-        break;
-      }
-      square = this.state.getSquare(square.row + row, square.col + col);
-    }
-    return targets;
+    // check
+    return true;
   }
 
   captureEffects() {

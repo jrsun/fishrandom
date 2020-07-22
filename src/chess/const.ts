@@ -39,6 +39,7 @@ enum Color {
 enum MoveType {
   MOVE = 'move',
   CASTLE = 'castle',
+  ENPASSANT = 'enpassant',
 }
 
 export {
