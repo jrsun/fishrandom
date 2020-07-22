@@ -58,14 +58,15 @@ export class Square {
 export class Piece {
   name: string;
   isRoyal: boolean;
-  constructor(
-    public color: Color,
-    public game?: Game,
-    public state?: BoardState
-  ) {
+  constructor(public color: Color) {
     // this.squares = this.game?.state.squares;
   }
-  legalMoves(row: number, col: number, game: Game): Move[] {
+  legalMoves(
+    row: number,
+    col: number,
+    state: BoardState,
+    moveHistory: Move[]
+  ): Move[] {
     return [];
   }
   toString(): string {
@@ -87,8 +88,7 @@ export class Piece {
 
 class Leaper extends Piece {
   moves: Pair[];
-  legalMoves(row: number, col: number, game: Game): Move[] {
-    const {state} = game;
+  legalMoves(row: number, col: number, state: BoardState): Move[] {
     let targets = this.moves
       .flatMap((move) =>
         [-1, 1]
@@ -146,7 +146,7 @@ class Leaper extends Piece {
 
 class Rider extends Piece {
   moves: Pair[];
-  legalMoves(row: number, col: number, game: Game): Move[] {
+  legalMoves(row: number, col: number, state: BoardState): Move[] {
     return dedup(
       this.moves.flatMap((move) =>
         [-1, 1]
@@ -164,7 +164,7 @@ class Rider extends Piece {
             ])
           )
       )
-    ).flatMap((dir) => this.ride(row, col, dir.row, dir.col, game));
+    ).flatMap((dir) => this.ride(row, col, dir.row, dir.col, state));
   }
 
   private ride(
@@ -172,12 +172,11 @@ class Rider extends Piece {
     col: number,
     rowDir: number,
     colDir: number,
-    game: Game
+    state: BoardState
   ): Move[] {
     // ride in one direction until we hit the edge of board or another piece
     const moves: Move[] = [];
-    const {state} = game;
-    let square = this.state.getSquare(row + rowDir, col + colDir);
+    let square = state.getSquare(row + rowDir, col + colDir);
 
     while (square) {
       if (!square.occupant || square.occupant.color !== this.color) {
@@ -200,7 +199,7 @@ class Rider extends Piece {
       if (square.occupant) {
         break;
       }
-      square = this.state.getSquare(square.row + row, square.col + col);
+      square = state.getSquare(square.row + rowDir, square.col + colDir);
     }
     return moves;
   }
@@ -297,8 +296,12 @@ class King extends Leaper {
 
 class Pawn extends Piece {
   name = 'P';
-  legalMoves(row: number, col: number, game: Game): Move[] {
-    const {moveHistory, state} = game;
+  legalMoves(
+    row: number,
+    col: number,
+    state: BoardState,
+    moveHistory: Move[]
+  ): Move[] {
     // normal move. 2 step. capture, en passant
     const yDir = this.color === Color.WHITE ? -1 : 1;
     let moveTargets = [{row: row + yDir, col}];
@@ -390,9 +393,11 @@ class Pawn extends Piece {
         const color = this.color;
         const type = MoveType.ENPASSANT;
 
-        const after = new BoardState(this.state.squares)
+        const after = new BoardState(state.squares)
           .place(this, end.row, end.col)
-          .empty(row, col);
+          .empty(row, col)
+          // capturing the pawn
+          .empty(lastMove.end.row, lastMove.end.col);
         return {
           before,
           after,
@@ -444,7 +449,6 @@ export class Game {
 
   place(piece: Piece, row: number, col: number) {
     this.state.place(piece, row, col);
-    piece.game = this;
   }
 
   winCondition(color: Color, state: BoardState): boolean {
@@ -459,9 +463,16 @@ export class Game {
 
   // override in variants
   attemptMove(piece: Piece, row: number, col: number, target: Square) {
+    if (piece instanceof King && row === target.row
+      && Math.abs(col - target.col) === 2) {
+        this.castle(piece.color, row, col, target.col - col > 0)
+        return;
+      }
     const legalMoves = piece
-      .legalMoves(row, col, this)
-      .filter(this.isMoveLegal);
+      .legalMoves(row, col, this.state, this.moveHistory)
+      .filter((move) => {
+        return this.isMoveLegal(move);
+      });
     const legalMove = legalMoves.find((move) => equals(move.end, target));
     if (!legalMove) {
       console.log('invalid move', piece.name, target);
@@ -472,11 +483,87 @@ export class Game {
       this.captureEffects();
     }
 
-    // before and after are same object
     this.moveHistory.push(legalMove);
     this.stateHistory.push(legalMove.after);
     this.state = legalMove.after;
   }
+
+  castle(color: Color, row: number, col: number, kingside: boolean) {
+    console.log('attempting castle');
+    let target: Pair;
+    let cols: number[];
+    let rookSquare: Square;
+    // check history for castling or rook/king moves
+    if (this.moveHistory.some(move => move.piece instanceof King)) {
+      console.log('king moved');
+      return;
+    }
+
+    const rookSquares = this.state.squares.flat().filter(square => square.occupant &&
+      square.occupant instanceof Rook && square.occupant.color === color);
+    if (!rookSquares) {
+      console.log('no rooks');
+      return;
+    }
+    if (kingside) {
+      target = {
+        row: color === Color.BLACK ? 0 : this.state.ranks - 1,
+        col: this.state.files - 2,
+      }
+      cols = [col];
+      for (let i = col + 1; i <= target.col; i++) {
+        cols.push(i);
+      }
+      rookSquare = rookSquares.sort(square => square.col)[rookSquares.length - 1];
+    } else {
+      target = {
+        row: color === Color.BLACK ? 0 : this.state.ranks - 1,
+        col: 2,
+      }
+      cols = [col];
+      for (let i = col - 1; i >= target.col; i--) {
+        cols.push(i);
+      }
+      rookSquare = rookSquares.sort(square => square.col)[0];
+    }
+    if (this.moveHistory.some(move => move.piece === rookSquare.occupant)) {
+      console.log('rook moved');
+      return;
+    }
+
+    const isAttacked = cols.some(
+      travelCol => this.isAttackedSquare(color, this.state, row, travelCol) ||
+      (
+        this.state.getSquare(row, travelCol).occupant
+        && this.state.getSquare(row, travelCol).occupant !== rookSquare.occupant
+        && !(this.state.getSquare(row, travelCol).occupant instanceof King))
+    );
+    if (isAttacked) {
+      console.log('cannot castle, attacked on way');
+      return;
+    }
+    const before = this.state;
+    const after = new BoardState(this.state.squares)
+      .empty(rookSquare.row, rookSquare.col)
+      .empty(row, col)
+      .place(new King(color), target.row, target.col)
+      .place(new Rook(color), target.row, target.col + (kingside ? -1 : 1));
+    const isCapture = false;
+    const captured = [];
+    const type = MoveType.CASTLE;
+    this.moveHistory.push({
+      before,
+      after,
+      isCapture,
+      captured,
+      type,
+      color,
+    });
+    this.stateHistory.push(after);
+    this.state = after;
+  }
+  
+  // Private
 
   isMoveLegal(move: Move): boolean {
     if (
@@ -487,8 +574,35 @@ export class Game {
     ) {
       return false;
     }
-    // check
+    if (this.isInCheck(move.color, move.after)) {
+      return false;
+    }
     return true;
+  }
+
+  isInCheck(color: Color, state: BoardState): boolean {
+    const squaresWithEnemy = state.squares
+      .flat()
+      .filter((square) => !!square.occupant && square.occupant.color !== color);
+    const enemyMoves = squaresWithEnemy.flatMap((square) =>
+      square.occupant!.legalMoves(square.row, square.col, state, [])
+    );
+
+    return enemyMoves.some((move) => move.captured.some(captured => captured.isRoyal));
+  }
+
+  isAttackedSquare(color: Color, state: BoardState, row: number, col: number): boolean {
+    // put a dummy on the square (mostly for pawns)
+    const dummy = new Piece(color);
+    const stateWithDummy = new BoardState(state.squares).place(dummy, row, col);
+    const squaresWithEnemy = state.squares
+      .flat()
+      .filter((square) => !!square.occupant && square.occupant.color !== color);
+    const enemyMoves = squaresWithEnemy.flatMap((square) =>
+      square.occupant!.legalMoves(square.row, square.col, stateWithDummy, [])
+    );
+
+    return enemyMoves.some((move) => move.captured.some(captured => captured === dummy));
   }
 
   captureEffects() {
@@ -509,6 +623,7 @@ export class BoardState {
   constructor(squares: Square[][]) {
     this.ranks = squares.length;
     this.files = squares[0].length;
+    const newSquares = [];
     for (const row of squares) {
       const newRow = [];
       for (const square of row) {
@@ -518,8 +633,9 @@ export class BoardState {
           newSquare.place(square.occupant);
         }
       }
+      newSquares.push(newRow);
     }
-    this.squares = squares;
+    this.squares = newSquares;
   }
 
   static create(ranks: number, files: number, pieces?: PlacePieces) {
@@ -543,18 +659,6 @@ export class BoardState {
     }
     return state;
   }
-
-  // get pieces(): Piece[] {
-  //   const result: Piece[] = [];
-  //   for (const row of this.squares) {
-  //     for (const square of row) {
-  //       if (square.occupant) {
-  //         result.push(square.occupant);
-  //       }
-  //     }
-  //   }
-  //   return result;
-  // }
 
   place(piece: Piece, row: number, col: number): BoardState {
     const square = this.getSquare(row, col);
@@ -589,28 +693,6 @@ export class BoardState {
     return result;
   }
 
-  // isInCheck(color: Color): boolean {
-  //   const opposingPieces = this.squares
-  //     .flat()
-  //     .map((square) => square.occupant)
-  //     .filter((occupant) => !!occupant && occupant.color !== color);
-  //   const opposingControlledSquares = dedup(
-  //     opposingPieces.flatMap((piece) => piece!.legalMoves())
-  //   );
-  //   const ownRoyalSquares = this.squares
-  //     .flat()
-  //     .filter(
-  //       (square) =>
-  //         !!square.occupant &&
-  //         square.occupant.color === color &&
-  //         square.occupant.isRoyal
-  //     );
-
-  //   return ownRoyalSquares.some((square) =>
-  //     opposingControlledSquares.map(hash).includes(hash(square))
-  //   );
-  // }
-
   render(): HTMLElement {
     const result = document.createElement('div');
     result.setAttribute('id', 'board');
@@ -633,7 +715,7 @@ export class BoardState {
 interface Move {
   before: BoardState;
   after: BoardState;
-  piece: Piece;
+  piece?: Piece;
   start?: Pair;
   end?: Pair;
   isCapture: boolean;
@@ -646,28 +728,6 @@ interface Move {
 
 const SQUARE_SIZE = 50; //px
 let SELECTED_PIECE: Piece | undefined;
-
-// function renderBoardAscii(g: Game) {
-//     const board = document.getElementById('board-ascii');
-//     if (!board) {
-//         console.log('no board found');
-//         return;
-//     }
-//     board.innerHTML = `<div>${g.state.toString()}</div>`;
-// }
-
-// function renderBoard(g: Game) {
-//     const container = document.getElementById('container');
-//     if (!container) {
-//         console.log('no board found');
-//         return;
-//     }
-//     if (container.firstElementChild) {
-//         container.removeChild(container.firstElementChild);
-//     }
-//     container.appendChild(g.state.render());
-//     // board.innerHTML = `<div>${g.state.render()}</div>`;
-// }
 
 const stdPos = {
   '0,0': new Rook(Color.BLACK),
@@ -706,8 +766,3 @@ const stdPos = {
 
 export const STD_BOARD = BoardState.create(8, 8, stdPos);
 export const STD_GAME = new Game(BoardState.create(8, 8, stdPos));
-// game.place(new Rook(Color.BLACK) , 3, 3);
-// game.place(new Queen(Color.WHITE) , 2, 2);
-
-// renderBoardAscii(game);
-// renderBoard(game);

@@ -130,8 +130,15 @@ export class MyElement extends LitElement {
     if (!this.selectedPiece) return [];
 
     return this.selectedPiece
-      .legalMoves(this.selectedSquare.row, this.selectedSquare.col, this.game)
-      .filter(this.game.isMoveLegal)
+      .legalMoves(
+        this.selectedSquare.row,
+        this.selectedSquare.col,
+        this.game.state,
+        this.game.moveHistory
+      )
+      .filter((move) => {
+        return this.game.isMoveLegal(move);
+      })
       .map((move) => this.game.state.getSquare(move.end.row, move.end.col));
   }
 }
