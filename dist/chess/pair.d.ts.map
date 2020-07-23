@@ -1,1 +1,0 @@
-{"version":3,"file":"pair.d.ts","sourceRoot":"","sources":["../../src/chess/pair.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,IAAI;IACnB,GAAG,EAAE,MAAM,CAAC;IACZ,GAAG,EAAE,MAAM,CAAC;CACb;AAED,wBAAgB,MAAM,CAAC,CAAC,EAAE,IAAI,EAAE,CAAC,EAAE,IAAI,GAAG,OAAO,CAEhD;AAED,wBAAgB,KAAK,CAAC,CAAC,EAAE,IAAI,EAAE,GAAG,IAAI,EAAE,CASvC"}
