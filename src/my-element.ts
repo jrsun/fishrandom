@@ -13,8 +13,10 @@
  */
 
 import {LitElement, html, customElement, property, css} from 'lit-element';
-import {BoardState, Game, STD_GAME, Piece, Square} from './chess/piece';
+import {Piece} from './chess/piece';
+import Square from './chess/square';
 import './ui/my-square';
+import { Game} from './chess/game';
 import {styleMap} from 'lit-html/directives/style-map';
 import {SQUARE_SIZE, Color} from './chess/const';
 
@@ -46,7 +48,7 @@ export class MyElement extends LitElement {
 
   // public
   @property({type: String}) color?: Color;
-  @property({type: Object}) game: Game = STD_GAME;
+  @property({type: Object}) game: Game = new Game();
 
   // protected
   @property({type: Object}) selectedPiece: Piece | undefined;

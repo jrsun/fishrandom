@@ -13,8 +13,7 @@
  */
 
 import {LitElement, html, customElement, property, css} from 'lit-element';
-import {BoardState, STD_BOARD, Piece} from '../chess/piece';
-import {SQUARE_SIZE} from '../chess/const';
+import {Piece} from '../chess/piece';
 
 /**
  * An example element.
