@@ -28,7 +28,7 @@ export class MyPiece extends LitElement {
       height: 100%;
       width: 100%;
       display: inline-block;
-      background-image: url('/dist/img/_dt.png');
+      background-image: url('/img/_dt.png');
       background-size: cover;
     }
   `;
@@ -43,7 +43,7 @@ export class MyPiece extends LitElement {
     return html`
       <div
         class="piece"
-        style="background-image:url(/dist/img/${this.piece.img})"
+        style="background-image:url(/img/${this.piece.img})"
       ></div>
     `;
   }

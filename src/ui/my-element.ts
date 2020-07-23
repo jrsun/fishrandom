@@ -37,7 +37,7 @@ export class MyElement extends LitElement {
     }
 
     #board {
-      background-image: url('/dist/img/bg.svg');
+      background-image: url('/img/bg.svg');
       display: inline-block;
     }
 
@@ -63,6 +63,14 @@ export class MyElement extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this.addEventListener('square-clicked', this.onSquareClicked.bind(this));
+
+    var socket = new WebSocket('ws://localhost:8081');
+    socket.onopen = function (e) {
+      socket.send('hello world!');
+    }
+    socket.onmessage = function (e) {
+      console.log('message received: ', e.data);
+    }
   }
 
   disconnectedCallback() {
