@@ -13,12 +13,12 @@
  */
 
 import {LitElement, html, customElement, property, css} from 'lit-element';
-import {Piece} from './chess/piece';
-import Square from './chess/square';
-import './ui/my-square';
-import { Game} from './chess/game';
+import {Piece} from '../chess/piece';
+import Square from '../chess/square';
+import './my-square';
+import { Game} from '../chess/game';
 import {styleMap} from 'lit-html/directives/style-map';
-import {SQUARE_SIZE, Color} from './chess/const';
+import {SQUARE_SIZE, Color} from '../chess/const';
 
 /**
  * An example element.

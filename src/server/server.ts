@@ -1,14 +1,15 @@
-import http from 'http';
+import express from 'express';
+import path from 'path';
 
-// Create an instance of the http server to handle HTTP requests
-let app = http.createServer((req, res) => {
-  // Set a response type of plain text for the response
-  res.writeHead(200, {'Content-Type': 'text/plain'});
+const app = new express();
+const port = 3000;
+const __dirname = path.resolve();
 
-  // Send back a response and end the connection
-  res.end('Hello World!\n');
-});
+app.get('/', (req, res) => {
+  res.sendFile('index.html', {root: '.'});
+})
+
+app.use('/ui', express.static(path.join(__dirname,'build/ui')));
 
 // Start the server on port 3000
-app.listen(3000, '127.0.0.1');
-console.log('Node server running on port 3000');
+app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));
