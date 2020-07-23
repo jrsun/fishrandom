@@ -40,7 +40,7 @@ export class Piece {
   render(): HTMLElement {
     const result = document.createElement('div');
     result.setAttribute('class', 'piece');
-    result.style.backgroundImage = `url(../src/chess/img/${this.img})`;
+    result.style.backgroundImage = `url(/dist/img/${this.img})`;
     return result;
   }
 }

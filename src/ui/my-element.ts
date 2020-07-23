@@ -37,7 +37,7 @@ export class MyElement extends LitElement {
     }
 
     #board {
-      background-image: url('../img/bg.svg');
+      background-image: url('/dist/img/bg.svg');
       display: inline-block;
     }
 
