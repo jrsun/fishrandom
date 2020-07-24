@@ -32,13 +32,19 @@ export class MyElement extends LitElement {
   static styles = css`
     :host {
       display: block;
-      border: solid 1px gray;
-      padding: 16px;
+      /* border: solid 1px gray; */
+      margin: 20px;
       max-width: 800px;
+      padding: 10px;
+      background-color: #FFFFEF;
+      padding: 30px;
+      border-radius: 4px;
+      box-shadow: 0px 7px #DDD6CA;
     }
 
     #board {
       background-image: url('/img/bg.svg');
+      border-radius: 4px;
       display: inline-block;
     }
 
