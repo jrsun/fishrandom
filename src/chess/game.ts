@@ -1,5 +1,5 @@
 import BoardState from './state';
-import Move from './move';
+import {Move} from './move';
 import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from './piece';
 import Square from './square';
 import {
@@ -86,20 +86,20 @@ export class Game {
   }
 
   // override in variants
-  attemptMove(piece: Piece, row: number, col: number, target: Square) {
-    if (piece instanceof King && row === target.row
-      && Math.abs(col - target.col) === 2) {
-        this.castle(piece.color, row, col, target.col - col > 0)
+  attemptMove(piece: Piece, srow: number, scol: number, drow: number, dcol: number): Move {
+    if (piece instanceof King && srow === drow
+      && Math.abs(scol - dcol) === 2) {
+        this.castle(piece.color, srow, scol, dcol - scol > 0)
         return;
       }
     const legalMoves = piece
-      .legalMoves(row, col, this.state, this.moveHistory)
+      .legalMoves(srow, scol, this.state, this.moveHistory)
       .filter((move) => {
         return this.isMoveLegal(move);
       });
-    const legalMove = legalMoves.find((move) => equals(move.end, target));
+    const legalMove = legalMoves.find((move) => equals(move.end, {row:drow, col:dcol}));
     if (!legalMove) {
-      console.log('invalid move', piece.name, target);
+      console.log('invalid move', piece.name, drow, dcol);
       console.log('legal moves are', legalMoves);
       return; // invalid move
     }
@@ -110,6 +110,8 @@ export class Game {
     this.moveHistory.push(legalMove);
     this.stateHistory.push(legalMove.after);
     this.state = legalMove.after;
+
+    return legalMove;
   }
 
   castle(color: Color, row: number, col: number, kingside: boolean) {

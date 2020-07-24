@@ -9,7 +9,7 @@ import {
   Color,
   MoveType,
 } from './const';
-import Move from './move';
+import {Move} from './move';
 import BoardState from './state';
 
 // Classes

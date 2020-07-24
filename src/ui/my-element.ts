@@ -15,6 +15,7 @@
 import {LitElement, html, customElement, property, css} from '../../node_modules/lit-element';
 import {Piece} from '../chess/piece';
 import Square from '../chess/square';
+import {MoveMessage} from '../common/socket';
 import './my-square';
 import { Game} from '../chess/game';
 import {styleMap} from 'lit-html/directives/style-map';
@@ -54,6 +55,8 @@ export class MyElement extends LitElement {
   @property({type: Object}) selectedPiece: Piece | undefined;
   @property({type: Object}) selectedSquare: Square | undefined;
 
+  private socket: WebSocket;
+
   /**
    * The number of times the button has been clicked.
    */
@@ -64,18 +67,32 @@ export class MyElement extends LitElement {
     super.connectedCallback();
     this.addEventListener('square-clicked', this.onSquareClicked.bind(this));
 
-    var socket = new WebSocket('ws://localhost:8081');
-    socket.onopen = function (e) {
-      socket.send('hello world!');
-    }
-    socket.onmessage = function (e) {
-      console.log('message received: ', e.data);
-    }
+    this.socket = new WebSocket('ws://localhost:8081');
+    this.socket.onopen = function (e) {
+    }.bind(this)
+    this.socket.onmessage = this.handleSocketMessage.bind(this);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     this.removeEventListener('square-clicked', this.onSquareClicked.bind(this));
+  }
+
+  handleSocketMessage(e: MessageEvent) {
+    const message = JSON.parse(e.data);
+    console.log(message);
+    if (message.type === 'move') {
+      const {srow, scol, drow, dcol} = message.data;
+      this.game.attemptMove(
+        this.game.state.getSquare(srow, scol)?.occupant,
+        srow,
+        scol,
+        drow,
+        dcol,
+      );
+      console.log('played server move');
+    }
+    this.performUpdate();
   }
 
   render() {
@@ -117,13 +134,28 @@ export class MyElement extends LitElement {
         this.selectedPiece = null;
         return;
       }
-      const result = this.game.attemptMove(
+      const move = this.game.attemptMove(
         // this.selectedPiece.color,
         this.selectedPiece,
         this.selectedSquare.row,
         this.selectedSquare.col,
-        square
+        square.row,
+        square.col,
       );
+      if (!move) {
+        console.log('illegal move client');
+        return;
+      }
+      const moveMessage = {
+        srow: move.start.row,
+        scol: move.start.col,
+        drow: move.end.row,
+        dcol: move.end.col,
+      };
+      this.socket.send(JSON.stringify({
+        type: 'move',
+        data: moveMessage,
+      }));
       // if (result) {
       this.selectedSquare = null;
       this.selectedPiece = null;

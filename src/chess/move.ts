@@ -2,7 +2,7 @@ import {Pair, Color} from './const';
 import {Piece} from './piece';
 import BoardState from './state';
 
-export default interface Move {
+export interface Move {
   before: BoardState;
   after: BoardState;
   piece?: Piece;
