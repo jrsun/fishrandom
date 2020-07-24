@@ -30,6 +30,7 @@ export class MyPiece extends LitElement {
       display: inline-block;
       background-image: url('/img/_dt.png');
       background-size: cover;
+      position: absolute;
     }
   `;
 
@@ -42,8 +43,9 @@ export class MyPiece extends LitElement {
   render() {
     return html`
       <div
-        class="piece"
-        style="background-image:url(/img/${this.piece.img})"
+        class="piece ${this.piece.name}"
+        style="background-image:url(/img/${this.piece.img});
+          top:${this.piece.name === 'P' ? '-6px': '0'}"
       ></div>
     `;
   }

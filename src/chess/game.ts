@@ -13,26 +13,26 @@ import {
 function generateStartState(): BoardState {
   const piecePositions = {
     0: {
-      0: new Rook(Color.BLACK),
-      1: new Knight(Color.BLACK),
-      2: new Bishop(Color.BLACK),
-      3: new Queen(Color.BLACK),
-      4: new King(Color.BLACK),
-      5: new Bishop(Color.BLACK),
-      6: new Knight(Color.BLACK),
-      7: new Rook(Color.BLACK),
+      // 0: new Rook(Color.BLACK),
+      // 1: new Knight(Color.BLACK),
+      // 2: new Bishop(Color.BLACK),
+      // 3: new Queen(Color.BLACK),
+      // 4: new King(Color.BLACK),
+      // 5: new Bishop(Color.BLACK),
+      // 6: new Knight(Color.BLACK),
+      // 7: new Rook(Color.BLACK),
     },
     1: {},
     6: {},
     7: {
-      0: new Rook(Color.WHITE),
-      1: new Knight(Color.WHITE),
-      2: new Bishop(Color.WHITE),
-      3: new Queen(Color.WHITE),
-      4: new King(Color.WHITE),
-      5: new Bishop(Color.WHITE),
-      6: new Knight(Color.WHITE),
-      7: new Rook(Color.WHITE),
+      // 0: new Rook(Color.WHITE),
+      // 1: new Knight(Color.WHITE),
+      // 2: new Bishop(Color.WHITE),
+      // 3: new Queen(Color.WHITE),
+      // 4: new King(Color.WHITE),
+      // 5: new Bishop(Color.WHITE),
+      // 6: new Knight(Color.WHITE),
+      // 7: new Rook(Color.WHITE),
     }
   }
   for (let col=0; col < 8; col++) {

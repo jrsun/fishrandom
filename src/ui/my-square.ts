@@ -42,7 +42,8 @@ export class MySquare extends LitElement {
         class="square"
         @click=${this._onClick}
         style="
-        height:100%;width:100%;background-color:${this.selected
+        height:100%;width:100%;
+        position:relative;background-color:${this.selected
           ? 'rgba(0, 0, 255, 0.3)'
           : this.possible
           ? 'rgba(0, 255, 0, 0.3)'
