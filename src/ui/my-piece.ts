@@ -44,8 +44,7 @@ export class MyPiece extends LitElement {
     return html`
       <div
         class="piece ${this.piece.name}"
-        style="background-image:url(/img/${this.piece.img});
-          top:${this.piece.name === 'P' ? '-6px': '0'}"
+        style="background-image:url(/img/${this.piece.img});"
       ></div>
     `;
   }

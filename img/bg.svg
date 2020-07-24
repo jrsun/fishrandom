@@ -7,7 +7,7 @@
       <g id="d">
         <rect width="1" height="1" fill="#E2A28B" id="e"/>
         <use x="1" y="1" href="#e" x:href="#e"/>
-        <rect y="1" width="1" height="1" fill="#FFFFEF" id="f"/>
+        <rect y="1" width="1" height="1" fill="#EFECE0" id="f"/>
         <use x="1" y="-1" href="#f" x:href="#f"/>
       </g>
       <use x="2" href="#d" x:href="#d"/>
@@ -19,6 +19,11 @@
 <use y="4" href="#a" x:href="#a"/>
 </svg>
 <!-- 
+  off white = #EFECE0
+  purple = #8D7EA0
+  sea red = #E2A28B
+  classic light = #F5C895
+  classic dark = #C19763
 <rect width="1" height="1" fill="#E2A28B" id="e"/>
         <use x="1" y="1" href="#e" x:href="#e"/>
         <rect y="1" width="1" height="1" fill="#FFFFEF" id="f"/> -->

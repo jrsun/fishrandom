@@ -36,10 +36,10 @@ export class MyElement extends LitElement {
       margin: 20px;
       max-width: 800px;
       padding: 10px;
-      background-color: #FFFFEF;
+      background-color: #EFECE0;
       padding: 30px;
       border-radius: 4px;
-      box-shadow: 0px 7px #DDD6CA;
+      box-shadow: 0px 7px #DAD4C8;
     }
 
     #board {
@@ -136,10 +136,10 @@ export class MyElement extends LitElement {
     // There's a bug here where updating the game using attemptMove doesn't cause rerender.
     const square = e.detail as Square;
     if (this.selectedPiece) {
-      if (this.selectedPiece === square.occupant) {
-        this.selectedPiece = null;
-        return;
-      }
+      // if (this.selectedPiece === square.occupant) {
+      //   this.selectedPiece = null;
+      //   return;
+      // }
       const move = this.game.attemptMove(
         // this.selectedPiece.color,
         this.selectedPiece,
@@ -149,6 +149,8 @@ export class MyElement extends LitElement {
         square.col,
       );
       if (!move) {
+        this.selectedPiece = null;
+        this.selectedSquare = null;
         console.log('illegal move client');
         return;
       }

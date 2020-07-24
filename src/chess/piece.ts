@@ -377,10 +377,11 @@ export class Pawn extends Piece {
   }
   get img(): string {
     if (this.color === Color.BLACK) {
-      return 'bpawn.svg';
+      // return 'bpawn.svg';
+      return 'pdt45.png';
     } else if (this.color === Color.WHITE) {
-      // return 'plt45.png';
-      return 'pawn.svg';
+      return 'plt45.png';
+      // return 'pawn.svg';
     }
     throw new Error(
       'no image for color: ' + this.color + 'for piece ' + this.name

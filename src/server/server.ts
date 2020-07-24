@@ -31,6 +31,7 @@ const activeGames: ActiveGames[] = [];
 const sockets: {[uuid: string]: WS.WebSocket} = {};
  
 wss.on('connection', function connection(ws: WS.WebSocket) {
+  // onclose
   const uuid = guid();
   sockets[uuid] = ws;
   let game;
@@ -81,6 +82,7 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
           dcol: move.end.col,
         };
         // ws.send(JSON.stringify({type: 'move', data: message}));
+        // send separate state for p1, p2 along with move
         sockets[room.p1].send(JSON.stringify({type: 'move', data: message}));
         sockets[room.p2].send(JSON.stringify({type: 'move', data: message}));
       } else {
