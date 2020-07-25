@@ -12,12 +12,20 @@
  * http://polymer.github.io/PATENTS.txt
  */
 
-import {LitElement, html, customElement, property, css} from '../../node_modules/lit-element';
+import {
+  LitElement,
+  html,
+  customElement,
+  property,
+  css,
+} from '../../node_modules/lit-element';
 import {Piece} from '../chess/piece';
 import Square from '../chess/square';
-import {MoveMessage} from '../common/socket';
+// import {MoveMessage} from '../common/message';
+import {replacer, reviver} from '../common/message';
 import './my-square';
-import { Game} from '../chess/game';
+import {Game} from '../chess/game';
+import {Move} from '../chess/move';
 import {styleMap} from 'lit-html/directives/style-map';
 import {SQUARE_SIZE, Color} from '../chess/const';
 
@@ -36,10 +44,10 @@ export class MyElement extends LitElement {
       margin: 20px;
       max-width: 800px;
       padding: 10px;
-      background-color: #EFECE0;
+      background-color: #efece0;
       padding: 30px;
       border-radius: 4px;
-      box-shadow: 0px 7px #DAD4C8;
+      box-shadow: 0px 7px #dad4c8;
     }
 
     #board {
@@ -74,8 +82,7 @@ export class MyElement extends LitElement {
     this.addEventListener('square-clicked', this.onSquareClicked.bind(this));
 
     this.socket = new WebSocket('ws://localhost:8081');
-    this.socket.onopen = function (e) {
-    }.bind(this)
+    this.socket.onopen = function (e) {}.bind(this);
     this.socket.onmessage = this.handleSocketMessage.bind(this);
   }
 
@@ -85,18 +92,18 @@ export class MyElement extends LitElement {
   }
 
   handleSocketMessage(e: MessageEvent) {
-    const message = JSON.parse(e.data);
+    const message = JSON.parse(e.data, reviver);
+    console.log('Received message of type %s', message.type);
     console.log(message);
     if (message.type === 'move') {
-      const {srow, scol, drow, dcol} = message.data;
+      const {start, end} = message.data as Move;
       this.game.attemptMove(
-        this.game.state.getSquare(srow, scol)?.occupant,
-        srow,
-        scol,
-        drow,
-        dcol,
+        this.game.state.getSquare(start.row, start.col)?.occupant,
+        start.row,
+        start.col,
+        end.row,
+        end.col
       );
-      console.log('played server move');
     }
     this.performUpdate();
   }
@@ -136,22 +143,17 @@ export class MyElement extends LitElement {
     // There's a bug here where updating the game using attemptMove doesn't cause rerender.
     const square = e.detail as Square;
     if (this.selectedPiece) {
-      // if (this.selectedPiece === square.occupant) {
-      //   this.selectedPiece = null;
-      //   return;
-      // }
       const move = this.game.attemptMove(
-        // this.selectedPiece.color,
         this.selectedPiece,
         this.selectedSquare.row,
         this.selectedSquare.col,
         square.row,
-        square.col,
+        square.col
       );
+
+      this.selectedSquare = null;
+      this.selectedPiece = null;
       if (!move) {
-        this.selectedPiece = null;
-        this.selectedSquare = null;
-        console.log('illegal move client');
         return;
       }
       const moveMessage = {
@@ -160,15 +162,15 @@ export class MyElement extends LitElement {
         drow: move.end.row,
         dcol: move.end.col,
       };
-      this.socket.send(JSON.stringify({
-        type: 'move',
-        data: moveMessage,
-      }));
-      // if (result) {
-      this.selectedSquare = null;
-      this.selectedPiece = null;
-      //   return;
-      // }
+      this.socket.send(
+        JSON.stringify(
+          {
+            type: 'move',
+            data: move,
+          },
+          replacer
+        )
+      );
     } else {
       this.selectedSquare = square;
       this.selectedPiece = square.occupant;

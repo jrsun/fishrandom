@@ -2,13 +2,7 @@ import BoardState from './state';
 import {Move} from './move';
 import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from './piece';
 import Square from './square';
-import {
-  Color,
-  Pair,
-  NotImplementedError,
-  MoveType,
-  equals,
-} from './const';
+import {Color, Pair, NotImplementedError, MoveType, equals} from './const';
 
 function generateStartState(): BoardState {
   const piecePositions = {
@@ -33,16 +27,18 @@ function generateStartState(): BoardState {
       5: new Bishop(Color.WHITE),
       6: new Knight(Color.WHITE),
       7: new Rook(Color.WHITE),
-    }
-  }
-  for (let col=0; col < 8; col++) {
+    },
+  };
+
+  for (let col = 0; col < 8; col++) {
     piecePositions[1][col] = new Pawn(Color.BLACK);
     piecePositions[6][col] = new Pawn(Color.WHITE);
   }
+
   const squares: Square[][] = [];
-  for (let i=0; i < 8; i++) {
+  for (let i = 0; i < 8; i++) {
     const row: Square[] = [];
-    for (let j=0; j < 8; j++) {
+    for (let j = 0; j < 8; j++) {
       const square = new Square(i, j);
       row.push(square);
       if (piecePositions[i]?.[j]) {
@@ -86,18 +82,25 @@ export class Game {
   }
 
   // override in variants
-  attemptMove(piece: Piece, srow: number, scol: number, drow: number, dcol: number): Move {
-    if (piece instanceof King && srow === drow
-      && Math.abs(scol - dcol) === 2) {
-        this.castle(piece.color, srow, scol, dcol - scol > 0)
-        return;
-      }
+  attemptMove(
+    piece: Piece,
+    srow: number,
+    scol: number,
+    drow: number,
+    dcol: number
+  ): Move {
+    if (piece instanceof King && srow === drow && Math.abs(scol - dcol) === 2) {
+      this.castle(piece.color, srow, scol, dcol - scol > 0);
+      return;
+    }
     const legalMoves = piece
       .legalMoves(srow, scol, this.state, this.moveHistory)
       .filter((move) => {
         return this.isMoveLegal(move);
       });
-    const legalMove = legalMoves.find((move) => equals(move.end, {row:drow, col:dcol}));
+    const legalMove = legalMoves.find((move) =>
+      equals(move.end, {row: drow, col: dcol})
+    );
     if (!legalMove) {
       console.log('invalid move', piece.name, drow, dcol);
       console.log('legal moves are', legalMoves);
@@ -120,13 +123,19 @@ export class Game {
     let cols: number[];
     let rookSquare: Square;
     // check history for castling or rook/king moves
-    if (this.moveHistory.some(move => move.piece instanceof King)) {
+    if (this.moveHistory.some((move) => move.piece instanceof King)) {
       console.log('king moved');
       return;
     }
 
-    const rookSquares = this.state.squares.flat().filter(square => square.occupant &&
-      square.occupant instanceof Rook && square.occupant.color === color);
+    const rookSquares = this.state.squares
+      .flat()
+      .filter(
+        (square) =>
+          square.occupant &&
+          square.occupant instanceof Rook &&
+          square.occupant.color === color
+      );
     if (!rookSquares) {
       console.log('no rooks');
       return;
@@ -135,34 +144,37 @@ export class Game {
       target = {
         row: color === Color.BLACK ? 0 : this.state.ranks - 1,
         col: this.state.files - 2,
-      }
+      };
       cols = [col];
       for (let i = col + 1; i <= target.col; i++) {
         cols.push(i);
       }
-      rookSquare = rookSquares.sort(square => square.col)[rookSquares.length - 1];
+      rookSquare = rookSquares.sort((square) => square.col)[
+        rookSquares.length - 1
+      ];
     } else {
       target = {
         row: color === Color.BLACK ? 0 : this.state.ranks - 1,
         col: 2,
-      }
+      };
       cols = [col];
       for (let i = col - 1; i >= target.col; i--) {
         cols.push(i);
       }
-      rookSquare = rookSquares.sort(square => square.col)[0];
+      rookSquare = rookSquares.sort((square) => square.col)[0];
     }
-    if (this.moveHistory.some(move => move.piece === rookSquare.occupant)) {
+    if (this.moveHistory.some((move) => move.piece === rookSquare.occupant)) {
       console.log('rook moved');
       return;
     }
 
     const isAttacked = cols.some(
-      travelCol => this.isAttackedSquare(color, this.state, row, travelCol) ||
-      (
-        this.state.getSquare(row, travelCol).occupant
-        && this.state.getSquare(row, travelCol).occupant !== rookSquare.occupant
-        && !(this.state.getSquare(row, travelCol).occupant instanceof King))
+      (travelCol) =>
+        this.isAttackedSquare(color, this.state, row, travelCol) ||
+        (this.state.getSquare(row, travelCol).occupant &&
+          this.state.getSquare(row, travelCol).occupant !==
+            rookSquare.occupant &&
+          !(this.state.getSquare(row, travelCol).occupant instanceof King))
     );
     if (isAttacked) {
       console.log('cannot castle, attacked on way');
@@ -188,7 +200,7 @@ export class Game {
     this.stateHistory.push(after);
     this.state = after;
   }
-  
+
   // Private
 
   isMoveLegal(move: Move): boolean {
@@ -214,10 +226,17 @@ export class Game {
       square.occupant!.legalMoves(square.row, square.col, state, [])
     );
 
-    return enemyMoves.some((move) => move.captured.some(captured => captured.isRoyal));
+    return enemyMoves.some((move) =>
+      move.captured.some((captured) => captured.isRoyal)
+    );
   }
 
-  isAttackedSquare(color: Color, state: BoardState, row: number, col: number): boolean {
+  isAttackedSquare(
+    color: Color,
+    state: BoardState,
+    row: number,
+    col: number
+  ): boolean {
     // put a dummy on the square (mostly for pawns)
     const dummy = new Piece(color);
     const stateWithDummy = new BoardState(state.squares).place(dummy, row, col);
@@ -228,7 +247,9 @@ export class Game {
       square.occupant!.legalMoves(square.row, square.col, stateWithDummy, [])
     );
 
-    return enemyMoves.some((move) => move.captured.some(captured => captured === dummy));
+    return enemyMoves.some((move) =>
+      move.captured.some((captured) => captured === dummy)
+    );
   }
 
   captureEffects() {

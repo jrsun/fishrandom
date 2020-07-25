@@ -43,6 +43,19 @@ export class Piece {
     result.style.backgroundImage = `url(/dist/img/${this.img})`;
     return result;
   }
+
+  static freeze(p: Piece): object {
+    return {
+      _class: 'Piece',
+      n: p.name,
+      c: p.color,
+    };
+  }
+
+  static thaw(o): Piece {
+    const constructor = ALL_PIECES[o.n];
+    return new constructor(o.c);
+  }
 }
 
 class Leaper extends Piece {
@@ -167,7 +180,7 @@ class Rider extends Piece {
 // Pieces
 
 export class Bishop extends Rider {
-  name = 'B';
+  name = 'Bishop';
   moves = [{row: 1, col: 1}];
 
   get img(): string {
@@ -183,7 +196,7 @@ export class Bishop extends Rider {
 }
 
 export class Rook extends Rider {
-  name = 'R';
+  name = 'Rook';
   moves = [{row: 1, col: 0}];
 
   get img(): string {
@@ -199,7 +212,7 @@ export class Rook extends Rider {
 }
 
 export class Knight extends Leaper {
-  name = 'N';
+  name = 'Knight';
   moves = [{row: 1, col: 2}];
 
   get img(): string {
@@ -215,7 +228,7 @@ export class Knight extends Leaper {
 }
 
 export class Queen extends Rider {
-  name = 'Q';
+  name = 'Queen';
   moves = [
     {row: 1, col: 1},
     {row: 1, col: 0},
@@ -234,7 +247,7 @@ export class Queen extends Rider {
 }
 
 export class King extends Leaper {
-  name = 'K';
+  name = 'King';
   moves = [
     {row: 1, col: 1},
     {row: 1, col: 0},
@@ -254,7 +267,7 @@ export class King extends Leaper {
 }
 
 export class Pawn extends Piece {
-  name = 'P';
+  name = 'Pawn';
   legalMoves(
     row: number,
     col: number,
@@ -389,49 +402,11 @@ export class Pawn extends Piece {
   }
 }
 
-// interface PlacePieces {
-//   [key: string]: Piece;
-// }
-
-// Playground
-
-// const SQUARE_SIZE = 50; //px
-// let SELECTED_PIECE: Piece | undefined;
-
-// const stdPos = {
-//   '0,0': new Rook(Color.BLACK),
-//   '0,1': new Knight(Color.BLACK),
-//   '0,2': new Bishop(Color.BLACK),
-//   '0,3': new Queen(Color.BLACK),
-//   '0,4': new King(Color.BLACK),
-//   '0,5': new Bishop(Color.BLACK),
-//   '0,6': new Knight(Color.BLACK),
-//   '0,7': new Rook(Color.BLACK),
-//   '1,0': new Pawn(Color.BLACK),
-//   '1,1': new Pawn(Color.BLACK),
-//   '1,2': new Pawn(Color.BLACK),
-//   '1,3': new Pawn(Color.BLACK),
-//   '1,4': new Pawn(Color.BLACK),
-//   '1,5': new Pawn(Color.BLACK),
-//   '1,6': new Pawn(Color.BLACK),
-//   '1,7': new Pawn(Color.BLACK),
-//   '6,0': new Pawn(Color.WHITE),
-//   '6,1': new Pawn(Color.WHITE),
-//   '6,2': new Pawn(Color.WHITE),
-//   '6,3': new Pawn(Color.WHITE),
-//   '6,4': new Pawn(Color.WHITE),
-//   '6,5': new Pawn(Color.WHITE),
-//   '6,6': new Pawn(Color.WHITE),
-//   '6,7': new Pawn(Color.WHITE),
-//   '7,0': new Rook(Color.WHITE),
-//   '7,1': new Knight(Color.WHITE),
-//   '7,2': new Bishop(Color.WHITE),
-//   '7,3': new Queen(Color.WHITE),
-//   '7,4': new King(Color.WHITE),
-//   '7,5': new Bishop(Color.WHITE),
-//   '7,6': new Knight(Color.WHITE),
-//   '7,7': new Rook(Color.WHITE),
-// };
-
-// export const STD_BOARD = BoardState.create(8, 8, stdPos);
-// export const STD_GAME = new Game(BoardState.create(8, 8, stdPos));
+export const ALL_PIECES: {[name: string]: typeof Piece} = {
+  Pawn,
+  Bishop,
+  Knight,
+  Rook,
+  Queen,
+  King,
+};

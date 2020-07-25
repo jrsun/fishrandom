@@ -1,6 +1,8 @@
 import Square from './square';
-import {Piece} from './piece';
-import {hash} from './const';
+import {Piece, ALL_PIECES} from './piece';
+import {hash, Color} from './const';
+
+type BoardJson = (string | null)[][];
 
 export default class BoardState {
   ranks: number = 8;
@@ -24,7 +26,7 @@ export default class BoardState {
     }
     this.squares = newSquares;
   }
-  
+
   place(piece: Piece, row: number, col: number): BoardState {
     const square = this.getSquare(row, col);
     if (!square) {
@@ -47,14 +49,14 @@ export default class BoardState {
     return this.squares[row]?.[col];
   }
 
-  toString(): string {
-    let result = '';
-    for (const row of this.squares) {
-      for (const square of row) {
-        result += square.toString();
-      }
-      result += '<br>';
-    }
-    return result;
+  static freeze(state: BoardState): object {
+    return {
+      _class: 'BoardState',
+      squares: state.squares,
+    };
+  }
+
+  static thaw(o): BoardState {
+    return new BoardState(o.squares);
   }
 }

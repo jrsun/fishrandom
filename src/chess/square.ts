@@ -1,5 +1,4 @@
-
-import { Piece } from './piece';
+import {Piece} from './piece';
 
 export default class Square {
   piece?: Piece;
@@ -8,13 +7,6 @@ export default class Square {
 
   get occupant(): Piece | undefined {
     return this.piece;
-  }
-
-  toString(): string {
-    if (this.occupant) {
-      return `[${this.occupant.toString()}]`;
-    }
-    return '[ ]';
   }
 
   render(): HTMLElement {
@@ -41,5 +33,22 @@ export default class Square {
 
   place(piece: Piece) {
     this.piece = piece;
+  }
+
+  static freeze(square: Square): object {
+    return {
+      _class: 'Square',
+      r: square.row,
+      c: square.col,
+      p: square.occupant,
+    };
+  }
+
+  static thaw(o): Square {
+    const sq = new Square(o.r, o.c);
+    if (o.p) {
+      sq.place(o.p);
+    }
+    return sq;
   }
 }
