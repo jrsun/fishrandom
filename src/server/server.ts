@@ -1,7 +1,14 @@
 import express from 'express';
 import path from 'path';
 import {Game} from '../chess/game';
-import {replacer, reviver} from '../common/message';
+import {
+  replacer,
+  reviver,
+  Message,
+  ReplaceMessage,
+  AppendMessage,
+  MoveMessage,
+} from '../common/message';
 import WS from 'ws';
 import {Move} from '../chess/move';
 
@@ -55,10 +62,17 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
     console.log('Received message of type %s', message.type);
     if (message.type === 'move') {
       // sanitize
+      function tg(message: Message): message is MoveMessage {
+        return message.type === 'move';
+      }
+      if (!tg(message)) {
+        console.log('message is not valid move', message);
+        return;
+      }
       const {
         start: {row: srow, col: scol},
         end: {row: drow, col: dcol},
-      } = message.data as Move;
+      } = message.move as Move;
       console.log('Move: (%s, %s) -> (%s, %s)', srow, scol, drow, dcol);
 
       const room = activeGames.find(
@@ -87,12 +101,20 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
       if (move) {
         // we should send the mover a `replaceState` and the opponent an
         // `appendState`
-        sockets[room.p1]?.send(
-          JSON.stringify({type: 'move', data: move}, replacer)
+        ws.send(
+          JSON.stringify(
+            {type: 'replaceState', move, state: game.state} as ReplaceMessage,
+            replacer
+          )
         );
-        if (room.p2) {
-          sockets[room.p2]?.send(
-            JSON.stringify({type: 'move', data: move}, replacer)
+        const other =
+          room.p1 === uuid ? room.p2 : room.p2 === uuid ? room.p1 : undefined;
+        if (other) {
+          sockets[other]?.send(
+            JSON.stringify(
+              {type: 'appendState', move, state: game.state} as AppendMessage,
+              replacer
+            )
           );
         }
       } else {

@@ -3,17 +3,30 @@ import BoardState from '../chess/state';
 import Square from '../chess/square';
 import {Move} from '../chess/move';
 
-export interface Message {
-  type: 'move'; // or others
-  data: Move; // or others
+export type Message = MoveMessage | ReplaceMessage | AppendMessage | ReplaceAllMessage;
+
+export interface MoveMessage {
+  type: 'move';
+  move: Move;
 }
 
-// export interface MoveMessage {
-//   srow: number;
-//   scol: number;
-//   drow: number;
-//   dcol: number;
-// }
+export interface ReplaceMessage {
+  type: 'replaceState';
+  state: BoardState;
+  move: Move;
+}
+
+export interface AppendMessage {
+  type: 'appendState';
+  state: BoardState;
+  move: Move;
+}
+
+export interface ReplaceAllMessage {
+  type: 'replaceAll';
+  stateHistory: BoardState[];
+  moveHistory: Move[];
+}
 
 export function replacer(k: string, o: Piece | BoardState | Square): object {
   if (o instanceof Piece) return Piece.freeze(o);

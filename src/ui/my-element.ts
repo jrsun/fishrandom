@@ -22,12 +22,21 @@ import {
 import {Piece} from '../chess/piece';
 import Square from '../chess/square';
 // import {MoveMessage} from '../common/message';
-import {replacer, reviver} from '../common/message';
+import {
+  replacer,
+  reviver,
+  Message,
+  MoveMessage,
+  ReplaceMessage,
+  AppendMessage,
+  ReplaceAllMessage,
+} from '../common/message';
 import './my-square';
 import {Game} from '../chess/game';
 import {Move} from '../chess/move';
 import {styleMap} from 'lit-html/directives/style-map';
 import {SQUARE_SIZE, Color} from '../chess/const';
+import BoardState from '../chess/state';
 
 /**
  * An example element.
@@ -92,15 +101,28 @@ export class MyElement extends LitElement {
   }
 
   handleSocketMessage(e: MessageEvent) {
-    const message = JSON.parse(e.data, reviver);
+    const message: Message = JSON.parse(e.data, reviver);
     console.log('Received message of type %s', message.type);
     console.log(message);
-    if (message.type === 'move') {
-      const {start, end} = message.data as Move;
-      const piece = this.game.state.getSquare(start.row, start.col)?.occupant;
-      if (piece) {
-        this.game.attemptMove(piece, start.row, start.col, end.row, end.col);
-      }
+    if (message.type === 'replaceState') {
+      const rm = message as ReplaceMessage;
+      const {move, state} = rm;
+      const {moveHistory, stateHistory} = this.game;
+      // this._validateLastMove(move, moveHistory, state, stateHistory);
+      this.game.moveHistory[this.game.moveHistory.length-1] = move;
+      this.game.stateHistory[this.game.stateHistory.length-1] = state;
+    } else if (message.type === 'appendState') {
+      const am = message as AppendMessage;
+      const {move, state} = am;
+      this.game.moveHistory.push(move);
+      this.game.stateHistory.push(state);
+      this.game.state = state;
+    } else if (message.type === 'replaceAll') {
+      const ram = message as ReplaceAllMessage;
+      const {moveHistory, stateHistory, state} = ram;
+      this.game.moveHistory = moveHistory;
+      this.game.stateHistory = stateHistory;
+      this.game.state = state;
     }
     this.performUpdate();
   }
@@ -157,8 +179,8 @@ export class MyElement extends LitElement {
         JSON.stringify(
           {
             type: 'move',
-            data: move,
-          },
+            move,
+          } as MoveMessage,
           replacer
         )
       );
@@ -185,6 +207,26 @@ export class MyElement extends LitElement {
       .map((move) => this.game.state.getSquare(move.end.row, move.end.col));
 
     return squares.filter((square) => !!square) as Square[];
+  }
+
+  private _validateLastMove(
+    smove: Move,
+    moveHistory: Move[],
+    sstate: BoardState,
+    stateHistory: BoardState[]
+  ) {
+    const cmove = moveHistory?.[moveHistory.length - 1];
+    if (JSON.stringify(cmove, replacer) !== JSON.stringify(smove, replacer)) {
+      throw new Error(`last client move does not match server,
+      client: ${JSON.stringify(cmove, replacer)},\n
+      server:${JSON.stringify(smove, replacer)}`);
+    }
+    const cstate = stateHistory?.[stateHistory.length - 1];
+    if (JSON.stringify(sstate, replacer) !== JSON.stringify(sstate, replacer)) {
+      throw new Error(`last client state does not match server,
+      client: ${JSON.stringify(cstate, replacer)},\n
+      server:${JSON.stringify(sstate, replacer)}`);
+    }
   }
 }
 
