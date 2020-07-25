@@ -12,9 +12,9 @@ export default class BoardState {
   constructor(squares: Square[][]) {
     this.ranks = squares.length;
     this.files = squares[0].length;
-    const newSquares = [];
+    const newSquares: Square[][] = [];
     for (const row of squares) {
-      const newRow = [];
+      const newRow: Square[] = [];
       for (const square of row) {
         const newSquare = new Square(square.row, square.col);
         newRow.push(newSquare);

@@ -11,6 +11,7 @@
     "rootDir": "./src",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "strictNullChecks": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "plugins": [

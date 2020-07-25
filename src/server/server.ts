@@ -64,7 +64,11 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
       const room = activeGames.find(
         (game) => uuid === game.p1 || uuid === game.p2
       );
-      if (!room.p2) {
+      if (!room) {
+        console.log('not in a room! exiting');
+        return;
+      }
+      if (!room!.p2) {
         // console.log('not in a game! continuing anyway');
         // return;
       }
@@ -86,9 +90,11 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
         sockets[room.p1]?.send(
           JSON.stringify({type: 'move', data: move}, replacer)
         );
-        sockets[room.p2]?.send(
-          JSON.stringify({type: 'move', data: move}, replacer)
-        );
+        if (room.p2) {
+          sockets[room.p2]?.send(
+            JSON.stringify({type: 'move', data: move}, replacer)
+          );
+        }
       } else {
         console.log('bad move!');
       }

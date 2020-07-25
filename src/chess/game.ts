@@ -88,7 +88,7 @@ export class Game {
     scol: number,
     drow: number,
     dcol: number
-  ): Move {
+  ): Move | undefined {
     if (piece instanceof King && srow === drow && Math.abs(scol - dcol) === 2) {
       return this.castle(piece.color, srow, scol, drow, dcol);
     }
@@ -122,7 +122,7 @@ export class Game {
     col: number,
     drow: number,
     dcol: number
-  ): Move {
+  ): Move | undefined {
     console.log('attempting castle');
     const kingside = dcol - col > 0;
     let target: Pair;
@@ -174,14 +174,17 @@ export class Game {
       return;
     }
 
-    const isAttacked = cols.some(
-      (travelCol) =>
-        this.isAttackedSquare(color, this.state, row, travelCol) ||
-        (this.state.getSquare(row, travelCol).occupant &&
-          this.state.getSquare(row, travelCol).occupant !==
-            rookSquare.occupant &&
-          !(this.state.getSquare(row, travelCol).occupant instanceof King))
-    );
+    const isAttacked = cols.some((travelCol) => {
+      const square = this.state.getSquare(row, travelCol);
+      if (!square) {
+        throw new Error(`attempted to castle through nonexistent square
+          , ${row}, ${travelCol}`);
+      }
+      this.isAttackedSquare(color, this.state, row, travelCol) ||
+        (square.occupant &&
+          square.occupant !== rookSquare.occupant &&
+          !(square.occupant instanceof King));
+    });
     if (isAttacked) {
       console.log('cannot castle, attacked on way');
       return;
@@ -234,7 +237,7 @@ export class Game {
       square.occupant!.legalMoves(square.row, square.col, state, [])
     );
 
-    return enemyMoves.some((move) => move.captured.isRoyal);
+    return enemyMoves.some((move) => move.captured?.isRoyal);
   }
 
   isAttackedSquare(

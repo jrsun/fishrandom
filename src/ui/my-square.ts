@@ -30,7 +30,7 @@ export class MySquare extends LitElement {
 
   // public
   @property({type: Object}) square: Square;
-  @property({type: Object}) piece?: Piece;
+  @property({type: Object}) piece?: Piece | undefined;
   @property({type: String}) color?: Color;
   @property({type: Boolean}) selected = false;
   @property({type: Boolean}) possible = false;

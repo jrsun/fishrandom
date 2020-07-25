@@ -62,7 +62,7 @@ export class MyElement extends LitElement {
   `;
 
   // public
-  @property({type: String}) color?: Color;
+  @property({type: String}) color: Color = Color.WHITE;
   @property({type: Object}) game: Game = new Game();
 
   // protected
@@ -97,13 +97,10 @@ export class MyElement extends LitElement {
     console.log(message);
     if (message.type === 'move') {
       const {start, end} = message.data as Move;
-      this.game.attemptMove(
-        this.game.state.getSquare(start.row, start.col)?.occupant,
-        start.row,
-        start.col,
-        end.row,
-        end.col
-      );
+      const piece = this.game.state.getSquare(start.row, start.col)?.occupant;
+      if (piece) {
+        this.game.attemptMove(piece, start.row, start.col, end.row, end.col);
+      }
     }
     this.performUpdate();
   }
@@ -142,7 +139,7 @@ export class MyElement extends LitElement {
   private onSquareClicked(e: CustomEvent) {
     // There's a bug here where updating the game using attemptMove doesn't cause rerender.
     const square = e.detail as Square;
-    if (this.selectedPiece) {
+    if (this.selectedPiece && this.selectedSquare) {
       const move = this.game.attemptMove(
         this.selectedPiece,
         this.selectedSquare.row,
@@ -151,8 +148,8 @@ export class MyElement extends LitElement {
         square.col
       );
 
-      this.selectedSquare = null;
-      this.selectedPiece = null;
+      this.selectedSquare = undefined;
+      this.selectedPiece = undefined;
       if (!move) {
         return;
       }
@@ -173,9 +170,9 @@ export class MyElement extends LitElement {
   }
 
   get possibleMoves(): Square[] {
-    if (!this.selectedPiece) return [];
+    if (!this.selectedPiece || !this.selectedSquare) return [];
 
-    return this.selectedPiece
+    const squares = this.selectedPiece
       .legalMoves(
         this.selectedSquare.row,
         this.selectedSquare.col,
@@ -186,6 +183,8 @@ export class MyElement extends LitElement {
         return this.game.isMoveLegal(move);
       })
       .map((move) => this.game.state.getSquare(move.end.row, move.end.col));
+
+    return squares.filter((square) => !!square) as Square[];
   }
 }
 
