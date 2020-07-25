@@ -52,10 +52,7 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
     } catch (e) {
       console.log('malformed message', e);
     }
-    console.log(
-      'Received message of type %s',
-      message.type,
-    );
+    console.log('Received message of type %s', message.type);
     if (message.type === 'move') {
       // sanitize
       const {
@@ -84,7 +81,7 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
         dcol
       );
       if (move) {
-        // we should send the mover a `replaceState` and the opponent an 
+        // we should send the mover a `replaceState` and the opponent an
         // `appendState`
         sockets[room.p1]?.send(
           JSON.stringify({type: 'move', data: move}, replacer)

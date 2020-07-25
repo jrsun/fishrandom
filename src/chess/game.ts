@@ -116,7 +116,13 @@ export class Game {
     return legalMove;
   }
 
-  castle(color: Color, row: number, col: number, drow: number, dcol: number): Move {
+  castle(
+    color: Color,
+    row: number,
+    col: number,
+    drow: number,
+    dcol: number
+  ): Move {
     console.log('attempting castle');
     const kingside = dcol - col > 0;
     let target: Pair;
@@ -187,7 +193,6 @@ export class Game {
       .place(new King(color), target.row, target.col)
       .place(new Rook(color), target.row, target.col + (kingside ? -1 : 1));
     const isCapture = false;
-    const captured = [];
     const type = MoveType.CASTLE;
     const move = {
       start: {row, col},
@@ -195,7 +200,6 @@ export class Game {
       before,
       after,
       isCapture,
-      captured,
       type,
       color,
     };
@@ -230,9 +234,7 @@ export class Game {
       square.occupant!.legalMoves(square.row, square.col, state, [])
     );
 
-    return enemyMoves.some((move) =>
-      move.captured.some((captured) => captured.isRoyal)
-    );
+    return enemyMoves.some((move) => move.captured.isRoyal);
   }
 
   isAttackedSquare(
@@ -251,9 +253,7 @@ export class Game {
       square.occupant!.legalMoves(square.row, square.col, stateWithDummy, [])
     );
 
-    return enemyMoves.some((move) =>
-      move.captured.some((captured) => captured === dummy)
-    );
+    return enemyMoves.some((move) => move.captured === dummy);
   }
 
   captureEffects() {

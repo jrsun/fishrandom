@@ -9,7 +9,7 @@ export interface Move {
   start: Pair;
   end: Pair;
   isCapture: boolean;
-  captured: Piece[];
+  captured?: Piece;
   color: Color;
   type: string; // 'move', 'castle', etc.
 }

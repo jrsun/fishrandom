@@ -107,7 +107,7 @@ class Leaper extends Piece {
         start: {row, col},
         end: target,
         isCapture,
-        captured: occupant ? [occupant] : [],
+        captured: occupant,
         color: this.color,
         type: MoveType.MOVE,
       });
@@ -163,7 +163,7 @@ class Rider extends Piece {
           start: {row, col},
           end: square,
           isCapture,
-          captured: isCapture ? [square.occupant] : [],
+          captured: square.occupant,
           color: this.color,
           type: MoveType.MOVE,
         });
@@ -312,7 +312,6 @@ export class Pawn extends Piece {
         start: {row, col},
         end: target,
         isCapture: false,
-        captured: [],
         color: this.color,
         type: MoveType.MOVE,
       });
@@ -327,7 +326,7 @@ export class Pawn extends Piece {
         start: {row, col},
         end: target,
         isCapture: true,
-        captured: [state.getSquare(target.row, target.col).occupant],
+        captured: state.getSquare(target.row, target.col).occupant,
         color: this.color,
         type: MoveType.MOVE,
       });
@@ -361,7 +360,7 @@ export class Pawn extends Piece {
         const start = {row, col};
         const end = {row: row + yDir, col: lastMove.end.col};
         const isCapture = true;
-        const captured = isCapture ? [lastMove.piece] : [];
+        const captured = lastMove.piece;
         const color = this.color;
         const type = MoveType.ENPASSANT;
 
