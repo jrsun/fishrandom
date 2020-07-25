@@ -37,6 +37,7 @@ import {Move} from '../chess/move';
 import {styleMap} from 'lit-html/directives/style-map';
 import {SQUARE_SIZE, Color} from '../chess/const';
 import BoardState from '../chess/state';
+import {Chess960} from '../chess/variants/960';
 
 /**
  * An example element.
@@ -72,7 +73,7 @@ export class MyElement extends LitElement {
 
   // public
   @property({type: String}) color: Color = Color.WHITE;
-  @property({type: Object}) game: Game = new Game();
+  @property({type: Object}) game: Game = new Chess960();
 
   // protected
   @property({type: Object}) selectedPiece: Piece | undefined;
@@ -109,8 +110,8 @@ export class MyElement extends LitElement {
       const {move, state} = rm;
       const {moveHistory, stateHistory} = this.game;
       // this._validateLastMove(move, moveHistory, state, stateHistory);
-      this.game.moveHistory[this.game.moveHistory.length-1] = move;
-      this.game.stateHistory[this.game.stateHistory.length-1] = state;
+      this.game.moveHistory[this.game.moveHistory.length - 1] = move;
+      this.game.stateHistory[this.game.stateHistory.length - 1] = state;
     } else if (message.type === 'appendState') {
       const am = message as AppendMessage;
       const {move, state} = am;
@@ -119,10 +120,10 @@ export class MyElement extends LitElement {
       this.game.state = state;
     } else if (message.type === 'replaceAll') {
       const ram = message as ReplaceAllMessage;
-      const {moveHistory, stateHistory, state} = ram;
+      const {moveHistory, stateHistory} = ram;
       this.game.moveHistory = moveHistory;
       this.game.stateHistory = stateHistory;
-      this.game.state = state;
+      this.game.state = stateHistory[stateHistory.length - 1];
     }
     this.performUpdate();
   }

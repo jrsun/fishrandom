@@ -4,52 +4,6 @@ import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from './piece';
 import Square from './square';
 import {Color, Pair, NotImplementedError, MoveType, equals} from './const';
 
-function generateStartState(): BoardState {
-  const piecePositions = {
-    0: {
-      0: new Rook(Color.BLACK),
-      1: new Knight(Color.BLACK),
-      2: new Bishop(Color.BLACK),
-      3: new Queen(Color.BLACK),
-      4: new King(Color.BLACK),
-      5: new Bishop(Color.BLACK),
-      6: new Knight(Color.BLACK),
-      7: new Rook(Color.BLACK),
-    },
-    1: {},
-    6: {},
-    7: {
-      0: new Rook(Color.WHITE),
-      1: new Knight(Color.WHITE),
-      2: new Bishop(Color.WHITE),
-      3: new Queen(Color.WHITE),
-      4: new King(Color.WHITE),
-      5: new Bishop(Color.WHITE),
-      6: new Knight(Color.WHITE),
-      7: new Rook(Color.WHITE),
-    },
-  };
-
-  for (let col = 0; col < 8; col++) {
-    piecePositions[1][col] = new Pawn(Color.BLACK);
-    piecePositions[6][col] = new Pawn(Color.WHITE);
-  }
-
-  const squares: Square[][] = [];
-  for (let i = 0; i < 8; i++) {
-    const row: Square[] = [];
-    for (let j = 0; j < 8; j++) {
-      const square = new Square(i, j);
-      row.push(square);
-      if (piecePositions[i]?.[j]) {
-        square.place(piecePositions[i][j]);
-      }
-    }
-    squares.push(row);
-  }
-  return new BoardState(squares);
-}
-
 export class Game {
   state: BoardState;
   moveHistory: Move[];
@@ -60,7 +14,7 @@ export class Game {
   constructor(initial?: BoardState) {
     this.state = initial ?? generateStartState();
     this.moveHistory = [];
-    this.stateHistory = [];
+    this.stateHistory = [this.state];
   }
 
   get rules(): string {
@@ -262,4 +216,50 @@ export class Game {
   captureEffects() {
     // in atomic chess, explode, etc.
   }
+}
+
+function generateStartState(): BoardState {
+  const piecePositions = {
+    0: {
+      0: new Rook(Color.BLACK),
+      1: new Knight(Color.BLACK),
+      2: new Bishop(Color.BLACK),
+      3: new Queen(Color.BLACK),
+      4: new King(Color.BLACK),
+      5: new Bishop(Color.BLACK),
+      6: new Knight(Color.BLACK),
+      7: new Rook(Color.BLACK),
+    },
+    1: {},
+    6: {},
+    7: {
+      0: new Rook(Color.WHITE),
+      1: new Knight(Color.WHITE),
+      2: new Bishop(Color.WHITE),
+      3: new Queen(Color.WHITE),
+      4: new King(Color.WHITE),
+      5: new Bishop(Color.WHITE),
+      6: new Knight(Color.WHITE),
+      7: new Rook(Color.WHITE),
+    },
+  };
+
+  for (let col = 0; col < 8; col++) {
+    piecePositions[1][col] = new Pawn(Color.BLACK);
+    piecePositions[6][col] = new Pawn(Color.WHITE);
+  }
+
+  const squares: Square[][] = [];
+  for (let i = 0; i < 8; i++) {
+    const row: Square[] = [];
+    for (let j = 0; j < 8; j++) {
+      const square = new Square(i, j);
+      row.push(square);
+      if (piecePositions[i]?.[j]) {
+        square.place(piecePositions[i][j]);
+      }
+    }
+    squares.push(row);
+  }
+  return new BoardState(squares);
 }

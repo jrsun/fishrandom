@@ -3,7 +3,12 @@ import BoardState from '../chess/state';
 import Square from '../chess/square';
 import {Move} from '../chess/move';
 
-export type Message = MoveMessage | ReplaceMessage | AppendMessage | ReplaceAllMessage;
+// TODO: Set game type and start game.
+export type Message =
+  | MoveMessage
+  | ReplaceMessage
+  | AppendMessage
+  | ReplaceAllMessage;
 
 export interface MoveMessage {
   type: 'move';

@@ -8,9 +8,11 @@ import {
   ReplaceMessage,
   AppendMessage,
   MoveMessage,
+  ReplaceAllMessage,
 } from '../common/message';
 import WS from 'ws';
 import {Move} from '../chess/move';
+import {Chess960} from '../chess/variants/960';
 
 var app = express();
 
@@ -43,14 +45,21 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
   let game;
   const waitingRoom = activeGames.filter((ag) => !ag.p2)[0];
   if (!waitingRoom) {
-    game = new Game();
+    game = new Chess960();
     activeGames.push({p1: uuid, game});
     console.log('game created');
   } else {
     waitingRoom.p2 = uuid;
     game = waitingRoom.game;
     console.log('game joined');
-    // send initial state
+    const ram = {
+      type: 'replaceAll',
+      moveHistory: game.moveHistory,
+      stateHistory: game.stateHistory,
+    } as ReplaceAllMessage;
+    const sram = JSON.stringify(ram, replacer);
+    sockets[waitingRoom.p1].send(sram);
+    sockets[waitingRoom.p2].send(sram);
   }
   console.log('active: ', activeGames);
   ws.on('message', function incoming(message) {
