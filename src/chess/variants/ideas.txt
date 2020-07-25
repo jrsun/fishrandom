@@ -1,0 +1,19 @@
+Hiddenqueen - designate a pawn to secretly be a queen
+Hiddenking - designate a pawn to secretly be a king. no checks. promoting
+  hiddenking wins. king is mann
+Pieceeater/Juggernaut/Behemoth - pieceeater is an indestructible random mover
+  starting on d4. It moves after each player move
+Dark chess - hidden information
+Dice chess (wiki rules)
+Beirut - designate a pawn to secretly have a special "explosion" move
+Synchrone - white and black move simultaneously
+Pocket knight - can drop a knight 
+
+Horde chess
+Atomic - all captures explode
+Recall - can veto a move
+Grasshopper - has grasshopper
+960
+Prechess
+Knightmate
+Rifle
