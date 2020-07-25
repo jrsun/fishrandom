@@ -90,8 +90,7 @@ export class Game {
     dcol: number
   ): Move {
     if (piece instanceof King && srow === drow && Math.abs(scol - dcol) === 2) {
-      this.castle(piece.color, srow, scol, dcol - scol > 0);
-      return;
+      return this.castle(piece.color, srow, scol, drow, dcol);
     }
     const legalMoves = piece
       .legalMoves(srow, scol, this.state, this.moveHistory)
@@ -117,8 +116,9 @@ export class Game {
     return legalMove;
   }
 
-  castle(color: Color, row: number, col: number, kingside: boolean) {
+  castle(color: Color, row: number, col: number, drow: number, dcol: number): Move {
     console.log('attempting castle');
+    const kingside = dcol - col > 0;
     let target: Pair;
     let cols: number[];
     let rookSquare: Square;
@@ -189,16 +189,20 @@ export class Game {
     const isCapture = false;
     const captured = [];
     const type = MoveType.CASTLE;
-    this.moveHistory.push({
+    const move = {
+      start: {row, col},
+      end: {row: drow, col: dcol},
       before,
       after,
       isCapture,
       captured,
       type,
       color,
-    });
+    };
+    this.moveHistory.push(move);
     this.stateHistory.push(after);
     this.state = after;
+    return move;
   }
 
   // Private

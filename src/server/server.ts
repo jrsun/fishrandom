@@ -53,24 +53,24 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
       console.log('malformed message', e);
     }
     console.log(
-      'Received message %s: %s',
+      'Received message of type %s',
       message.type,
-      JSON.stringify(message, null, 2)
     );
     if (message.type === 'move') {
-      const room = activeGames.find(
-        (game) => uuid === game.p1 || uuid === game.p2
-      );
-      if (!room.p2) {
-        console.log('not in a game! continuing anyway');
-        // return;
-      }
       // sanitize
       const {
         start: {row: srow, col: scol},
         end: {row: drow, col: dcol},
       } = message.data as Move;
-      // console.log('data:', message.data);
+      console.log('Move: (%s, %s) -> (%s, %s)', srow, scol, drow, dcol);
+
+      const room = activeGames.find(
+        (game) => uuid === game.p1 || uuid === game.p2
+      );
+      if (!room.p2) {
+        // console.log('not in a game! continuing anyway');
+        // return;
+      }
       const piece = game.state.getSquare(srow, scol)?.occupant;
       if (!piece) {
         console.log('no piece at ', srow, scol);
@@ -84,14 +84,8 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
         dcol
       );
       if (move) {
-        // const message: MoveMessage = {
-        //   srow: move.start.row,
-        //   scol: move.start.col,
-        //   drow: move.end.row,
-        //   dcol: move.end.col,
-        // };
-        // ws.send(JSON.stringify({type: 'move', data: message}));
-        // send separate state for p1, p2 along with move
+        // we should send the mover a `replaceState` and the opponent an 
+        // `appendState`
         sockets[room.p1]?.send(
           JSON.stringify({type: 'move', data: move}, replacer)
         );

@@ -156,12 +156,6 @@ export class MyElement extends LitElement {
       if (!move) {
         return;
       }
-      const moveMessage = {
-        srow: move.start.row,
-        scol: move.start.col,
-        drow: move.end.row,
-        dcol: move.end.col,
-      };
       this.socket.send(
         JSON.stringify(
           {

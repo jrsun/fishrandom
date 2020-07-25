@@ -6,8 +6,8 @@ export interface Move {
   before: BoardState;
   after: BoardState;
   piece?: Piece;
-  start?: Pair;
-  end?: Pair;
+  start: Pair;
+  end: Pair;
   isCapture: boolean;
   captured: Piece[];
   color: Color;
