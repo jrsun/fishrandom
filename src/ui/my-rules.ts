@@ -58,7 +58,7 @@ export class MyRules extends LitElement {
   @property({type: Object}) socket: WebSocket;
 
   // private
-  @property({type: String}) variant: string = Chess960.name;
+  @property({type: String}) variant: string;
 
   /**
    * The number of times the button has been clicked.

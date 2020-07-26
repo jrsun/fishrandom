@@ -34,6 +34,7 @@ import {
 } from '../common/message';
 import {drawArrow} from '../utils';
 import './my-square';
+import {VARIANTS} from '../chess/variants';
 import {Game} from '../chess/game';
 import {Move} from '../chess/move';
 import {styleMap} from 'lit-html/directives/style-map';
@@ -153,7 +154,8 @@ export class MyElement extends LitElement {
       this.game.state = stateHistory[stateHistory.length - 1];
     } else if (message.type === 'initGame') {
       const igm = message as InitGameMessage;
-      const {state, color} = igm;
+      const {variantName, state, color} = igm;
+      this.game = new (VARIANTS[variantName].game)();
       this.game.moveHistory = [];
       this.game.stateHistory = [state];
       this.game.state = state;

@@ -12,9 +12,11 @@ import {
   InitGameMessage,
 } from '../common/message';
 import WS from 'ws';
+import {VARIANTS} from '../chess/variants/index';
 import {Move} from '../chess/move';
 import {Chess960} from '../chess/variants/960';
 import {Color} from '../chess/const';
+import {randomChoice} from '../utils';
 
 var app = express();
 
@@ -47,7 +49,7 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
   let game;
   const waitingRoom = activeGames.filter((ag) => !ag.p2)[0];
   if (!waitingRoom) {
-    game = new Chess960();
+    game = new (VARIANTS[randomChoice(Object.keys(VARIANTS))].game)();
     activeGames.push({p1: uuid, game});
     console.log('game created');
   } else {
