@@ -1,4 +1,11 @@
-import {LitElement, html, customElement, property, css, TemplateResult} from 'lit-element';
+import {
+  LitElement,
+  html,
+  customElement,
+  property,
+  css,
+  TemplateResult,
+} from 'lit-element';
 import {Game} from '../chess/game';
 import {VARIANTS} from '../chess/variants/index';
 import {Chess960} from '../chess/variants/960';

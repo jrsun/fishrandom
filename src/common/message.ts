@@ -2,7 +2,7 @@ import {Piece} from '../chess/piece';
 import BoardState from '../chess/state';
 import Square from '../chess/square';
 import {Move} from '../chess/move';
-import { Color } from '../chess/const';
+import {Color} from '../chess/const';
 
 // TODO: Set game type and start game.
 export type Message =

@@ -32,6 +32,7 @@ import {
   ReplaceAllMessage,
   InitGameMessage,
 } from '../common/message';
+import {drawArrow} from '../utils';
 import './my-square';
 import {Game} from '../chess/game';
 import {Move} from '../chess/move';
@@ -64,6 +65,16 @@ export class MyElement extends LitElement {
       background-image: url('/img/bg.svg');
       border-radius: 4px;
       display: inline-block;
+      position: relative;
+    }
+
+    #canvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
     }
 
     .row {
@@ -157,6 +168,7 @@ export class MyElement extends LitElement {
 
     return html`
       <div id="board">
+        <canvas id="canvas"></canvas>
         ${state.squares.map(
           (row) => html`<div class="row">
             ${row.map(
@@ -207,6 +219,10 @@ export class MyElement extends LitElement {
     this.performUpdate();
   }
 
+  updated() {
+    this.drawArrow();
+  }
+
   get possibleMoves(): Square[] {
     if (!this.selectedPiece || !this.selectedSquare) return [];
 
@@ -223,6 +239,19 @@ export class MyElement extends LitElement {
       .map((move) => this.game.state.getSquare(move.end.row, move.end.col));
 
     return squares.filter((square) => !!square) as Square[];
+  }
+
+  private drawArrow() {
+    const canvas = this.shadowRoot?.querySelector('canvas');
+    if (!canvas) return;
+
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    drawArrow(ctx, 75, 75, 125, 125);
+    // drawArrow(ctx, 75, 75, 75, 125);
   }
 
   private _validateLastMove(

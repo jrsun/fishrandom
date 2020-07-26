@@ -14,7 +14,7 @@ import {
 import WS from 'ws';
 import {Move} from '../chess/move';
 import {Chess960} from '../chess/variants/960';
-import { Color } from '../chess/const';
+import {Color} from '../chess/const';
 
 var app = express();
 
