@@ -5,6 +5,7 @@ import Square from './square';
 import {Color, Pair, NotImplementedError, MoveType, equals} from './const';
 
 export class Game {
+  name: string; // variant name
   state: BoardState;
   moveHistory: Move[];
   stateHistory: BoardState[];
@@ -15,10 +16,6 @@ export class Game {
     this.state = initial ?? generateStartState();
     this.moveHistory = [];
     this.stateHistory = [this.state];
-  }
-
-  get rules(): string {
-    throw NotImplementedError;
   }
 
   place(piece: Piece, row: number, col: number) {

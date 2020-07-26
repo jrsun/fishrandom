@@ -9,10 +9,12 @@ import {
   AppendMessage,
   MoveMessage,
   ReplaceAllMessage,
+  InitGameMessage,
 } from '../common/message';
 import WS from 'ws';
 import {Move} from '../chess/move';
 import {Chess960} from '../chess/variants/960';
+import { Color } from '../chess/const';
 
 var app = express();
 
@@ -52,14 +54,28 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
     waitingRoom.p2 = uuid;
     game = waitingRoom.game;
     console.log('game joined');
-    const ram = {
-      type: 'replaceAll',
-      moveHistory: game.moveHistory,
-      stateHistory: game.stateHistory,
-    } as ReplaceAllMessage;
-    const sram = JSON.stringify(ram, replacer);
-    sockets[waitingRoom.p1].send(sram);
-    sockets[waitingRoom.p2].send(sram);
+    // const ram = {
+    //   type: 'replaceAll',
+    //   moveHistory: game.moveHistory,
+    //   stateHistory: game.stateHistory,
+    // } as ReplaceAllMessage;
+    const igmW = {
+      type: 'initGame',
+      state: game.state,
+      variantName: game.name,
+      color: Color.WHITE,
+    } as InitGameMessage;
+    const igmB = {
+      ...igmW,
+      color: Color.BLACK,
+    } as InitGameMessage;
+    if (Math.random() > 0.5) {
+      sockets[waitingRoom.p1].send(JSON.stringify(igmW, replacer));
+      sockets[waitingRoom.p2].send(JSON.stringify(igmB, replacer));
+    } else {
+      sockets[waitingRoom.p1].send(JSON.stringify(igmB, replacer));
+      sockets[waitingRoom.p2].send(JSON.stringify(igmW, replacer));
+    }
   }
   console.log('active: ', activeGames);
   ws.on('message', function incoming(message) {

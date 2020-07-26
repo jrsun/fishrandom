@@ -110,6 +110,12 @@ export class MyApp extends LitElement {
       max-height: calc(100vh - 300px);
     }
   }`;
+  private socket: WebSocket;
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.socket = new WebSocket('ws://localhost:8081');
+  }
 
   render() {
     return html`<div class="app">
@@ -131,7 +137,9 @@ export class MyApp extends LitElement {
             </div>
             <div class="timer opponent">3:45</div>
           </div>
-          <div class="board-wrapper card"><my-element></my-element></div>
+          <div class="board-wrapper card">
+            <my-element .socket=${this.socket}></my-element>
+          </div>
           <div class="active-game-info player">
             <!-- this will be a component -->
             <div class="user-info">
@@ -149,7 +157,9 @@ export class MyApp extends LitElement {
         </div>
         <div class="right-panel">
           <div class="card controls"><div>Hello</div></div>
-          <div class="card rules"><my-rules></my-rules></div>
+          <div class="card rules">
+            <my-rules .socket=${this.socket}></my-rules>
+          </div>
         </div>
       </div>
     </div>`;

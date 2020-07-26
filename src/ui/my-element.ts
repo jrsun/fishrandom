@@ -30,6 +30,7 @@ import {
   ReplaceMessage,
   AppendMessage,
   ReplaceAllMessage,
+  InitGameMessage,
 } from '../common/message';
 import './my-square';
 import {Game} from '../chess/game';
@@ -73,12 +74,11 @@ export class MyElement extends LitElement {
   // public
   @property({type: String}) color: Color = Color.WHITE;
   @property({type: Object}) game: Game = new Chess960();
+  @property({type: Object}) socket: WebSocket;
 
   // protected
   @property({type: Object}) selectedPiece: Piece | undefined;
   @property({type: Object}) selectedSquare: Square | undefined;
-
-  private socket: WebSocket;
 
   /**
    * The number of times the button has been clicked.
@@ -88,16 +88,25 @@ export class MyElement extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
+
     this.addEventListener('square-clicked', this.onSquareClicked.bind(this));
 
-    this.socket = new WebSocket('ws://localhost:8081');
-    this.socket.onopen = function (e) {}.bind(this);
-    this.socket.onmessage = this.handleSocketMessage.bind(this);
+    this.socket.addEventListener('open', function (e) {}.bind(this));
+    this.socket.addEventListener(
+      'message',
+      this.handleSocketMessage.bind(this)
+    );
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
+
     this.removeEventListener('square-clicked', this.onSquareClicked.bind(this));
+    this.socket.removeEventListener('open', function (e) {}.bind(this));
+    this.socket.removeEventListener(
+      'message',
+      this.handleSocketMessage.bind(this)
+    );
   }
 
   handleSocketMessage(e: MessageEvent) {
@@ -123,6 +132,13 @@ export class MyElement extends LitElement {
       this.game.moveHistory = moveHistory;
       this.game.stateHistory = stateHistory;
       this.game.state = stateHistory[stateHistory.length - 1];
+    } else if (message.type === 'initGame') {
+      const igm = message as InitGameMessage;
+      const {state, color} = igm;
+      this.game.moveHistory = [];
+      this.game.stateHistory = [state];
+      this.game.state = state;
+      // TODO handle color
     }
     this.performUpdate();
   }

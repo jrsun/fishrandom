@@ -2,13 +2,15 @@ import {Piece} from '../chess/piece';
 import BoardState from '../chess/state';
 import Square from '../chess/square';
 import {Move} from '../chess/move';
+import { Color } from '../chess/const';
 
 // TODO: Set game type and start game.
 export type Message =
   | MoveMessage
   | ReplaceMessage
   | AppendMessage
-  | ReplaceAllMessage;
+  | ReplaceAllMessage
+  | InitGameMessage;
 
 export interface MoveMessage {
   type: 'move';
@@ -31,6 +33,13 @@ export interface ReplaceAllMessage {
   type: 'replaceAll';
   stateHistory: BoardState[];
   moveHistory: Move[];
+}
+
+export interface InitGameMessage {
+  type: 'initGame';
+  state: BoardState;
+  variantName: string;
+  color: Color; // color for the receiving player
 }
 
 export function replacer(k: string, o: Piece | BoardState | Square): object {
