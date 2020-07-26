@@ -48,9 +48,8 @@ import {Chess960} from '../chess/variants/960';
 @customElement('my-element')
 export class MyElement extends LitElement {
   static styles = css`
-    :host {
+    /* :host {
       display: block;
-      /* border: solid 1px gray; */
       margin: 20px;
       max-width: 800px;
       padding: 10px;
@@ -58,7 +57,7 @@ export class MyElement extends LitElement {
       padding: 30px;
       border-radius: 4px;
       box-shadow: 0px 7px #dad4c8;
-    }
+    } */
 
     #board {
       background-image: url('/img/bg.svg');

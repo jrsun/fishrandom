@@ -24,6 +24,8 @@
   sea red = #E2A28B
   classic light = #F5C895
   classic dark = #C19763
+  townscaper metal = #344155
+  townscaper brightest = #FFFEED
 <rect width="1" height="1" fill="#E2A28B" id="e"/>
         <use x="1" y="1" href="#e" x:href="#e"/>
         <rect y="1" width="1" height="1" fill="#FFFFEF" id="f"/> -->

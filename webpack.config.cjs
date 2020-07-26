@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
-  entry: './dist/ui/my-element.js',
+  entry: './dist/ui/my-app.js',
   devtool: 'inline-source-map',
   mode: 'development',
   module: {
