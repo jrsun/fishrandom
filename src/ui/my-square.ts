@@ -41,6 +41,8 @@ export class MySquare extends LitElement {
       <div
         class="square"
         @click=${this._onClick}
+        @mousedown=${this._onMouseDown}
+        @mouseup=${this._onMouseUp}
         style="
         height:100%;width:100%;
         position:relative;background-color:${this.selected
@@ -55,9 +57,35 @@ export class MySquare extends LitElement {
     `;
   }
 
-  private _onClick() {
+  private _onClick(e: MouseEvent) {
+    const isRightMB = (e.which === 3);
+    if (isRightMB) return;
     this.dispatchEvent(
       new CustomEvent('square-clicked', {
+        bubbles: true,
+        composed: true,
+        detail: this.square,
+      })
+    );
+  }
+
+  private _onMouseDown(e: MouseEvent) {
+    const isRightMB = (e.which === 3);
+    if (!isRightMB) return;
+    this.dispatchEvent(
+      new CustomEvent('square-mousedown', {
+        bubbles: true,
+        composed: true,
+        detail: this.square,
+      })
+    );
+  }
+
+  private _onMouseUp(e: MouseEvent) {
+    const isRightMB = (e.which === 3);
+    if (!isRightMB) return;
+    this.dispatchEvent(
+      new CustomEvent('square-mouseup', {
         bubbles: true,
         composed: true,
         detail: this.square,

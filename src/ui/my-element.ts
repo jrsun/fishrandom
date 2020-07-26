@@ -73,6 +73,7 @@ export class MyElement extends LitElement {
       left: 0;
       top: 0;
       width: 100%;
+      pointer-events: none;
       height: 100%;
       z-index: 1;
     }
@@ -90,6 +91,7 @@ export class MyElement extends LitElement {
   // protected
   @property({type: Object}) selectedPiece: Piece | undefined;
   @property({type: Object}) selectedSquare: Square | undefined;
+  @property({type: Object}) arrowStartSquare: Square|undefined;
 
   /**
    * The number of times the button has been clicked.
@@ -101,6 +103,9 @@ export class MyElement extends LitElement {
     super.connectedCallback();
 
     this.addEventListener('square-clicked', this.onSquareClicked.bind(this));
+    this.addEventListener('square-mousedown', this.onSquareMousedown.bind(this));
+    this.addEventListener('square-mouseup', this.onSquareMouseup.bind(this));
+    this.addEventListener('contextmenu', e => {e.preventDefault()});
 
     this.socket.addEventListener('open', function (e) {}.bind(this));
     this.socket.addEventListener(
@@ -113,6 +118,9 @@ export class MyElement extends LitElement {
     super.disconnectedCallback();
 
     this.removeEventListener('square-clicked', this.onSquareClicked.bind(this));
+    this.removeEventListener('square-mousedown', this.onSquareMousedown.bind(this));
+    this.removeEventListener('square-mouseup', this.onSquareMouseup.bind(this));
+
     this.socket.removeEventListener('open', function (e) {}.bind(this));
     this.socket.removeEventListener(
       'message',
@@ -187,6 +195,7 @@ export class MyElement extends LitElement {
   }
 
   private onSquareClicked(e: CustomEvent) {
+    this.eraseCanvas();
     // There's a bug here where updating the game using attemptMove doesn't cause rerender.
     const square = e.detail as Square;
     if (this.selectedPiece && this.selectedSquare) {
@@ -219,9 +228,20 @@ export class MyElement extends LitElement {
     this.performUpdate();
   }
 
-  updated() {
-    this.drawArrow();
+  private onSquareMousedown(e: CustomEvent) {
+    const square = e.detail as Square;
+    this.arrowStartSquare = square;
   }
+  private onSquareMouseup(e: CustomEvent) {
+    if (!this.arrowStartSquare) return;
+    const square = e.detail as Square;
+    const {row, col} = this.arrowStartSquare;
+    this.drawArrow(row, col, square.row, square.col);
+  }
+
+  // updated() {
+  //   this.drawArrow(1, 4, 3, 4);
+  // }
 
   get possibleMoves(): Square[] {
     if (!this.selectedPiece || !this.selectedSquare) return [];
@@ -241,17 +261,26 @@ export class MyElement extends LitElement {
     return squares.filter((square) => !!square) as Square[];
   }
 
-  private drawArrow() {
+  private drawArrow(srow: number, scol: number, erow: number, ecol: number) {
     const canvas = this.shadowRoot?.querySelector('canvas');
     if (!canvas) return;
 
-    canvas.width = canvas.offsetWidth;
+    canvas.width = canvas.offsetWidth; // BUG this should only happen once
     canvas.height = canvas.offsetHeight;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    drawArrow(ctx, 75, 75, 125, 125);
+    const toxy = (rc: number) => SQUARE_SIZE/2 + SQUARE_SIZE*rc;
+    drawArrow(ctx, toxy(scol), toxy(srow), toxy(ecol), toxy(erow));
     // drawArrow(ctx, 75, 75, 75, 125);
+  }
+
+  private eraseCanvas() {
+    const canvas = this.shadowRoot?.querySelector('canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
   private _validateLastMove(

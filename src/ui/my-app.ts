@@ -65,6 +65,7 @@ export class MyApp extends LitElement {
       width: 40px;
       background-size: cover;
       margin-right: 10px;
+      border-radius: 4px;
     }
     .board-wrapper {
       margin: 20px 0;

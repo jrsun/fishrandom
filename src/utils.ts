@@ -28,7 +28,7 @@ export function drawArrow(
   ctx.lineTo(tox, toy);
   ctx.strokeStyle = color;
   ctx.lineWidth = 14;
-  ctx.lineCap = 'round';
+  // ctx.lineCap = 'round';
   ctx.stroke();
 
   //starting a new path from the head of the arrow to one of the sides of the point
