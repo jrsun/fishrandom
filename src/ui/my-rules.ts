@@ -1,12 +1,5 @@
-import {
-  LitElement,
-  html,
-  customElement,
-  property,
-  css,
-} from 'lit-element';
+import {LitElement, html, customElement, property, css} from 'lit-element';
 import {Game} from '../chess/game';
-
 
 @customElement('my-rules')
 export class MyRules extends LitElement {
@@ -22,11 +15,33 @@ export class MyRules extends LitElement {
       box-shadow: 0px 7px #dad4c8;
     } */
     :host {
+      max-height: 100%;
       width: 300px;
-      display: inline-block;
+      display: block;
     }
-    #title>h3 {
+    #title > h3 {
       margin: 0;
+      font-family: 'JelleeBold';
+    }
+    #title {
+      margin-bottom: 10px;
+    }
+    #rules {
+      display: flex;
+      height: 50vh; 
+      /* temporary */
+      overflow-y: auto;
+      flex-direction: column;
+      align-items: center;
+    }
+    .examples {
+      overflow-x: auto;
+      display: block;
+    }
+    .examples>img{
+      height: 200px;
+      width: 200px;
+      background-size:cover;
     }
   `;
 
@@ -58,10 +73,16 @@ export class MyRules extends LitElement {
   render() {
     return html`
       <div id="rules">
-  <!-- <span id="title"><h3>${this.title}</h3></span>
+        <span id="title"><h3>Rules</h3></span>
         <div class="body">
-          ${this.rules}
-        </div> -->
+          Starting position
+          of the pieces on the players' home ranks is randomized.
+          <!-- <div class="examples"><img src="../img/variants/960.png"/></div> -->
+          <ul>
+            <li>Orthodox rules.</li>
+            <li>Checkmate to win.</li>
+          </ul>
+        </div>
       </div>
     `;
   }

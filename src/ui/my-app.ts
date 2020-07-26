@@ -21,7 +21,7 @@ export class MyApp extends LitElement {
       font-family: "JelleeBold"
     }
     .card {
-      display: inline-block;
+      display: block;
       /* border: solid 1px gray; */
       /* margin: 15px; */
       /* max-width: 800px; */
@@ -64,6 +64,7 @@ export class MyApp extends LitElement {
       height: 40px;
       width: 40px;
       background-size: cover;
+      margin-right: 10px;
     }
     .board-wrapper {
       margin: 20px 0;
@@ -95,6 +96,19 @@ export class MyApp extends LitElement {
       color: #344155;
       box-shadow: 0px 7px #bbb;
     }
+    /* right */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+    }
+    .controls {
+      height: 50px;
+      margin-bottom: 30px;
+    }
+    .rules {
+      flex: 1;
+      max-height: calc(100vh - 300px);
+    }
   }`;
 
   render() {
@@ -106,7 +120,10 @@ export class MyApp extends LitElement {
           <div class="active-game-info opponent">
             <!-- this will be a component -->
             <div class="user-info">
-              <div class="avatar" style="background-image:url(../img/swoledoge.png)"></div>
+              <div
+                class="avatar"
+                style="background-image:url(../img/swoledoge.png)"
+              ></div>
               <div class="user-capture">
                 <div class="username">SwoleDoge94</div>
                 <div class="captures"></div>
@@ -118,7 +135,10 @@ export class MyApp extends LitElement {
           <div class="active-game-info player">
             <!-- this will be a component -->
             <div class="user-info">
-              <div class="avatar" style="background-image:url(../img/cheems.jpeg)"></div>
+              <div
+                class="avatar"
+                style="background-image:url(../img/cheems.jpeg)"
+              ></div>
               <div class="user-capture">
                 <div class="username">cheems</div>
                 <div class="captures"></div>
@@ -127,9 +147,12 @@ export class MyApp extends LitElement {
             <div class="timer player">1:23</div>
           </div>
         </div>
-        <div class="card"><my-rules></my-rules></div>
+        <div class="right-panel">
+          <div class="card controls"><div>Hello</div></div>
+          <div class="card rules"><my-rules></my-rules></div>
+        </div>
       </div>
-    </div>`
+    </div>`;
   }
 }
 
