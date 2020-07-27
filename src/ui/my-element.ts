@@ -86,8 +86,9 @@ export class MyElement extends LitElement {
 
   // public
   @property({type: String}) color: Color = Color.WHITE;
-  @property({type: Object}) game: Game = new Chess960();
+  @property({type: Object}) game: Game;
   @property({type: Object}) socket: WebSocket;
+  @property({type: Object}) viewHistoryState: BoardState|undefined;
 
   // protected
   @property({type: Object}) selectedPiece: Piece | undefined;
@@ -106,7 +107,7 @@ export class MyElement extends LitElement {
     this.addEventListener('square-clicked', this.onSquareClicked.bind(this));
     this.addEventListener('square-mousedown', this.onSquareMousedown.bind(this));
     this.addEventListener('square-mouseup', this.onSquareMouseup.bind(this));
-    this.addEventListener('contextmenu', e => {e.preventDefault()});
+    // this.addEventListener('contextmenu', e => {e.preventDefault()});
 
     this.socket.addEventListener('open', function (e) {}.bind(this));
     this.socket.addEventListener(
@@ -152,14 +153,6 @@ export class MyElement extends LitElement {
       this.game.moveHistory = moveHistory;
       this.game.stateHistory = stateHistory;
       this.game.state = stateHistory[stateHistory.length - 1];
-    } else if (message.type === 'initGame') {
-      const igm = message as InitGameMessage;
-      const {variantName, state, color} = igm;
-      this.game = new (VARIANTS[variantName])();
-      this.game.moveHistory = [];
-      this.game.stateHistory = [state];
-      this.game.state = state;
-      // TODO handle color
     }
     this.performUpdate();
   }
@@ -179,7 +172,7 @@ export class MyElement extends LitElement {
     return html`
       <div id="board">
         <canvas id="canvas"></canvas>
-        ${state.squares.map(
+        ${(this.viewHistoryState ?? state).squares.map(
           (row) => html`<div class="row">
             ${row.map(
               (square) => html`<my-square
