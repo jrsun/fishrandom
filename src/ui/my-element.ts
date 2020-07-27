@@ -190,6 +190,8 @@ export class MyElement extends LitElement {
   }
 
   private onSquareClicked(e: CustomEvent) {
+    if (this.viewHistoryState) return;
+
     this.eraseCanvas();
     // There's a bug here where updating the game using attemptMove doesn't cause rerender.
     const square = e.detail as Square;
@@ -231,6 +233,9 @@ export class MyElement extends LitElement {
     if (!this.arrowStartSquare) return;
     const square = e.detail as Square;
     const {row, col} = this.arrowStartSquare;
+    this.arrowStartSquare = undefined;
+    
+    if (row === square.row && col === square.col) return;
     this.drawArrow(row, col, square.row, square.col);
   }
 
