@@ -14,7 +14,7 @@ export interface Move {
   type: string; // 'move', 'castle', etc.
 }
 
-export function toAlg(move: Move) {
+export function toFEN(move: Move) {
   const {type, piece, start, end, before, after, isCapture} = move;
   if (type === MoveType.CASTLE) {
     return 'O-O'; // TODO: Queenside

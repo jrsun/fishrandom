@@ -7,6 +7,7 @@ import {
   TemplateResult,
 } from 'lit-element';
 import {Game} from '../chess/game';
+import {toFEN} from '../chess/move';
 import {VARIANTS, Chess960, Classic, Knightmate, Horde} from '../chess/variants/index';
 import {Message, InitGameMessage, reviver} from '../common/message';
 import '@polymer/paper-button';
@@ -30,11 +31,29 @@ export class MyControls extends LitElement {
       width: 300px;
       display: block;
     }
-    #controls {
+    .container {
+      display: flex;
+      flex-direction: column;
+    }
+    .controls {
       display: flex;
       justify-content: space-between;
     }
-    #controls>* {
+    .fen-display {
+      display: flex;
+      flex-direction: row;
+      margin-bottom: 20px;
+      background-color: #fefefa;
+      height: 30px;
+      align-items: center;
+      border-radius: 2px;
+      box-shadow: #ddc 0 -3px;
+      padding-left: 10px;
+    }
+    .fen {
+      margin-right: 10px;
+    }
+    .controls>* {
       flex: 1;
     }
     paper-button {
@@ -73,6 +92,7 @@ export class MyControls extends LitElement {
     if (message.type !== 'replaceState') {
       this.viewMoveIndex = undefined;
     }
+    this.requestUpdate();
   }
 
   onClickPrev() {
@@ -104,9 +124,14 @@ export class MyControls extends LitElement {
 
   render() {
     return html`
-      <div id="controls">
-        <paper-button raised .onclick=${this.onClickPrev.bind(this)}><</paper-button>
-        <paper-button raised .onclick=${this.onClickNext.bind(this)}>></paper-button>
+      <div class="container">
+        <div class="fen-display">${this.moveHistory.map(toFEN).map(
+          (fen: string) => html`<div class="fen">${fen}</div>`
+        )}</div>
+        <div class="controls">
+          <paper-button raised .onclick=${this.onClickPrev.bind(this)}><</paper-button>
+          <paper-button raised .onclick=${this.onClickNext.bind(this)}>></paper-button>
+        </div>
       </div>
     `;
   }
