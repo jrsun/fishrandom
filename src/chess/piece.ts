@@ -410,7 +410,7 @@ export class RoyalKnight extends Knight {
   name = 'RoyalKnight';
   isRoyal = true;
 
-  toFen() {
+  toFEN() {
     return 'K';
   }
   
