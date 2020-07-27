@@ -141,10 +141,11 @@ export class Game {
       return;
     }
     const before = this.state;
+    const king = new King(color);
     const after = new BoardState(this.state.squares)
       .empty(rookSquare.row, rookSquare.col)
       .empty(row, col)
-      .place(new King(color), target.row, target.col)
+      .place(king, target.row, target.col)
       .place(new Rook(color), target.row, target.col + (kingside ? -1 : 1));
     const isCapture = false;
     const type = MoveType.CASTLE;
@@ -153,6 +154,7 @@ export class Game {
       end: {row: drow, col: dcol},
       before,
       after,
+      piece: king,
       isCapture,
       type,
       color,

@@ -49,6 +49,12 @@ export default class BoardState {
     return this.squares[row]?.[col];
   }
 
+  pieces(): Piece[] {
+    return this.squares
+    .map(row => row.map(square => square.occupant)).flat()
+    .filter((occupant: Piece|undefined) => !!occupant) as Piece[];
+  }
+
   static freeze(state: BoardState): object {
     return {
       _class: 'BoardState',

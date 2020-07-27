@@ -36,7 +36,7 @@ import {drawArrow} from '../utils';
 import './my-square';
 import {VARIANTS} from '../chess/variants';
 import {Game} from '../chess/game';
-import {Move} from '../chess/move';
+import {Move, toAlg} from '../chess/move';
 import {styleMap} from 'lit-html/directives/style-map';
 import {SQUARE_SIZE, Color} from '../chess/const';
 import BoardState from '../chess/state';
@@ -141,12 +141,14 @@ export class MyElement extends LitElement {
       // this._validateLastMove(move, moveHistory, state, stateHistory);
       this.game.moveHistory[this.game.moveHistory.length - 1] = move;
       this.game.stateHistory[this.game.stateHistory.length - 1] = state;
+      console.log(toAlg(move));
     } else if (message.type === 'appendState') {
       const am = message as AppendMessage;
       const {move, state} = am;
       this.game.moveHistory.push(move);
       this.game.stateHistory.push(state);
       this.game.state = state;
+      console.log(toAlg(move));
     } else if (message.type === 'replaceAll') {
       const ram = message as ReplaceAllMessage;
       const {moveHistory, stateHistory} = ram;

@@ -28,8 +28,8 @@ export class Piece {
   ): Move[] {
     return [];
   }
-  toString(): string {
-    return this.name; // graphic here later or unicode
+  toFEN(): string {
+    return this.name[0];
   }
 
   get img(): string {
@@ -215,6 +215,10 @@ export class Rook extends Rider {
 export class Knight extends Leaper {
   name = 'Knight';
   moves = [{row: 1, col: 2}];
+
+  toFEN() {
+    return 'N';
+  }
 
   get img(): string {
     if (this.color === Color.BLACK) {
@@ -405,6 +409,10 @@ export class Pawn extends Piece {
 export class RoyalKnight extends Knight {
   name = 'RoyalKnight';
   isRoyal = true;
+
+  toFen() {
+    return 'K';
+  }
   
   get img(): string {
     return (this.color === Color.BLACK) ? 'knightkingb.png' : 'knightkingw.png';
