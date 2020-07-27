@@ -1,9 +1,8 @@
 import {Game} from '../game';
-import {King, Knight, Rook, Bishop, Queen, Pawn} from '../piece'
-import { Color } from '../const';
+import {King, Knight, Rook, Bishop, Queen, Pawn} from '../piece';
+import {Color} from '../const';
 import BoardState from '../state';
 import Square from '../square';
-
 
 export class Horde extends Game {
   // TODO: pawns on 1st rank can move 2 squares
@@ -35,7 +34,8 @@ function generateStartState(): BoardState {
     },
     4: {},
     5: {},
-    6: {}, 7: {},
+    6: {},
+    7: {},
   };
 
   for (let col = 0; col < 8; col++) {

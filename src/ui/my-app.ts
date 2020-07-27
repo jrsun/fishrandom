@@ -10,7 +10,7 @@ import {VARIANTS, Chess960} from '../chess/variants/index';
 import {reviver, Message, InitGameMessage} from '../common/message';
 import './my-rules';
 import './my-controls';
-import { Game } from '../chess/game';
+import {Game} from '../chess/game';
 import BoardState from '../chess/state';
 
 @customElement('my-app')
@@ -120,7 +120,7 @@ export class MyApp extends LitElement {
   private socket: WebSocket;
 
   // private
-  @property({type: Object}) viewHistoryState: BoardState|undefined;
+  @property({type: Object}) viewHistoryState: BoardState | undefined;
 
   connectedCallback() {
     super.connectedCallback();
@@ -130,7 +130,10 @@ export class MyApp extends LitElement {
       'message',
       this.handleSocketMessage.bind(this)
     );
-    this.addEventListener('view-move-changed', this.handleViewMoveChanged.bind(this));
+    this.addEventListener(
+      'view-move-changed',
+      this.handleViewMoveChanged.bind(this)
+    );
   }
 
   disconnectedCallback() {
@@ -141,7 +144,10 @@ export class MyApp extends LitElement {
       'message',
       this.handleSocketMessage.bind(this)
     );
-    this.removeEventListener('view-move-changed', this.handleViewMoveChanged.bind(this));
+    this.removeEventListener(
+      'view-move-changed',
+      this.handleViewMoveChanged.bind(this)
+    );
   }
 
   handleSocketMessage(e: MessageEvent) {
@@ -151,7 +157,7 @@ export class MyApp extends LitElement {
     if (message.type === 'initGame') {
       const igm = message as InitGameMessage;
       const {variantName, state, color} = igm;
-      this.game = new (VARIANTS[variantName])();
+      this.game = new VARIANTS[variantName]();
       this.game.moveHistory = [];
       this.game.stateHistory = [state];
       this.game.state = state;
@@ -167,9 +173,11 @@ export class MyApp extends LitElement {
 
   render() {
     return html`<div class="app">
-      <div class="title"><h1>
-        ${this.game.name.toUpperCase().split('').join(' ')}
-      </h1></div>
+      <div class="title">
+        <h1>
+          ${this.game.name.toUpperCase().split('').join(' ')}
+        </h1>
+      </div>
       <div class="game-container">
         <!-- dom-if piece bank -->
         <div class="active-game-container">
@@ -188,7 +196,11 @@ export class MyApp extends LitElement {
             <div class="timer opponent">3:45</div>
           </div>
           <div class="board-wrapper card">
-            <my-element .socket=${this.socket} .game=${this.game} .viewHistoryState=${this.viewHistoryState}></my-element>
+            <my-element
+              .socket=${this.socket}
+              .game=${this.game}
+              .viewHistoryState=${this.viewHistoryState}
+            ></my-element>
           </div>
           <div class="active-game-info player">
             <!-- this will be a component -->
@@ -206,7 +218,12 @@ export class MyApp extends LitElement {
           </div>
         </div>
         <div class="right-panel">
-          <div class="card controls"><my-controls .socket=${this.socket} .moveHistory=${this.game.moveHistory}></my-controls></div>
+          <div class="card controls">
+            <my-controls
+              .socket=${this.socket}
+              .moveHistory=${this.game.moveHistory}
+            ></my-controls>
+          </div>
           <div class="card rules">
             <my-rules .socket=${this.socket}></my-rules>
           </div>

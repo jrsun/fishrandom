@@ -1,6 +1,6 @@
 import {Game} from '../game';
-import {RoyalKnight, Mann, Rook, Bishop, Queen, Pawn} from '../piece'
-import { Color } from '../const';
+import {RoyalKnight, Mann, Rook, Bishop, Queen, Pawn} from '../piece';
+import {Color} from '../const';
 import BoardState from '../state';
 import Square from '../square';
 

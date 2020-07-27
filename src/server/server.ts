@@ -36,7 +36,7 @@ const wss = new WS.Server({port: 8081});
 interface ActiveGames {
   p1: string;
   p2?: string;
-  game: Game;
+  game?: Game;
 }
 const activeGames: ActiveGames[] = [];
 const sockets: {[uuid: string]: WS.WebSocket} = {};
@@ -49,11 +49,12 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
   const waitingRoom = activeGames.filter((ag) => !ag.p2)[0];
   if (!waitingRoom) {
     // game = new (Variants.VARIANTS[randomChoice(Object.keys(Variants.VARIANTS))])();
-    game = new Variants.Knightmate();
-    activeGames.push({p1: uuid, game});
+    // game = new Variants.Knightmate();
+    activeGames.push({p1: uuid});
     console.log('game created');
   } else {
     waitingRoom.p2 = uuid;
+    waitingRoom.game = new Variants.Knightmate();
     game = waitingRoom.game;
     console.log('game joined');
     // const ram = {
@@ -87,6 +88,10 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
       console.log('malformed message', e);
     }
     console.log('Received message of type %s', message.type);
+    if (!game) {
+      console.log('Game not started');
+      return;
+    }
     if (message.type === 'move') {
       // sanitize
       function tg(message: Message): message is MoveMessage {

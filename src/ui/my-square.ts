@@ -37,6 +37,7 @@ export class MySquare extends LitElement {
 
   render() {
     // this.style.setProperty('transform', this.color === Color.BLACK ? 'rotate(180deg)' : '');
+    // ${this.possible ? 'background-image:url(../img/_dt.png);' : ''}
     return html`
       <div
         class="square"
@@ -45,7 +46,9 @@ export class MySquare extends LitElement {
         @mouseup=${this._onMouseUp}
         style="
         height:100%;width:100%;
-        position:relative;background-color:${this.selected
+        position:relative;
+        background-size:cover;
+        background-color:${this.selected
           ? 'rgba(0, 0, 255, 0.3)'
           : this.possible
           ? 'rgba(0, 255, 0, 0.3)'
@@ -58,7 +61,7 @@ export class MySquare extends LitElement {
   }
 
   private _onClick(e: MouseEvent) {
-    const isRightMB = (e.which === 3);
+    const isRightMB = e.which === 3;
     if (isRightMB) return;
     this.dispatchEvent(
       new CustomEvent('square-clicked', {
@@ -70,7 +73,7 @@ export class MySquare extends LitElement {
   }
 
   private _onMouseDown(e: MouseEvent) {
-    const isRightMB = (e.which === 3);
+    const isRightMB = e.which === 3;
     if (!isRightMB) return;
     this.dispatchEvent(
       new CustomEvent('square-mousedown', {
@@ -82,7 +85,7 @@ export class MySquare extends LitElement {
   }
 
   private _onMouseUp(e: MouseEvent) {
-    const isRightMB = (e.which === 3);
+    const isRightMB = e.which === 3;
     if (!isRightMB) return;
     this.dispatchEvent(
       new CustomEvent('square-mouseup', {

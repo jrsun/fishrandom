@@ -413,9 +413,9 @@ export class RoyalKnight extends Knight {
   toFEN() {
     return 'K';
   }
-  
+
   get img(): string {
-    return (this.color === Color.BLACK) ? 'knightkingb.png' : 'knightkingw.png';
+    return this.color === Color.BLACK ? 'knightkingb.png' : 'knightkingw.png';
   }
 }
 
@@ -424,7 +424,7 @@ export class Mann extends King {
   isRoyal = false;
 
   get img(): string {
-    return (this.color === Color.BLACK) ? 'mannb.png' : 'mannw.png';
+    return this.color === Color.BLACK ? 'mannb.png' : 'mannw.png';
   }
 }
 

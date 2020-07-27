@@ -31,23 +31,28 @@ export function toFEN(move: Move) {
     return `${startFile}x${endFile}${endRank}`;
   }
   const capture = isCapture ? 'x' : '';
-  const ambiguousSquares = after.squares.flat()
-    .filter(square => {
-      const occupant = square.occupant;
-      return !!occupant && occupant.color === piece.color &&
-      occupant.name === piece.name && occupant.legalMoves(
-        square.row,
-        square.col,
-        before, 
-        [], // en passant would never be ambiguous
-      ).some(move => move.end.row === end.row && move.end.col === end.col);
-    });
+  const ambiguousSquares = after.squares.flat().filter((square) => {
+    const occupant = square.occupant;
+    return (
+      !!occupant &&
+      occupant.color === piece.color &&
+      occupant.name === piece.name &&
+      occupant
+        .legalMoves(
+          square.row,
+          square.col,
+          before,
+          [] // en passant would never be ambiguous
+        )
+        .some((move) => move.end.row === end.row && move.end.col === end.col)
+    );
+  });
   let actor = piece.toFEN();
   if (ambiguousSquares.length) {
-    if (!ambiguousSquares.some(amb => amb.col === start.col)) {
+    if (!ambiguousSquares.some((amb) => amb.col === start.col)) {
       // file disambiguates
       actor += startFile;
-    } else if (!ambiguousSquares.some(amb => amb.row === start.row)) {
+    } else if (!ambiguousSquares.some((amb) => amb.row === start.row)) {
       // rank disambiguates
       actor += startRank;
     } else {

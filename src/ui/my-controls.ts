@@ -8,10 +8,16 @@ import {
 } from 'lit-element';
 import {Game} from '../chess/game';
 import {toFEN} from '../chess/move';
-import {VARIANTS, Chess960, Classic, Knightmate, Horde} from '../chess/variants/index';
+import {
+  VARIANTS,
+  Chess960,
+  Classic,
+  Knightmate,
+  Horde,
+} from '../chess/variants/index';
 import {Message, InitGameMessage, reviver} from '../common/message';
 import '@polymer/paper-button';
-import { Move } from '../chess/move';
+import {Move} from '../chess/move';
 
 @customElement('my-controls')
 export class MyControls extends LitElement {
@@ -41,31 +47,35 @@ export class MyControls extends LitElement {
     }
     .fen-display {
       display: flex;
+      flex-wrap: wrap;
       flex-direction: row;
       margin-bottom: 20px;
       background-color: #fefefa;
-      height: 30px;
+      min-height: 30px;
+      /* max-height: 60px; */
       align-items: center;
       border-radius: 2px;
       box-shadow: #ddc 0 -3px;
+      padding-top: 5px;
+      padding-bottom: 5px;
       padding-left: 10px;
     }
     .fen {
       margin-right: 10px;
     }
-    .controls>* {
+    .controls > * {
       flex: 1;
     }
     paper-button {
-      background-color: #FEFDFA;
+      background-color: #fefdfa;
     }
   `;
   // public
   @property({type: Object}) socket: WebSocket;
   @property({type: Array}) moveHistory: Move[] = [];
-  
+
   // protected
-  @property({type: Number}) viewMoveIndex: number|undefined;
+  @property({type: Number}) viewMoveIndex: number | undefined;
 
   connectedCallback() {
     super.connectedCallback();
@@ -99,12 +109,12 @@ export class MyControls extends LitElement {
     if (this.viewMoveIndex === undefined) {
       this.viewMoveIndex = this.moveHistory.length;
     }
-    this.viewMoveIndex = Math.max(0, this.viewMoveIndex-1);
+    this.viewMoveIndex = Math.max(0, this.viewMoveIndex - 1);
   }
 
   onClickNext() {
     if (this.viewMoveIndex === undefined) return;
-    this.viewMoveIndex = this.viewMoveIndex+1;
+    this.viewMoveIndex = this.viewMoveIndex + 1;
 
     if (this.viewMoveIndex >= this.moveHistory.length) {
       this.viewMoveIndex = undefined;
@@ -114,23 +124,34 @@ export class MyControls extends LitElement {
   updated(changedProperties) {
     if (changedProperties.has('viewMoveIndex')) {
       console.log('fired view move changed');
-      this.dispatchEvent(new CustomEvent('view-move-changed', {
-        detail: this.viewMoveIndex !== undefined ? this.moveHistory[this.viewMoveIndex]?.before : undefined,
-        bubbles: true,
-        composed: true,
-      }));
+      this.dispatchEvent(
+        new CustomEvent('view-move-changed', {
+          detail:
+            this.viewMoveIndex !== undefined
+              ? this.moveHistory[this.viewMoveIndex]?.before
+              : undefined,
+          bubbles: true,
+          composed: true,
+        })
+      );
     }
   }
 
   render() {
     return html`
       <div class="container">
-        <div class="fen-display">${this.moveHistory.map(toFEN).map(
-          (fen: string) => html`<div class="fen">${fen}</div>`
-        )}</div>
+        <div class="fen-display">
+          ${this.moveHistory
+            .map(toFEN)
+            .map((fen: string) => html`<span class="fen">${fen}</span>`)}
+        </div>
         <div class="controls">
-          <paper-button raised .onclick=${this.onClickPrev.bind(this)}><</paper-button>
-          <paper-button raised .onclick=${this.onClickNext.bind(this)}>></paper-button>
+          <paper-button raised .onclick=${this.onClickPrev.bind(this)}
+            ><</paper-button
+          >
+          <paper-button raised .onclick=${this.onClickNext.bind(this)}
+            >></paper-button
+          >
         </div>
       </div>
     `;
