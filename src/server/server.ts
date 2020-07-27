@@ -12,9 +12,8 @@ import {
   InitGameMessage,
 } from '../common/message';
 import WS from 'ws';
-import {VARIANTS} from '../chess/variants/index';
+import * as Variants from '../chess/variants/index';
 import {Move} from '../chess/move';
-import {Chess960} from '../chess/variants/960';
 import {Color} from '../chess/const';
 import {randomChoice} from '../utils';
 
@@ -49,7 +48,8 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
   let game;
   const waitingRoom = activeGames.filter((ag) => !ag.p2)[0];
   if (!waitingRoom) {
-    game = new (VARIANTS[randomChoice(Object.keys(VARIANTS))].game)();
+    // game = new (Variants.VARIANTS[randomChoice(Object.keys(Variants.VARIANTS))])();
+    game = new Variants.Knightmate();
     activeGames.push({p1: uuid, game});
     console.log('game created');
   } else {

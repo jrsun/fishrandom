@@ -6,6 +6,7 @@ import {
   css,
 } from '../../node_modules/lit-element';
 import './my-element';
+import {reviver, Message, InitGameMessage} from '../common/message';
 import './my-rules';
 
 @customElement('my-app')
@@ -111,16 +112,45 @@ export class MyApp extends LitElement {
       max-height: calc(100vh - 300px);
     }
   }`;
+
+  @property({type: String}) gameName = 'Waiting';
   private socket: WebSocket;
 
   connectedCallback() {
     super.connectedCallback();
     this.socket = new WebSocket('ws://localhost:8081');
+    this.socket.addEventListener('open', function (e) {}.bind(this));
+    this.socket.addEventListener(
+      'message',
+      this.handleSocketMessage.bind(this)
+    );
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+
+    this.socket.removeEventListener('open', function (e) {}.bind(this));
+    this.socket.removeEventListener(
+      'message',
+      this.handleSocketMessage.bind(this)
+    );
+  }
+
+  handleSocketMessage(e: MessageEvent) {
+    const message: Message = JSON.parse(e.data, reviver);
+    console.log('Received message of type %s', message.type);
+    console.log(message);
+    if (message.type === 'initGame') {
+      const igm = message as InitGameMessage;
+      this.gameName = igm.variantName;
+    }
   }
 
   render() {
     return html`<div class="app">
-      <div class="title"><h1>9 6 0</h1></div>
+      <div class="title"><h1>
+        ${this.gameName.toUpperCase().split('').join(' ')}
+      </h1></div>
       <div class="game-container">
         <!-- dom-if piece bank -->
         <div class="active-game-container">

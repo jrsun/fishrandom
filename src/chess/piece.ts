@@ -402,6 +402,24 @@ export class Pawn extends Piece {
   }
 }
 
+export class RoyalKnight extends Knight {
+  name = 'RoyalKnight';
+  isRoyal = true;
+  
+  get img(): string {
+    return (this.color === Color.BLACK) ? 'knightkingb.png' : 'knightkingw.png';
+  }
+}
+
+export class Mann extends King {
+  name = 'Mann';
+  isRoyal = false;
+
+  get img(): string {
+    return (this.color === Color.BLACK) ? 'mannb.png' : 'mannw.png';
+  }
+}
+
 export const ALL_PIECES: {[name: string]: typeof Piece} = {
   Pawn,
   Bishop,
@@ -409,4 +427,6 @@ export const ALL_PIECES: {[name: string]: typeof Piece} = {
   Rook,
   Queen,
   King,
+  RoyalKnight,
+  Mann,
 };

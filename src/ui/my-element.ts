@@ -155,7 +155,7 @@ export class MyElement extends LitElement {
     } else if (message.type === 'initGame') {
       const igm = message as InitGameMessage;
       const {variantName, state, color} = igm;
-      this.game = new (VARIANTS[variantName].game)();
+      this.game = new (VARIANTS[variantName])();
       this.game.moveHistory = [];
       this.game.stateHistory = [state];
       this.game.state = state;

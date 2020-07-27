@@ -7,8 +7,7 @@ import {
   TemplateResult,
 } from 'lit-element';
 import {Game} from '../chess/game';
-import {VARIANTS} from '../chess/variants/index';
-import {Chess960} from '../chess/variants/960';
+import {VARIANTS, Chess960, Classic, Knightmate, Horde} from '../chess/variants/index';
 import {Message, InitGameMessage, reviver} from '../common/message';
 
 @customElement('my-rules')
@@ -52,6 +51,9 @@ export class MyRules extends LitElement {
       height: 200px;
       width: 200px;
       background-size: cover;
+    }
+    ul {
+      padding-left:20px;
     }
   `;
   // public
@@ -100,15 +102,41 @@ export class MyRules extends LitElement {
       <div id="rules">
         <span id="title"><h3>Rules</h3></span>
         <div class="body">
-          ${this.getVariantRules()}
+          ${html`${this.getVariantRules()}`}
         </div>
       </div>
     `;
   }
 
   private getVariantRules() {
-    return VARIANTS[this.variant].rules ?? `${this.variant} rules not found.`;
+    return VARIANT_INFO[this.variant] ?? `${this.variant} rules not found.`;
   }
+}
+
+const VARIANT_INFO: {[variant: string]: TemplateResult} = {
+  [Chess960.name]: html`Starting position of the pieces on the players' home ranks is
+    randomized.
+    <!-- <div class="examples"><img src="../img/variants/960.png"/></div> -->
+    <ul>
+      <li>Orthodox rules.</li>
+      <li>Checkmate to win.</li>
+    </ul>`,
+  [Classic.name]: html`The classic game.`,
+  [Knightmate.name]: html`The role of the King and Knight are switched.
+  The King is replaced by a <b>Royal Knight</b>, and the Knights are replaced
+  by <b>Manns</b>, which are regular pieces that move like Kings.
+  <ul>
+      <li>Castling allowed.</li>
+      <li>Pawn can promote to <b>Mann</b> instead of Knight.</li>
+      <li>Checkmate the <b>Royal Knight</b> to win.</li>
+    </ul>`,
+  [Horde.name]: html`White has 36 pawns. Black has a regular chess setup.
+  <ul>
+    <li>White wins by checkmating the black king.</li>
+    <li>Black wins by capturing every pawn.</li>
+    <li>White pawns can promote.</li>
+  </ul>
+  `,
 }
 
 declare global {
