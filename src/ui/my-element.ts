@@ -176,7 +176,9 @@ export class MyElement extends LitElement {
       `${SQUARE_SIZE * state.squares[0].length}px`
     );
     if (this.color === Color.BLACK) {
-      this.shadowRoot?.querySelector('#board')?.setAttribute('style', 'transform:rotate(180deg);');
+      this.shadowRoot
+        ?.querySelector('#board')
+        ?.setAttribute('style', 'transform:rotate(180deg);');
       // this.style.setProperty('transform', 'rotate(180deg)');
     }
 

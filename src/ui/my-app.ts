@@ -8,7 +8,12 @@ import {
 import '@polymer/paper-dialog';
 import './my-element';
 import {VARIANTS, Chess960} from '../chess/variants/index';
-import {reviver, Message, InitGameMessage} from '../common/message';
+import {
+  reviver,
+  Message,
+  InitGameMessage,
+  GameOverMessage,
+} from '../common/message';
 import './my-rules';
 import './my-controls';
 import {Game} from '../chess/game';
@@ -115,13 +120,18 @@ export class MyApp extends LitElement {
       flex: 1;
       max-height: calc(100vh - 300px);
     }
+    paper-dialog {
+      border-radius: 2px;
+    }
   }`;
 
-  @property({type: Object}) game = new Chess960(/*isServer*/false);
+  @property({type: Object}) game = new Chess960(/*isServer*/ false);
   private socket: WebSocket;
 
   // private
   @property({type: Object}) viewHistoryState: BoardState | undefined;
+
+  private gameResult = '';
 
   connectedCallback() {
     super.connectedCallback();
@@ -159,11 +169,24 @@ export class MyApp extends LitElement {
     if (message.type === 'initGame') {
       const igm = message as InitGameMessage;
       const {variantName, state, color} = igm;
-      this.game = new VARIANTS[variantName](/* isServer=*/false);
+      this.game = new VARIANTS[variantName](/* isServer=*/ false);
       this.game.moveHistory = [];
       this.game.stateHistory = [state];
       this.game.state = state;
 
+      this.gameResult = '';
+
+      this.performUpdate();
+    } else if (message.type === 'gameOver') {
+      const gom = message as GameOverMessage;
+      const {moveHistory, stateHistory, result} = gom;
+      this.game.moveHistory = moveHistory;
+      this.game.stateHistory = stateHistory;
+      this.game.state = stateHistory?.[stateHistory.length - 1];
+
+      this.gameResult = result;
+      const goDialog = this.shadowRoot?.querySelector('paper-dialog');
+      goDialog?.open();
       this.performUpdate();
     }
   }
@@ -174,6 +197,9 @@ export class MyApp extends LitElement {
   }
 
   handleNewGame() {
+    const goDialog = this.shadowRoot?.querySelector('paper-dialog');
+    goDialog?.close();
+
     this.game = new Chess960(false);
     this.socket = new WebSocket('ws://localhost:8081');
     this.socket.addEventListener('open', function (e) {}.bind(this));
@@ -190,9 +216,6 @@ export class MyApp extends LitElement {
           ${this.game.name.toUpperCase().split('').join(' ')}
         </h1>
       </div>
-      <!-- <paper-button raised .onclick=${this.handleNewGame.bind(this)}
-        >New Game</paper-button
-      > -->
       <div class="game-container">
         <!-- dom-if piece bank -->
         <div class="active-game-container">
@@ -244,6 +267,17 @@ export class MyApp extends LitElement {
           </div>
         </div>
       </div>
+      <paper-dialog
+        entry-animation="scale-up-animation"
+        exit-animation="fade-out-animation"
+      >
+        <h2>${this.gameResult}</h2>
+        <div>
+          <paper-button raised .onclick=${this.handleNewGame.bind(this)}>
+            New Game
+          </paper-button>
+        </div>
+      </paper-dialog>
     </div>`;
   }
 }

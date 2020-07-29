@@ -1,8 +1,14 @@
 import {Game} from '../chess/game';
 import {randomChoice} from '../utils';
-import { Move } from '../chess/move';
+import {Move} from '../chess/move';
 import {Color, getOpponent} from '../chess/const';
-import { AppendMessage, replacer, ReplaceMessage, GameResult, GameOverMessage } from '../common/message';
+import {
+  AppendMessage,
+  replacer,
+  ReplaceMessage,
+  GameResult,
+  GameOverMessage,
+} from '../common/message';
 
 // States progress from top to bottom within a room.
 enum RoomState {
@@ -41,14 +47,14 @@ export class Room {
       uuid,
       socket,
       color: getOpponent(this.p1.color),
-    }
+    };
     this.state = RoomState.PLAYING; // RULES
   }
 
   handleMove(uuid: string, moveAttempt: Move) {
-    if (!this.game || (!this.p2)) return;
+    if (!this.game || !this.p2) return;
     const player = this.p1.uuid === uuid ? this.p1 : this.p2;
-    const opponent = (player === this.p1) ? this.p2 : this.p1;
+    const opponent = player === this.p1 ? this.p2 : this.p1;
 
     const {
       start: {row: srow, col: scol},
@@ -63,24 +69,27 @@ export class Room {
     }
     console.log('%s: (%s, %s) -> (%s, %s)', piece.name, srow, scol, drow, dcol);
 
-    const move = game.attemptMove(
-      player.color,
-      piece,
-      srow,
-      scol,
-      drow,
-      dcol
-    );
+    const move = game.attemptMove(player.color, piece, srow, scol, drow, dcol);
     if (move) {
       // we should send the mover a `replaceState` and the opponent an
       // `appendState`
       const rm = JSON.stringify(
-        {type: 'replaceState', move, state: game.visibleState(game.state, player.color)} as ReplaceMessage,
-        replacer);
+        {
+          type: 'replaceState',
+          move,
+          state: game.visibleState(game.state, player.color),
+        } as ReplaceMessage,
+        replacer
+      );
       const am = JSON.stringify(
-        {type: 'appendState', move, state: game.visibleState(game.state, opponent.color)} as AppendMessage,
-        replacer);
-      
+        {
+          type: 'appendState',
+          move,
+          state: game.visibleState(game.state, opponent.color),
+        } as AppendMessage,
+        replacer
+      );
+
       player.socket.send(rm);
       opponent.socket.send(am);
     } else {
@@ -96,18 +105,28 @@ export class Room {
     }
     if (game.winCondition(player.color)) {
       this.state = RoomState.COMPLETED;
-      player.socket.send(JSON.stringify({
-        type: 'gameOver',
-        stateHistory: this.game.stateHistory,
-        moveHistory: this.game.moveHistory,
-        result: GameResult.WIN,
-      } as GameOverMessage, replacer));
-      opponent.socket.send(JSON.stringify({
-        type: 'gameOver',
-        stateHistory: this.game.stateHistory,
-        moveHistory: this.game.moveHistory,
-        result: GameResult.LOSS,
-      } as GameOverMessage, replacer));
+      player.socket.send(
+        JSON.stringify(
+          {
+            type: 'gameOver',
+            stateHistory: this.game.stateHistory,
+            moveHistory: this.game.moveHistory,
+            result: GameResult.WIN,
+          } as GameOverMessage,
+          replacer
+        )
+      );
+      opponent.socket.send(
+        JSON.stringify(
+          {
+            type: 'gameOver',
+            stateHistory: this.game.stateHistory,
+            moveHistory: this.game.moveHistory,
+            result: GameResult.LOSS,
+          } as GameOverMessage,
+          replacer
+        )
+      );
       player.socket.close();
       opponent.socket.close();
     }

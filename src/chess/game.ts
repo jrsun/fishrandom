@@ -2,7 +2,14 @@ import BoardState from './state';
 import {Move} from './move';
 import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from './piece';
 import Square from './square';
-import {Color, Pair, NotImplementedError, getOpponent, MoveType, equals} from './const';
+import {
+  Color,
+  Pair,
+  NotImplementedError,
+  getOpponent,
+  MoveType,
+  equals,
+} from './const';
 
 export class Game {
   // public
@@ -25,51 +32,58 @@ export class Game {
     this.state.place(piece, row, col);
   }
 
-
-
   /***********************
-  *  Override in variants
-  *************************/
+   *  Override in variants
+   *************************/
   afterMove() {} // In Piece Eater, do something
   captureEffects(move: Move) {
     // in atomic chess, explode, etc.
   }
-  visibleState(state: BoardState, color: Color) {return state;} // dark chess
+  visibleState(state: BoardState, color: Color) {
+    return state;
+  } // dark chess
   winCondition(color: Color): boolean {
     const opponent = getOpponent(color);
     if (!this.knowsInCheck(opponent, this.state)) return false;
 
-    const opponentLegalMoves = this.state.squares.flat()
-      .filter(square => square.occupant?.color === opponent)
-      .flatMap(square => square.occupant?.legalMoves(
-        square.row, square.col, this.state, this.moveHistory
-      )).filter(move => move && !this.knowsInCheck(opponent, move.after));
+    const opponentLegalMoves = this.state.squares
+      .flat()
+      .filter((square) => square.occupant?.color === opponent)
+      .flatMap((square) =>
+        square.occupant?.legalMoves(
+          square.row,
+          square.col,
+          this.state,
+          this.moveHistory
+        )
+      )
+      .filter((move) => move && !this.knowsInCheck(opponent, move.after));
     // Opponent is in check and cannot escape it.
     return opponentLegalMoves.length === 0;
   }
 
   /***********************
-  *  Private
-  *************************/
+   *  Private
+   *************************/
 
-//  attemptTurn(
-//    color: Color,
-//    piece: Piece,
-//    srow: number,
-//    scol: number,
-//    drow: number,
-//    dcol: number): Move|undefined {
-//     if (color !== piece.color || color !== this.whoseTurn) return;
-//     const move = this.attemptMove(piece, srow, scol, drow, dcol);
-//     if (!move) return;
-//     this.winCondition(color);
-//     this.afterMove();
-//     this.whoseTurn = getOpponent(color);
-//     return {
-//       [Color.WHITE]: this.visibleState(Color.WHITE),
-//       [Color.BLACK]: this.visibleState(Color.BLACK),
-//     };
-//   }
+  //  attemptTurn(
+  //    color: Color,
+  //    piece: Piece,
+  //    srow: number,
+  //    scol: number,
+  //    drow: number,
+  //    dcol: number): Move|undefined {
+  //     if (color !== piece.color || color !== this.whoseTurn) return;
+  //     const move = this.attemptMove(piece, srow, scol, drow, dcol);
+  //     if (!move) return;
+  //     this.winCondition(color);
+  //     this.afterMove();
+  //     this.whoseTurn = getOpponent(color);
+  //     return {
+  //       [Color.WHITE]: this.visibleState(Color.WHITE),
+  //       [Color.BLACK]: this.visibleState(Color.BLACK),
+  //     };
+  //   }
 
   attemptMove(
     color: Color,
@@ -243,17 +257,22 @@ export class Game {
     const visibleState = this.visibleState(state, color);
     // put a dummy on the square (mostly for pawns)
     const dummy = new Piece(color);
-    const stateWithDummy = new BoardState(visibleState.squares, getOpponent(color)).place(dummy, row, col);
+    const stateWithDummy = new BoardState(
+      visibleState.squares,
+      getOpponent(color)
+    ).place(dummy, row, col);
     const squaresWithEnemy = state.squares
       .flat()
-      .filter((square) => !!square.occupant && square.occupant.color === getOpponent(color));
+      .filter(
+        (square) =>
+          !!square.occupant && square.occupant.color === getOpponent(color)
+      );
     const enemyMoves = squaresWithEnemy.flatMap((square) =>
       square.occupant!.legalMoves(square.row, square.col, stateWithDummy, [])
     );
 
     return enemyMoves.some((move) => move.captured === dummy);
   }
-
 }
 
 function generateStartState(): BoardState {

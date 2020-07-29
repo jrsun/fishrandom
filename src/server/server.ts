@@ -11,7 +11,7 @@ import {
   ReplaceAllMessage,
   InitGameMessage,
 } from '../common/message';
-import { Room } from './room';
+import {Room} from './room';
 import WS from 'ws';
 import * as Variants from '../chess/variants/index';
 import {Move} from '../chess/move';

@@ -11,7 +11,8 @@ export type Message =
   | ReplaceMessage
   | AppendMessage
   | ReplaceAllMessage
-  | InitGameMessage;
+  | InitGameMessage
+  | GameOverMessage;
 
 export interface MoveMessage {
   type: 'move';
@@ -50,7 +51,7 @@ export enum GameResult {
 }
 
 export interface GameOverMessage {
-  type: 'gameOver',
+  type: 'gameOver';
   stateHistory: BoardState[];
   moveHistory: Move[];
   result: GameResult;
