@@ -76,7 +76,11 @@ export class Room {
       const rm = JSON.stringify(
         {
           type: 'replaceState',
-          move,
+          move: {
+            ...move,
+            before: game.visibleState(move.before, player.color),
+            after: game.visibleState(move.after, player.color),
+          },
           state: game.visibleState(game.state, player.color),
         } as ReplaceMessage,
         replacer
@@ -84,7 +88,11 @@ export class Room {
       const am = JSON.stringify(
         {
           type: 'appendState',
-          move,
+          move: {
+            ...move,
+            before: game.visibleState(move.before, opponent.color),
+            after: game.visibleState(move.after, opponent.color),
+          },
           state: game.visibleState(game.state, opponent.color),
         } as AppendMessage,
         replacer

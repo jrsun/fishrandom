@@ -143,7 +143,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Black wins by capturing every pawn.</li>
       <li>White pawns can promote.</li>
     </ul> `,
-  [Hiddenqueen.name]: html`Both sides have a pawn designated as secretly a
+  [Hiddenqueen.name]: html`Both sides have a pawn designated as a hidden
     queen. This queen will remain hidden to the opponent unless it makes a move
     that would be impossible as a pawn. While hidden, the queen does not
     explicitly give check.
@@ -152,7 +152,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Hidden Queen cannot capture en passant.</li>
       <li>
         Hidden Queen cannot be captured en passant. If you are unable to capture
-        an otherwise eligible pawn en passant, it <b>must</b> be the hidden
+        an otherwise eligible pawn en passant, it <b>must</b> be the opponent's hidden
         queen.
       </li>
     </ul> `,

@@ -109,8 +109,6 @@ export class Hiddenqueen extends Game {
     }
     return {
       ...move,
-      before: this.visibleState(move.before, getOpponent(color)),
-      after: this.visibleState(move.after, getOpponent(color)),
       piece: piece instanceof QueenPawn ? new Pawn(color) : piece,
     };
   }
