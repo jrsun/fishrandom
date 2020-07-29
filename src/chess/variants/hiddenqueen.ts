@@ -13,8 +13,8 @@ export class Hiddenqueen extends Game {
     [Color.WHITE]: false,
     [Color.BLACK]: false,
   }
-  constructor() {
-    super(generateStartState());
+  constructor(isServer: boolean) {
+    super(isServer, generateStartState());
   }
   visibleState(state: BoardState, color: Color): BoardState {
     if (this.revealed[getOpponent(color)]) return state;
@@ -30,6 +30,21 @@ export class Hiddenqueen extends Game {
     })), state.whoseTurn);
   }
 
+  winCondition(color: Color): boolean {
+    if (super.winCondition(color)) return true;
+
+    if (!(
+      this.state.pieces.filter(piece => piece.color === getOpponent(color))
+    ).some(piece => piece instanceof King)) {
+      return true;
+    }
+    return false;
+  }
+
+  isInCheck(color: Color, state: BoardState) {
+    return super.isInCheck(color, this.visibleState(state, color));
+  }
+
   attemptMove(
     color: Color,
     piece: Piece,
@@ -38,6 +53,9 @@ export class Hiddenqueen extends Game {
     drow: number,
     dcol: number
   ): Move | undefined {
+    if (!this.isServer) {
+      return super.attemptMove(color, piece, srow, scol, drow, dcol);
+    }
     const move = super.attemptMove(color, piece, srow, scol, drow, dcol);
     if (!move) return;
     if (this.revealed[color]) {

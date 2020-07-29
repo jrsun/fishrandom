@@ -9,8 +9,8 @@ import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from '../piece';
 export class Chess960 extends Game {
   name = Chess960.name;
   // TODO: Castling is broken. it eats pieces
-  constructor() {
-    super(generateStartState());
+  constructor(isServer: boolean) {
+    super(isServer, generateStartState());
   }
 }
 

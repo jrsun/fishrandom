@@ -117,7 +117,7 @@ export class MyApp extends LitElement {
     }
   }`;
 
-  @property({type: Object}) game = new Chess960();
+  @property({type: Object}) game = new Chess960(/*isServer*/false);
   private socket: WebSocket;
 
   // private
@@ -159,7 +159,7 @@ export class MyApp extends LitElement {
     if (message.type === 'initGame') {
       const igm = message as InitGameMessage;
       const {variantName, state, color} = igm;
-      this.game = new VARIANTS[variantName]();
+      this.game = new VARIANTS[variantName](/* isServer=*/false);
       this.game.moveHistory = [];
       this.game.stateHistory = [state];
       this.game.state = state;
@@ -174,7 +174,7 @@ export class MyApp extends LitElement {
   }
 
   handleNewGame() {
-    this.game = new Chess960();
+    this.game = new Chess960(false);
     this.socket = new WebSocket('ws://localhost:8081');
     this.socket.addEventListener('open', function (e) {}.bind(this));
     this.socket.addEventListener(

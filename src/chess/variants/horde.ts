@@ -8,8 +8,8 @@ export class Horde extends Game {
   // TODO: pawns on 1st rank can move 2 squares
   name = Horde.name;
 
-  constructor() {
-    super(generateStartState());
+  constructor(isServer) {
+    super(isServer, generateStartState());
   }
 }
 

@@ -15,7 +15,7 @@ export class Game {
 
   // PAWN_HOME_RANK = 1;
 
-  constructor(initial?: BoardState) {
+  constructor(public isServer: boolean, initial?: BoardState) {
     this.state = initial ?? generateStartState();
     this.moveHistory = [];
     this.stateHistory = [this.state];

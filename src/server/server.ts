@@ -51,7 +51,7 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
   } else {
     room.p2Connect(uuid, ws);
     // const newGame = new (Variants.Random())();
-    const newGame = new Variants.Hiddenqueen();
+    const newGame = new Variants.Hiddenqueen(true);
     room.game = newGame;
     playerToRoom[uuid] = room;
     console.log('game joined');
