@@ -36,6 +36,10 @@ enum Color {
   BLACK = 'black',
 }
 
+export function getOpponent(color: Color) {
+  return color === Color.WHITE ? Color.BLACK : Color.WHITE;
+}
+
 enum MoveType {
   MOVE = 'move',
   CASTLE = 'castle',

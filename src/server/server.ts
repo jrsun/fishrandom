@@ -15,7 +15,7 @@ import WS from 'ws';
 import * as Variants from '../chess/variants/index';
 import {Move} from '../chess/move';
 import {Color} from '../chess/const';
-import {randomChoice} from '../utils';
+import {randomChoice, randomInt} from '../utils';
 
 var app = express();
 
@@ -33,46 +33,45 @@ app.listen(8080);
 
 const wss = new WS.Server({port: 8081});
 
-interface ActiveGames {
+interface Room {
   p1: string;
   p2?: string;
+  p1IsWhite: boolean;
   game?: Game;
 }
-const activeGames: ActiveGames[] = [];
+const playerToRoom: {[uuid: string]: Room} = {};
+const rooms: Room[] = [];
 const sockets: {[uuid: string]: WS.WebSocket} = {};
 
 wss.on('connection', function connection(ws: WS.WebSocket) {
   // onclose
   const uuid = guid();
   sockets[uuid] = ws;
-  let game;
-  const waitingRoom = activeGames.filter((ag) => !ag.p2)[0];
+  const waitingRoom = rooms.filter((ag) => !ag.p2)[0];
   if (!waitingRoom) {
     // game = new (Variants.VARIANTS[randomChoice(Object.keys(Variants.VARIANTS))])();
     // game = new Variants.Knightmate();
-    activeGames.push({p1: uuid});
+    const newRoom = {p1: uuid, p1IsWhite: randomChoice([true, false])};
+    rooms.push(newRoom);
+    playerToRoom[uuid] = newRoom;
     console.log('game created');
   } else {
     waitingRoom.p2 = uuid;
-    waitingRoom.game = new Variants.Knightmate();
-    game = waitingRoom.game;
+    const newGame = new Variants.Knightmate();
+    waitingRoom.game = newGame;
+    playerToRoom[uuid] = waitingRoom;
     console.log('game joined');
-    // const ram = {
-    //   type: 'replaceAll',
-    //   moveHistory: game.moveHistory,
-    //   stateHistory: game.stateHistory,
-    // } as ReplaceAllMessage;
     const igmW = {
       type: 'initGame',
-      state: game.state,
-      variantName: game.name,
+      state: newGame.state,
+      variantName: newGame.name,
       color: Color.WHITE,
     } as InitGameMessage;
     const igmB = {
       ...igmW,
       color: Color.BLACK,
     } as InitGameMessage;
-    if (Math.random() > 0.5) {
+    if (waitingRoom.p1IsWhite) {
       sockets[waitingRoom.p1].send(JSON.stringify(igmW, replacer));
       sockets[waitingRoom.p2].send(JSON.stringify(igmB, replacer));
     } else {
@@ -80,14 +79,26 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
       sockets[waitingRoom.p2].send(JSON.stringify(igmW, replacer));
     }
   }
-  console.log('active: ', activeGames);
+  console.log('active: ', rooms);
   ws.on('message', function incoming(message) {
+    const room = playerToRoom[uuid];
+    if (!room) {
+      console.log('not in a room! exiting');
+      return;
+    }
+    if (!room!.p2) {
+      // console.log('not in a game! continuing anyway');
+      // return;
+    }
+
+    const game = room.game;
     try {
       message = JSON.parse(message, reviver);
     } catch (e) {
       console.log('malformed message', e);
     }
     console.log('Received message of type %s', message.type);
+    console.log(game);
     if (!game) {
       console.log('Game not started');
       return;
@@ -107,24 +118,14 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
       } = message.move as Move;
       console.log('Move: (%s, %s) -> (%s, %s)', srow, scol, drow, dcol);
 
-      const room = activeGames.find(
-        (game) => uuid === game.p1 || uuid === game.p2
-      );
-      if (!room) {
-        console.log('not in a room! exiting');
-        return;
-      }
-      if (!room!.p2) {
-        // console.log('not in a game! continuing anyway');
-        // return;
-      }
       const piece = game.state.getSquare(srow, scol)?.occupant;
       if (!piece) {
         console.log('no piece at ', srow, scol);
         return;
       }
       const move = game.attemptMove(
-        game.state.getSquare(srow, scol)?.occupant,
+        colorFromUuid(uuid, room),
+        piece,
         srow,
         scol,
         drow,
@@ -181,3 +182,10 @@ let guid = () => {
     s4()
   );
 };
+
+const colorFromUuid = (uuid: string, room: Room) => {
+  if (
+    (uuid === room.p1 && room.p1IsWhite)
+    || (uuid === room.p2 && !room.p1IsWhite)) {return Color.WHITE};
+  return Color.BLACK;
+}

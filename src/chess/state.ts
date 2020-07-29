@@ -8,8 +8,9 @@ export default class BoardState {
   ranks: number = 8;
   files: number = 8;
   squares: Square[][];
+  whoseTurn: Color;
 
-  constructor(squares: Square[][]) {
+  constructor(squares: Square[][], whoseTurn) {
     this.ranks = squares.length;
     this.files = squares[0].length;
     const newSquares: Square[][] = [];
@@ -25,6 +26,7 @@ export default class BoardState {
       newSquares.push(newRow);
     }
     this.squares = newSquares;
+    this.whoseTurn = whoseTurn;
   }
 
   place(piece: Piece, row: number, col: number): BoardState {
@@ -49,21 +51,21 @@ export default class BoardState {
     return this.squares[row]?.[col];
   }
 
-  pieces(): Piece[] {
+  get pieces(): Piece[] {
     return this.squares
-      .map((row) => row.map((square) => square.occupant))
-      .flat()
-      .filter((occupant: Piece | undefined) => !!occupant) as Piece[];
+    .map(row => row.map(square => square.occupant)).flat()
+    .filter((occupant: Piece|undefined) => !!occupant) as Piece[];
   }
 
   static freeze(state: BoardState): object {
     return {
       _class: 'BoardState',
       squares: state.squares,
+      whoseTurn: state.whoseTurn,
     };
   }
 
   static thaw(o): BoardState {
-    return new BoardState(o.squares);
+    return new BoardState(o.squares, o.whoseTurn);
   }
 }

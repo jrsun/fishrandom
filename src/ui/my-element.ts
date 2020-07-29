@@ -161,6 +161,9 @@ export class MyElement extends LitElement {
       this.game.moveHistory = moveHistory;
       this.game.stateHistory = stateHistory;
       this.game.state = stateHistory[stateHistory.length - 1];
+    } else if (message.type === 'initGame') {
+      const igm = message as InitGameMessage;
+      this.color = igm.color;
     }
     this.performUpdate();
   }
@@ -174,7 +177,8 @@ export class MyElement extends LitElement {
       `${SQUARE_SIZE * state.squares[0].length}px`
     );
     if (this.color === Color.BLACK) {
-      this.style.setProperty('transform', 'rotate(180deg)');
+      this.shadowRoot?.querySelector('#board')?.setAttribute('style', 'transform:rotate(180deg);');
+      // this.style.setProperty('transform', 'rotate(180deg)');
     }
 
     return html`
@@ -205,6 +209,7 @@ export class MyElement extends LitElement {
     const square = e.detail as Square;
     if (this.selectedPiece && this.selectedSquare) {
       const move = this.game.attemptMove(
+        this.color,
         this.selectedPiece,
         this.selectedSquare.row,
         this.selectedSquare.col,

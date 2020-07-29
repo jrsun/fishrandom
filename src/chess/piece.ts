@@ -8,6 +8,7 @@ import {
   PAWN_HOME_RANK,
   Color,
   MoveType,
+  getOpponent,
 } from './const';
 import {Move} from './move';
 import BoardState from './state';
@@ -100,7 +101,7 @@ class Leaper extends Piece {
 
       moves.push({
         before: state,
-        after: new BoardState(state.squares)
+        after: new BoardState(state.squares, getOpponent(this.color))
           .place(this, target.row, target.col)
           .empty(row, col),
         piece: this,
@@ -157,7 +158,7 @@ class Rider extends Piece {
         );
         moves.push({
           before: state,
-          after: new BoardState(state.squares)
+          after: new BoardState(state.squares, getOpponent(this.color))
             .place(this, square.row, square.col)
             .empty(row, col),
           piece: this,
@@ -310,7 +311,7 @@ export class Pawn extends Piece {
     for (const target of moveTargets) {
       moves.push({
         before: state,
-        after: new BoardState(state.squares)
+        after: new BoardState(state.squares, getOpponent(this.color))
           .place(this, target.row, target.col)
           .empty(row, col),
         piece: this,
@@ -324,7 +325,7 @@ export class Pawn extends Piece {
     for (const target of captureTargets) {
       moves.push({
         before: state,
-        after: new BoardState(state.squares)
+        after: new BoardState(state.squares, getOpponent(this.color))
           .place(this, target.row, target.col)
           .empty(row, col),
         piece: this,
@@ -369,7 +370,7 @@ export class Pawn extends Piece {
         const color = this.color;
         const type = MoveType.ENPASSANT;
 
-        const after = new BoardState(state.squares)
+        const after = new BoardState(state.squares, getOpponent(this.color))
           .place(this, end.row, end.col)
           .empty(row, col)
           // capturing the pawn

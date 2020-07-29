@@ -2,10 +2,13 @@ import BoardState from './state';
 import {Move} from './move';
 import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from './piece';
 import Square from './square';
-import {Color, Pair, NotImplementedError, MoveType, equals} from './const';
+import {Color, Pair, NotImplementedError, getOpponent, MoveType, equals} from './const';
 
 export class Game {
+  // public
   name: string; // variant name
+
+  // protected
   state: BoardState;
   moveHistory: Move[];
   stateHistory: BoardState[];
@@ -22,24 +25,59 @@ export class Game {
     this.state.place(piece, row, col);
   }
 
-  winCondition(color: Color, state: BoardState): boolean {
-    throw NotImplementedError;
+
+
+  /***********************
+  *  Override in variants
+  *************************/
+  afterMove() {} // In Piece Eater, do something
+  captureEffects(move: Move) {
+    // in atomic chess, explode, etc.
+  }
+  visibleState(color: Color) {return this.state;} // dark chess
+  winCondition(color: Color): boolean {
+    const opponent = getOpponent(color);
+    const opponentLegalMoves = this.state.squares.flat()
+      .filter(square => square.occupant?.color === opponent)
+      .flatMap(square => square.occupant?.legalMoves(
+        square.row, square.col, this.state, this.moveHistory
+      ));
+    // Opponent is in check and cannot escape it.
+    return opponentLegalMoves.length === 0 && this.isInCheck(opponent, this.state);
   }
 
-  move() {
-    // state.attemptMove (x2 for double chess)
-    // captureEffects
-    // winCondition
-  }
+  /***********************
+  *  Private
+  *************************/
 
-  // override in variants
+//  attemptTurn(
+//    color: Color,
+//    piece: Piece,
+//    srow: number,
+//    scol: number,
+//    drow: number,
+//    dcol: number): Move|undefined {
+//     if (color !== piece.color || color !== this.whoseTurn) return;
+//     const move = this.attemptMove(piece, srow, scol, drow, dcol);
+//     if (!move) return;
+//     this.winCondition(color);
+//     this.afterMove();
+//     this.whoseTurn = getOpponent(color);
+//     return {
+//       [Color.WHITE]: this.visibleState(Color.WHITE),
+//       [Color.BLACK]: this.visibleState(Color.BLACK),
+//     };
+//   }
+
   attemptMove(
+    color: Color,
     piece: Piece,
     srow: number,
     scol: number,
     drow: number,
     dcol: number
   ): Move | undefined {
+    if (color !== piece.color || color !== this.state.whoseTurn) return;
     if (piece instanceof King && srow === drow && Math.abs(scol - dcol) === 2) {
       return this.castle(piece.color, srow, scol, drow, dcol);
     }
@@ -57,7 +95,7 @@ export class Game {
       return; // invalid move
     }
     if (legalMove.isCapture) {
-      this.captureEffects();
+      this.captureEffects(legalMove);
     }
 
     this.moveHistory.push(legalMove);
@@ -142,7 +180,7 @@ export class Game {
     }
     const before = this.state;
     const king = new King(color);
-    const after = new BoardState(this.state.squares)
+    const after = new BoardState(this.state.squares, getOpponent(color))
       .empty(rookSquare.row, rookSquare.col)
       .empty(row, col)
       .place(king, target.row, target.col)
@@ -201,10 +239,10 @@ export class Game {
   ): boolean {
     // put a dummy on the square (mostly for pawns)
     const dummy = new Piece(color);
-    const stateWithDummy = new BoardState(state.squares).place(dummy, row, col);
+    const stateWithDummy = new BoardState(state.squares, getOpponent(color)).place(dummy, row, col);
     const squaresWithEnemy = state.squares
       .flat()
-      .filter((square) => !!square.occupant && square.occupant.color !== color);
+      .filter((square) => !!square.occupant && square.occupant.color === getOpponent(color));
     const enemyMoves = squaresWithEnemy.flatMap((square) =>
       square.occupant!.legalMoves(square.row, square.col, stateWithDummy, [])
     );
@@ -212,9 +250,6 @@ export class Game {
     return enemyMoves.some((move) => move.captured === dummy);
   }
 
-  captureEffects() {
-    // in atomic chess, explode, etc.
-  }
 }
 
 function generateStartState(): BoardState {
@@ -260,5 +295,5 @@ function generateStartState(): BoardState {
     }
     squares.push(row);
   }
-  return new BoardState(squares);
+  return new BoardState(squares, Color.WHITE);
 }

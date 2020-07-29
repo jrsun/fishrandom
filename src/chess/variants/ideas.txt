@@ -15,3 +15,8 @@ grasshopper
 prechess
 knightmate
 rifle
+
+fairy pieces:
+immobilizer
+jester copies last op move
+maharajah
