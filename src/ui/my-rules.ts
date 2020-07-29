@@ -13,6 +13,7 @@ import {
   Classic,
   Knightmate,
   Horde,
+  Hiddenqueen,
 } from '../chess/variants/index';
 import {Message, InitGameMessage, reviver} from '../common/message';
 
@@ -142,6 +143,16 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Black wins by capturing every pawn.</li>
       <li>White pawns can promote.</li>
     </ul> `,
+  [Hiddenqueen.name]: html`Both sides have a pawn designated as secretly a queen.
+  This queen will remain hidden to the opponent unless it makes a move that would be impossible
+  as a pawn. While hidden, the queen does not explicitly give check.
+    <ul>
+      <li>Checkmate or <b>capture</b> the king to win.</li>
+      <li>Hidden Queen cannot capture en passant.</li>
+      <li>Hidden Queen cannot be captured en passant. If you are unable to capture
+        an otherwise eligible pawn en passant, it <b>must</b> be the hidden queen.</li>
+    </ul>
+  `
 };
 
 declare global {
