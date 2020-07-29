@@ -37,13 +37,13 @@ export class Game {
   visibleState(state: BoardState, color: Color) {return state;} // dark chess
   winCondition(color: Color): boolean {
     const opponent = getOpponent(color);
-    if (!this.isInCheck(opponent, this.state)) return false;
+    if (!this.knowsInCheck(opponent, this.state)) return false;
 
     const opponentLegalMoves = this.state.squares.flat()
       .filter(square => square.occupant?.color === opponent)
       .flatMap(square => square.occupant?.legalMoves(
         square.row, square.col, this.state, this.moveHistory
-      )).filter(move => move && !this.isInCheck(opponent, move.after));
+      )).filter(move => move && !this.knowsInCheck(opponent, move.after));
     // Opponent is in check and cannot escape it.
     return opponentLegalMoves.length === 0;
   }
@@ -171,7 +171,7 @@ export class Game {
         throw new Error(`attempted to castle through nonexistent square
           , ${row}, ${travelCol}`);
       }
-      this.isAttackedSquare(color, this.state, row, travelCol) ||
+      this.knowsAttackedSquare(color, this.state, row, travelCol) ||
         (square.occupant &&
           square.occupant !== rookSquare.occupant &&
           !(square.occupant instanceof King));
@@ -216,32 +216,34 @@ export class Game {
     ) {
       return false;
     }
-    if (this.isInCheck(move.color, move.after)) {
+    if (this.knowsInCheck(move.color, move.after)) {
       return false;
     }
     return true;
   }
 
-  isInCheck(color: Color, state: BoardState): boolean {
-    const squaresWithEnemy = state.squares
+  knowsInCheck(color: Color, state: BoardState): boolean {
+    const visibleState = this.visibleState(state, color);
+    const squaresWithEnemy = visibleState.squares
       .flat()
       .filter((square) => !!square.occupant && square.occupant.color !== color);
     const enemyMoves = squaresWithEnemy.flatMap((square) =>
-      square.occupant!.legalMoves(square.row, square.col, state, [])
+      square.occupant!.legalMoves(square.row, square.col, visibleState, [])
     );
 
     return enemyMoves.some((move) => move.captured?.isRoyal);
   }
 
-  isAttackedSquare(
+  knowsAttackedSquare(
     color: Color,
     state: BoardState,
     row: number,
     col: number
   ): boolean {
+    const visibleState = this.visibleState(state, color);
     // put a dummy on the square (mostly for pawns)
     const dummy = new Piece(color);
-    const stateWithDummy = new BoardState(state.squares, getOpponent(color)).place(dummy, row, col);
+    const stateWithDummy = new BoardState(visibleState.squares, getOpponent(color)).place(dummy, row, col);
     const squaresWithEnemy = state.squares
       .flat()
       .filter((square) => !!square.occupant && square.occupant.color === getOpponent(color));

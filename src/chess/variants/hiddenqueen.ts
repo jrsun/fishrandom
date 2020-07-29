@@ -53,10 +53,6 @@ export class Hiddenqueen extends Game {
     return false;
   }
 
-  isInCheck(color: Color, state: BoardState) {
-    return super.isInCheck(color, this.visibleState(state, color));
-  }
-
   attemptMove(
     color: Color,
     piece: Piece,
