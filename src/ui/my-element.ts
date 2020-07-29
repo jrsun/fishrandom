@@ -145,6 +145,7 @@ export class MyElement extends LitElement {
       // this._validateLastMove(move, moveHistory, state, stateHistory);
       this.game.moveHistory[this.game.moveHistory.length - 1] = move;
       this.game.stateHistory[this.game.stateHistory.length - 1] = state;
+      this.game.state = state;
       console.log(toFEN(move));
     } else if (message.type === 'appendState') {
       const am = message as AppendMessage;

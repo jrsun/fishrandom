@@ -17,14 +17,26 @@ export class Hiddenqueen extends Game {
     super(isServer, generateStartState());
   }
   visibleState(state: BoardState, color: Color): BoardState {
-    if (this.revealed[getOpponent(color)]) return state;
+    if (!this.isServer) return state;
+
+    // if (this.revealed[getOpponent(color)]) return state;
 
     return new BoardState(state.squares.map(row => row.map(square => {
       const occupant = square.occupant;
       if (occupant
         && occupant instanceof QueenPawn
         && occupant.color !== color) {
-        return new Square(square.row, square.col).place(new Pawn(occupant.color));
+        if (this.revealed[occupant.color]) {
+          return new Square(square.row, square.col).place(new Queen(occupant.color));
+        } else {
+          return new Square(square.row, square.col).place(new Pawn(occupant.color));
+        }
+      }
+      if (occupant
+        && occupant instanceof QueenPawn
+        && occupant.color === color
+        && this.revealed[color]) {
+        return new Square(square.row, square.col).place(new Queen(occupant.color));
       }
       return square;
     })), state.whoseTurn);
