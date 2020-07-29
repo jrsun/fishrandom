@@ -37,13 +37,15 @@ export class Game {
   visibleState(color: Color) {return this.state;} // dark chess
   winCondition(color: Color): boolean {
     const opponent = getOpponent(color);
+    if (!this.isInCheck(opponent, this.state)) return false;
+
     const opponentLegalMoves = this.state.squares.flat()
       .filter(square => square.occupant?.color === opponent)
       .flatMap(square => square.occupant?.legalMoves(
         square.row, square.col, this.state, this.moveHistory
-      ));
+      )).filter(move => move && !this.isInCheck(opponent, move.after));
     // Opponent is in check and cannot escape it.
-    return opponentLegalMoves.length === 0 && this.isInCheck(opponent, this.state);
+    return opponentLegalMoves.length === 0;
   }
 
   /***********************
@@ -77,7 +79,7 @@ export class Game {
     drow: number,
     dcol: number
   ): Move | undefined {
-    if (color !== piece.color || color !== this.state.whoseTurn) return;
+    // if (color !== piece.color || color !== this.state.whoseTurn) return;
     if (piece instanceof King && srow === drow && Math.abs(scol - dcol) === 2) {
       return this.castle(piece.color, srow, scol, drow, dcol);
     }
