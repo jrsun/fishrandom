@@ -75,16 +75,24 @@ export class Room {
       // we should send the mover a `replaceState` and the opponent an
       // `appendState`
       const rm = JSON.stringify(
-        {type: 'replaceState', move, state: game.state} as ReplaceMessage,
+        {type: 'replaceState', move, state: game.visibleState(game.state, player.color)} as ReplaceMessage,
         replacer);
       const am = JSON.stringify(
-        {type: 'appendState', move, state: game.state} as AppendMessage,
+        {type: 'appendState', move, state: game.visibleState(game.state, opponent.color)} as AppendMessage,
         replacer);
       
       player.socket.send(rm);
       opponent.socket.send(am);
     } else {
       console.log('bad move!');
+      // const rm = JSON.stringify(
+      //   {
+      //     type: 'replaceState',
+      //     move: game.moveHistory.length ? game.moveHistory[game.moveHistory.length-1] : null,
+      //     state: game.visibleState(game.state, player.color)
+      //   } as ReplaceMessage,
+      //   replacer);
+      // player.socket.send(rm);
     }
     if (game.winCondition(player.color)) {
       this.state = RoomState.COMPLETED;
@@ -100,6 +108,8 @@ export class Room {
         moveHistory: this.game.moveHistory,
         result: GameResult.LOSS,
       } as GameOverMessage, replacer));
+      player.socket.close();
+      opponent.socket.close();
     }
   }
 }

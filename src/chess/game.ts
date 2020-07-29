@@ -34,7 +34,7 @@ export class Game {
   captureEffects(move: Move) {
     // in atomic chess, explode, etc.
   }
-  visibleState(color: Color) {return this.state;} // dark chess
+  visibleState(state: BoardState, color: Color) {return state;} // dark chess
   winCondition(color: Color): boolean {
     const opponent = getOpponent(color);
     if (!this.isInCheck(opponent, this.state)) return false;

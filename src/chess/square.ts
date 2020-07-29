@@ -31,8 +31,9 @@ export default class Square {
     this.piece = undefined;
   }
 
-  place(piece: Piece) {
+  place(piece: Piece): Square {
     this.piece = piece;
+    return this;
   }
 
   static freeze(square: Square): object {

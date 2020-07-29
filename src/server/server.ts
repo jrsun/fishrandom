@@ -44,26 +44,26 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
   sockets[uuid] = ws;
   let room = rooms.filter((ag) => !ag.p2)[0];
   if (!room) {
-    // game = new (Variants.VARIANTS[randomChoice(Object.keys(Variants.VARIANTS))])();
-    // game = new Variants.Knightmate();
     room = new Room(uuid, ws);
     rooms.push(room);
     playerToRoom[uuid] = room;
     console.log('game created');
   } else {
     room.p2Connect(uuid, ws);
-    const newGame = new Variants.Knightmate();
+    // const newGame = new (Variants.Random())();
+    const newGame = new Variants.Hiddenqueen();
     room.game = newGame;
     playerToRoom[uuid] = room;
     console.log('game joined');
     const igmW = {
       type: 'initGame',
-      state: newGame.state,
+      state: newGame.visibleState(newGame.state, Color.WHITE),
       variantName: newGame.name,
       color: Color.WHITE,
     } as InitGameMessage;
     const igmB = {
       ...igmW,
+      state: newGame.visibleState(newGame.state, Color.BLACK),
       color: Color.BLACK,
     } as InitGameMessage;
     console.log('room', room);

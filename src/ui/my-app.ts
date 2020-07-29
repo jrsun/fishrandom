@@ -5,6 +5,7 @@ import {
   property,
   css,
 } from '../../node_modules/lit-element';
+import '@polymer/paper-dialog';
 import './my-element';
 import {VARIANTS, Chess960} from '../chess/variants/index';
 import {reviver, Message, InitGameMessage} from '../common/message';
@@ -124,12 +125,13 @@ export class MyApp extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.socket = new WebSocket('ws://localhost:8081');
-    this.socket.addEventListener('open', function (e) {}.bind(this));
-    this.socket.addEventListener(
-      'message',
-      this.handleSocketMessage.bind(this)
-    );
+    this.handleNewGame();
+    // this.socket = new WebSocket('ws://localhost:8081');
+    // this.socket.addEventListener('open', function (e) {}.bind(this));
+    // this.socket.addEventListener(
+    //   'message',
+    //   this.handleSocketMessage.bind(this)
+    // );
     this.addEventListener(
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
@@ -171,6 +173,16 @@ export class MyApp extends LitElement {
     this.viewHistoryState = e.detail as BoardState;
   }
 
+  handleNewGame() {
+    this.game = new Chess960();
+    this.socket = new WebSocket('ws://localhost:8081');
+    this.socket.addEventListener('open', function (e) {}.bind(this));
+    this.socket.addEventListener(
+      'message',
+      this.handleSocketMessage.bind(this)
+    );
+  }
+
   render() {
     return html`<div class="app">
       <div class="title">
@@ -178,6 +190,9 @@ export class MyApp extends LitElement {
           ${this.game.name.toUpperCase().split('').join(' ')}
         </h1>
       </div>
+      <!-- <paper-button raised .onclick=${this.handleNewGame.bind(this)}
+        >New Game</paper-button
+      > -->
       <div class="game-container">
         <!-- dom-if piece bank -->
         <div class="active-game-container">
