@@ -42,6 +42,19 @@ export interface InitGameMessage {
   color: Color; // color for the receiving player
 }
 
+export enum GameResult {
+  WIN = 'win',
+  DRAW = 'draw',
+  LOSS = 'loss',
+}
+
+export interface GameOverMessage {
+  type: 'gameOver',
+  stateHistory: BoardState[];
+  moveHistory: Move[];
+  result: GameResult;
+}
+
 export function replacer(k: string, o: Piece | BoardState | Square): object {
   if (o instanceof Piece) return Piece.freeze(o);
   if (o instanceof BoardState) return BoardState.freeze(o);
