@@ -138,8 +138,6 @@ export class MyElement extends LitElement {
 
   handleSocketMessage(e: MessageEvent) {
     const message: Message = JSON.parse(e.data, reviver);
-    console.log('Received message of type %s', message.type);
-    console.log(message);
     if (message.type === 'replaceState') {
       const rm = message as ReplaceMessage;
       const {move, state} = rm;

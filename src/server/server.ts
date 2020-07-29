@@ -11,6 +11,7 @@ import {
   ReplaceAllMessage,
   InitGameMessage,
 } from '../common/message';
+import { Room } from './room';
 import WS from 'ws';
 import * as Variants from '../chess/variants/index';
 import {Move} from '../chess/move';
@@ -33,12 +34,6 @@ app.listen(8080);
 
 const wss = new WS.Server({port: 8081});
 
-interface Room {
-  p1: string;
-  p2?: string;
-  p1IsWhite: boolean;
-  game?: Game;
-}
 const playerToRoom: {[uuid: string]: Room} = {};
 const rooms: Room[] = [];
 const sockets: {[uuid: string]: WS.WebSocket} = {};
@@ -47,19 +42,20 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
   // onclose
   const uuid = guid();
   sockets[uuid] = ws;
-  const waitingRoom = rooms.filter((ag) => !ag.p2)[0];
-  if (!waitingRoom) {
+  let room = rooms.filter((ag) => !ag.p2)[0];
+  if (!room) {
     // game = new (Variants.VARIANTS[randomChoice(Object.keys(Variants.VARIANTS))])();
     // game = new Variants.Knightmate();
-    const newRoom = {p1: uuid, p1IsWhite: randomChoice([true, false])};
-    rooms.push(newRoom);
-    playerToRoom[uuid] = newRoom;
+    room = new Room(uuid, ws);
+    rooms.push(room);
+    playerToRoom[uuid] = room;
     console.log('game created');
   } else {
-    waitingRoom.p2 = uuid;
+    room.p2 = uuid;
+    room.p2s = ws;
     const newGame = new Variants.Knightmate();
-    waitingRoom.game = newGame;
-    playerToRoom[uuid] = waitingRoom;
+    room.game = newGame;
+    playerToRoom[uuid] = room;
     console.log('game joined');
     const igmW = {
       type: 'initGame',
@@ -71,12 +67,13 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
       ...igmW,
       color: Color.BLACK,
     } as InitGameMessage;
-    if (waitingRoom.p1IsWhite) {
-      sockets[waitingRoom.p1].send(JSON.stringify(igmW, replacer));
-      sockets[waitingRoom.p2].send(JSON.stringify(igmB, replacer));
+    console.log('room', room);
+    if (room.p1IsWhite) {
+      sockets[room.p1].send(JSON.stringify(igmW, replacer));
+      sockets[room.p2].send(JSON.stringify(igmB, replacer));
     } else {
-      sockets[waitingRoom.p1].send(JSON.stringify(igmB, replacer));
-      sockets[waitingRoom.p2].send(JSON.stringify(igmW, replacer));
+      sockets[room.p1].send(JSON.stringify(igmB, replacer));
+      sockets[room.p2].send(JSON.stringify(igmW, replacer));
     }
   }
   console.log('active: ', rooms);
@@ -98,7 +95,6 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
       console.log('malformed message', e);
     }
     console.log('Received message of type %s', message.type);
-    console.log(game);
     if (!game) {
       console.log('Game not started');
       return;
@@ -112,51 +108,9 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
         console.log('message is not valid move', message);
         return;
       }
-      const {
-        start: {row: srow, col: scol},
-        end: {row: drow, col: dcol},
-      } = message.move as Move;
-      console.log('Move: (%s, %s) -> (%s, %s)', srow, scol, drow, dcol);
-
-      const piece = game.state.getSquare(srow, scol)?.occupant;
-      if (!piece) {
-        console.log('no piece at ', srow, scol);
-        return;
-      }
-      const move = game.attemptMove(
-        colorFromUuid(uuid, room),
-        piece,
-        srow,
-        scol,
-        drow,
-        dcol
-      );
-      if (move) {
-        // we should send the mover a `replaceState` and the opponent an
-        // `appendState`
-        ws.send(
-          JSON.stringify(
-            {type: 'replaceState', move, state: game.state} as ReplaceMessage,
-            replacer
-          )
-        );
-        const other =
-          room.p1 === uuid ? room.p2 : room.p2 === uuid ? room.p1 : undefined;
-        if (other) {
-          sockets[other]?.send(
-            JSON.stringify(
-              {type: 'appendState', move, state: game.state} as AppendMessage,
-              replacer
-            )
-          );
-        }
-      } else {
-        console.log('bad move!');
-      }
+      room.handleMove(uuid, message.move);
     }
   });
-
-  ws.send(JSON.stringify({type: 'hello'}));
 });
 
 //generates random id;
@@ -182,10 +136,3 @@ let guid = () => {
     s4()
   );
 };
-
-const colorFromUuid = (uuid: string, room: Room) => {
-  if (
-    (uuid === room.p1 && room.p1IsWhite)
-    || (uuid === room.p2 && !room.p1IsWhite)) {return Color.WHITE};
-  return Color.BLACK;
-}
