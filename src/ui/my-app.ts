@@ -13,7 +13,9 @@ import {
   Message,
   InitGameMessage,
   GameOverMessage,
+  GameResult,
 } from '../common/message';
+import ConfettiGenerator from 'confetti-js';
 import './my-rules';
 import './my-controls';
 import {Game} from '../chess/game';
@@ -121,7 +123,15 @@ export class MyApp extends LitElement {
       max-height: calc(100vh - 300px);
     }
     paper-dialog {
+      font-family: 'JelleeBold';
       border-radius: 2px;
+    }
+    #confetti-canvas {
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      pointer-events: none;
+      z-index: 2;
     }
   }`;
 
@@ -187,6 +197,13 @@ export class MyApp extends LitElement {
       this.gameResult = result;
       const goDialog = this.shadowRoot?.querySelector('paper-dialog');
       goDialog?.open();
+      if (result === GameResult.WIN) {
+        const canvas = this.shadowRoot?.querySelector('#confetti-canvas');
+        var confettiSettings = {target: canvas};
+        var confetti = new ConfettiGenerator(confettiSettings);
+        confetti.render();
+        setTimeout(() => {confetti.clear()}, 5000);
+      }
       this.performUpdate();
     }
   }
@@ -211,6 +228,7 @@ export class MyApp extends LitElement {
 
   render() {
     return html`<div class="app">
+      <canvas id="confetti-canvas"></canvas>
       <div class="title">
         <h1>
           ${this.game.name.toUpperCase().split('').join(' ')}
