@@ -1,7 +1,7 @@
 import {Game} from '../chess/game';
 import {randomChoice} from '../utils';
 import { Move } from '../chess/move';
-import {Color} from '../chess/const';
+import {Color, getOpponent} from '../chess/const';
 import { AppendMessage, replacer, ReplaceMessage, GameResult, GameOverMessage } from '../common/message';
 
 // States progress from top to bottom within a room.
@@ -12,34 +12,43 @@ enum RoomState {
   COMPLETED = 'completed',
 }
 
+interface PlayerInfo {
+  uuid: string;
+  color: Color;
+  socket: WebSocket;
+}
+
 export class Room {
   // public
-  p1: string;
-  p2?: string;
   game?: Game;
-  p1s: WebSocket;
-  p2s?: WebSocket;
+
+  p1: PlayerInfo;
+  p2?: PlayerInfo;
 
   // protected
-  p1IsWhite: boolean;
   state: RoomState;
-  victor: string; // p1 or p2
 
-  constructor(p1: string, p1s: WebSocket, state = RoomState.WAITING) {
-    this.p1 = p1;
-    this.p1s = p1s;
-    this.p1IsWhite = randomChoice([true, false]);
+  constructor(uuid: string, socket: WebSocket, state = RoomState.WAITING) {
+    this.p1 = {
+      uuid,
+      socket,
+      color: randomChoice([Color.WHITE, Color.BLACK]),
+    };
   }
 
-  p2Connect(p2: string, p2s: WebSocket) {
-    this.p2 = p2;
-    this.p2s = p2s;
+  p2Connect(uuid: string, socket: WebSocket) {
+    this.p2 = {
+      uuid,
+      socket,
+      color: getOpponent(this.p1.color),
+    }
     this.state = RoomState.PLAYING; // RULES
   }
 
   handleMove(uuid: string, moveAttempt: Move) {
-    if (!this.game || (uuid !== this.p1 && uuid !== this.p2)
-    || !this.p2s || !this.p1s) return;
+    if (!this.game || (!this.p2)) return;
+    const player = this.p1.uuid === uuid ? this.p1 : this.p2;
+    const opponent = (player === this.p1) ? this.p2 : this.p1;
 
     const {
       start: {row: srow, col: scol},
@@ -55,7 +64,7 @@ export class Room {
     console.log('%s: (%s, %s) -> (%s, %s)', piece.name, srow, scol, drow, dcol);
 
     const move = game.attemptMove(
-      this.colorFromUuid(uuid),
+      player.color,
       piece,
       srow,
       scol,
@@ -72,55 +81,25 @@ export class Room {
         {type: 'appendState', move, state: game.state} as AppendMessage,
         replacer);
       
-      this.p1s.send(uuid === this.p1 ? rm : am);
-      this.p2s.send(uuid === this.p2 ? rm : am);
+      player.socket.send(rm);
+      opponent.socket.send(am);
     } else {
       console.log('bad move!');
     }
-    if (game.winCondition(this.colorFromUuid(uuid))) {
+    if (game.winCondition(player.color)) {
       this.state = RoomState.COMPLETED;
-      this.victor = uuid;
-      this.socketFromUuid(uuid).send(JSON.stringify({
+      player.socket.send(JSON.stringify({
         type: 'gameOver',
         stateHistory: this.game.stateHistory,
         moveHistory: this.game.moveHistory,
         result: GameResult.WIN,
       } as GameOverMessage, replacer));
-      this.otherSocketFromUuid(uuid).send(JSON.stringify({
+      opponent.socket.send(JSON.stringify({
         type: 'gameOver',
         stateHistory: this.game.stateHistory,
         moveHistory: this.game.moveHistory,
         result: GameResult.LOSS,
       } as GameOverMessage, replacer));
     }
-  }
-
-  get p1Color(): Color {
-    return this.p1IsWhite ? Color.WHITE : Color.BLACK;
-  }
-
-  get p2Color(): Color {
-    return this.p1IsWhite ? Color.BLACK : Color.WHITE;
-  }
-
-  private colorFromUuid(uuid: string): Color {
-    if (
-      (uuid === this.p1 && this.p1IsWhite)
-      || (uuid === this.p2 && !this.p1IsWhite)) {return Color.WHITE};
-    return Color.BLACK;
-  }
-  private socketFromUuid(uuid: string): WebSocket {
-    if (!this.p2s) {
-      throw new Error('p2 socket not ready');
-    }
-    if (uuid === this.p1) return this.p1s;
-    return this.p2s;
-  }
-  private otherSocketFromUuid(uuid: string): WebSocket {
-    if (!this.p2s) {
-      throw new Error('p2 socket not ready');
-    }
-    if (uuid === this.p1) return this.p2s;
-    return this.p1s;
   }
 }

@@ -51,8 +51,7 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
     playerToRoom[uuid] = room;
     console.log('game created');
   } else {
-    room.p2 = uuid;
-    room.p2s = ws;
+    room.p2Connect(uuid, ws);
     const newGame = new Variants.Knightmate();
     room.game = newGame;
     playerToRoom[uuid] = room;
@@ -68,12 +67,12 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
       color: Color.BLACK,
     } as InitGameMessage;
     console.log('room', room);
-    if (room.p1IsWhite) {
-      sockets[room.p1].send(JSON.stringify(igmW, replacer));
-      sockets[room.p2].send(JSON.stringify(igmB, replacer));
+    if (room.p1.color === Color.WHITE) {
+      room.p1.socket.send(JSON.stringify(igmW, replacer));
+      room.p2!.socket.send(JSON.stringify(igmB, replacer));
     } else {
-      sockets[room.p1].send(JSON.stringify(igmB, replacer));
-      sockets[room.p2].send(JSON.stringify(igmW, replacer));
+      room.p1.socket.send(JSON.stringify(igmB, replacer));
+      room.p2!.socket.send(JSON.stringify(igmW, replacer));
     }
   }
   console.log('active: ', rooms);
