@@ -11,6 +11,8 @@ import {
   ReplaceAllMessage,
   InitGameMessage,
   log,
+  sendMessage,
+  addMessageHandler,
 } from '../common/message';
 import {Room} from './room';
 import WS from 'ws';
@@ -38,6 +40,40 @@ const wss = new WS.Server({port: 8081});
 const playerToRoom: {[uuid: string]: Room} = {};
 const rooms: Room[] = [];
 const sockets: {[uuid: string]: WS.WebSocket} = {};
+
+const handleMessage = function(uuid, message: Message) {
+    const room = playerToRoom[uuid];
+    if (!room) {
+      console.log('not in a room! exiting');
+      return;
+    }
+    if (!room!.p2) {
+      // console.log('not in a game! continuing anyway');
+      // return;
+    }
+
+    const game = room.game;
+    if (!game) {
+      console.log('Game not started');
+      return;
+    }
+    if (message.type === 'move') {
+      // sanitize
+      function tg(message: Message): message is MoveMessage {
+        return message.type === 'move';
+      }
+      if (!tg(message)) {
+        console.log('message is not valid move', message);
+        return;
+      }
+      room.handleMove(uuid, message.move);
+      return;
+    }
+    if (message.type === 'resign') {
+      room.handleResign(uuid);
+      return;
+    }
+  };
 
 wss.on('connection', function connection(ws: WS.WebSocket, request) {
   console.log('Client connected:', request.headers.origin);
@@ -70,51 +106,52 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
     } as InitGameMessage;
     // console.log('room', room);
     if (room.p1.color === Color.WHITE) {
-      room.p1.socket.send(JSON.stringify(igmW, replacer));
-      room.p2!.socket.send(JSON.stringify(igmB, replacer));
+      sendMessage(room.p1.socket, igmW);
+      sendMessage(room.p2?.socket, igmB);
     } else {
-      room.p1.socket.send(JSON.stringify(igmB, replacer));
-      room.p2!.socket.send(JSON.stringify(igmW, replacer));
+      sendMessage(room.p1.socket, igmB);
+      sendMessage(room.p2?.socket, igmW);
     }
   }
-  ws.on('message', function incoming(message) {
-    const room = playerToRoom[uuid];
-    if (!room) {
-      console.log('not in a room! exiting');
-      return;
-    }
-    if (!room!.p2) {
-      // console.log('not in a game! continuing anyway');
-      // return;
-    }
+  addMessageHandler(ws, (message) => {handleMessage(uuid, message)});
+  // ws.on('message', function incoming(message) {
+  //   const room = playerToRoom[uuid];
+  //   if (!room) {
+  //     console.log('not in a room! exiting');
+  //     return;
+  //   }
+  //   if (!room!.p2) {
+  //     // console.log('not in a game! continuing anyway');
+  //     // return;
+  //   }
 
-    const game = room.game;
-    try {
-      message = JSON.parse(message, reviver);
-    } catch (e) {
-      console.log('malformed message', e);
-    }
-    if (!game) {
-      console.log('Game not started');
-      return;
-    }
-    if (message.type === 'move') {
-      // sanitize
-      function tg(message: Message): message is MoveMessage {
-        return message.type === 'move';
-      }
-      if (!tg(message)) {
-        console.log('message is not valid move', message);
-        return;
-      }
-      room.handleMove(uuid, message.move);
-      return;
-    }
-    if (message.type === 'resign') {
-      room.handleResign(uuid);
-      return;
-    }
-  });
+  //   const game = room.game;
+  //   try {
+  //     message = JSON.parse(message, reviver);
+  //   } catch (e) {
+  //     console.log('malformed message', e);
+  //   }
+  //   if (!game) {
+  //     console.log('Game not started');
+  //     return;
+  //   }
+  //   if (message.type === 'move') {
+  //     // sanitize
+  //     function tg(message: Message): message is MoveMessage {
+  //       return message.type === 'move';
+  //     }
+  //     if (!tg(message)) {
+  //       console.log('message is not valid move', message);
+  //       return;
+  //     }
+  //     room.handleMove(uuid, message.move);
+  //     return;
+  //   }
+  //   if (message.type === 'resign') {
+  //     room.handleResign(uuid);
+  //     return;
+  //   }
+  // });
 });
 
 //generates random id;

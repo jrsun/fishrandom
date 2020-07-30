@@ -21,6 +21,7 @@ import {
   reviver,
   ResignMessage,
   addMessageHandler,
+  sendMessage,
 } from '../common/message';
 import '@polymer/paper-button';
 import {Move} from '../chess/move';
@@ -89,7 +90,7 @@ export class MyControls extends LitElement {
     super.connectedCallback();
 
     this.hsm = this.handleSocketMessage.bind(this);
-    addMessageHandler(this.socket, this.hsm);
+    // addMessageHandler(this.socket, this.hsm);
   }
 
   disconnectedCallback() {
@@ -122,7 +123,7 @@ export class MyControls extends LitElement {
   }
 
   onClickResign() {
-    this.socket.send(JSON.stringify({type: 'resign'} as ResignMessage));
+    sendMessage(this.socket, {type: 'resign'});
   }
 
   updated(changedProperties) {

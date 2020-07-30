@@ -13,6 +13,7 @@ export type Message =
   | ReplaceMessage
   | AppendMessage
   | ReplaceAllMessage
+  | ResignMessage
   | InitGameMessage
   | GameOverMessage;
 
@@ -121,7 +122,7 @@ export function sendMessage(ws: WS.WebSocket, m: Message) {
 
 export function addMessageHandler(
   ws: WebSocket,
-  handler: (message: Message) => {}
+  handler: (message: Message) => void,
 ) {
   ws.addEventListener('message', async (e: MessageEvent) => {
     let msg = {};

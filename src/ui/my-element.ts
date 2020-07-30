@@ -32,6 +32,7 @@ import {
   ReplaceAllMessage,
   InitGameMessage,
   addMessageHandler,
+  sendMessage,
 } from '../common/message';
 import {drawArrow} from '../utils';
 import './my-square';
@@ -114,7 +115,7 @@ export class MyElement extends LitElement {
     );
     this.addEventListener('square-mouseup', this.onSquareMouseup.bind(this));
     // this.addEventListener('contextmenu', e => {e.preventDefault()});
-    addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
+    // addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
   }
 
   disconnectedCallback() {
@@ -146,8 +147,8 @@ export class MyElement extends LitElement {
       const {move} = rm;
       const {moveHistory, stateHistory} = this.game;
       // this._validateLastMove(move, moveHistory, state, stateHistory);
-      this.game.moveHistory[this.game.moveHistory.length - 1] = move;
-      this.game.stateHistory[this.game.stateHistory.length - 1] = move.after;
+      moveHistory[moveHistory.length - 1] = move;
+      stateHistory[stateHistory.length - 1] = move.after;
       this.game.state = move.after;
       console.log(toFEN(move));
     } else if (message.type === 'appendState') {
@@ -228,15 +229,7 @@ export class MyElement extends LitElement {
       if (!move) {
         return;
       }
-      this.socket.send(
-        JSON.stringify(
-          {
-            type: 'move',
-            move,
-          } as MoveMessage,
-          replacer
-        )
-      );
+      sendMessage(this.socket, {type: 'move', move});
     } else {
       this.selectedSquare = square;
       this.selectedPiece = square.occupant;
