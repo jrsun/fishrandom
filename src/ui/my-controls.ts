@@ -15,7 +15,7 @@ import {
   Knightmate,
   Horde,
 } from '../chess/variants/index';
-import {Message, InitGameMessage, reviver} from '../common/message';
+import {Message, InitGameMessage, reviver, ResignMessage} from '../common/message';
 import '@polymer/paper-button';
 import {Move} from '../chess/move';
 
@@ -122,6 +122,10 @@ export class MyControls extends LitElement {
     }
   }
 
+  onClickResign() {
+    this.socket.send(JSON.stringify({type: 'resign'} as ResignMessage));
+  }
+
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
       this.socket.addEventListener('message', this.hsm);
@@ -155,6 +159,9 @@ export class MyControls extends LitElement {
           >
           <paper-button raised .onclick=${this.onClickNext.bind(this)}
             >></paper-button
+          >
+          <paper-button raised .onclick=${this.onClickResign.bind(this)}
+            >Resign</paper-button
           >
         </div>
       </div>

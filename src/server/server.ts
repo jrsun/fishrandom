@@ -38,7 +38,8 @@ const playerToRoom: {[uuid: string]: Room} = {};
 const rooms: Room[] = [];
 const sockets: {[uuid: string]: WS.WebSocket} = {};
 
-wss.on('connection', function connection(ws: WS.WebSocket) {
+wss.on('connection', function connection(ws: WS.WebSocket, request) {
+  console.log('Client connected:', request.headers.origin);
   // onclose
   const uuid = guid();
   sockets[uuid] = ws;
@@ -66,7 +67,7 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
       state: newGame.visibleState(newGame.state, Color.BLACK),
       color: Color.BLACK,
     } as InitGameMessage;
-    console.log('room', room);
+    // console.log('room', room);
     if (room.p1.color === Color.WHITE) {
       room.p1.socket.send(JSON.stringify(igmW, replacer));
       room.p2!.socket.send(JSON.stringify(igmB, replacer));
@@ -75,7 +76,6 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
       room.p2!.socket.send(JSON.stringify(igmW, replacer));
     }
   }
-  console.log('active: ', rooms);
   ws.on('message', function incoming(message) {
     const room = playerToRoom[uuid];
     if (!room) {
@@ -108,6 +108,11 @@ wss.on('connection', function connection(ws: WS.WebSocket) {
         return;
       }
       room.handleMove(uuid, message.move);
+      return;
+    }
+    if (message.type === 'resign') {
+      room.handleResign(uuid);
+      return;
     }
   });
 });

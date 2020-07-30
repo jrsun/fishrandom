@@ -51,6 +51,12 @@ export class Room {
     this.state = RoomState.PLAYING; // RULES
   }
 
+  handleResign(uuid: string) {
+    if (!this.game || !this.p2) return;
+
+    return this.wins(uuid === this.p1.uuid ? this.p2.uuid : this.p1.uuid);
+  }
+
   handleMove(uuid: string, moveAttempt: Move) {
     if (!this.game || !this.p2) return;
     const player = this.p1.uuid === uuid ? this.p1 : this.p2;
@@ -102,41 +108,40 @@ export class Room {
       opponent.socket.send(am);
     } else {
       console.log('bad move!');
-      // const rm = JSON.stringify(
-      //   {
-      //     type: 'replaceState',
-      //     move: game.moveHistory.length ? game.moveHistory[game.moveHistory.length-1] : null,
-      //     state: game.visibleState(game.state, player.color)
-      //   } as ReplaceMessage,
-      //   replacer);
-      // player.socket.send(rm);
     }
     if (game.winCondition(player.color)) {
-      this.state = RoomState.COMPLETED;
-      player.socket.send(
-        JSON.stringify(
-          {
-            type: 'gameOver',
-            stateHistory: this.game.stateHistory,
-            moveHistory: this.game.moveHistory,
-            result: GameResult.WIN,
-          } as GameOverMessage,
-          replacer
-        )
-      );
-      opponent.socket.send(
-        JSON.stringify(
-          {
-            type: 'gameOver',
-            stateHistory: this.game.stateHistory,
-            moveHistory: this.game.moveHistory,
-            result: GameResult.LOSS,
-          } as GameOverMessage,
-          replacer
-        )
-      );
-      player.socket.close();
-      opponent.socket.close();
+      this.wins(player.uuid);
     }
+  }
+
+  wins(uuid: string) {
+    if (!this.game || !this.p2) return;
+
+    this.state = RoomState.COMPLETED;
+    const player = this.p1.uuid === uuid ? this.p1 : this.p2;
+    const opponent = player === this.p1 ? this.p2 : this.p1;
+
+    player.socket.send(
+      JSON.stringify(
+        {
+          type: 'gameOver',
+          stateHistory: this.game.stateHistory,
+          moveHistory: this.game.moveHistory,
+          result: GameResult.WIN,
+        } as GameOverMessage,
+        replacer
+      )
+    );
+    opponent.socket.send(
+      JSON.stringify(
+        {
+          type: 'gameOver',
+          stateHistory: this.game.stateHistory,
+          moveHistory: this.game.moveHistory,
+          result: GameResult.LOSS,
+        } as GameOverMessage,
+        replacer
+      )
+    );
   }
 }

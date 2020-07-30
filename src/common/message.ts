@@ -14,11 +14,21 @@ export type Message =
   | InitGameMessage
   | GameOverMessage;
 
+/*
+ * Client-initiated
+ */
 export interface MoveMessage {
   type: 'move';
   move: Move;
 }
 
+export interface ResignMessage {
+  type: 'resign';
+}
+
+/*
+ * Server-initiated
+ */
 export interface ReplaceMessage {
   type: 'replaceState';
   state: BoardState;
