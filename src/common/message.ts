@@ -1,9 +1,10 @@
 import {Piece} from '../chess/piece';
 import BoardState from '../chess/state';
 import Square from '../chess/square';
-import jsonSize from 'json-size';
+import zlib from 'zlib';
 import {Move} from '../chess/move';
 import {Color} from '../chess/const';
+import WS from 'ws';
 import {QueenPawn} from '../chess/variants/hiddenqueen';
 
 // TODO: Set game type and start game.
@@ -98,6 +99,38 @@ export function log(m: string, type: string, sent: boolean) {
     '%s message of type %s with size %s',
     sent ? 'Sent' : 'Received',
     type,
-    m.length,
+    m.length
   );
+}
+
+export function sendMessage(ws: WS.WebSocket, m: Message) {
+  const input = JSON.stringify(m, replacer);
+  zlib.gzip(input, (err, buffer) => {
+    if (err) {
+      console.log('Failed to compress and send message %s', input);
+      return;
+    }
+    console.log(
+      'Sending message of type %s with size %s',
+      m.type,
+      buffer.length
+    );
+    ws.send(buffer.toString('base64'));
+  });
+}
+
+export function addMessageHandler(
+  ws: WebSocket,
+  handler: (message: Message) => {}
+) {
+  ws.addEventListener('message', async (e: MessageEvent) => {
+    let msg = {};
+    try {
+      const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
+      msg = JSON.parse(s, reviver) as Message;
+    } catch {
+      msg = JSON.parse(e.data, reviver) as Message;
+    }
+    handler(msg as Message);
+  });
 }

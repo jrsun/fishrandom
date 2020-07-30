@@ -20,6 +20,7 @@ import {
   InitGameMessage,
   reviver,
   ResignMessage,
+  addMessageHandler,
 } from '../common/message';
 import '@polymer/paper-button';
 import {Move} from '../chess/move';
@@ -88,17 +89,16 @@ export class MyControls extends LitElement {
     super.connectedCallback();
 
     this.hsm = this.handleSocketMessage.bind(this);
-    this.socket.addEventListener('message', this.hsm);
+    addMessageHandler(this.socket, this.hsm);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
 
-    this.socket.removeEventListener('message', this.hsm);
+    // this.socket.removeEventListener('message', this.hsm);
   }
 
-  handleSocketMessage(e: MessageEvent) {
-    const message: Message = JSON.parse(e.data, reviver);
+  handleSocketMessage(message: Message) {
     if (message.type !== 'replaceState') {
       this.viewMoveIndex = undefined;
     }
@@ -127,7 +127,7 @@ export class MyControls extends LitElement {
 
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
-      this.socket.addEventListener('message', this.hsm);
+      addMessageHandler(this.socket, this.hsm);
     }
     if (changedProperties.has('viewMoveIndex')) {
       console.log('fired view move changed');

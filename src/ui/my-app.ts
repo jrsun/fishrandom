@@ -14,6 +14,7 @@ import {
   InitGameMessage,
   GameOverMessage,
   GameResult,
+  addMessageHandler,
 } from '../common/message';
 import ConfettiGenerator from 'confetti-js';
 import './my-rules';
@@ -146,12 +147,6 @@ export class MyApp extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this.handleNewGame();
-    // this.socket = new WebSocket('ws://localhost:8081');
-    // this.socket.addEventListener('open', function (e) {}.bind(this));
-    // this.socket.addEventListener(
-    //   'message',
-    //   this.handleSocketMessage.bind(this)
-    // );
     this.addEventListener(
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
@@ -172,8 +167,7 @@ export class MyApp extends LitElement {
     );
   }
 
-  handleSocketMessage(e: MessageEvent) {
-    const message: Message = JSON.parse(e.data, reviver);
+  handleSocketMessage(message: Message) {
     console.log('Received message of type %s', message.type);
     console.log(message);
     if (message.type === 'initGame') {
@@ -222,11 +216,7 @@ export class MyApp extends LitElement {
     this.game = new Chess960(false);
     this.socket = new WebSocket('ws://localhost:8081');
     // this.socket = new WebSocket('ws://167.172.142.144:8081');
-    this.socket.addEventListener('open', function (e) {}.bind(this));
-    this.socket.addEventListener(
-      'message',
-      this.handleSocketMessage.bind(this)
-    );
+    addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
   }
 
   render() {

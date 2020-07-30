@@ -15,7 +15,12 @@ import {
   Horde,
   Hiddenqueen,
 } from '../chess/variants/index';
-import {Message, InitGameMessage, reviver} from '../common/message';
+import {
+  Message,
+  InitGameMessage,
+  reviver,
+  addMessageHandler,
+} from '../common/message';
 
 @customElement('my-rules')
 export class MyRules extends LitElement {
@@ -78,25 +83,19 @@ export class MyRules extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    this.socket.addEventListener('open', function (e) {}.bind(this));
-    this.socket.addEventListener(
-      'message',
-      this.handleSocketMessage.bind(this)
-    );
+    addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
 
-    this.socket.removeEventListener('open', function (e) {}.bind(this));
     this.socket.removeEventListener(
       'message',
       this.handleSocketMessage.bind(this)
     );
   }
 
-  handleSocketMessage(e: MessageEvent) {
-    const message: Message = JSON.parse(e.data, reviver);
+  handleSocketMessage(message: Message) {
     if (message.type === 'initGame') {
       const igm = message as InitGameMessage;
       this.variant = igm.variantName;

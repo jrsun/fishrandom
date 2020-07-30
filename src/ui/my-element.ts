@@ -31,6 +31,7 @@ import {
   AppendMessage,
   ReplaceAllMessage,
   InitGameMessage,
+  addMessageHandler,
 } from '../common/message';
 import {drawArrow} from '../utils';
 import './my-square';
@@ -113,11 +114,7 @@ export class MyElement extends LitElement {
     );
     this.addEventListener('square-mouseup', this.onSquareMouseup.bind(this));
     // this.addEventListener('contextmenu', e => {e.preventDefault()});
-
-    this.socket.addEventListener(
-      'message',
-      this.handleSocketMessage.bind(this)
-    );
+    addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
   }
 
   disconnectedCallback() {
@@ -138,15 +135,12 @@ export class MyElement extends LitElement {
 
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
-      this.socket.addEventListener(
-        'message',
-        this.handleSocketMessage.bind(this)
-      );
+      addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
     }
   }
 
-  handleSocketMessage(e: MessageEvent) {
-    const message: Message = JSON.parse(e.data, reviver);
+  handleSocketMessage(message: Message) {
+    // const message: Message = JSON.parse(e.data, reviver);
     if (message.type === 'replaceState') {
       const rm = message as ReplaceMessage;
       const {move} = rm;
