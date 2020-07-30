@@ -3,8 +3,6 @@ interface Pair {
   col: number;
 }
 
-const SQUARE_SIZE = 50;
-
 function equals(a: Pair, b: Pair): boolean {
   return a.row === b.row && a.col === b.col;
 }
@@ -47,7 +45,6 @@ enum MoveType {
 }
 
 export {
-  SQUARE_SIZE,
   Pair,
   equals,
   dedup,

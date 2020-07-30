@@ -38,11 +38,13 @@ import {VARIANTS} from '../chess/variants';
 import {Game} from '../chess/game';
 import {Move, toFEN} from '../chess/move';
 import {styleMap} from 'lit-html/directives/style-map';
-import {SQUARE_SIZE, Color} from '../chess/const';
+import {Color} from '../chess/const';
 import BoardState from '../chess/state';
 import {Chess960} from '../chess/variants/960';
 import { equals } from '../chess/pair';
 
+
+const SQUARE_SIZE = Math.min(window.innerWidth / 12, 50); // 50
 /**
  * An example element.
  *
