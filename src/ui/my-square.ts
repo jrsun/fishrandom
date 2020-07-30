@@ -26,6 +26,15 @@ export class MySquare extends LitElement {
       width: '100%';
       display: 'inline-block';
     }
+    .square[data-selected] {
+      background-color: rgba(0, 0, 255, 0.3);
+    }
+    .square[data-possible] {
+      background-color: rgba(0, 255, 0, 0.3);
+    }
+    .square[data-black] {
+      transform: rotate(180deg);
+    }
   `;
 
   // public
@@ -34,10 +43,24 @@ export class MySquare extends LitElement {
   @property({type: String}) color?: Color;
   @property({type: Boolean}) selected = false;
   @property({type: Boolean}) possible = false;
+  @property({type: Boolean}) lastMove = false;
 
   render() {
     // this.style.setProperty('transform', this.color === Color.BLACK ? 'rotate(180deg)' : '');
     // ${this.possible ? 'background-image:url(../img/_dt.png);' : ''}
+    const styles = {};
+    if (this.lastMove) {
+      styles['background-color'] = 'rgba(255, 255, 0, 0.3)';
+    }
+    if (this.selected) {
+      styles['background-color'] = 'rgba(0, 0, 255, 0.3)';
+    }
+    if (this.possible) {
+      styles['background-color'] = 'rgba(0, 255, 0, 0.3)';
+    }
+    if (this.color === Color.BLACK) {
+      styles['transform'] = 'rotate(180deg)';
+    }
     return html`
       <div
         class="square"
@@ -47,13 +70,7 @@ export class MySquare extends LitElement {
         style="
         height:100%;width:100%;
         position:relative;
-        background-size:cover;
-        background-color:${this.selected
-          ? 'rgba(0, 0, 255, 0.3)'
-          : this.possible
-          ? 'rgba(0, 255, 0, 0.3)'
-          : ''};transform:${this.color === Color.BLACK ? 'rotate(180deg)' : ''};
-      "
+        background-size:cover;${styleMap(styles)}"
       >
         ${this.piece && html`<my-piece .piece=${this.piece}></my-piece>`}
       </div>

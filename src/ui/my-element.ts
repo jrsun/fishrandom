@@ -41,6 +41,7 @@ import {styleMap} from 'lit-html/directives/style-map';
 import {SQUARE_SIZE, Color} from '../chess/const';
 import BoardState from '../chess/state';
 import {Chess960} from '../chess/variants/960';
+import { equals } from '../chess/pair';
 
 /**
  * An example element.
@@ -112,7 +113,6 @@ export class MyElement extends LitElement {
     this.addEventListener('square-mouseup', this.onSquareMouseup.bind(this));
     // this.addEventListener('contextmenu', e => {e.preventDefault()});
 
-    this.socket.addEventListener('open', function (e) {}.bind(this));
     this.socket.addEventListener(
       'message',
       this.handleSocketMessage.bind(this)
@@ -129,11 +129,16 @@ export class MyElement extends LitElement {
     );
     this.removeEventListener('square-mouseup', this.onSquareMouseup.bind(this));
 
-    this.socket.removeEventListener('open', function (e) {}.bind(this));
     this.socket.removeEventListener(
       'message',
       this.handleSocketMessage.bind(this)
     );
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has('socket')) {
+      this.socket.addEventListener('message', this.handleSocketMessage.bind(this));
+    }
   }
 
   handleSocketMessage(e: MessageEvent) {
@@ -175,15 +180,13 @@ export class MyElement extends LitElement {
       'width',
       `${SQUARE_SIZE * state.squares[0].length}px`
     );
-    if (this.color === Color.BLACK) {
-      this.shadowRoot
-        ?.querySelector('#board')
-        ?.setAttribute('style', 'transform:rotate(180deg);');
-      // this.style.setProperty('transform', 'rotate(180deg)');
-    }
+
+    const lastMove = this.game.moveHistory[this.game.moveHistory.length-1];
 
     return html`
-      <div id="board">
+      <div id="board"
+        style=${this.color === Color.BLACK ? "transform:rotate(180deg);": ""}
+      >
         <canvas id="canvas"></canvas>
         ${(this.viewHistoryState ?? state).squares.map(
           (row) => html`<div class="row">
@@ -193,6 +196,9 @@ export class MyElement extends LitElement {
                 .piece=${square.occupant}
                 .selected=${square === this.selectedSquare}
                 .possible=${this.possibleMoves.includes(square)}
+                .lastMove=${
+                  lastMove && (equals(lastMove.start, square) || equals(lastMove.end, square))
+                }
                 .color=${this.color}
               ></my-square>`
             )}
