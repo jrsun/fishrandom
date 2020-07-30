@@ -202,7 +202,9 @@ export class MyApp extends LitElement {
         var confettiSettings = {target: canvas};
         var confetti = new ConfettiGenerator(confettiSettings);
         confetti.render();
-        setTimeout(() => {confetti.clear()}, 5000);
+        setTimeout(() => {
+          confetti.clear();
+        }, 5000);
       }
       this.performUpdate();
     }
@@ -218,8 +220,8 @@ export class MyApp extends LitElement {
     goDialog?.close();
 
     this.game = new Chess960(false);
-    // this.socket = new WebSocket('ws://localhost:8081');
-    this.socket = new WebSocket('ws://167.172.142.144:8081');
+    this.socket = new WebSocket('ws://localhost:8081');
+    // this.socket = new WebSocket('ws://167.172.142.144:8081');
     this.socket.addEventListener('open', function (e) {}.bind(this));
     this.socket.addEventListener(
       'message',

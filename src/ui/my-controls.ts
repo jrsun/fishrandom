@@ -15,7 +15,12 @@ import {
   Knightmate,
   Horde,
 } from '../chess/variants/index';
-import {Message, InitGameMessage, reviver, ResignMessage} from '../common/message';
+import {
+  Message,
+  InitGameMessage,
+  reviver,
+  ResignMessage,
+} from '../common/message';
 import '@polymer/paper-button';
 import {Move} from '../chess/move';
 
@@ -83,19 +88,13 @@ export class MyControls extends LitElement {
     super.connectedCallback();
 
     this.hsm = this.handleSocketMessage.bind(this);
-    this.socket.addEventListener(
-      'message',
-      this.hsm,
-    );
+    this.socket.addEventListener('message', this.hsm);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
 
-    this.socket.removeEventListener(
-      'message',
-      this.hsm,
-    );
+    this.socket.removeEventListener('message', this.hsm);
   }
 
   handleSocketMessage(e: MessageEvent) {

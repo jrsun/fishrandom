@@ -1,6 +1,7 @@
 import {Piece} from '../chess/piece';
 import BoardState from '../chess/state';
 import Square from '../chess/square';
+import jsonSize from 'json-size';
 import {Move} from '../chess/move';
 import {Color} from '../chess/const';
 import {QueenPawn} from '../chess/variants/hiddenqueen';
@@ -31,13 +32,11 @@ export interface ResignMessage {
  */
 export interface ReplaceMessage {
   type: 'replaceState';
-  state: BoardState;
   move: Move;
 }
 
 export interface AppendMessage {
   type: 'appendState';
-  state: BoardState;
   move: Move;
 }
 
@@ -92,4 +91,13 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
   }
   // default to returning the value unaltered
   return v;
+}
+
+export function log(m: string, type: string, sent: boolean) {
+  console.log(
+    '%s message of type %s with size %s',
+    sent ? 'Sent' : 'Received',
+    type,
+    m.length,
+  );
 }

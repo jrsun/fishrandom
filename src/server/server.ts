@@ -10,6 +10,7 @@ import {
   MoveMessage,
   ReplaceAllMessage,
   InitGameMessage,
+  log,
 } from '../common/message';
 import {Room} from './room';
 import WS from 'ws';
@@ -93,7 +94,6 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
     } catch (e) {
       console.log('malformed message', e);
     }
-    console.log('Received message of type %s', message.type);
     if (!game) {
       console.log('Game not started');
       return;

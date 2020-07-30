@@ -41,8 +41,7 @@ import {styleMap} from 'lit-html/directives/style-map';
 import {Color} from '../chess/const';
 import BoardState from '../chess/state';
 import {Chess960} from '../chess/variants/960';
-import { equals } from '../chess/pair';
-
+import {equals} from '../chess/pair';
 
 const SQUARE_SIZE = Math.min(window.innerWidth / 12, 50); // 50
 /**
@@ -139,7 +138,10 @@ export class MyElement extends LitElement {
 
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
-      this.socket.addEventListener('message', this.handleSocketMessage.bind(this));
+      this.socket.addEventListener(
+        'message',
+        this.handleSocketMessage.bind(this)
+      );
     }
   }
 
@@ -147,19 +149,19 @@ export class MyElement extends LitElement {
     const message: Message = JSON.parse(e.data, reviver);
     if (message.type === 'replaceState') {
       const rm = message as ReplaceMessage;
-      const {move, state} = rm;
+      const {move} = rm;
       const {moveHistory, stateHistory} = this.game;
       // this._validateLastMove(move, moveHistory, state, stateHistory);
       this.game.moveHistory[this.game.moveHistory.length - 1] = move;
-      this.game.stateHistory[this.game.stateHistory.length - 1] = state;
-      this.game.state = state;
+      this.game.stateHistory[this.game.stateHistory.length - 1] = move.after;
+      this.game.state = move.after;
       console.log(toFEN(move));
     } else if (message.type === 'appendState') {
       const am = message as AppendMessage;
-      const {move, state} = am;
+      const {move} = am;
       this.game.moveHistory.push(move);
-      this.game.stateHistory.push(state);
-      this.game.state = state;
+      this.game.stateHistory.push(move.after);
+      this.game.state = move.after;
       console.log(toFEN(move));
     } else if (message.type === 'replaceAll') {
       const ram = message as ReplaceAllMessage;
@@ -183,11 +185,12 @@ export class MyElement extends LitElement {
       `${SQUARE_SIZE * state.squares[0].length}px`
     );
 
-    const lastMove = this.game.moveHistory[this.game.moveHistory.length-1];
+    const lastMove = this.game.moveHistory[this.game.moveHistory.length - 1];
 
     return html`
-      <div id="board"
-        style=${this.color === Color.BLACK ? "transform:rotate(180deg);": ""}
+      <div
+        id="board"
+        style=${this.color === Color.BLACK ? 'transform:rotate(180deg);' : ''}
       >
         <canvas id="canvas"></canvas>
         ${(this.viewHistoryState ?? state).squares.map(
@@ -198,9 +201,9 @@ export class MyElement extends LitElement {
                 .piece=${square.occupant}
                 .selected=${square === this.selectedSquare}
                 .possible=${this.possibleMoves.includes(square)}
-                .lastMove=${
-                  lastMove && (equals(lastMove.start, square) || equals(lastMove.end, square))
-                }
+                .lastMove=${lastMove &&
+                (equals(lastMove.start, square) ||
+                  equals(lastMove.end, square))}
                 .color=${this.color}
               ></my-square>`
             )}

@@ -8,6 +8,7 @@ import {
   ReplaceMessage,
   GameResult,
   GameOverMessage,
+  log,
 } from '../common/message';
 
 // States progress from top to bottom within a room.
@@ -79,31 +80,25 @@ export class Room {
     if (move) {
       // we should send the mover a `replaceState` and the opponent an
       // `appendState`
-      const rm = JSON.stringify(
-        {
-          type: 'replaceState',
-          move: {
-            ...move,
-            before: game.visibleState(move.before, player.color),
-            after: game.visibleState(move.after, player.color),
-          },
-          state: game.visibleState(game.state, player.color),
-        } as ReplaceMessage,
-        replacer
-      );
-      const am = JSON.stringify(
-        {
-          type: 'appendState',
-          move: {
-            ...move,
-            before: game.visibleState(move.before, opponent.color),
-            after: game.visibleState(move.after, opponent.color),
-          },
-          state: game.visibleState(game.state, opponent.color),
-        } as AppendMessage,
-        replacer
-      );
+      const rm = JSON.stringify({
+        type: 'replaceState',
+        move: {
+          ...move,
+          before: game.visibleState(move.before, player.color),
+          after: game.visibleState(move.after, player.color),
+        },
+      } as ReplaceMessage, replacer);
+      const am = JSON.stringify({
+        type: 'appendState',
+        move: {
+          ...move,
+          before: game.visibleState(move.before, opponent.color),
+          after: game.visibleState(move.after, opponent.color),
+        },
+      } as AppendMessage, replacer);
 
+      log(rm, 'replaceState', true);
+      log(am, 'appendState', true);
       player.socket.send(rm);
       opponent.socket.send(am);
     } else {
@@ -121,27 +116,22 @@ export class Room {
     const player = this.p1.uuid === uuid ? this.p1 : this.p2;
     const opponent = player === this.p1 ? this.p2 : this.p1;
 
-    player.socket.send(
-      JSON.stringify(
-        {
-          type: 'gameOver',
-          stateHistory: this.game.stateHistory,
-          moveHistory: this.game.moveHistory,
-          result: GameResult.WIN,
-        } as GameOverMessage,
-        replacer
-      )
-    );
-    opponent.socket.send(
-      JSON.stringify(
-        {
-          type: 'gameOver',
-          stateHistory: this.game.stateHistory,
-          moveHistory: this.game.moveHistory,
-          result: GameResult.LOSS,
-        } as GameOverMessage,
-        replacer
-      )
-    );
+    const gom = JSON.stringify({
+      type: 'gameOver',
+      stateHistory: this.game.stateHistory,
+      moveHistory: this.game.moveHistory,
+      result: GameResult.WIN,
+    } as GameOverMessage, replacer);
+    const lgom = JSON.stringify({
+      type: 'gameOver',
+      stateHistory: this.game.stateHistory,
+      moveHistory: this.game.moveHistory,
+      result: GameResult.LOSS,
+    } as GameOverMessage, replacer);
+    
+    log(gom, 'gameOver', true);
+    log(lgom, 'gameOver', true);
+    player.socket.send(gom);
+    opponent.socket.send(lgom);
   }
 }
