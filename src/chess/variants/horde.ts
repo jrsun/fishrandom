@@ -6,7 +6,7 @@ import Square from '../square';
 
 export class Horde extends Game {
   // TODO: pawns on 1st rank can move 2 squares
-  name = Horde.name;
+  name = 'Horde';
 
   constructor(isServer) {
     super(isServer, generateStartState());

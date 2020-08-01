@@ -6,7 +6,7 @@ import Square from '../square';
 
 export class Knightmate extends Game {
   // TODO: Implement castling
-  name = Knightmate.name;
+  name = 'Knightmate';
   constructor(isServer) {
     super(isServer, generateStartState());
   }

@@ -7,11 +7,11 @@ import {Hiddenqueen} from './hiddenqueen';
 import {randomChoice} from '../../utils';
 
 export const VARIANTS: {[name: string]: typeof Game} = {
-  [Chess960.name]: Chess960,
-  [Classic.name]: Classic,
-  [Knightmate.name]: Knightmate,
-  [Horde.name]: Horde,
-  [Hiddenqueen.name]: Hiddenqueen,
+  Chess960,
+  Classic,
+  Knightmate,
+  Horde,
+  Hiddenqueen,
 };
 
 export function Random(): typeof Game {

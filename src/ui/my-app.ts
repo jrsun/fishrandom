@@ -214,8 +214,12 @@ export class MyApp extends LitElement {
     goDialog?.close();
 
     this.game = new Chess960(false);
-    this.socket = new WebSocket('ws://localhost:8081');
-    // this.socket = new WebSocket('ws://167.172.142.144:8081');
+    console.log(process.env.NODE_ENV);
+    if (process.env.NODE_ENV === 'development') {
+      this.socket = new WebSocket('ws://localhost:8081');
+    } else {
+      this.socket = new WebSocket('ws://167.172.142.144:8081');
+    }
     addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
   }
 

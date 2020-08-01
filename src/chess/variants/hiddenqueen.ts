@@ -8,7 +8,7 @@ import {Move} from '../move';
 
 export class Hiddenqueen extends Game {
   // Some jankiness if you try playing as the opponent's pieces (en passant)
-  name = Hiddenqueen.name;
+  name = 'Hiddenqueen';
   revealed = {
     [Color.WHITE]: false,
     [Color.BLACK]: false,

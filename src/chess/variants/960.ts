@@ -7,7 +7,7 @@ import {randomChoice} from '../../utils';
 import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from '../piece';
 
 export class Chess960 extends Game {
-  name = Chess960.name;
+  name = 'Chess960';
   // TODO: Castling is broken. it eats pieces
   constructor(isServer: boolean) {
     super(isServer, generateStartState());
