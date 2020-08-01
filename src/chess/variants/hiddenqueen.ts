@@ -118,9 +118,9 @@ export class QueenPawn extends Queen {
   name = 'QueenPawn';
   get img(): string {
     if (this.color === Color.BLACK) {
-      return 'upsb.png';
+      return 'gdt.svg';
     } else if (this.color === Color.WHITE) {
-      return 'upsw.png';
+      return 'glt.svg';
     }
     throw new Error(
       'no image for color: ' + this.color + 'for piece ' + this.name
