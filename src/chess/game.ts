@@ -1,15 +1,8 @@
 import BoardState from './state';
-import {Move} from './move';
+import {Move, TurnType, Castle, Turn} from './move';
 import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from './piece';
 import Square from './square';
-import {
-  Color,
-  Pair,
-  NotImplementedError,
-  getOpponent,
-  MoveType,
-  equals,
-} from './const';
+import {Color, Pair, NotImplementedError, getOpponent, equals} from './const';
 
 export class Game {
   // public
@@ -17,14 +10,14 @@ export class Game {
 
   // protected
   state: BoardState;
-  moveHistory: Move[];
+  turnHistory: Turn[];
   stateHistory: BoardState[];
 
   // PAWN_HOME_RANK = 1;
 
   constructor(public isServer: boolean, initial?: BoardState) {
     this.state = initial ?? generateStartState();
-    this.moveHistory = [];
+    this.turnHistory = [];
     this.stateHistory = [this.state];
   }
 
@@ -54,7 +47,7 @@ export class Game {
           square.row,
           square.col,
           this.state,
-          this.moveHistory
+          this.turnHistory
         )
       )
       .filter((move) => move && !this.knowsInCheck(opponent, move.after));
@@ -94,11 +87,8 @@ export class Game {
     dcol: number
   ): Move | undefined {
     // if (color !== piece.color || color !== this.state.whoseTurn) return;
-    if (piece instanceof King && srow === drow && Math.abs(scol - dcol) === 2) {
-      return this.castle(piece.color, srow, scol, drow, dcol);
-    }
     const legalMoves = piece
-      .legalMoves(srow, scol, this.state, this.moveHistory)
+      .legalMoves(srow, scol, this.state, this.turnHistory)
       .filter((move) => {
         return this.isMoveLegal(move);
       });
@@ -114,7 +104,7 @@ export class Game {
       this.captureEffects(legalMove);
     }
 
-    this.moveHistory.push(legalMove);
+    this.turnHistory.push(legalMove);
     this.stateHistory.push(legalMove.after);
     this.state = legalMove.after;
 
@@ -129,7 +119,7 @@ export class Game {
       return;
     }
     const after = state.place(piece, row, col);
-    if (!this.isMoveLegal({after, piece, end: square} as unknown as Move)) {
+    if (!this.isMoveLegal(({after, piece, end: square} as unknown) as Move)) {
       console.log('illegal drop');
       return;
     }
@@ -137,23 +127,25 @@ export class Game {
     this.state = after;
   }
 
-  castle(
-    color: Color,
-    row: number,
-    col: number,
-    drow: number,
-    dcol: number
-  ): Move | undefined {
+  castle(color: Color, kingside: boolean): Castle | undefined {
     console.log('attempting castle');
-    const kingside = dcol - col > 0;
     let target: Pair;
     let cols: number[];
     let rookSquare: Square;
     // check history for castling or rook/king moves
-    if (this.moveHistory.some((move) => move.piece instanceof King)) {
+    if (this.turnHistory.some((move) => move.piece instanceof King)) {
       console.log('king moved');
       return;
     }
+    const kingSquares = this.state.squares
+      .flat()
+      .filter((square) => square?.occupant instanceof King);
+    if (kingSquares.length !== 1) {
+      console.log('error, expected 1 king, got %s', kingSquares.length);
+      return;
+    }
+    const kingSquare = kingSquares[0];
+    const {row, col} = kingSquare;
 
     const rookSquares = this.state.squares
       .flat()
@@ -190,7 +182,7 @@ export class Game {
       }
       rookSquare = rookSquares.sort((square) => square.col)[0];
     }
-    if (this.moveHistory.some((move) => move.piece === rookSquare.occupant)) {
+    if (this.turnHistory.some((move) => move.piece === rookSquare.occupant)) {
       console.log('rook moved');
       return;
     }
@@ -217,19 +209,17 @@ export class Game {
       .empty(row, col)
       .place(king, target.row, target.col)
       .place(new Rook(color), target.row, target.col + (kingside ? -1 : 1));
-    const isCapture = false;
-    const type = MoveType.CASTLE;
+    const type = TurnType.CASTLE;
     const move = {
       start: {row, col},
-      end: {row: drow, col: dcol},
+      end: target,
       before,
       after,
       piece: king,
-      isCapture,
       type,
       color,
-    };
-    this.moveHistory.push(move);
+    } as Castle;
+    this.turnHistory.push(move);
     this.stateHistory.push(after);
     this.state = after;
     return move;

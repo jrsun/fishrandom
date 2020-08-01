@@ -1,4 +1,4 @@
-hiddenqueen
+- hiddenqueen
 hiddenking
 pieceeater/juggernaut
 dark
@@ -7,7 +7,7 @@ beirut
 syncrhone
 pocket knight
 
-horde
+- horde
 atomic
 recall
 grasshopper

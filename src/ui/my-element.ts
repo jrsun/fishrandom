@@ -26,7 +26,7 @@ import {
   replacer,
   reviver,
   Message,
-  MoveMessage,
+  TurnMessage,
   ReplaceMessage,
   AppendMessage,
   ReplaceAllMessage,
@@ -34,19 +34,19 @@ import {
   addMessageHandler,
   sendMessage,
 } from '../common/message';
-import { Queen, Rook, Bishop, Knight } from '../chess/piece';
+import {Queen, Rook, Bishop, Knight} from '../chess/piece';
 
 import {drawArrow} from '../utils';
 import './my-square';
 import {VARIANTS} from '../chess/variants';
 import {Game} from '../chess/game';
-import {Move, toFEN} from '../chess/move';
+import {Move, toFEN, Turn, TurnType} from '../chess/move';
 import {styleMap} from 'lit-html/directives/style-map';
 import {Color} from '../chess/const';
 import BoardState from '../chess/state';
 import {Chess960} from '../chess/variants/960';
 import {equals} from '../chess/pair';
-import "./my-piece-picker";
+import './my-piece-picker';
 
 const SQUARE_SIZE = Math.min(window.innerWidth / 12, 50); // 50
 /**
@@ -147,24 +147,24 @@ export class MyElement extends LitElement {
     // const message: Message = JSON.parse(e.data, reviver);
     if (message.type === 'replaceState') {
       const rm = message as ReplaceMessage;
-      const {move} = rm;
-      const {moveHistory, stateHistory} = this.game;
-      // this._validateLastMove(move, moveHistory, state, stateHistory);
-      moveHistory[moveHistory.length - 1] = move;
-      stateHistory[stateHistory.length - 1] = move.after;
-      this.game.state = move.after;
-      console.log(toFEN(move));
+      const {turn} = rm;
+      const {turnHistory: turnHistory, stateHistory} = this.game;
+      // this._validateLastMove(move, turnHistory, state, stateHistory);
+      turnHistory[turnHistory.length - 1] = turn;
+      stateHistory[stateHistory.length - 1] = turn.after;
+      this.game.state = turn.after;
+      console.log(toFEN(turn));
     } else if (message.type === 'appendState') {
       const am = message as AppendMessage;
-      const {move} = am;
-      this.game.moveHistory.push(move);
-      this.game.stateHistory.push(move.after);
-      this.game.state = move.after;
-      console.log(toFEN(move));
+      const {turn} = am;
+      this.game.turnHistory.push(turn);
+      this.game.stateHistory.push(turn.after);
+      this.game.state = turn.after;
+      console.log(toFEN(turn));
     } else if (message.type === 'replaceAll') {
       const ram = message as ReplaceAllMessage;
-      const {moveHistory, stateHistory} = ram;
-      this.game.moveHistory = moveHistory;
+      const {turnHistory, stateHistory} = ram;
+      this.game.turnHistory = turnHistory;
       this.game.stateHistory = stateHistory;
       this.game.state = stateHistory[stateHistory.length - 1];
     } else if (message.type === 'initGame') {
@@ -183,10 +183,12 @@ export class MyElement extends LitElement {
       `${SQUARE_SIZE * state.squares[0].length}px`
     );
 
-    const lastMove = this.game.moveHistory[this.game.moveHistory.length - 1];
+    const lastTurn = this.game.turnHistory[this.game.turnHistory.length - 1];
 
     return html`
-      <my-piece-picker .pieces=${[Queen, Rook, Bishop, Knight].map(c => new c(this.color))}></my-piece-picker>
+      <my-piece-picker
+        .pieces=${[Queen, Rook, Bishop, Knight].map((c) => new c(this.color))}
+      ></my-piece-picker>
       <div
         id="board"
         style=${this.color === Color.BLACK ? 'transform:rotate(180deg);' : ''}
@@ -200,9 +202,10 @@ export class MyElement extends LitElement {
                 .piece=${square.occupant}
                 .selected=${square === this.selectedSquare}
                 .possible=${this.possibleMoves.includes(square)}
-                .lastMove=${lastMove &&
-                (equals(lastMove.start, square) ||
-                  equals(lastMove.end, square))}
+                .lastMove=${lastTurn &&
+                ((lastTurn.type === TurnType.MOVE &&
+                  equals(lastTurn.start, square)) ||
+                  equals(lastTurn.end, square))}
                 .color=${this.color}
               ></my-square>`
             )}
@@ -233,7 +236,7 @@ export class MyElement extends LitElement {
       if (!move) {
         return;
       }
-      sendMessage(this.socket, {type: 'move', move});
+      sendMessage(this.socket, {type: 'turn', turn: move});
     } else {
       this.selectedSquare = square;
       this.selectedPiece = square.occupant;
@@ -266,7 +269,7 @@ export class MyElement extends LitElement {
       this.selectedSquare!.row,
       this.selectedSquare!.col,
       this.game.state,
-      this.game.moveHistory
+      this.game.turnHistory
     )
       .filter((move) => {
         return this.game.isMoveLegal(move);
@@ -300,11 +303,11 @@ export class MyElement extends LitElement {
 
   private _validateLastMove(
     smove: Move,
-    moveHistory: Move[],
+    turnHistory: Turn[],
     sstate: BoardState,
     stateHistory: BoardState[]
   ) {
-    const cmove = moveHistory?.[moveHistory.length - 1];
+    const cmove = turnHistory?.[turnHistory.length - 1];
     if (JSON.stringify(cmove, replacer) !== JSON.stringify(smove, replacer)) {
       throw new Error(`last client move does not match server,
       client: ${JSON.stringify(cmove, replacer)},\n

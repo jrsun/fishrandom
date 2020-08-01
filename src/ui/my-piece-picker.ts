@@ -6,7 +6,7 @@ const SQUARE_SIZE = Math.min(window.innerWidth / 12, 50); // 50
 @customElement('my-piece-picker')
 export class MyPiecePicker extends LitElement {
   static styles = css`
-   :host {
+    :host {
       display: block;
     }
     .picker {
@@ -26,21 +26,27 @@ export class MyPiecePicker extends LitElement {
   pieces: Piece[];
 
   pickedPiece(piece: Piece) {
-    this.dispatchEvent(new CustomEvent('picker-piece-selected', {
-      bubbles: true,
-      composed: true,
-      detail: piece,
-    }))
+    this.dispatchEvent(
+      new CustomEvent('picker-piece-selected', {
+        bubbles: true,
+        composed: true,
+        detail: piece,
+      })
+    );
   }
 
   render() {
     return html`
-      <div class='picker'>
-        ${this.pieces.map(piece => html`<div
-          class="picker-piece ${piece.name}"
-          style="background-image:url(/img/${piece.img});"
-          @click=${() => {this.pickedPiece(piece)}}
-        ></div>`)}
+      <div class="picker">
+        ${this.pieces.map(
+          (piece) => html`<div
+            class="picker-piece ${piece.name}"
+            style="background-image:url(/img/${piece.img});"
+            @click=${() => {
+              this.pickedPiece(piece);
+            }}
+          ></div>`
+        )}
       </div>
     `;
   }

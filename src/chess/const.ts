@@ -38,13 +38,6 @@ export function getOpponent(color: Color) {
   return color === Color.WHITE ? Color.BLACK : Color.WHITE;
 }
 
-enum MoveType {
-  MOVE = 'move',
-  CASTLE = 'castle',
-  ENPASSANT = 'enpassant',
-  PROMOTION = 'promotion',
-}
-
 export {
   Pair,
   equals,
@@ -54,5 +47,4 @@ export {
   NotImplementedError,
   PAWN_HOME_RANK,
   Color,
-  MoveType,
 };

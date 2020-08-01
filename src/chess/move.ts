@@ -1,24 +1,67 @@
-import {Pair, Color, MoveType} from './const';
-import {Piece, Pawn} from './piece';
+import {Pair, Color} from './const';
+import {Piece, Pawn, King} from './piece';
 import BoardState from './state';
 
-export interface Move {
+export enum TurnType {
+  MOVE = 'move',
+  CASTLE = 'castle',
+  DROP = 'drop',
+  PROMOTE = 'promote',
+}
+
+export type Turn = Move | Castle | Drop | Promote;
+
+interface BaseTurn {
   before: BoardState;
   after: BoardState;
+  color: Color;
+  type: TurnType; // 'move', 'castle', etc.
+}
+
+export interface Move extends BaseTurn {
+  type: TurnType.MOVE;
   piece: Piece;
   start: Pair;
   end: Pair;
   isCapture: boolean;
   captured?: Piece;
-  color: Color;
-  type: string; // 'move', 'castle', etc.
 }
 
-export function toFEN(move: Move) {
-  const {type, piece, start, end, before, after, isCapture} = move;
-  if (type === MoveType.CASTLE) {
-    return 'O-O'; // TODO: Queenside
+export interface Castle extends BaseTurn {
+  type: TurnType.CASTLE;
+  piece: King;
+  start: Pair;
+  end: Pair;
+  kingside: boolean;
+}
+
+export interface Drop extends BaseTurn {
+  type: TurnType.DROP;
+  piece: Piece;
+  end: Pair;
+}
+
+export interface Promote extends BaseTurn {
+  type: TurnType.PROMOTE;
+  piece: Pawn;
+  start: Pair;
+  end: Pair;
+  to: Piece;
+}
+
+export function toFEN(turn: Turn) {
+  switch (turn.type) {
+    case TurnType.MOVE:
+      return moveToFen(turn as Move);
+    case TurnType.CASTLE:
+      return (turn as Castle).kingside ? 'O-O' : 'O-O-O';
+    default:
+      return '?';
   }
+}
+
+function moveToFen(move: Move): string {
+  const {type, piece, start, end, before, after, isCapture} = move;
   const endFile = (end.col + 10).toString(36);
   const endRank = after.ranks - end.row;
   const startFile = (start.col + 10).toString(36);

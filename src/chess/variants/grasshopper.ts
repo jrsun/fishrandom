@@ -1,11 +1,11 @@
 import {Game} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
-import {Color, getOpponent, MoveType} from '../const';
+import {Color, getOpponent} from '../const';
 import BoardState from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
-import {Move} from '../move';
-import { dedup, Pair } from '../pair';
+import {Move, TurnType} from '../move';
+import {dedup, Pair} from '../pair';
 
 export class Grasshopper extends Game {
   name = 'Grasshopper';
@@ -48,7 +48,9 @@ export class Hopper extends Piece {
             ])
           )
       )
-    ).map((dir) => this.ride(row, col, dir.row, dir.col, state)).filter(move => !!move) as Move[];
+    )
+      .map((dir) => this.ride(row, col, dir.row, dir.col, state))
+      .filter((move) => !!move) as Move[];
     return moves;
   }
   private ride(
@@ -57,7 +59,7 @@ export class Hopper extends Piece {
     rowDir: number,
     colDir: number,
     state: BoardState
-  ): Move|undefined {
+  ): Move | undefined {
     // ride in one direction until we hit the edge of board or another piece
     let square = state.getSquare(row, col);
 
@@ -68,7 +70,7 @@ export class Hopper extends Piece {
         break;
       }
     }
-    if (!square || (square.occupant?.color === this.color)) return;
+    if (!square || square.occupant?.color === this.color) return;
     const isCapture = !!(
       square.occupant && square.occupant.color !== this.color
     );
@@ -83,7 +85,7 @@ export class Hopper extends Piece {
       isCapture,
       captured: square.occupant,
       color: this.color,
-      type: MoveType.MOVE,
+      type: TurnType.MOVE,
     };
   }
 

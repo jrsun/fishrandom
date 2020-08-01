@@ -1,6 +1,6 @@
 import {Game} from '../chess/game';
 import {randomChoice} from '../utils';
-import {Move} from '../chess/move';
+import {Move, Turn, TurnType} from '../chess/move';
 import {Color, getOpponent} from '../chess/const';
 import {
   AppendMessage,
@@ -59,50 +59,67 @@ export class Room {
     return this.wins(uuid === this.p1.uuid ? this.p2.uuid : this.p1.uuid);
   }
 
-  handleMove(uuid: string, moveAttempt: Move) {
+  handleTurn(uuid: string, turnAttempt: Turn) {
     if (!this.game || !this.p2) return;
+
+    const game = this.game;
     const player = this.p1.uuid === uuid ? this.p1 : this.p2;
     const opponent = player === this.p1 ? this.p2 : this.p1;
+    let turn: Turn | undefined;
 
-    const {
-      start: {row: srow, col: scol},
-      end: {row: drow, col: dcol},
-    } = moveAttempt;
-    const game = this.game;
+    switch (turnAttempt.type) {
+      case TurnType.MOVE:
+        const {
+          start: {row: srow, col: scol},
+          end: {row: drow, col: dcol},
+        } = turnAttempt;
 
-    const piece = game.state.getSquare(srow, scol)?.occupant;
-    if (!piece) {
-      console.log('no piece at ', srow, scol);
+        const piece = game.state.getSquare(srow, scol)?.occupant;
+        if (!piece) {
+          console.log('no piece at ', srow, scol);
+          return;
+        }
+        console.log(
+          '%s: (%s, %s) -> (%s, %s)',
+          piece.name,
+          srow,
+          scol,
+          drow,
+          dcol
+        );
+
+        turn = game.attemptMove(player.color, piece, srow, scol, drow, dcol);
+        break;
+      default:
+        throw new Error('unimplemented');
+    }
+
+    if (!turn) {
+      console.log('bad move!');
       return;
     }
-    console.log('%s: (%s, %s) -> (%s, %s)', piece.name, srow, scol, drow, dcol);
+    // we should send the mover a `replaceState` and the opponent an
+    // `appendState`
+    const rm = {
+      type: 'replaceState',
+      turn: {
+        ...turn,
+        before: game.visibleState(turn.before, player.color),
+        after: game.visibleState(turn.after, player.color),
+      },
+    } as ReplaceMessage;
+    const am = {
+      type: 'appendState',
+      turn: {
+        ...turn,
+        before: game.visibleState(turn.before, opponent.color),
+        after: game.visibleState(turn.after, opponent.color),
+      },
+    } as AppendMessage;
 
-    const move = game.attemptMove(player.color, piece, srow, scol, drow, dcol);
-    if (move) {
-      // we should send the mover a `replaceState` and the opponent an
-      // `appendState`
-      const rm = {
-        type: 'replaceState',
-        move: {
-          ...move,
-          before: game.visibleState(move.before, player.color),
-          after: game.visibleState(move.after, player.color),
-        },
-      } as ReplaceMessage;
-      const am = {
-        type: 'appendState',
-        move: {
-          ...move,
-          before: game.visibleState(move.before, opponent.color),
-          after: game.visibleState(move.after, opponent.color),
-        },
-      } as AppendMessage;
+    sendMessage(player.socket, rm);
+    sendMessage(opponent.socket, am);
 
-      sendMessage(player.socket, rm);
-      sendMessage(opponent.socket, am);
-    } else {
-      console.log('bad move!');
-    }
     if (game.winCondition(player.color)) {
       this.wins(player.uuid);
     }
@@ -118,7 +135,7 @@ export class Room {
     const gom = {
       type: 'gameOver',
       stateHistory: this.game.stateHistory,
-      moveHistory: this.game.moveHistory,
+      turnHistory: this.game.turnHistory,
     };
 
     sendMessage(player.socket, {

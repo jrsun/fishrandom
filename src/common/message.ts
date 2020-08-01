@@ -2,15 +2,15 @@ import {Piece} from '../chess/piece';
 import BoardState from '../chess/state';
 import Square from '../chess/square';
 import zlib from 'zlib';
-import {Move} from '../chess/move';
+import {Turn} from '../chess/move';
 import {Color} from '../chess/const';
 import WS from 'ws';
 import {QueenPawn} from '../chess/variants/hiddenqueen';
-import { Hopper } from '../chess/variants/grasshopper';
+import {Hopper} from '../chess/variants/grasshopper';
 
 // TODO: Set game type and start game.
 export type Message =
-  | MoveMessage
+  | TurnMessage
   | ReplaceMessage
   | AppendMessage
   | ReplaceAllMessage
@@ -21,9 +21,9 @@ export type Message =
 /*
  * Client-initiated
  */
-export interface MoveMessage {
-  type: 'move';
-  move: Move;
+export interface TurnMessage {
+  type: 'turn';
+  turn: Turn;
 }
 
 export interface ResignMessage {
@@ -35,18 +35,18 @@ export interface ResignMessage {
  */
 export interface ReplaceMessage {
   type: 'replaceState';
-  move: Move;
+  turn: Turn;
 }
 
 export interface AppendMessage {
   type: 'appendState';
-  move: Move;
+  turn: Turn;
 }
 
 export interface ReplaceAllMessage {
   type: 'replaceAll';
   stateHistory: BoardState[];
-  moveHistory: Move[];
+  turnHistory: Turn[];
 }
 
 export interface InitGameMessage {
@@ -65,7 +65,7 @@ export enum GameResult {
 export interface GameOverMessage {
   type: 'gameOver';
   stateHistory: BoardState[];
-  moveHistory: Move[];
+  turnHistory: Turn[];
   result: GameResult;
 }
 

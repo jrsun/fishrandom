@@ -94,7 +94,7 @@ export class Hiddenqueen extends Game {
           srow,
           scol,
           move.before,
-          this.moveHistory.slice(0, this.moveHistory.length - 1)
+          this.turnHistory.slice(0, this.turnHistory.length - 1)
         )
         .some((pmove) => {
           const matches =

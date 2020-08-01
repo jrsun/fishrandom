@@ -175,7 +175,7 @@ export class MyApp extends LitElement {
       const igm = message as InitGameMessage;
       const {variantName, state, color} = igm;
       this.game = new VARIANTS[variantName](/* isServer=*/ false);
-      this.game.moveHistory = [];
+      this.game.turnHistory = [];
       this.game.stateHistory = [state];
       this.game.state = state;
 
@@ -184,8 +184,8 @@ export class MyApp extends LitElement {
       this.performUpdate();
     } else if (message.type === 'gameOver') {
       const gom = message as GameOverMessage;
-      const {moveHistory, stateHistory, result} = gom;
-      this.game.moveHistory = moveHistory;
+      const {turnHistory, stateHistory, result} = gom;
+      this.game.turnHistory = turnHistory;
       this.game.stateHistory = stateHistory;
       this.game.state = stateHistory?.[stateHistory.length - 1];
 
@@ -275,7 +275,7 @@ export class MyApp extends LitElement {
           <div class="card controls">
             <my-controls
               .socket=${this.socket}
-              .moveHistory=${this.game.moveHistory}
+              .turnHistory=${this.game.turnHistory}
             ></my-controls>
           </div>
           <div class="card rules">

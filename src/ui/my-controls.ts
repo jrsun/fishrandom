@@ -7,7 +7,7 @@ import {
   TemplateResult,
 } from 'lit-element';
 import {Game} from '../chess/game';
-import {toFEN} from '../chess/move';
+import {toFEN, Turn} from '../chess/move';
 import {
   VARIANTS,
   Chess960,
@@ -79,7 +79,7 @@ export class MyControls extends LitElement {
   `;
   // public
   @property({type: Object}) socket: WebSocket;
-  @property({type: Array}) moveHistory: Move[] = [];
+  @property({type: Array}) turnHistory: Turn[] = [];
 
   // protected
   @property({type: Number}) viewMoveIndex: number | undefined;
@@ -108,7 +108,7 @@ export class MyControls extends LitElement {
 
   onClickPrev() {
     if (this.viewMoveIndex === undefined) {
-      this.viewMoveIndex = this.moveHistory.length;
+      this.viewMoveIndex = this.turnHistory.length;
     }
     this.viewMoveIndex = Math.max(0, this.viewMoveIndex - 1);
   }
@@ -117,7 +117,7 @@ export class MyControls extends LitElement {
     if (this.viewMoveIndex === undefined) return;
     this.viewMoveIndex = this.viewMoveIndex + 1;
 
-    if (this.viewMoveIndex >= this.moveHistory.length) {
+    if (this.viewMoveIndex >= this.turnHistory.length) {
       this.viewMoveIndex = undefined;
     }
   }
@@ -136,7 +136,7 @@ export class MyControls extends LitElement {
         new CustomEvent('view-move-changed', {
           detail:
             this.viewMoveIndex !== undefined
-              ? this.moveHistory[this.viewMoveIndex]?.before
+              ? this.turnHistory[this.viewMoveIndex]?.before
               : undefined,
           bubbles: true,
           composed: true,
@@ -149,7 +149,7 @@ export class MyControls extends LitElement {
     return html`
       <div class="container">
         <div class="fen-display">
-          ${this.moveHistory
+          ${this.turnHistory
             .map(toFEN)
             .map((fen: string) => html`<span class="fen">${fen}</span>`)}
         </div>

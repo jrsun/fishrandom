@@ -155,17 +155,17 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
         hidden queen.
       </li>
     </ul> `,
-  Grasshopper: html`Both sides have a full rank of <b>Grasshoppers</b>.
-  A grasshopper moves like a queen, but it MUST hop over another piece to move.
-  To be specific, it can only land immediately on the far side of the closest piece
-  along a rank, file, or diagonal. If there is an opposing piece there, the grasshopper
-  will capture it. If there is a friendly piece, the grasshopper cannot move there.
-  <ul>
-    <li>Orthodox rules.</li>
-    <li>Checkmate to win.</li>
-    <li>No pawn double move from start.</li>
-  </ul>
-  `,
+  Grasshopper: html`Both sides have a full rank of <b>Grasshoppers</b>. A
+    grasshopper moves like a queen, but it MUST hop over another piece to move.
+    To be specific, it can only land immediately on the far side of the closest
+    piece along a rank, file, or diagonal. If there is an opposing piece there,
+    the grasshopper will capture it. If there is a friendly piece, the
+    grasshopper cannot move there.
+    <ul>
+      <li>Orthodox rules.</li>
+      <li>Checkmate to win.</li>
+      <li>No pawn double move from start.</li>
+    </ul> `,
 };
 
 declare global {

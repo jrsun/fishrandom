@@ -7,10 +7,9 @@ import {
   NotImplementedError,
   PAWN_HOME_RANK,
   Color,
-  MoveType,
   getOpponent,
 } from './const';
-import {Move} from './move';
+import {Move, Turn, TurnType} from './move';
 import BoardState from './state';
 
 // Classes
@@ -24,7 +23,7 @@ export class Piece {
     row: number,
     col: number,
     state: BoardState,
-    moveHistory: Move[]
+    turnHistory: Turn[]
   ): Move[] {
     return [];
   }
@@ -109,7 +108,7 @@ class Leaper extends Piece {
         isCapture,
         captured: occupant,
         color: this.color,
-        type: MoveType.MOVE,
+        type: TurnType.MOVE,
       });
     }
     return moves;
@@ -166,7 +165,7 @@ class Rider extends Piece {
           isCapture,
           captured: square.occupant,
           color: this.color,
-          type: MoveType.MOVE,
+          type: TurnType.MOVE,
         });
       }
       if (square.occupant) {
@@ -277,7 +276,7 @@ export class Pawn extends Piece {
     row: number,
     col: number,
     state: BoardState,
-    moveHistory: Move[]
+    turnHistory: Turn[]
   ): Move[] {
     // normal move. 2 step. capture, en passant
     const yDir = this.color === Color.WHITE ? -1 : 1;
@@ -288,7 +287,7 @@ export class Pawn extends Piece {
       (row === PAWN_HOME_RANK && this.color === Color.BLACK) ||
       (row === state.ranks - PAWN_HOME_RANK - 1 && this.color === Color.WHITE)
     ) {
-      const skippedSquare = state.getSquare(row+yDir, col);
+      const skippedSquare = state.getSquare(row + yDir, col);
       if (skippedSquare && !skippedSquare.occupant) {
         moveTargets.push({row: row + 2 * yDir, col});
       }
@@ -321,7 +320,7 @@ export class Pawn extends Piece {
         end: target,
         isCapture: false,
         color: this.color,
-        type: MoveType.MOVE,
+        type: TurnType.MOVE,
       });
     }
     for (const target of captureTargets) {
@@ -336,10 +335,10 @@ export class Pawn extends Piece {
         isCapture: true,
         captured: state.getSquare(target.row, target.col)?.occupant,
         color: this.color,
-        type: MoveType.MOVE,
+        type: TurnType.MOVE,
       });
     }
-    const enpassant = this.enPassant(row, col, state, moveHistory);
+    const enpassant = this.enPassant(row, col, state, turnHistory);
     if (enpassant) {
       moves.push(enpassant);
     }
@@ -350,12 +349,13 @@ export class Pawn extends Piece {
     row: number,
     col: number,
     state: BoardState,
-    moveHistory: Move[]
+    turnHistory: Turn[]
   ): Move | undefined {
     const yDir = this.color === Color.WHITE ? -1 : 1;
     // en passant
-    if (moveHistory.length) {
-      const lastMove = moveHistory[moveHistory.length - 1];
+    if (turnHistory.length) {
+      const lastMove = turnHistory[turnHistory.length - 1];
+      if (lastMove.type !== TurnType.MOVE) return;
       if (
         lastMove.piece instanceof Pawn &&
         lastMove.piece.color !== this.color &&
@@ -370,7 +370,7 @@ export class Pawn extends Piece {
         const isCapture = true;
         const captured = lastMove.piece;
         const color = this.color;
-        const type = MoveType.ENPASSANT;
+        const type = TurnType.MOVE;
 
         const after = new BoardState(state.squares, getOpponent(this.color))
           .place(this, end.row, end.col)

@@ -7,7 +7,7 @@ import {
   Message,
   ReplaceMessage,
   AppendMessage,
-  MoveMessage,
+  TurnMessage,
   ReplaceAllMessage,
   InitGameMessage,
   log,
@@ -57,16 +57,16 @@ const handleMessage = function (uuid, message: Message) {
     console.log('Game not started');
     return;
   }
-  if (message.type === 'move') {
+  if (message.type === 'turn') {
     // sanitize
-    function tg(message: Message): message is MoveMessage {
-      return message.type === 'move';
+    function tg(message: Message): message is TurnMessage {
+      return message.type === 'turn';
     }
     if (!tg(message)) {
       console.log('message is not valid move', message);
       return;
     }
-    room.handleMove(uuid, message.move);
+    room.handleTurn(uuid, message.turn);
     return;
   }
   if (message.type === 'resign') {
@@ -88,7 +88,7 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
     console.log('game created');
   } else {
     room.p2Connect(uuid, ws);
-    const newGame = new (Variants.Random())(/*isserver*/true);
+    const newGame = new (Variants.Random())(/*isserver*/ true);
     // const newGame = new Variants.Grasshopper(true);
     room.game = newGame;
     playerToRoom[uuid] = room;
