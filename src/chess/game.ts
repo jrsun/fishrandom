@@ -141,7 +141,7 @@ export class Game {
   castle(color: Color, kingside: boolean): Castle | undefined {
     console.log('attempting castle');
     let target: Pair;
-    let cols: number[];
+    const cols: number[] = [];
     let rookSquare: Square;
     // check history for castling or rook/king moves
     if (this.turnHistory.some((move) => move.piece instanceof King)) {
@@ -171,46 +171,46 @@ export class Game {
       return;
     }
     if (kingside) {
+      rookSquare = rookSquares.sort((square) => square.col)[
+        rookSquares.length - 1
+      ];
       target = {
         row: color === Color.BLACK ? 0 : this.state.ranks - 1,
         col: this.state.files - 2,
       };
-      cols = [col];
-      for (let i = col + 1; i <= target.col; i++) {
-        cols.push(i);
-      }
-      rookSquare = rookSquares.sort((square) => square.col)[
-        rookSquares.length - 1
-      ];
     } else {
+      rookSquare = rookSquares.sort((square) => square.col)[0];
       target = {
         row: color === Color.BLACK ? 0 : this.state.ranks - 1,
         col: 2,
       };
-      cols = [col];
-      for (let i = col - 1; i >= target.col; i--) {
-        cols.push(i);
-      }
-      rookSquare = rookSquares.sort((square) => square.col)[0];
     }
     if (this.turnHistory.some((move) => move.piece === rookSquare.occupant)) {
       console.log('rook moved');
       return;
     }
 
-    const isAttacked = cols.some((travelCol) => {
+    for (
+      let i = Math.min(kingSquare.col, rookSquare.col, target.col);
+      i <= Math.max(kingSquare.col, rookSquare.col, target.col);
+      i++
+    ) {
+      cols.push(i);
+    }
+
+    const isBlocked = cols.some((travelCol) => {
       const square = this.state.getSquare(row, travelCol);
       if (!square) {
         throw new Error(`attempted to castle through nonexistent square
           , ${row}, ${travelCol}`);
       }
-      this.knowsAttackedSquare(color, this.state, row, travelCol) ||
+      return this.knowsAttackedSquare(color, this.state, row, travelCol) ||
         (square.occupant &&
           square.occupant !== rookSquare.occupant &&
-          !(square.occupant instanceof King));
+          square.occupant !== kingSquare.occupant);
     });
-    if (isAttacked) {
-      console.log('cannot castle, attacked on way');
+    if (isBlocked) {
+      console.log('cannot castle, blocked or attacked');
       return;
     }
     const before = this.state;
