@@ -41,39 +41,39 @@ const playerToRoom: {[uuid: string]: Room} = {};
 const rooms: Room[] = [];
 const sockets: {[uuid: string]: WS.WebSocket} = {};
 
-const handleMessage = function(uuid, message: Message) {
-    const room = playerToRoom[uuid];
-    if (!room) {
-      console.log('not in a room! exiting');
-      return;
-    }
-    if (!room!.p2) {
-      // console.log('not in a game! continuing anyway');
-      // return;
-    }
+const handleMessage = function (uuid, message: Message) {
+  const room = playerToRoom[uuid];
+  if (!room) {
+    console.log('not in a room! exiting');
+    return;
+  }
+  if (!room!.p2) {
+    // console.log('not in a game! continuing anyway');
+    // return;
+  }
 
-    const game = room.game;
-    if (!game) {
-      console.log('Game not started');
+  const game = room.game;
+  if (!game) {
+    console.log('Game not started');
+    return;
+  }
+  if (message.type === 'move') {
+    // sanitize
+    function tg(message: Message): message is MoveMessage {
+      return message.type === 'move';
+    }
+    if (!tg(message)) {
+      console.log('message is not valid move', message);
       return;
     }
-    if (message.type === 'move') {
-      // sanitize
-      function tg(message: Message): message is MoveMessage {
-        return message.type === 'move';
-      }
-      if (!tg(message)) {
-        console.log('message is not valid move', message);
-        return;
-      }
-      room.handleMove(uuid, message.move);
-      return;
-    }
-    if (message.type === 'resign') {
-      room.handleResign(uuid);
-      return;
-    }
-  };
+    room.handleMove(uuid, message.move);
+    return;
+  }
+  if (message.type === 'resign') {
+    room.handleResign(uuid);
+    return;
+  }
+};
 
 wss.on('connection', function connection(ws: WS.WebSocket, request) {
   console.log('Client connected:', request.headers.origin);
@@ -113,7 +113,9 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
       sendMessage(room.p2?.socket, igmW);
     }
   }
-  addMessageHandler(ws, (message) => {handleMessage(uuid, message)});
+  addMessageHandler(ws, (message) => {
+    handleMessage(uuid, message);
+  });
   // ws.on('message', function incoming(message) {
   //   const room = playerToRoom[uuid];
   //   if (!room) {

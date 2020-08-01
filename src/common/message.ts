@@ -122,7 +122,7 @@ export function sendMessage(ws: WS.WebSocket, m: Message) {
 
 export function addMessageHandler(
   ws: WebSocket,
-  handler: (message: Message) => void,
+  handler: (message: Message) => void
 ) {
   ws.addEventListener('message', async (e: MessageEvent) => {
     let msg = {};

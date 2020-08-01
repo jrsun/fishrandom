@@ -89,15 +89,14 @@ export class Room {
           after: game.visibleState(move.after, player.color),
         },
       } as ReplaceMessage;
-      const am = 
-        {
-          type: 'appendState',
-          move: {
-            ...move,
-            before: game.visibleState(move.before, opponent.color),
-            after: game.visibleState(move.after, opponent.color),
-          },
-        } as AppendMessage;
+      const am = {
+        type: 'appendState',
+        move: {
+          ...move,
+          before: game.visibleState(move.before, opponent.color),
+          after: game.visibleState(move.after, opponent.color),
+        },
+      } as AppendMessage;
 
       sendMessage(player.socket, rm);
       sendMessage(opponent.socket, am);
@@ -117,12 +116,18 @@ export class Room {
     const opponent = player === this.p1 ? this.p2 : this.p1;
 
     const gom = {
-        type: 'gameOver',
-        stateHistory: this.game.stateHistory,
-        moveHistory: this.game.moveHistory,
-      };
+      type: 'gameOver',
+      stateHistory: this.game.stateHistory,
+      moveHistory: this.game.moveHistory,
+    };
 
-    sendMessage(player.socket, {...gom, result: GameResult.WIN} as GameOverMessage);
-    sendMessage(opponent.socket, {...gom, result: GameResult.LOSS} as GameOverMessage);
+    sendMessage(player.socket, {
+      ...gom,
+      result: GameResult.WIN,
+    } as GameOverMessage);
+    sendMessage(opponent.socket, {
+      ...gom,
+      result: GameResult.LOSS,
+    } as GameOverMessage);
   }
 }

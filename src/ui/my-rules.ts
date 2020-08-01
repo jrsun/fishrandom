@@ -120,16 +120,16 @@ export class MyRules extends LitElement {
 }
 
 const VARIANT_INFO: {[variant: string]: TemplateResult} = {
-  Chess960: html`Starting position of the pieces on the players' home
-    ranks is randomized.
+  Chess960: html`Starting position of the pieces on the players' home ranks is
+    randomized.
     <!-- <div class="examples"><img src="../img/variants/960.png"/></div> -->
     <ul>
       <li>Orthodox rules.</li>
       <li>Checkmate to win.</li>
     </ul>`,
   Classic: html`The classic game.`,
-  Knightmate: html`The role of the King and Knight are switched. The King
-    is replaced by a <b>Royal Knight</b>, and the Knights are replaced by
+  Knightmate: html`The role of the King and Knight are switched. The King is
+    replaced by a <b>Royal Knight</b>, and the Knights are replaced by
     <b>Manns</b>, which are regular pieces that move like Kings.
     <ul>
       <li>Castling allowed.</li>
@@ -142,10 +142,10 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Black wins by capturing every pawn.</li>
       <li>White pawns can promote.</li>
     </ul> `,
-  Hiddenqueen: html`Both sides have a pawn designated as a hidden queen.
-    This queen will remain hidden to the opponent unless it makes a move that
-    would be impossible as a pawn. While hidden, the queen does not explicitly
-    give check.
+  Hiddenqueen: html`Both sides have a pawn designated as a hidden queen. This
+    queen will remain hidden to the opponent unless it makes a move that would
+    be impossible as a pawn. While hidden, the queen does not explicitly give
+    check.
     <ul>
       <li>Checkmate or <b>capture</b> the king to win.</li>
       <li>Hidden Queen cannot capture en passant.</li>
