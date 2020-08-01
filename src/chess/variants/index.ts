@@ -4,6 +4,7 @@ import {Game} from '../game';
 import {Knightmate} from './knightmate';
 import {Horde} from './horde';
 import {Hiddenqueen} from './hiddenqueen';
+import {Grasshopper} from './grasshopper';
 import {randomChoice} from '../../utils';
 
 export const VARIANTS: {[name: string]: typeof Game} = {
@@ -12,10 +13,11 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Knightmate,
   Horde,
   Hiddenqueen,
+  Grasshopper,
 };
 
 export function Random(): typeof Game {
   return VARIANTS[randomChoice(Object.keys(VARIANTS))];
 }
 
-export {Chess960, Classic, Knightmate, Horde, Hiddenqueen};
+export {Chess960, Classic, Knightmate, Horde, Hiddenqueen, Grasshopper};
