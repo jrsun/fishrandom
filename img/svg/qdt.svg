@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4f, 2020-05-01)"
+   sodipodi:docname="qdt.svg"
+   id="svg861"
+   height="45"
+   width="45"
+   version="1.1">
+  <metadata
+     id="metadata867">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs865" />
+  <sodipodi:namedview
+     inkscape:current-layer="svg861"
+     inkscape:window-maximized="0"
+     inkscape:window-y="23"
+     inkscape:window-x="0"
+     inkscape:cy="22.5"
+     inkscape:cx="17.34924"
+     inkscape:zoom="1.5021831"
+     showgrid="false"
+     id="namedview863"
+     inkscape:window-height="480"
+     inkscape:window-width="776"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <g
+     id="g859"
+     style="opacity:1; fill:000000; fill-opacity:1; fill-rule:evenodd; stroke:#000000; stroke-width:1.5; stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4; stroke-dasharray:none; stroke-opacity:1;">
+    <g
+       id="g843"
+       style="fill:#000000; stroke:none;">
+      <circle
+         id="circle833"
+         r="2.75"
+         cy="12"
+         cx="6" />
+      <circle
+         id="circle835"
+         r="2.75"
+         cy="9"
+         cx="14" />
+      <circle
+         id="circle837"
+         r="2.75"
+         cy="8"
+         cx="22.5" />
+      <circle
+         id="circle839"
+         r="2.75"
+         cy="9"
+         cx="31" />
+      <circle
+         id="circle841"
+         r="2.75"
+         cy="12"
+         cx="39" />
+    </g>
+    <path
+       id="path845"
+       style="stroke-linecap:butt; stroke:#000000;"
+       d="M 9,26 C 17.5,24.5 30,24.5 36,26 L 38.5,13.5 L 31,25 L 30.7,10.9 L 25.5,24.5 L 22.5,10 L 19.5,24.5 L 14.3,10.9 L 14,25 L 6.5,13.5 L 9,26 z" />
+    <path
+       id="path847"
+       style="stroke-linecap:butt;"
+       d="M 9,26 C 9,28 10.5,28 11.5,30 C 12.5,31.5 12.5,31 12,33.5 C 10.5,34.5 10.5,36 10.5,36 C 9,37.5 11,38.5 11,38.5 C 17.5,39.5 27.5,39.5 34,38.5 C 34,38.5 35.5,37.5 34,36 C 34,36 34.5,34.5 33,33.5 C 32.5,31 32.5,31.5 33.5,30 C 34.5,28 36,28 36,26 C 27.5,24.5 17.5,24.5 9,26 z" />
+    <path
+       id="path849"
+       style="fill:none; stroke:#000000; stroke-linecap:butt;"
+       d="M 11,38.5 A 35,35 1 0 0 34,38.5" />
+    <path
+       id="path851"
+       style="fill:none; stroke:#ffffff;"
+       d="M 11,29 A 35,35 1 0 1 34,29" />
+    <path
+       id="path853"
+       style="fill:none; stroke:#ffffff;"
+       d="M 12.5,31.5 L 32.5,31.5" />
+    <path
+       id="path855"
+       style="fill:none; stroke:#ffffff;"
+       d="M 11.5,34.5 A 35,35 1 0 0 33.5,34.5" />
+    <path
+       id="path857"
+       style="fill:none; stroke:#ffffff;"
+       d="M 10.5,37.5 A 35,35 1 0 0 34.5,37.5" />
+  </g>
+</svg>

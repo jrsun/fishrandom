@@ -187,9 +187,9 @@ export class Bishop extends Rider {
 
   get img(): string {
     if (this.color === Color.BLACK) {
-      return 'bdt.png';
+      return 'bdt.svg';
     } else if (this.color === Color.WHITE) {
-      return 'blt.png';
+      return 'blt.svg';
     }
     throw new Error(
       'no image for color: ' + this.color + 'for piece ' + this.name
@@ -203,9 +203,9 @@ export class Rook extends Rider {
 
   get img(): string {
     if (this.color === Color.BLACK) {
-      return 'rdt45.png';
+      return 'rdt.svg';
     } else if (this.color === Color.WHITE) {
-      return 'rlt45.png';
+      return 'rlt.svg';
     }
     throw new Error(
       'no image for color: ' + this.color + 'for piece ' + this.name
@@ -223,9 +223,9 @@ export class Knight extends Leaper {
 
   get img(): string {
     if (this.color === Color.BLACK) {
-      return 'ndt26.png';
+      return 'svg/ndt.svg';
     } else if (this.color === Color.WHITE) {
-      return 'nlt.png';
+      return 'svg/nlt.svg';
     }
     throw new Error(
       'no image for color: ' + this.color + 'for piece ' + this.name
@@ -242,9 +242,9 @@ export class Queen extends Rider {
 
   get img(): string {
     if (this.color === Color.BLACK) {
-      return 'qdt45.png';
+      return 'svg/qdt.svg';
     } else if (this.color === Color.WHITE) {
-      return 'qlt45.png';
+      return 'svg/qlt.svg';
     }
     throw new Error(
       'no image for color: ' + this.color + 'for piece ' + this.name
@@ -262,9 +262,9 @@ export class King extends Leaper {
 
   get img(): string {
     if (this.color === Color.BLACK) {
-      return 'kdt45.png';
+      return 'svg/kdt.svg';
     } else if (this.color === Color.WHITE) {
-      return 'klt.png';
+      return 'svg/klt.svg';
     }
     throw new Error(
       'no image for color: ' + this.color + 'for piece ' + this.name
@@ -397,9 +397,9 @@ export class Pawn extends Piece {
   get img(): string {
     if (this.color === Color.BLACK) {
       // return 'bpawn.svg';
-      return 'pdt45.png';
+      return 'pdt.svg';
     } else if (this.color === Color.WHITE) {
-      return 'plt45.png';
+      return 'plt.svg';
       // return 'pawn.svg';
     }
     throw new Error(
@@ -417,7 +417,7 @@ export class RoyalKnight extends Knight {
   }
 
   get img(): string {
-    return this.color === Color.BLACK ? 'knightkingb.png' : 'knightkingw.png';
+    return this.color === Color.BLACK ? 'kkdt.svg' : 'kklt.svg';
   }
 }
 
@@ -426,7 +426,7 @@ export class Mann extends King {
   isRoyal = false;
 
   get img(): string {
-    return this.color === Color.BLACK ? 'mannb.png' : 'mannw.png';
+    return this.color === Color.BLACK ? 'mdt.svg' : 'mlt.svg';
   }
 }
 

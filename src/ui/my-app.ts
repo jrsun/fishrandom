@@ -235,7 +235,7 @@ export class MyApp extends LitElement {
             <div class="user-info">
               <div
                 class="avatar"
-                style="background-image:url(../img/swoledoge.png)"
+                style="background-image:url(../img/swoledoge.jpg)"
               ></div>
               <div class="user-capture">
                 <div class="username">SwoleDoge94</div>
