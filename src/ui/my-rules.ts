@@ -120,15 +120,15 @@ export class MyRules extends LitElement {
 }
 
 const VARIANT_INFO: {[variant: string]: TemplateResult} = {
-  [Chess960.name]: html`Starting position of the pieces on the players' home
+  Chess960: html`Starting position of the pieces on the players' home
     ranks is randomized.
     <!-- <div class="examples"><img src="../img/variants/960.png"/></div> -->
     <ul>
       <li>Orthodox rules.</li>
       <li>Checkmate to win.</li>
     </ul>`,
-  [Classic.name]: html`The classic game.`,
-  [Knightmate.name]: html`The role of the King and Knight are switched. The King
+  Classic: html`The classic game.`,
+  Knightmate: html`The role of the King and Knight are switched. The King
     is replaced by a <b>Royal Knight</b>, and the Knights are replaced by
     <b>Manns</b>, which are regular pieces that move like Kings.
     <ul>
@@ -136,13 +136,13 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Pawn can promote to <b>Mann</b> instead of Knight.</li>
       <li>Checkmate the <b>Royal Knight</b> to win.</li>
     </ul>`,
-  [Horde.name]: html`White has 36 pawns. Black has a regular chess setup.
+  Horde: html`White has 36 pawns. Black has a regular chess setup.
     <ul>
       <li>White wins by checkmating the black king.</li>
       <li>Black wins by capturing every pawn.</li>
       <li>White pawns can promote.</li>
     </ul> `,
-  [Hiddenqueen.name]: html`Both sides have a pawn designated as a hidden queen.
+  Hiddenqueen: html`Both sides have a pawn designated as a hidden queen.
     This queen will remain hidden to the opponent unless it makes a move that
     would be impossible as a pawn. While hidden, the queen does not explicitly
     give check.

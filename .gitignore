@@ -5,3 +5,4 @@
 
 /dist/*
 !/dist/index.*
+.DS_Store

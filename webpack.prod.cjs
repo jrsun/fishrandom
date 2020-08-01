@@ -13,6 +13,9 @@ module.exports = merge(common, {
         terserOptions: {
           // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
           mangle: false,
+          removeAvailableModules: true,
+          providedExports: true,
+          concatenateModules: true,
         }
       }),
     ],
