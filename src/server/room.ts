@@ -66,12 +66,14 @@ export class Room {
     const player = this.p1.uuid === uuid ? this.p1 : this.p2;
     const opponent = player === this.p1 ? this.p2 : this.p1;
     let turn: Turn | undefined;
+    const {
+      end: {row: drow, col: dcol},
+    } = turnAttempt;
 
     switch (turnAttempt.type) {
       case TurnType.MOVE:
         const {
           start: {row: srow, col: scol},
-          end: {row: drow, col: dcol},
         } = turnAttempt;
 
         const piece = game.state.getSquare(srow, scol)?.occupant;
@@ -94,8 +96,20 @@ export class Room {
         turn = game.castle(player.color, turnAttempt.kingside);
         break;
       case TurnType.DROP:
-        const {piece: droppedPiece, end: {row, col}} = turnAttempt;
+        const {
+          piece: droppedPiece,
+          end: {row, col},
+        } = turnAttempt;
         turn = game.drop(droppedPiece, row, col);
+        break;
+      case TurnType.PROMOTE:
+        const {
+          to,
+          piece: promoter,
+          start: {row: prow, col: pcol},
+        } = turnAttempt;
+        turn = game.promote(promoter, to, prow, pcol, row, col);
+        break;
       default:
         throw new Error('unimplemented');
     }

@@ -16,6 +16,7 @@ import BoardState from './state';
 export class Piece {
   name: string;
   isRoyal: boolean;
+  promotable: boolean;
   constructor(public color: Color) {
     // this.squares = this.game?.state.squares;
   }
@@ -272,6 +273,7 @@ export class King extends Leaper {
 
 export class Pawn extends Piece {
   name = 'Pawn';
+  promotable = true;
   legalMoves(
     row: number,
     col: number,

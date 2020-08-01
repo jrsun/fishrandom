@@ -2,7 +2,6 @@ import express from 'express';
 import path from 'path';
 import {
   Message,
-  
   TurnMessage,
   InitGameMessage,
   sendMessage,
@@ -18,14 +17,13 @@ import {randomChoice, randomInt} from '../utils';
 var app = express();
 
 const argv = yargs
-    .option('game', {
-        alias: 'g',
-        description: 'Choose a game to limit. Default is random',
-        type: 'string',
-    })
-    .help()
-    .alias('help', 'h')
-    .argv;
+  .option('game', {
+    alias: 'g',
+    description: 'Choose a game to limit. Default is random',
+    type: 'string',
+  })
+  .help()
+  .alias('help', 'h').argv;
 
 // viewed at http://localhost:8080
 app.get('/', function (req, res) {

@@ -43,6 +43,8 @@ export interface Promote extends BaseTurn {
   piece: Pawn;
   start: Pair;
   to: Piece;
+  isCapture: boolean;
+  captured?: Piece;
 }
 
 export function toFEN(turn: Turn) {

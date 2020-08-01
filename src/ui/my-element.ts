@@ -47,6 +47,8 @@ import BoardState from '../chess/state';
 import {Chess960} from '../chess/variants/960';
 import {equals} from '../chess/pair';
 import './my-piece-picker';
+import '@polymer/paper-dialog/paper-dialog';
+import {PaperDialogElement} from '@polymer/paper-dialog/paper-dialog';
 
 const SQUARE_SIZE = Math.min(window.innerWidth / 12, 50); // 50
 /**
@@ -101,12 +103,15 @@ export class MyElement extends LitElement {
   @property({type: Object}) selectedPiece: Piece | undefined;
   @property({type: Object}) selectedSquare: Square | undefined;
   @property({type: Object}) arrowStartSquare: Square | undefined;
+  @property({type: Object}) promotionSquare: Square | undefined;
 
   /**
    * The number of times the button has been clicked.
    */
   @property({type: Number})
   count = 0;
+
+  pickerPieceSelected: () => void;
 
   connectedCallback() {
     super.connectedCallback();
@@ -119,6 +124,8 @@ export class MyElement extends LitElement {
     this.addEventListener('square-mouseup', this.onSquareMouseup.bind(this));
     // this.addEventListener('contextmenu', e => {e.preventDefault()});
     // addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
+    this.pickerPieceSelected = this.onPiecePicker.bind(this);
+    this.addEventListener('picker-piece-selected', this.pickerPieceSelected);
   }
 
   disconnectedCallback() {
@@ -135,6 +142,7 @@ export class MyElement extends LitElement {
       'message',
       this.handleSocketMessage.bind(this)
     );
+    this.removeEventListener('picker-piece-selected', this.pickerPieceSelected);
   }
 
   updated(changedProperties) {
@@ -186,13 +194,17 @@ export class MyElement extends LitElement {
     const lastTurn = this.game.turnHistory[this.game.turnHistory.length - 1];
 
     return html`
-      <my-piece-picker
-        .pieces=${[Queen, Rook, Bishop, Knight].map((c) => new c(this.color))}
-      ></my-piece-picker>
       <div
         id="board"
         style=${this.color === Color.BLACK ? 'transform:rotate(180deg);' : ''}
       >
+        <paper-dialog id="promotion-modal"
+          ><my-piece-picker
+            .pieces=${[Queen, Rook, Bishop, Knight].map(
+              (c) => new c(this.color)
+            )}
+          ></my-piece-picker
+        ></paper-dialog>
         <canvas id="canvas"></canvas>
         ${(this.viewHistoryState ?? state).squares.map(
           (row) => html`<div class="row">
@@ -223,13 +235,17 @@ export class MyElement extends LitElement {
     const square = e.detail as Square;
     let turn: Turn | undefined;
     if (this.selectedPiece && this.selectedSquare) {
-      if (this.selectedPiece.isRoyal && (
-        this.selectedSquare.row === square.row && (
-          Math.abs(this.selectedSquare.col - square.col) === 2
-        )
-      )) {
-        turn = this.game.castle(this.color, (square.col - this.selectedSquare.col) > 0);
+      if (
+        this.selectedPiece.isRoyal &&
+        this.selectedSquare.row === square.row &&
+        Math.abs(this.selectedSquare.col - square.col) === 2
+      ) {
+        turn = this.game.castle(
+          this.color,
+          square.col - this.selectedSquare.col > 0
+        );
       } else {
+        // On promotion, rollback move
         turn = this.game.attemptMove(
           this.color,
           this.selectedPiece,
@@ -238,6 +254,25 @@ export class MyElement extends LitElement {
           square.row,
           square.col
         );
+        if (
+          this.selectedPiece.promotable &&
+          ((turn?.end.row === 0 && this.selectedPiece.color === Color.WHITE) ||
+            (turn?.end.row === this.game.state.files - 1 &&
+              this.selectedPiece.color === Color.BLACK))
+        ) {
+          const lastTurn = this.game.turnHistory.pop();
+          this.game.stateHistory.pop();
+          if (lastTurn) {
+            this.game.state = lastTurn.before;
+          }
+          // popup the promotion modal
+          const promotionModal = this.shadowRoot!.querySelector(
+            '#promotion-modal'
+          );
+          this.promotionSquare = square;
+          (promotionModal as PaperDialogElement).open();
+          return;
+        }
       }
 
       this.selectedSquare = undefined;
@@ -250,6 +285,30 @@ export class MyElement extends LitElement {
       this.selectedSquare = square;
       this.selectedPiece = square.occupant;
     }
+    this.performUpdate();
+  }
+
+  private onPiecePicker(e: CustomEvent) {
+    const piece = e.detail as Piece;
+    if (!this.promotionSquare || !this.selectedSquare || !this.selectedPiece)
+      return;
+
+    const turn = this.game.promote(
+      this.selectedPiece,
+      piece,
+      this.selectedSquare?.row,
+      this.selectedSquare?.col,
+      this.promotionSquare.row,
+      this.promotionSquare.col
+    );
+    if (!turn) return;
+    sendMessage(this.socket, {type: 'turn', turn});
+    this.selectedSquare = undefined;
+    this.selectedPiece = undefined;
+    const promotionModal = this.shadowRoot!.querySelector(
+      '#promotion-modal'
+    );
+    (promotionModal as PaperDialogElement).close();
     this.performUpdate();
   }
 

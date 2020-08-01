@@ -1,5 +1,5 @@
 import BoardState from './state';
-import {Move, TurnType, Castle, Turn, Drop} from './move';
+import {Move, TurnType, Castle, Turn, Drop, Promote} from './move';
 import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from './piece';
 import Square from './square';
 import {Color, Pair, NotImplementedError, getOpponent, equals} from './const';
@@ -150,7 +150,9 @@ export class Game {
     }
     const kingSquares = this.state.squares
       .flat()
-      .filter((square) => square?.occupant?.isRoyal && square.occupant.color === color);
+      .filter(
+        (square) => square?.occupant?.isRoyal && square.occupant.color === color
+      );
     if (kingSquares.length !== 1) {
       console.log('error, expected 1 royal, got %s', kingSquares.length);
       return;
@@ -204,10 +206,12 @@ export class Game {
         throw new Error(`attempted to castle through nonexistent square
           , ${row}, ${travelCol}`);
       }
-      return this.knowsAttackedSquare(color, this.state, row, travelCol) ||
+      return (
+        this.knowsAttackedSquare(color, this.state, row, travelCol) ||
         (square.occupant &&
           square.occupant !== rookSquare.occupant &&
-          square.occupant !== kingSquare.occupant);
+          square.occupant !== kingSquare.occupant)
+      );
     });
     if (isBlocked) {
       console.log('cannot castle, blocked or attacked');
@@ -235,6 +239,52 @@ export class Game {
     this.stateHistory.push(after);
     this.state = after;
     return move;
+  }
+
+  promote(
+    promoter: Piece,
+    to: Piece,
+    srow: number,
+    scol: number,
+    drow: number,
+    dcol: number
+  ): Promote | undefined {
+    const legalMoves = promoter
+      .legalMoves(srow, scol, this.state, this.turnHistory)
+      .filter((move) => {
+        return (
+          this.isTurnLegal(move) &&
+          move.end.col === dcol &&
+          move.end.row === drow
+        );
+      });
+    if (!legalMoves.length) {
+      console.log('cannot promote here');
+      return;
+    }
+    if (legalMoves.length > 1) {
+      console.log('multiple legal moves??');
+    }
+    const legalMove = legalMoves[0];
+    const after = new BoardState(
+      this.state.squares,
+      getOpponent(promoter.color)
+    )
+      .empty(srow, scol)
+      .place(to, drow, dcol);
+    if (legalMove.isCapture) {
+      this.captureEffects(legalMove);
+    }
+    const promote = {
+      ...legalMove,
+      after,
+      type: TurnType.PROMOTE,
+      to,
+    } as Promote;
+    this.turnHistory.push(promote);
+    this.stateHistory.push(after);
+    this.state = after;
+    return promote;
   }
 
   // Private
