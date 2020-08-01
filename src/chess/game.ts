@@ -1,5 +1,5 @@
 import BoardState from './state';
-import {Move, TurnType, Castle, Turn} from './move';
+import {Move, TurnType, Castle, Turn, Drop} from './move';
 import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from './piece';
 import Square from './square';
 import {Color, Pair, NotImplementedError, getOpponent, equals} from './const';
@@ -90,7 +90,7 @@ export class Game {
     const legalMoves = piece
       .legalMoves(srow, scol, this.state, this.turnHistory)
       .filter((move) => {
-        return this.isMoveLegal(move);
+        return this.isTurnLegal(move);
       });
     const legalMove = legalMoves.find((move) =>
       equals(move.end, {row: drow, col: dcol})
@@ -111,7 +111,7 @@ export class Game {
     return legalMove;
   }
 
-  drop(piece: Piece, row: number, col: number) {
+  drop(piece: Piece, row: number, col: number): Drop | undefined {
     console.log('dropping');
     const {state} = this;
     const square = state.getSquare(row, col);
@@ -119,12 +119,23 @@ export class Game {
       return;
     }
     const after = state.place(piece, row, col);
-    if (!this.isMoveLegal(({after, piece, end: square} as unknown) as Move)) {
+    const drop = {
+      before: state,
+      after,
+      color: piece.color,
+      end: {row, col},
+      piece,
+      type: TurnType.DROP,
+    } as Drop;
+    if (!this.isTurnLegal(drop)) {
       console.log('illegal drop');
       return;
     }
     console.log('dropped!');
     this.state = after;
+    this.turnHistory.push(drop);
+    this.stateHistory.push(after);
+    return drop;
   }
 
   castle(color: Color, kingside: boolean): Castle | undefined {
@@ -139,7 +150,7 @@ export class Game {
     }
     const kingSquares = this.state.squares
       .flat()
-      .filter((square) => square?.occupant instanceof King);
+      .filter((square) => square?.occupant instanceof King && square.occupant.color === color);
     if (kingSquares.length !== 1) {
       console.log('error, expected 1 king, got %s', kingSquares.length);
       return;
@@ -211,13 +222,14 @@ export class Game {
       .place(new Rook(color), target.row, target.col + (kingside ? -1 : 1));
     const type = TurnType.CASTLE;
     const move = {
-      start: {row, col},
-      end: target,
       before,
       after,
+      color,
+      end: target,
       piece: king,
       type,
-      color,
+      start: {row, col},
+      kingside,
     } as Castle;
     this.turnHistory.push(move);
     this.stateHistory.push(after);
@@ -227,16 +239,16 @@ export class Game {
 
   // Private
 
-  isMoveLegal(move: Move): boolean {
+  isTurnLegal(turn: Turn): boolean {
     if (
-      move.end.row < 0 ||
-      move.end.row >= this.state.ranks ||
-      move.end.col < 0 ||
-      move.end.col >= this.state.files
+      turn.end.row < 0 ||
+      turn.end.row >= this.state.ranks ||
+      turn.end.col < 0 ||
+      turn.end.col >= this.state.files
     ) {
       return false;
     }
-    if (this.knowsInCheck(move.color, move.after)) {
+    if (this.knowsInCheck(turn.color, turn.after)) {
       return false;
     }
     return true;

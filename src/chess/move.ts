@@ -15,14 +15,14 @@ interface BaseTurn {
   before: BoardState;
   after: BoardState;
   color: Color;
+  end: Pair;
+  piece: Piece;
   type: TurnType; // 'move', 'castle', etc.
 }
 
 export interface Move extends BaseTurn {
   type: TurnType.MOVE;
-  piece: Piece;
   start: Pair;
-  end: Pair;
   isCapture: boolean;
   captured?: Piece;
 }
@@ -31,21 +31,17 @@ export interface Castle extends BaseTurn {
   type: TurnType.CASTLE;
   piece: King;
   start: Pair;
-  end: Pair;
   kingside: boolean;
 }
 
 export interface Drop extends BaseTurn {
   type: TurnType.DROP;
-  piece: Piece;
-  end: Pair;
 }
 
 export interface Promote extends BaseTurn {
   type: TurnType.PROMOTE;
   piece: Pawn;
   start: Pair;
-  end: Pair;
   to: Piece;
 }
 

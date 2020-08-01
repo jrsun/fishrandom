@@ -221,22 +221,31 @@ export class MyElement extends LitElement {
     this.eraseCanvas();
     // There's a bug here where updating the game using attemptMove doesn't cause rerender.
     const square = e.detail as Square;
+    let turn: Turn | undefined;
     if (this.selectedPiece && this.selectedSquare) {
-      const move = this.game.attemptMove(
-        this.color,
-        this.selectedPiece,
-        this.selectedSquare.row,
-        this.selectedSquare.col,
-        square.row,
-        square.col
-      );
+      if (this.selectedPiece.isRoyal && (
+        this.selectedSquare.row === square.row && (
+          Math.abs(this.selectedSquare.col - square.col) === 2
+        )
+      )) {
+        turn = this.game.castle(this.color, (square.col - this.selectedSquare.col) > 0);
+      } else {
+        turn = this.game.attemptMove(
+          this.color,
+          this.selectedPiece,
+          this.selectedSquare.row,
+          this.selectedSquare.col,
+          square.row,
+          square.col
+        );
+      }
 
       this.selectedSquare = undefined;
       this.selectedPiece = undefined;
-      if (!move) {
+      if (!turn) {
         return;
       }
-      sendMessage(this.socket, {type: 'turn', turn: move});
+      sendMessage(this.socket, {type: 'turn', turn});
     } else {
       this.selectedSquare = square;
       this.selectedPiece = square.occupant;
@@ -272,7 +281,7 @@ export class MyElement extends LitElement {
       this.game.turnHistory
     )
       .filter((move) => {
-        return this.game.isMoveLegal(move);
+        return this.game.isTurnLegal(move);
       })
       .map((move) => this.game.state.getSquare(move.end.row, move.end.col));
 

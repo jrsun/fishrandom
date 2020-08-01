@@ -90,6 +90,12 @@ export class Room {
 
         turn = game.attemptMove(player.color, piece, srow, scol, drow, dcol);
         break;
+      case TurnType.CASTLE:
+        turn = game.castle(player.color, turnAttempt.kingside);
+        break;
+      case TurnType.DROP:
+        const {piece: droppedPiece, end: {row, col}} = turnAttempt;
+        turn = game.drop(droppedPiece, row, col);
       default:
         throw new Error('unimplemented');
     }
