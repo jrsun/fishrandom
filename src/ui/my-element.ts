@@ -34,6 +34,8 @@ import {
   addMessageHandler,
   sendMessage,
 } from '../common/message';
+import { Queen, Rook, Bishop, Knight } from '../chess/piece';
+
 import {drawArrow} from '../utils';
 import './my-square';
 import {VARIANTS} from '../chess/variants';
@@ -44,6 +46,7 @@ import {Color} from '../chess/const';
 import BoardState from '../chess/state';
 import {Chess960} from '../chess/variants/960';
 import {equals} from '../chess/pair';
+import "./my-piece-picker";
 
 const SQUARE_SIZE = Math.min(window.innerWidth / 12, 50); // 50
 /**
@@ -183,6 +186,7 @@ export class MyElement extends LitElement {
     const lastMove = this.game.moveHistory[this.game.moveHistory.length - 1];
 
     return html`
+      <my-piece-picker .pieces=${[Queen, Rook, Bishop, Knight].map(c => new c(this.color))}></my-piece-picker>
       <div
         id="board"
         style=${this.color === Color.BLACK ? 'transform:rotate(180deg);' : ''}

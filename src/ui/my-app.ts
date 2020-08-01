@@ -18,6 +18,7 @@ import {
 } from '../common/message';
 import ConfettiGenerator from 'confetti-js';
 import './my-rules';
+import './my-piece-picker';
 import './my-controls';
 import {Game} from '../chess/game';
 import BoardState from '../chess/state';
