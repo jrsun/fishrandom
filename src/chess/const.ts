@@ -42,6 +42,7 @@ enum MoveType {
   MOVE = 'move',
   CASTLE = 'castle',
   ENPASSANT = 'enpassant',
+  PROMOTION = 'promotion',
 }
 
 export {

@@ -14,7 +14,6 @@ import {Move} from './move';
 import BoardState from './state';
 
 // Classes
-
 export class Piece {
   name: string;
   isRoyal: boolean;
@@ -290,7 +289,10 @@ export class Pawn extends Piece {
       (row === PAWN_HOME_RANK && this.color === Color.BLACK) ||
       (row === state.ranks - PAWN_HOME_RANK - 1 && this.color === Color.WHITE)
     ) {
-      moveTargets.push({row: row + 2 * yDir, col});
+      const skippedSquare = state.getSquare(row+yDir, col);
+      if (skippedSquare && !skippedSquare.occupant) {
+        moveTargets.push({row: row + 2 * yDir, col});
+      }
     }
 
     moveTargets = moveTargets.filter((target) => {
