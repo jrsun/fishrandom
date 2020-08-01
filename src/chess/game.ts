@@ -121,6 +121,22 @@ export class Game {
     return legalMove;
   }
 
+  drop(piece: Piece, row: number, col: number) {
+    console.log('dropping');
+    const {state} = this;
+    const square = state.getSquare(row, col);
+    if (!square || square.occupant) {
+      return;
+    }
+    const after = state.place(piece, row, col);
+    if (!this.isMoveLegal({after, piece, end: square} as unknown as Move)) {
+      console.log('illegal drop');
+      return;
+    }
+    console.log('dropped!');
+    this.state = after;
+  }
+
   castle(
     color: Color,
     row: number,

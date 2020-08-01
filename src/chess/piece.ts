@@ -272,7 +272,6 @@ export class King extends Leaper {
 }
 
 export class Pawn extends Piece {
-  // TODO BUG: Pawns can 2 step with blocking piece
   name = 'Pawn';
   legalMoves(
     row: number,
