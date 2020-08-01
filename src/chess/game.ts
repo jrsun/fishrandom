@@ -144,15 +144,15 @@ export class Game {
     const cols: number[] = [];
     let rookSquare: Square;
     // check history for castling or rook/king moves
-    if (this.turnHistory.some((move) => move.piece instanceof King)) {
+    if (this.turnHistory.some((move) => move.piece.isRoyal)) {
       console.log('king moved');
       return;
     }
     const kingSquares = this.state.squares
       .flat()
-      .filter((square) => square?.occupant instanceof King && square.occupant.color === color);
+      .filter((square) => square?.occupant?.isRoyal && square.occupant.color === color);
     if (kingSquares.length !== 1) {
-      console.log('error, expected 1 king, got %s', kingSquares.length);
+      console.log('error, expected 1 royal, got %s', kingSquares.length);
       return;
     }
     const kingSquare = kingSquares[0];
@@ -214,7 +214,7 @@ export class Game {
       return;
     }
     const before = this.state;
-    const king = new King(color);
+    const king = kingSquare.occupant!;
     const after = new BoardState(this.state.squares, getOpponent(color))
       .empty(rookSquare.row, rookSquare.col)
       .empty(row, col)

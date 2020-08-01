@@ -1,27 +1,31 @@
 import express from 'express';
 import path from 'path';
-import {Game} from '../chess/game';
 import {
-  replacer,
-  reviver,
   Message,
-  ReplaceMessage,
-  AppendMessage,
+  
   TurnMessage,
-  ReplaceAllMessage,
   InitGameMessage,
-  log,
   sendMessage,
   addMessageHandler,
 } from '../common/message';
 import {Room} from './room';
 import WS from 'ws';
 import * as Variants from '../chess/variants/index';
-import {Move} from '../chess/move';
 import {Color} from '../chess/const';
+import yargs from 'yargs';
 import {randomChoice, randomInt} from '../utils';
 
 var app = express();
+
+const argv = yargs
+    .option('game', {
+        alias: 'g',
+        description: 'Choose a game to limit. Default is random',
+        type: 'string',
+    })
+    .help()
+    .alias('help', 'h')
+    .argv;
 
 // viewed at http://localhost:8080
 app.get('/', function (req, res) {
@@ -88,8 +92,13 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
     console.log('game created');
   } else {
     room.p2Connect(uuid, ws);
-    const newGame = new (Variants.Random())(/*isserver*/ true);
-    // const newGame = new Variants.Grasshopper(true);
+    let newGame;
+    if (argv.game) {
+      const uppercase = argv.game.charAt(0).toUpperCase() + argv.game.slice(1);
+      newGame = new Variants[uppercase](true);
+    } else {
+      newGame = new (Variants.Random())(/*isserver*/ true);
+    }
     room.game = newGame;
     playerToRoom[uuid] = room;
     console.log('game joined');
