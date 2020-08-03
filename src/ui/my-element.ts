@@ -29,7 +29,6 @@ import {
   TurnMessage,
   ReplaceMessage,
   AppendMessage,
-  ReplaceAllMessage,
   InitGameMessage,
   addMessageHandler,
   sendMessage,
@@ -169,12 +168,6 @@ export class MyElement extends LitElement {
       this.game.stateHistory.push(turn.after);
       this.game.state = turn.after;
       console.log(toFEN(turn));
-    } else if (message.type === 'replaceAll') {
-      const ram = message as ReplaceAllMessage;
-      const {turnHistory, stateHistory} = ram;
-      this.game.turnHistory = turnHistory;
-      this.game.stateHistory = stateHistory;
-      this.game.state = stateHistory[stateHistory.length - 1];
     } else if (message.type === 'initGame') {
       const igm = message as InitGameMessage;
       this.color = igm.color;

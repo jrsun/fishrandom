@@ -13,7 +13,6 @@ export type Message =
   | TurnMessage
   | ReplaceMessage
   | AppendMessage
-  | ReplaceAllMessage
   | ResignMessage
   | InitGameMessage
   | GameOverMessage;
@@ -41,12 +40,6 @@ export interface ReplaceMessage {
 export interface AppendMessage {
   type: 'appendState';
   turn: Turn;
-}
-
-export interface ReplaceAllMessage {
-  type: 'replaceAll';
-  stateHistory: BoardState[];
-  turnHistory: Turn[];
 }
 
 export interface InitGameMessage {

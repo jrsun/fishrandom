@@ -13,7 +13,7 @@ import {
 } from '../common/message';
 
 // States progress from top to bottom within a room.
-enum RoomState {
+export enum RoomState {
   WAITING = 'waiting',
   RULES = 'rules',
   PLAYING = 'playing',
@@ -54,13 +54,13 @@ export class Room {
   }
 
   handleResign(uuid: string) {
-    if (!this.game || !this.p2) return;
+    if (!this.game || !this.p2 || this.state !== RoomState.PLAYING) return;
 
     return this.wins(uuid === this.p1.uuid ? this.p2.uuid : this.p1.uuid);
   }
 
   handleTurn(uuid: string, turnAttempt: Turn) {
-    if (!this.game || !this.p2) return;
+    if (!this.game || !this.p2 || this.state !== RoomState.PLAYING) return;
 
     const game = this.game;
     const player = this.p1.uuid === uuid ? this.p1 : this.p2;
@@ -143,6 +143,21 @@ export class Room {
     if (game.winCondition(player.color)) {
       this.wins(player.uuid);
     }
+  }
+
+  reconnect(uuid: string, socket: WebSocket) {
+    const player = this.p1.uuid === uuid ? this.p1 : this.p2;
+    if (!player) {
+      console.log('reconnected to game without p2??');
+      return;
+    };
+    player.socket = socket;
+  }
+
+  getColor(uuid: string) {
+    return this.p1.uuid === uuid ?
+      this.p1.color :
+      this.p2!.color;
   }
 
   wins(uuid: string) {

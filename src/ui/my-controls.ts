@@ -80,6 +80,7 @@ export class MyControls extends LitElement {
   // public
   @property({type: Object}) socket: WebSocket;
   @property({type: Array}) turnHistory: Turn[] = [];
+  @property({type: Boolean}) playing = true;
 
   // protected
   @property({type: Number}) viewMoveIndex: number | undefined;
@@ -160,7 +161,7 @@ export class MyControls extends LitElement {
           <paper-button raised .onclick=${this.onClickNext.bind(this)}
             >></paper-button
           >
-          <paper-button raised .onclick=${this.onClickResign.bind(this)}
+          <paper-button raised ?disabled=${this.playing} .onclick=${this.onClickResign.bind(this)}
             >Resign</paper-button
           >
         </div>

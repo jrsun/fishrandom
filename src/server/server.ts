@@ -6,13 +6,15 @@ import {
   InitGameMessage,
   sendMessage,
   addMessageHandler,
+  ReplaceMessage,
 } from '../common/message';
-import {Room} from './room';
+import {Room, RoomState} from './room';
 import WS from 'ws';
 import * as Variants from '../chess/variants/index';
 import {Color} from '../chess/const';
 import yargs from 'yargs';
 import {randomChoice, randomInt} from '../utils';
+import cookieParser from 'cookie-parser';
 
 var app = express();
 
@@ -25,8 +27,15 @@ const argv = yargs
   .help()
   .alias('help', 'h').argv;
 
+app.use(cookieParser());
+
 // viewed at http://localhost:8080
 app.get('/', function (req, res) {
+  if (!req.cookies.uuid) {
+    var randomNumber=Math.random().toString();
+    randomNumber=randomNumber.substring(2,randomNumber.length);
+    res.cookie('uuid',randomNumber, { maxAge: 900000});
+  }
   res.sendFile(path.join(path.resolve() + '/dist/index.html'));
 });
 
@@ -69,18 +78,65 @@ const handleMessage = function (uuid, message: Message) {
       return;
     }
     room.handleTurn(uuid, message.turn);
-    return;
   }
   if (message.type === 'resign') {
     room.handleResign(uuid);
-    return;
+  }
+  if (room.state === RoomState.COMPLETED) {
+    const index = rooms.indexOf(room);
+    if (index > -1) {
+      rooms.splice(index, 1);
+    }
+    delete playerToRoom[room.p1.uuid];
+    delete sockets[room.p1.uuid];
+    if (room.p2) {
+      delete playerToRoom[room.p2.uuid];
+      delete sockets[room.p2.uuid];
+    }
   }
 };
 
 wss.on('connection', function connection(ws: WS.WebSocket, request) {
   console.log('Client connected:', request.headers.origin);
-  // onclose
-  const uuid = guid();
+  let uuid = '';
+
+  const cookies = request.headers.cookie.split(';');
+  uuid = cookies.find(cookie => cookie.startsWith('uuid=')).split('=')?.[1];
+  console.log('Cookie exists:', uuid);
+  if (!uuid) {
+    console.log('no cookie found');
+    return;
+  }
+
+  // Close existing websocket, if exists
+  sockets[uuid]?.close();
+  sockets[uuid] = ws;
+
+  // Register method handler
+  addMessageHandler(ws, (message) => {
+    handleMessage(uuid, message);
+  });
+
+  // Handle existing room
+  if (!!playerToRoom[uuid]) {
+    console.log('already in a room');
+    const activeGame = playerToRoom[uuid].game;
+    const activeRoom = playerToRoom[uuid];
+    // TODO: waiting
+    if (!activeGame) return;
+    const color = activeRoom.getColor(uuid);
+    activeRoom.reconnect(uuid, ws);
+
+    const igm = {
+      type: 'initGame',
+      state: activeGame.visibleState(activeGame.state, color),
+      variantName: activeGame.name,
+      color,
+    } as InitGameMessage;
+    sendMessage(ws, igm);
+    return;
+  }
+  // TODO: onclose
   sockets[uuid] = ws;
   let room = rooms.filter((ag) => !ag.p2)[0];
   if (!room) {
@@ -120,69 +176,4 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
       sendMessage(room.p2?.socket, igmW);
     }
   }
-  addMessageHandler(ws, (message) => {
-    handleMessage(uuid, message);
-  });
-  // ws.on('message', function incoming(message) {
-  //   const room = playerToRoom[uuid];
-  //   if (!room) {
-  //     console.log('not in a room! exiting');
-  //     return;
-  //   }
-  //   if (!room!.p2) {
-  //     // console.log('not in a game! continuing anyway');
-  //     // return;
-  //   }
-
-  //   const game = room.game;
-  //   try {
-  //     message = JSON.parse(message, reviver);
-  //   } catch (e) {
-  //     console.log('malformed message', e);
-  //   }
-  //   if (!game) {
-  //     console.log('Game not started');
-  //     return;
-  //   }
-  //   if (message.type === 'move') {
-  //     // sanitize
-  //     function tg(message: Message): message is MoveMessage {
-  //       return message.type === 'move';
-  //     }
-  //     if (!tg(message)) {
-  //       console.log('message is not valid move', message);
-  //       return;
-  //     }
-  //     room.handleMove(uuid, message.move);
-  //     return;
-  //   }
-  //   if (message.type === 'resign') {
-  //     room.handleResign(uuid);
-  //     return;
-  //   }
-  // });
 });
-
-//generates random id;
-let guid = () => {
-  let s4 = () => {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  };
-  //return id of format 'aaaaaaaa'-'aaaa'-'aaaa'-'aaaa'-'aaaaaaaaaaaa'
-  return (
-    s4() +
-    s4() +
-    '-' +
-    s4() +
-    '-' +
-    s4() +
-    '-' +
-    s4() +
-    '-' +
-    s4() +
-    s4() +
-    s4()
-  );
-};

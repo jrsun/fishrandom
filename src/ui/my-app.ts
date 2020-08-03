@@ -276,6 +276,7 @@ export class MyApp extends LitElement {
             <my-controls
               .socket=${this.socket}
               .turnHistory=${this.game.turnHistory}
+              .playing=${!!this.gameResult}
             ></my-controls>
           </div>
           <div class="card rules">
