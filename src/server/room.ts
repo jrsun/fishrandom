@@ -108,7 +108,7 @@ export class Room {
           piece: promoter,
           start: {row: prow, col: pcol},
         } = turnAttempt;
-        turn = game.promote(promoter, to, prow, pcol, row, col);
+        turn = game.promote(promoter, to, prow, pcol, drow, dcol);
         break;
       default:
         throw new Error('unimplemented');
