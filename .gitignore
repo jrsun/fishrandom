@@ -4,5 +4,6 @@
 /build/
 
 /dist/*
-!/dist/index.*
+!/dist/index.html
+!/dist/login.html
 .DS_Store

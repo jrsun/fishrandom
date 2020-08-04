@@ -76,6 +76,48 @@ export class MyControls extends LitElement {
     paper-button {
       background-color: #fefdfa;
     }
+    .fish-con {
+      display: block;
+      height: 100px;
+      width: 50px;
+    }
+    .fish {
+      height: 50px;
+      width: 50px;
+      background-image: url(/img/svg/blt.svg);
+      background-size: cover;
+      /* transform: rotate(90deg); */
+      /* -webkit-animation:swim ease-in 1;
+      -moz-animation:swim ease-in 1; */
+      /* animation:swim 2s cubic-bezier(.41,.01,.57,.99) infinite; */
+      animation:swim 2s linear infinite;
+
+      -webkit-animation-fill-mode:forwards;
+      -moz-animation-fill-mode:forwards;
+      animation-fill-mode:forwards;
+
+      /* -webkit-animation-duration:1s;
+      -moz-animation-duration:1s;
+      animation-duration:1s; */
+    }
+    /* @-webkit-keyframes swim { from { opacity:0; } to { opacity:1; } }
+    @-moz-keyframes swim { from { opacity:0; } to { opacity:1; } } */
+    @keyframes swim {
+      from {transform: rotate(90deg)}
+      10% {transform: translate(0, 5px) rotate(1deg);}
+      25% {transform: translate(0, 25px) rotate(125deg);}
+      40% {transform: translate(0, 45px) rotate(130deg);}
+      50% {transform: translate(0, 50px) rotate(90deg);}
+      60% {transform: translate(0, 45px) rotate(60deg);}
+      75% {transform: translate(0, 25px) rotate(50deg);}
+      90% {transform: translate(0, 5px) rotate(60deg);}
+      to {transform: rotate(90deg)}
+    }
+    /* @keyframes swim {
+      from {}
+      50% {transform: translate(0, 25px)}
+      to {transform: translate(0, 50px)}
+    } */
   `;
   // public
   @property({type: Object}) socket: WebSocket;

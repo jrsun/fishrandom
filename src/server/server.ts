@@ -15,6 +15,7 @@ import {Color} from '../chess/const';
 import yargs from 'yargs';
 import {randomChoice, randomInt} from '../utils';
 import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
 
 var app = express();
 
@@ -28,15 +29,31 @@ const argv = yargs
   .alias('help', 'h').argv;
 
 app.use(cookieParser());
+app.use(bodyParser.json())
 
 // viewed at http://localhost:8080
 app.get('/', function (req, res) {
+  // if (!req.cookies.uuid) {
+  //   var randomNumber=Math.random().toString();
+  //   randomNumber=randomNumber.substring(2,randomNumber.length);
+  //   res.cookie('uuid',randomNumber, { maxAge: 900000});
+  // }
+  if (req.cookies.uuid) {
+    res.sendFile(path.join(path.resolve() + '/dist/index.html'));
+  } else {
+    res.sendFile(path.join(path.resolve() + '/dist/login.html'));
+  }
+});
+
+// viewed at http://localhost:8080
+app.post('/login', function (req, res) {
+  console.log('logged in', req.body);
   if (!req.cookies.uuid) {
     var randomNumber=Math.random().toString();
     randomNumber=randomNumber.substring(2,randomNumber.length);
     res.cookie('uuid',randomNumber, { maxAge: 900000});
   }
-  res.sendFile(path.join(path.resolve() + '/dist/index.html'));
+  res.end();
 });
 
 app.use('/dist', express.static(path.join(path.resolve() + '/dist')));
@@ -100,8 +117,8 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
   console.log('Client connected:', request.headers.origin);
   let uuid = '';
 
-  const cookies = request.headers.cookie.split(';');
-  uuid = cookies.find(cookie => cookie.startsWith('uuid=')).split('=')?.[1];
+  const cookies = request.headers.cookie?.split(';');
+  uuid = cookies?.find(cookie => cookie.startsWith('uuid='))?.split('=')?.[1];
   console.log('Cookie exists:', uuid);
   if (!uuid) {
     console.log('no cookie found');
