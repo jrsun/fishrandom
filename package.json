@@ -40,6 +40,7 @@
     "express": "^4.17.1",
     "json-size": "^1.0.0",
     "lit-element": "^2.3.1",
+    "validator": "^13.1.1",
     "ws": "^7.3.1",
     "yargs": "^15.4.1"
   },

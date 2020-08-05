@@ -10,6 +10,7 @@ import {
   GameOverMessage,
   log,
   sendMessage,
+  InitGameMessage,
 } from '../common/message';
 
 // States progress from top to bottom within a room.
@@ -28,39 +29,57 @@ interface PlayerInfo {
 
 export class Room {
   // public
-  game?: Game;
+  game: Game;
 
   p1: PlayerInfo;
-  p2?: PlayerInfo;
+  p2: PlayerInfo;
 
   // protected
   state: RoomState;
 
-  constructor(uuid: string, socket: WebSocket, state = RoomState.WAITING) {
+  constructor(p1: string, p1s: WebSocket, p2: string, p2s: WebSocket, game: Game) {
     this.p1 = {
-      uuid,
-      socket,
+      uuid: p1,
+      socket: p1s,
       color: randomChoice([Color.WHITE, Color.BLACK]),
     };
-  }
-
-  p2Connect(uuid: string, socket: WebSocket) {
     this.p2 = {
-      uuid,
-      socket,
+      uuid: p2,
+      socket: p2s,
       color: getOpponent(this.p1.color),
     };
-    this.state = RoomState.PLAYING; // RULES
+    this.setState(RoomState.PLAYING);
+    this.game = game;
+
+    // Send init game messages
+    sendMessage(this.p1.socket, {
+      type: 'initGame',
+      state: this.game.visibleState(this.game.state, this.p1.color),
+      variantName: this.game.name,
+      color: this.p1.color,
+      opponent: getName(this.p2.uuid),
+    } as InitGameMessage);
+    sendMessage(this.p2.socket, {
+      type: 'initGame',
+      state: this.game.visibleState(this.game.state, this.p2.color),
+      variantName: this.game.name,
+      color: this.p2.color,
+      opponent: getName(this.p1.uuid),
+    } as InitGameMessage);
+  }
+
+  setState(state: RoomState) {
+    this.state = state;
   }
 
   handleResign(uuid: string) {
-    if (!this.game || !this.p2 || this.state !== RoomState.PLAYING) return;
+    if (this.state !== RoomState.PLAYING) return;
 
     return this.wins(uuid === this.p1.uuid ? this.p2.uuid : this.p1.uuid);
   }
 
   handleTurn(uuid: string, turnAttempt: Turn) {
-    if (!this.game || !this.p2 || this.state !== RoomState.PLAYING) return;
+    if (this.state !== RoomState.PLAYING) return;
 
     const game = this.game;
     const player = this.p1.uuid === uuid ? this.p1 : this.p2;
@@ -147,23 +166,27 @@ export class Room {
 
   reconnect(uuid: string, socket: WebSocket) {
     const player = this.p1.uuid === uuid ? this.p1 : this.p2;
-    if (!player) {
-      console.log('reconnected to game without p2??');
-      return;
-    };
+    const opponent = this.p1.uuid === uuid ? this.p2 : this.p1;
     player.socket = socket;
+
+    const igm = {
+      type: 'initGame',
+      state: this.game.visibleState(this.game.state, player.color),
+      variantName: this.game.name,
+      color: player.color,
+      opponent: getName(opponent.uuid),
+    } as InitGameMessage;
+    sendMessage(socket, igm);
   }
 
   getColor(uuid: string) {
     return this.p1.uuid === uuid ?
       this.p1.color :
-      this.p2!.color;
+      this.p2.color;
   }
 
   wins(uuid: string) {
-    if (!this.game || !this.p2) return;
-
-    this.state = RoomState.COMPLETED;
+    this.setState(RoomState.COMPLETED);
     const player = this.p1.uuid === uuid ? this.p1 : this.p2;
     const opponent = player === this.p1 ? this.p2 : this.p1;
 
@@ -182,4 +205,8 @@ export class Room {
       result: GameResult.LOSS,
     } as GameOverMessage);
   }
+}
+
+function getName(uuid?: string): string {
+  return uuid?.split('%7C')?.[1] ?? 'Fish';
 }

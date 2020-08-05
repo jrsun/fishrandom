@@ -11,28 +11,48 @@ import '@polymer/paper-button';
 @customElement('my-login')
 export class MyLogin extends LitElement {
   static styles = css`
-    .title {
-      /* color: #EEEEEE; */
-      font-family: "JelleeBold";
-      font-size: 25px;
-      margin-bottom: 10px;
-    }
-    .card {
+    :host {
       display: flex;
       flex-direction: column;
       align-items: center;
-      /* border: solid 1px gray; */
-      /* margin: 15px; */
-      /* max-width: 800px; */
-      padding: 10px;
-      background-color: #efece0;
-      padding: 30px;
+      font-family: "JelleeBold";
+    }
+    .title {
+      color: #EEEEEE;
+      font-size: 80px;
+      margin-bottom: 10px;
+    }
+    .row {
+      display: flex;
+      flex-direction: row;
+      height: 100%;
+      width: 100%;
+      align-items: center;
+    }
+    #username {
       border-radius: 4px;
-      box-shadow: 0px 7px #dad4c8;
+      flex: 1;
+      margin-right: 20px;
+      font-size: 40px;
+      padding-left: 5px;
+      font-family: Verdana, sans-serif;
+      border: #888;
+      outline: none;
+    }
+    #username::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+      color: #AAA;
+      opacity: 1; /* Firefox */
+    }
+    #button {
+      background-color: #82D7BA;
+      height: 50px;
+      font-size: 20px;
+      color: #223322;
     }
   `;
 
-  login() {
+  login(e) {
+    e.preventDefault();
     const input = this.shadowRoot?.querySelector('#username') as HTMLInputElement;
     if (!input?.value) return;
 
@@ -55,11 +75,15 @@ export class MyLogin extends LitElement {
   }
 
   render() {
-    return html`<div class="card">
-      <div class="title">F I S H R A N D O M</div>
-      <input id="username" type="text" placeholder="Username"/>
-      <paper-button raised .onclick=${this.login.bind(this)}>Submit</paper-button>
-    </div>`;
+    return html`
+    <div class="title">F I S H R A N D O M</div>
+    <form .onsubmit=${this.login.bind(this)}>
+      <div class="row">  
+        <input id="username" type="text" autocomplete="off" placeholder="Username"/>
+        <paper-button id="button" raised .onclick=${this.login.bind(this)}>Play</paper-button>
+        <input type="submit" style="display: none" />
+      </div>
+    </form>`;
   }
 }
 

@@ -47,6 +47,7 @@ export interface InitGameMessage {
   state: BoardState;
   variantName: string;
   color: Color; // color for the receiving player
+  opponent: string; // opponent name
 }
 
 export enum GameResult {
