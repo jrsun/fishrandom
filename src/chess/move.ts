@@ -53,6 +53,8 @@ export function toFEN(turn: Turn) {
       return moveToFen(turn as Move);
     case TurnType.CASTLE:
       return (turn as Castle).kingside ? 'O-O' : 'O-O-O';
+    case TurnType.PROMOTE:
+      return `${moveToFen({...turn, type: TurnType.MOVE} as Move)}=${turn.to.toFEN()}`;
     default:
       return '?';
   }

@@ -57,6 +57,7 @@ export class Room {
       state: this.game.visibleState(this.game.state, this.p1.color),
       variantName: this.game.name,
       color: this.p1.color,
+      player: getName(this.p1.uuid),
       opponent: getName(this.p2.uuid),
     } as InitGameMessage);
     sendMessage(this.p2.socket, {
@@ -64,6 +65,7 @@ export class Room {
       state: this.game.visibleState(this.game.state, this.p2.color),
       variantName: this.game.name,
       color: this.p2.color,
+      player: getName(this.p2.uuid),
       opponent: getName(this.p1.uuid),
     } as InitGameMessage);
   }
@@ -174,6 +176,7 @@ export class Room {
       state: this.game.visibleState(this.game.state, player.color),
       variantName: this.game.name,
       color: player.color,
+      player: getName(player.uuid),
       opponent: getName(opponent.uuid),
     } as InitGameMessage;
     sendMessage(socket, igm);

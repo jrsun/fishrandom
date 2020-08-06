@@ -93,7 +93,7 @@ export class MyElement extends LitElement {
   `;
 
   // public
-  @property({type: String}) color: Color = Color.WHITE;
+  @property({type: String}) color: Color;
   @property({type: Object}) game: Game;
   @property({type: Object}) socket: WebSocket;
   @property({type: Object}) viewHistoryState: BoardState | undefined;
@@ -168,9 +168,6 @@ export class MyElement extends LitElement {
       this.game.stateHistory.push(turn.after);
       this.game.state = turn.after;
       console.log(toFEN(turn));
-    } else if (message.type === 'initGame') {
-      const igm = message as InitGameMessage;
-      this.color = igm.color;
     }
     this.performUpdate();
   }
@@ -187,17 +184,17 @@ export class MyElement extends LitElement {
     const lastTurn = this.game.turnHistory[this.game.turnHistory.length - 1];
 
     return html`
-      <div
-        id="board"
-        style=${this.color === Color.BLACK ? 'transform:rotate(180deg);' : ''}
-      >
-        <paper-dialog id="promotion-modal"
+      <paper-dialog id="promotion-modal"
           ><my-piece-picker
             .pieces=${[Queen, Rook, Bishop, Knight].map(
               (c) => new c(this.color)
             )}
           ></my-piece-picker
         ></paper-dialog>
+      <div
+        id="board"
+        style=${this.color === Color.BLACK ? 'transform:rotate(180deg);' : ''}
+      >
         <canvas id="canvas"></canvas>
         ${(this.viewHistoryState ?? state).squares.map(
           (row) => html`<div class="row">

@@ -68,42 +68,10 @@ export class MyRules extends LitElement {
       padding-left: 20px;
     }
   `;
-  // public
-  @property({type: Object}) socket: WebSocket;
-
-  // private
-  @property({type: String}) variant: string;
-
-  /**
-   * The number of times the button has been clicked.
-   */
-  @property({type: Number})
-  count = 0;
-
-  connectedCallback() {
-    super.connectedCallback();
-
-    addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
-
-    this.socket.removeEventListener(
-      'message',
-      this.handleSocketMessage.bind(this)
-    );
-  }
-
-  handleSocketMessage(message: Message) {
-    if (message.type === 'initGame') {
-      const igm = message as InitGameMessage;
-      this.variant = igm.variantName;
-    }
-  }
+  @property({type: Object}) game: Game;
 
   render() {
-    if (!this.variant) return html`Loading...`; // TODO Loading spinner
+    if (!this.game) return html`Loading...`; // TODO Loading spinner
     return html`
       <div id="rules">
         <span id="title"><h3>Rules</h3></span>
@@ -115,7 +83,7 @@ export class MyRules extends LitElement {
   }
 
   private getVariantRules() {
-    return VARIANT_INFO[this.variant] ?? `${this.variant} rules not found.`;
+    return VARIANT_INFO[this.game.name] ?? `${this.game.name} rules not found.`;
   }
 }
 

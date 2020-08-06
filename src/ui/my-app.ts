@@ -22,6 +22,7 @@ import './my-piece-picker';
 import './my-controls';
 import {Game} from '../chess/game';
 import BoardState from '../chess/state';
+import { Color } from '../chess/const';
 
 @customElement('my-app')
 export class MyApp extends LitElement {
@@ -135,16 +136,47 @@ export class MyApp extends LitElement {
       pointer-events: none;
       z-index: 2;
     }
+    .fish-con {
+      display: block;
+      height: 100px;
+      width: 50px;
+    }
+    .fish {
+      height: 50px;
+      width: 50px;
+      background-image: url(/img/svg/blt.svg);
+      background-size: cover;
+      transform: rotate(90deg);
+      animation:swim 2s linear infinite;
+
+      -webkit-animation-fill-mode:forwards;
+      -moz-animation-fill-mode:forwards;
+      animation-fill-mode:forwards;
+    }
+    @keyframes swim {
+      from {transform: rotate(90deg)}
+      10% {transform: translate(0, 5px) rotate(120deg);}
+      25% {transform: translate(0, 25px) rotate(130deg);}
+      40% {transform: translate(0, 45px) rotate(120deg);}
+      50% {transform: translate(0, 50px) rotate(90deg);}
+      60% {transform: translate(0, 45px) rotate(60deg);}
+      75% {transform: translate(0, 25px) rotate(50deg);}
+      90% {transform: translate(0, 5px) rotate(60deg);}
+      to {transform: rotate(90deg)}
+    }
   }`;
 
-  @property({type: Object}) game = new Chess960(/*isServer*/ false);
+  @property({type: Object}) game?: Game;
   private socket: WebSocket;
 
   // private
   @property({type: Object}) viewHistoryState: BoardState | undefined;
 
-  private gameResult = '';
+  private gameResult: string|undefined;
+  private player = 'cheems';
+  private opponent = 'SwoleDoge94';
   private server = process.env.NODE_ENV === 'development' ? 'localhost' : '167.172.142.144';
+  private color?: Color;
 
   connectedCallback() {
     super.connectedCallback();
@@ -174,11 +206,14 @@ export class MyApp extends LitElement {
     console.log(message);
     if (message.type === 'initGame') {
       const igm = message as InitGameMessage;
-      const {variantName, state, color} = igm;
+      const {variantName, state, color, player, opponent} = igm;
       this.game = new VARIANTS[variantName](/* isServer=*/ false);
       this.game.turnHistory = [];
       this.game.stateHistory = [state];
       this.game.state = state;
+      this.player = player;
+      this.opponent = opponent;
+      this.color = color;
 
       this.gameResult = '';
 
@@ -186,9 +221,11 @@ export class MyApp extends LitElement {
     } else if (message.type === 'gameOver') {
       const gom = message as GameOverMessage;
       const {turnHistory, stateHistory, result} = gom;
-      this.game.turnHistory = turnHistory;
-      this.game.stateHistory = stateHistory;
-      this.game.state = stateHistory?.[stateHistory.length - 1];
+      if (this.game) {
+        this.game.turnHistory = turnHistory;
+        this.game.stateHistory = stateHistory;
+        this.game.state = stateHistory?.[stateHistory.length - 1];
+      }
 
       this.gameResult = result;
       const goDialog = this.shadowRoot?.querySelector('paper-dialog');
@@ -214,14 +251,26 @@ export class MyApp extends LitElement {
   handleNewGame() {
     const goDialog = this.shadowRoot?.querySelector('paper-dialog');
     goDialog?.close();
-
-    this.game = new Chess960(false);
  
     this.socket = new WebSocket(`ws://${this.server}:8081`);
     addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
+    this.performUpdate();
+  }
+
+  renderWaiting() {
+    return html`<div class="app">
+        <div class="title">
+          <h1>
+            F I S H R A N D O M
+          </h1>
+        </div>
+        <div class="fish-con"><div class="fish"></div></div>
+      </div>`;
   }
 
   render() {
+    if (!this.game || !this.color) return this.renderWaiting();
+
     return html`<div class="app">
       <canvas id="confetti-canvas"></canvas>
       <div class="title">
@@ -240,7 +289,7 @@ export class MyApp extends LitElement {
                 style="background-image:url(../img/swoledoge.jpg)"
               ></div>
               <div class="user-capture">
-                <div class="username">SwoleDoge94</div>
+                <div class="username">${this.opponent}</div>
                 <div class="captures"></div>
               </div>
             </div>
@@ -248,6 +297,7 @@ export class MyApp extends LitElement {
           </div>
           <div class="board-wrapper card">
             <my-element
+              .color=${this.color}
               .socket=${this.socket}
               .game=${this.game}
               .viewHistoryState=${this.viewHistoryState}
@@ -261,7 +311,7 @@ export class MyApp extends LitElement {
                 style="background-image:url(../img/cheems.jpeg)"
               ></div>
               <div class="user-capture">
-                <div class="username">cheems</div>
+                <div class="username">${this.player}</div>
                 <div class="captures"></div>
               </div>
             </div>
@@ -277,7 +327,7 @@ export class MyApp extends LitElement {
             ></my-controls>
           </div>
           <div class="card rules">
-            <my-rules .socket=${this.socket}></my-rules>
+            <my-rules .game=${this.game}></my-rules>
           </div>
         </div>
       </div>

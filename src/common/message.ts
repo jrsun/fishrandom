@@ -47,6 +47,7 @@ export interface InitGameMessage {
   state: BoardState;
   variantName: string;
   color: Color; // color for the receiving player
+  player: string; // player name
   opponent: string; // opponent name
 }
 

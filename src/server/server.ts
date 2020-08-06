@@ -123,6 +123,7 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
   console.log('Cookie exists:', uuid);
   if (!uuid) {
     console.log('no cookie found');
+    ws.close();
     return;
   }
 
@@ -146,7 +147,7 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
     activeRoom.reconnect(uuid, ws);
     return;
   }
-  if (!waitingUsers.length) {
+  if (!waitingUsers.filter(user => user.uuid !== uuid).length) {
     // If no users are queuing
     waitingUsers.unshift(players[uuid]);
     console.log('user waiting', uuid);
