@@ -15,6 +15,8 @@ import {
   GameOverMessage,
   GameResult,
   addMessageHandler,
+  TimerMessage,
+  sendMessage,
 } from '../common/message';
 import ConfettiGenerator from 'confetti-js';
 import './my-rules';
@@ -171,6 +173,8 @@ export class MyApp extends LitElement {
 
   // private
   @property({type: Object}) viewHistoryState: BoardState | undefined;
+  @property({type: Number}) playerTimer?: number;
+  @property({type: Number}) opponentTimer?: number;
 
   private gameResult: string|undefined;
   private player = 'cheems';
@@ -180,11 +184,26 @@ export class MyApp extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
+    
+    this.socket = new WebSocket(`ws://${this.server}:8081`);
+    addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
+
     this.handleNewGame();
     this.addEventListener(
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
     );
+    setInterval(() => {
+      if (this.game?.state.whoseTurn === this.color) {
+        if (this.playerTimer) {
+          this.playerTimer = Math.max(this.playerTimer - 1000, 0);
+        }
+      } else {
+        if (this.opponentTimer) {
+          this.opponentTimer = Math.max(this.opponentTimer - 1000, 0);
+        }
+      }
+    }, 1000);
   }
 
   disconnectedCallback() {
@@ -240,6 +259,10 @@ export class MyApp extends LitElement {
         }, 5000);
       }
       this.performUpdate();
+    } else if (message.type === 'timer') {
+      const tim = message as TimerMessage;
+      this.playerTimer = tim.player;
+      this.opponentTimer = tim.opponent;
     }
   }
 
@@ -252,9 +275,8 @@ export class MyApp extends LitElement {
     const goDialog = this.shadowRoot?.querySelector('paper-dialog');
     goDialog?.close();
  
-    this.socket = new WebSocket(`ws://${this.server}:8081`);
-    addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
-    this.performUpdate();
+    sendMessage(this.socket, {type: 'newGame'});
+    // this.performUpdate();
   }
 
   renderWaiting() {
@@ -293,7 +315,7 @@ export class MyApp extends LitElement {
                 <div class="captures"></div>
               </div>
             </div>
-            <div class="timer opponent">3:45</div>
+            <div class="timer opponent">${this.opponentTimer}</div>
           </div>
           <div class="board-wrapper card">
             <my-element
@@ -315,7 +337,7 @@ export class MyApp extends LitElement {
                 <div class="captures"></div>
               </div>
             </div>
-            <div class="timer player">1:23</div>
+            <div class="timer player">${this.playerTimer}</div>
           </div>
         </div>
         <div class="right-panel">

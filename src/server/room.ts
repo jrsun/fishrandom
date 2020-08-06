@@ -11,6 +11,7 @@ import {
   log,
   sendMessage,
   InitGameMessage,
+  TimerMessage,
 } from '../common/message';
 
 // States progress from top to bottom within a room.
@@ -25,7 +26,12 @@ interface PlayerInfo {
   uuid: string;
   color: Color;
   socket: WebSocket;
+  time: number;
 }
+
+// const PLAYER_TIME_MS = 5 * 1000;
+const PLAYER_TIME_MS = 5 * 60 * 1000;
+const INCREMENT_MS = 10 * 1000;
 
 export class Room {
   // public
@@ -36,17 +42,20 @@ export class Room {
 
   // protected
   state: RoomState;
+  lastMoveTime: number;
 
   constructor(p1: string, p1s: WebSocket, p2: string, p2s: WebSocket, game: Game) {
     this.p1 = {
       uuid: p1,
       socket: p1s,
       color: randomChoice([Color.WHITE, Color.BLACK]),
+      time: PLAYER_TIME_MS,
     };
     this.p2 = {
       uuid: p2,
       socket: p2s,
       color: getOpponent(this.p1.color),
+      time: PLAYER_TIME_MS,
     };
     this.setState(RoomState.PLAYING);
     this.game = game;
@@ -68,6 +77,16 @@ export class Room {
       player: getName(this.p2.uuid),
       opponent: getName(this.p1.uuid),
     } as InitGameMessage);
+    const interval = setInterval(() => {
+      const player = this.game.state.whoseTurn === this.p1.color ? this.p1 : this.p2;
+      const opponent = player === this.p1 ? this.p2 : this.p1;
+      player.time -= 1000;
+      if (player.time <= 0) {
+        this.wins(opponent.uuid);
+        clearInterval(interval);
+      }
+    }, 1000);
+    this.sendTimers();
   }
 
   setState(state: RoomState) {
@@ -139,6 +158,7 @@ export class Room {
       console.log('bad move!');
       return;
     }
+    player.time += INCREMENT_MS;
     // we should send the mover a `replaceState` and the opponent an
     // `appendState`
     const rm = {
@@ -160,6 +180,7 @@ export class Room {
 
     sendMessage(player.socket, rm);
     sendMessage(opponent.socket, am);
+    this.sendTimers();
 
     if (game.winCondition(player.color)) {
       this.wins(player.uuid);
@@ -180,6 +201,7 @@ export class Room {
       opponent: getName(opponent.uuid),
     } as InitGameMessage;
     sendMessage(socket, igm);
+    this.sendTimers();
   }
 
   getColor(uuid: string) {
@@ -207,6 +229,23 @@ export class Room {
       ...gom,
       result: GameResult.LOSS,
     } as GameOverMessage);
+    this.sendTimers();
+  }
+
+  sendTimers() {
+    const timerMessage = {
+      type: 'timer',
+    }
+    sendMessage(this.p1.socket, {
+      ...timerMessage,
+      player: this.p1.time,
+      opponent: this.p2.time,
+    } as TimerMessage);
+    sendMessage(this.p2.socket, {
+      ...timerMessage,
+      player: this.p2.time,
+      opponent: this.p1.time,
+    } as TimerMessage);
   }
 }
 

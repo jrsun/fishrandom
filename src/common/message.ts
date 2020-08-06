@@ -14,8 +14,10 @@ export type Message =
   | ReplaceMessage
   | AppendMessage
   | ResignMessage
+  | NewGameMessage
   | InitGameMessage
-  | GameOverMessage;
+  | GameOverMessage
+  | TimerMessage;
 
 /*
  * Client-initiated
@@ -27,6 +29,10 @@ export interface TurnMessage {
 
 export interface ResignMessage {
   type: 'resign';
+}
+
+export interface NewGameMessage {
+  type: 'newGame';
 }
 
 /*
@@ -49,6 +55,12 @@ export interface InitGameMessage {
   color: Color; // color for the receiving player
   player: string; // player name
   opponent: string; // opponent name
+}
+
+export interface TimerMessage {
+  type: 'timer';
+  player: number;
+  opponent: number;
 }
 
 export enum GameResult {

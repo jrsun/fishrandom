@@ -79,6 +79,10 @@ const players: {[uuid: string]: PlayerInfo} = {};
 const waitingUsers: PlayerInfo[] = [];
 
 const handleMessage = function (uuid, message: Message) {
+  if (message.type === 'newGame') {
+    delete players[uuid].room;
+    newGame(uuid, players[uuid].socket);
+  }
   const room = players[uuid].room;
   if (!room) {
     console.log('not in a room! exiting');
@@ -140,6 +144,10 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
     handleMessage(uuid, message);
   });
 
+  newGame(uuid, ws);
+});
+
+function newGame(uuid: string, ws: WebSocket) {
   // Handle existing room
   const activeRoom = players[uuid].room;
   if (!!activeRoom) {
@@ -168,4 +176,4 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
     console.log('game joined');
     
   }
-});
+}
