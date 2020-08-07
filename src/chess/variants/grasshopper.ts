@@ -84,7 +84,6 @@ export class Hopper extends Piece {
       end: square,
       isCapture,
       captured: square.occupant,
-      color: this.color,
       type: TurnType.MOVE,
     };
   }

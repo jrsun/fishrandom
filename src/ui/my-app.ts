@@ -104,6 +104,7 @@ export class MyApp extends LitElement {
       padding-left: 60px;
       border-radius: 4px;
       font-family: 'Jellee';
+      min-width: 75px;
     }
     .timer.opponent {
       background-color: #344155;
@@ -294,6 +295,13 @@ export class MyApp extends LitElement {
     </div>`;
   }
 
+  renderTimer(ms?: number): string {
+    if (!ms || ms < 0 || isNaN(ms)) return '0:00';
+    const s = ms / 1000;
+    const secondString = (s % 60 < 10) ? `0${s%60}` : s%60;
+    return `${Math.floor(s/60)}:${secondString}`;
+  }
+
   render() {
     if (!this.game || !this.color) return this.renderWaiting();
 
@@ -319,7 +327,7 @@ export class MyApp extends LitElement {
                 <div class="captures"></div>
               </div>
             </div>
-            <div class="timer opponent">${this.opponentTimer}</div>
+            <div class="timer opponent">${this.renderTimer(this.opponentTimer)}</div>
           </div>
           <div class="board-wrapper card">
             <my-element
@@ -341,7 +349,7 @@ export class MyApp extends LitElement {
                 <div class="captures"></div>
               </div>
             </div>
-            <div class="timer player">${this.playerTimer}</div>
+            <div class="timer player">${this.renderTimer(this.playerTimer)}</div>
           </div>
         </div>
         <div class="right-panel">

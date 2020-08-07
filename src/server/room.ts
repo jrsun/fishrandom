@@ -147,7 +147,7 @@ export class Room {
           piece: droppedPiece,
           end: {row, col},
         } = turnAttempt;
-        turn = game.drop(droppedPiece, row, col);
+        turn = game.drop(player.color, droppedPiece, row, col);
         break;
       case TurnType.PROMOTE:
         const {
@@ -155,7 +155,7 @@ export class Room {
           piece: promoter,
           start: {row: prow, col: pcol},
         } = turnAttempt;
-        turn = game.promote(promoter, to, prow, pcol, drow, dcol);
+        turn = game.promote(player.color, promoter, to, prow, pcol, drow, dcol);
         break;
       default:
         throw new Error('unimplemented');

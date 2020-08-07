@@ -108,7 +108,6 @@ class Leaper extends Piece {
         end: target,
         isCapture,
         captured: occupant,
-        color: this.color,
         type: TurnType.MOVE,
       });
     }
@@ -165,7 +164,6 @@ class Rider extends Piece {
           end: square,
           isCapture,
           captured: square.occupant,
-          color: this.color,
           type: TurnType.MOVE,
         });
       }
@@ -321,7 +319,6 @@ export class Pawn extends Piece {
         start: {row, col},
         end: target,
         isCapture: false,
-        color: this.color,
         type: TurnType.MOVE,
       });
     }
@@ -336,7 +333,6 @@ export class Pawn extends Piece {
         end: target,
         isCapture: true,
         captured: state.getSquare(target.row, target.col)?.occupant,
-        color: this.color,
         type: TurnType.MOVE,
       });
     }
@@ -371,7 +367,6 @@ export class Pawn extends Piece {
         const end = {row: row + yDir, col: lastMove.end.col};
         const isCapture = true;
         const captured = lastMove.piece;
-        const color = this.color;
         const type = TurnType.MOVE;
 
         const after = new BoardState(state.squares, getOpponent(this.color))
@@ -387,7 +382,6 @@ export class Pawn extends Piece {
           end,
           isCapture,
           captured,
-          color,
           type,
         };
       }

@@ -82,7 +82,6 @@ const players: {[uuid: string]: PlayerInfo} = {};
 
 const handleMessage = function (uuid, message: Message) {
   if (message.type === 'newGame') {
-    delete players[uuid].room;
     newGame(uuid, players[uuid].socket);
     return;
   }

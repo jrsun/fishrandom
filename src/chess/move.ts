@@ -14,7 +14,6 @@ export type Turn = Move | Castle | Drop | Promote;
 interface BaseTurn {
   before: BoardState;
   after: BoardState;
-  color: Color;
   end: Pair;
   piece: Piece;
   type: TurnType; // 'move', 'castle', etc.

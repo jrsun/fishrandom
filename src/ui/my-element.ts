@@ -282,6 +282,7 @@ export class MyElement extends LitElement {
       return;
 
     const turn = this.game.promote(
+      this.color,
       this.selectedPiece,
       piece,
       this.selectedSquare?.row,
@@ -326,7 +327,7 @@ export class MyElement extends LitElement {
       this.game.turnHistory
     )
       .filter((move) => {
-        return this.game.isTurnLegal(move);
+        return this.game.isTurnLegal(this.color, move);
       })
       .map((move) => this.game.state.getSquare(move.end.row, move.end.col));
 

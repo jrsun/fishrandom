@@ -86,11 +86,11 @@ export class Game {
     drow: number,
     dcol: number
   ): Move | undefined {
-    // if (color !== piece.color || color !== this.state.whoseTurn) return;
+    if (color !== piece.color || color !== this.state.whoseTurn) return;
     const legalMoves = piece
       .legalMoves(srow, scol, this.state, this.turnHistory)
       .filter((move) => {
-        return this.isTurnLegal(move);
+        return this.isTurnLegal(color, move);
       });
     const legalMove = legalMoves.find((move) =>
       equals(move.end, {row: drow, col: dcol})
@@ -111,7 +111,8 @@ export class Game {
     return legalMove;
   }
 
-  drop(piece: Piece, row: number, col: number): Drop | undefined {
+  drop(color: Color, piece: Piece, row: number, col: number): Drop | undefined {
+    if (color !== piece.color || color !== this.state.whoseTurn) return;
     console.log('dropping');
     const {state} = this;
     const square = state.getSquare(row, col);
@@ -127,7 +128,7 @@ export class Game {
       piece,
       type: TurnType.DROP,
     } as Drop;
-    if (!this.isTurnLegal(drop)) {
+    if (!this.isTurnLegal(color, drop)) {
       console.log('illegal drop');
       return;
     }
@@ -139,6 +140,7 @@ export class Game {
   }
 
   castle(color: Color, kingside: boolean): Castle | undefined {
+    if (color !== this.state.whoseTurn) return;
     console.log('attempting castle');
     let target: Pair;
     const cols: number[] = [];
@@ -228,7 +230,6 @@ export class Game {
     const move = {
       before,
       after,
-      color,
       end: target,
       piece: king,
       type,
@@ -242,6 +243,7 @@ export class Game {
   }
 
   promote(
+    color: Color,
     promoter: Piece,
     to: Piece,
     srow: number,
@@ -249,11 +251,13 @@ export class Game {
     drow: number,
     dcol: number
   ): Promote | undefined {
+    if (color !== this.state.whoseTurn || color !== promoter.color) return;
+
     const legalMoves = promoter
       .legalMoves(srow, scol, this.state, this.turnHistory)
       .filter((move) => {
         return (
-          this.isTurnLegal(move) &&
+          this.isTurnLegal(color, move) &&
           move.end.col === dcol &&
           move.end.row === drow
         );
@@ -289,7 +293,7 @@ export class Game {
 
   // Private
 
-  isTurnLegal(turn: Turn): boolean {
+  isTurnLegal(color: Color, turn: Turn): boolean {
     if (
       turn.end.row < 0 ||
       turn.end.row >= this.state.ranks ||
@@ -298,7 +302,7 @@ export class Game {
     ) {
       return false;
     }
-    if (this.knowsInCheck(turn.color, turn.after)) {
+    if (this.knowsInCheck(color, turn.after)) {
       return false;
     }
     return true;
