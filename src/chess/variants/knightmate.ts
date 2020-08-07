@@ -1,5 +1,5 @@
 import {Game} from '../game';
-import {RoyalKnight, Mann, Rook, Bishop, Queen, Pawn} from '../piece';
+import {RoyalKnight, Mann, Rook, Bishop, Queen, Pawn, Piece} from '../piece';
 import {Color} from '../const';
 import BoardState from '../state';
 import Square from '../square';
@@ -9,6 +9,10 @@ export class Knightmate extends Game {
   name = 'Knightmate';
   constructor(isServer) {
     super(isServer, generateStartState());
+  }
+
+  get promotesTo(): (typeof Piece)[] {
+    return [Queen, Rook, Bishop, Mann];
   }
 }
 

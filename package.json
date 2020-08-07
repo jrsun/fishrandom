@@ -17,6 +17,7 @@
     "analyze": "wca analyze \"src/**/*.ts\" --outFile custom-elements.json",
     "serve": "es-dev-server --node-resolve --watch",
     "start": "node --experimental-modules --es-module-specifier-resolution=node dist/server/server.js",
+    "start:dev": "NODE_ENV=development node --experimental-modules --es-module-specifier-resolution=node dist/server/server.js",
     "webpack:watch": "webpack --watch --config webpack.dev.cjs",
     "webpack:build": "webpack --config webpack.prod.cjs",
     "test": "karma start karma.conf.cjs",

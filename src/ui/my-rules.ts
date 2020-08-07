@@ -49,7 +49,7 @@ export class MyRules extends LitElement {
     }
     #rules {
       display: flex;
-      height: 50vh;
+      /* height: 50vh; */
       /* temporary */
       overflow-y: auto;
       flex-direction: column;

@@ -126,7 +126,7 @@ export class MyApp extends LitElement {
     }
     .rules {
       flex: 1;
-      max-height: calc(100vh - 300px);
+      height: 300px;
     }
     paper-dialog {
       font-family: 'JelleeBold';

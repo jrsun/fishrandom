@@ -45,19 +45,13 @@ const SQUARE_SIZE = Math.min(window.innerWidth / 12, 50); // 50
 @customElement('my-element')
 export class MyElement extends LitElement {
   static styles = css`
-    /* :host {
-      display: block;
-      margin: 20px;
-      max-width: 800px;
-      padding: 10px;
-      background-color: #efece0;
-      padding: 30px;
-      border-radius: 4px;
-      box-shadow: 0px 7px #dad4c8;
-    } */
+    :host {
+      display: inline-block;
+    }
 
     #board {
       background-image: url('/img/bg.svg');
+      background-repeat: no-repeat;
       border-radius: 4px;
       display: inline-block;
       position: relative;
@@ -170,9 +164,9 @@ export class MyElement extends LitElement {
     const lastTurn = this.game.turnHistory[this.game.turnHistory.length - 1];
 
     return html`
-      <paper-dialog id="promotion-modal"
+      <paper-dialog id="promotion-modal" horizontal-align="left" vertical-align="top"
         ><my-piece-picker
-          .pieces=${[Queen, Rook, Bishop, Knight].map((c) => new c(this.color))}
+          .pieces=${this.game.promotesTo.map((c) => new c(this.color))}
         ></my-piece-picker
       ></paper-dialog>
       <div
@@ -242,9 +236,10 @@ export class MyElement extends LitElement {
           // popup the promotion modal
           const promotionModal = this.shadowRoot!.querySelector(
             '#promotion-modal'
-          );
+          ) as PaperDialogElement;
           this.promotionSquare = square;
-          (promotionModal as PaperDialogElement).open();
+          promotionModal.positionTarget = this;
+          promotionModal.open();
           return;
         }
       }

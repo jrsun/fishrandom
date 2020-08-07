@@ -147,7 +147,9 @@ const newGame = (() => {
     }
     if (!waitingUsers.filter((user) => user.uuid !== uuid).length) {
       // If no users are queuing
-      waitingUsers.unshift(players[uuid]);
+      if (!waitingUsers.some(user => user.uuid === uuid)) {
+        waitingUsers.unshift(players[uuid]);
+      }
       console.log('waiting', uuid);
     } else {
       // If a user is queuing

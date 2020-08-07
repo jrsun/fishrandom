@@ -54,29 +54,13 @@ export class Game {
     // Opponent is in check and cannot escape it.
     return opponentLegalMoves.length === 0;
   }
+  get promotesTo(): (typeof Piece)[] {
+    return [Queen, Rook, Bishop, Knight];
+  }
 
   /***********************
    *  Private
    *************************/
-
-  //  attemptTurn(
-  //    color: Color,
-  //    piece: Piece,
-  //    srow: number,
-  //    scol: number,
-  //    drow: number,
-  //    dcol: number): Move|undefined {
-  //     if (color !== piece.color || color !== this.whoseTurn) return;
-  //     const move = this.attemptMove(piece, srow, scol, drow, dcol);
-  //     if (!move) return;
-  //     this.winCondition(color);
-  //     this.afterMove();
-  //     this.whoseTurn = getOpponent(color);
-  //     return {
-  //       [Color.WHITE]: this.visibleState(Color.WHITE),
-  //       [Color.BLACK]: this.visibleState(Color.BLACK),
-  //     };
-  //   }
 
   attemptMove(
     color: Color,
@@ -86,7 +70,8 @@ export class Game {
     drow: number,
     dcol: number
   ): Move | undefined {
-    if (color !== piece.color || color !== this.state.whoseTurn) return;
+    if (!this.checkTurn(color, piece)) return;
+
     const legalMoves = piece
       .legalMoves(srow, scol, this.state, this.turnHistory)
       .filter((move) => {
@@ -112,7 +97,8 @@ export class Game {
   }
 
   drop(color: Color, piece: Piece, row: number, col: number): Drop | undefined {
-    if (color !== piece.color || color !== this.state.whoseTurn) return;
+    if (!this.checkTurn(color, piece)) return;
+
     console.log('dropping');
     const {state} = this;
     const square = state.getSquare(row, col);
@@ -140,7 +126,7 @@ export class Game {
   }
 
   castle(color: Color, kingside: boolean): Castle | undefined {
-    if (color !== this.state.whoseTurn) return;
+    if (!this.checkTurn(color)) return;
     console.log('attempting castle');
     let target: Pair;
     const cols: number[] = [];
@@ -251,7 +237,11 @@ export class Game {
     drow: number,
     dcol: number
   ): Promote | undefined {
-    if (color !== this.state.whoseTurn || color !== promoter.color) return;
+    if (!this.checkTurn(color, promoter)) return;
+
+    if (!this.promotesTo.some(legalPromotion => to instanceof legalPromotion)) {
+      return;
+    }
 
     const legalMoves = promoter
       .legalMoves(srow, scol, this.state, this.turnHistory)
@@ -344,6 +334,19 @@ export class Game {
     );
 
     return enemyMoves.some((move) => move.captured === dummy);
+  }
+
+  checkTurn(
+    color: Color,
+    piece?: Piece,
+  ): boolean {
+    if (process.env.NODE_ENV === 'development') return true;
+
+    let result = (color === this.state.whoseTurn);
+    if (piece) {
+      result = result && (color === piece.color);
+    }
+    return result;
   }
 }
 
