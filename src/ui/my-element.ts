@@ -185,12 +185,10 @@ export class MyElement extends LitElement {
 
     return html`
       <paper-dialog id="promotion-modal"
-          ><my-piece-picker
-            .pieces=${[Queen, Rook, Bishop, Knight].map(
-              (c) => new c(this.color)
-            )}
-          ></my-piece-picker
-        ></paper-dialog>
+        ><my-piece-picker
+          .pieces=${[Queen, Rook, Bishop, Knight].map((c) => new c(this.color))}
+        ></my-piece-picker
+      ></paper-dialog>
       <div
         id="board"
         style=${this.color === Color.BLACK ? 'transform:rotate(180deg);' : ''}
@@ -295,9 +293,7 @@ export class MyElement extends LitElement {
     sendMessage(this.socket, {type: 'turn', turn});
     this.selectedSquare = undefined;
     this.selectedPiece = undefined;
-    const promotionModal = this.shadowRoot!.querySelector(
-      '#promotion-modal'
-    );
+    const promotionModal = this.shadowRoot!.querySelector('#promotion-modal');
     (promotionModal as PaperDialogElement).close();
     this.performUpdate();
   }

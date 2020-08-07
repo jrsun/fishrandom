@@ -24,7 +24,7 @@ import './my-piece-picker';
 import './my-controls';
 import {Game} from '../chess/game';
 import BoardState from '../chess/state';
-import { Color } from '../chess/const';
+import {Color} from '../chess/const';
 
 @customElement('my-app')
 export class MyApp extends LitElement {
@@ -176,19 +176,22 @@ export class MyApp extends LitElement {
   @property({type: Number}) playerTimer?: number;
   @property({type: Number}) opponentTimer?: number;
 
-  private gameResult: string|undefined;
+  private gameResult: string | undefined;
   private player = 'cheems';
   private opponent = 'SwoleDoge94';
-  private server = process.env.NODE_ENV === 'development' ? 'localhost' : '167.172.142.144';
+  private server =
+    process.env.NODE_ENV === 'development' ? 'localhost' : '167.172.142.144';
   private color?: Color;
 
   connectedCallback() {
     super.connectedCallback();
-    
-    this.socket = new WebSocket(`ws://${this.server}:8081`);
-    addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
 
-    this.handleNewGame();
+    this.socket = new WebSocket(`ws://${this.server}:8081`);
+    this.socket.onopen = () => {
+      this.requestNewGame();
+      addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
+    };
+
     this.addEventListener(
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
@@ -271,23 +274,24 @@ export class MyApp extends LitElement {
     this.viewHistoryState = e.detail as BoardState;
   }
 
-  handleNewGame() {
+  requestNewGame() {
     const goDialog = this.shadowRoot?.querySelector('paper-dialog');
     goDialog?.close();
- 
+
+    this.game = undefined;
+    this.color = undefined;
     sendMessage(this.socket, {type: 'newGame'});
-    // this.performUpdate();
   }
 
   renderWaiting() {
     return html`<div class="app">
-        <div class="title">
-          <h1>
-            F I S H R A N D O M
-          </h1>
-        </div>
-        <div class="fish-con"><div class="fish"></div></div>
-      </div>`;
+      <div class="title">
+        <h1>
+          F I S H R A N D O M
+        </h1>
+      </div>
+      <div class="fish-con"><div class="fish"></div></div>
+    </div>`;
   }
 
   render() {
@@ -359,7 +363,7 @@ export class MyApp extends LitElement {
       >
         <h2>${this.gameResult}</h2>
         <div>
-          <paper-button raised .onclick=${this.handleNewGame.bind(this)}>
+          <paper-button raised .onclick=${this.requestNewGame.bind(this)}>
             New Game
           </paper-button>
         </div>

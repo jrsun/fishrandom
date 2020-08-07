@@ -44,7 +44,13 @@ export class Room {
   state: RoomState;
   lastMoveTime: number;
 
-  constructor(p1: string, p1s: WebSocket, p2: string, p2s: WebSocket, game: Game) {
+  constructor(
+    p1: string,
+    p1s: WebSocket,
+    p2: string,
+    p2s: WebSocket,
+    game: Game
+  ) {
     this.p1 = {
       uuid: p1,
       socket: p1s,
@@ -78,7 +84,8 @@ export class Room {
       opponent: getName(this.p1.uuid),
     } as InitGameMessage);
     const interval = setInterval(() => {
-      const player = this.game.state.whoseTurn === this.p1.color ? this.p1 : this.p2;
+      const player =
+        this.game.state.whoseTurn === this.p1.color ? this.p1 : this.p2;
       const opponent = player === this.p1 ? this.p2 : this.p1;
       player.time -= 1000;
       if (player.time <= 0) {
@@ -205,9 +212,7 @@ export class Room {
   }
 
   getColor(uuid: string) {
-    return this.p1.uuid === uuid ?
-      this.p1.color :
-      this.p2.color;
+    return this.p1.uuid === uuid ? this.p1.color : this.p2.color;
   }
 
   wins(uuid: string) {
@@ -235,7 +240,7 @@ export class Room {
   sendTimers() {
     const timerMessage = {
       type: 'timer',
-    }
+    };
     sendMessage(this.p1.socket, {
       ...timerMessage,
       player: this.p1.time,

@@ -15,10 +15,10 @@ export class MyLogin extends LitElement {
       display: flex;
       flex-direction: column;
       align-items: center;
-      font-family: "JelleeBold";
+      font-family: 'JelleeBold';
     }
     .title {
-      color: #EEEEEE;
+      color: #eeeeee;
       font-size: 80px;
       margin-bottom: 10px;
     }
@@ -39,12 +39,13 @@ export class MyLogin extends LitElement {
       border: #888;
       outline: none;
     }
-    #username::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-      color: #AAA;
+    #username::placeholder {
+      /* Chrome, Firefox, Opera, Safari 10.1+ */
+      color: #aaa;
       opacity: 1; /* Firefox */
     }
     #button {
-      background-color: #82D7BA;
+      background-color: #82d7ba;
       height: 50px;
       font-size: 20px;
       color: #223322;
@@ -53,7 +54,9 @@ export class MyLogin extends LitElement {
 
   login(e) {
     e.preventDefault();
-    const input = this.shadowRoot?.querySelector('#username') as HTMLInputElement;
+    const input = this.shadowRoot?.querySelector(
+      '#username'
+    ) as HTMLInputElement;
     if (!input?.value) return;
 
     fetch('/login', {
@@ -62,28 +65,34 @@ export class MyLogin extends LitElement {
       cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
       credentials: 'same-origin', // include, *same-origin, omit
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
         // 'Content-Type': 'application/x-www-form-urlencoded',
       },
       redirect: 'follow', // manual, *follow, error,
       referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       body: JSON.stringify({username: input.value}),
-    }).then(data => {
+    }).then((data) => {
       console.log(data);
       location.reload();
     });
   }
 
   render() {
-    return html`
-    <div class="title">F I S H R A N D O M</div>
-    <form .onsubmit=${this.login.bind(this)}>
-      <div class="row">  
-        <input id="username" type="text" autocomplete="off" placeholder="Username"/>
-        <paper-button id="button" raised .onclick=${this.login.bind(this)}>Play</paper-button>
-        <input type="submit" style="display: none" />
-      </div>
-    </form>`;
+    return html` <div class="title">F I S H R A N D O M</div>
+      <form .onsubmit=${this.login.bind(this)}>
+        <div class="row">
+          <input
+            id="username"
+            type="text"
+            autocomplete="off"
+            placeholder="Username"
+          />
+          <paper-button id="button" raised .onclick=${this.login.bind(this)}
+            >Play</paper-button
+          >
+          <input type="submit" style="display: none" />
+        </div>
+      </form>`;
   }
 }
 
