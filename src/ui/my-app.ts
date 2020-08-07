@@ -181,7 +181,7 @@ export class MyApp extends LitElement {
   private player = 'cheems';
   private opponent = 'SwoleDoge94';
   private server =
-    process.env.NODE_ENV === 'development' ? 'localhost' : '167.172.142.144';
+    process.env.NODE_ENV === 'development' ? 'localhost' : 'fishrandom.io';
   private color?: Color;
 
   connectedCallback() {

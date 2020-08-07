@@ -55,9 +55,7 @@ app.post('/login', function (req, res) {
   if (!req.cookies.uuid) {
     var randomNumber = Math.random().toString();
     randomNumber = randomNumber.substring(2, randomNumber.length);
-    res.cookie('uuid', randomNumber + '|' + req.body.username, {
-      httpOnly: true,
-    });
+    res.cookie('uuid', randomNumber + '|' + req.body.username);
   }
   res.end();
 });
@@ -77,8 +75,33 @@ interface PlayerInfo {
   socket: WS.Websocket;
 }
 const players: {[uuid: string]: PlayerInfo} = {};
-// const rooms: Room[] = [];
-// const sockets: {[uuid: string]: WS.WebSocket} = {};
+
+wss.on('connection', function connection(ws: WS.WebSocket, request) {
+  console.log('Client connected:', request.headers['user-agent']);
+  let uuid = '';
+
+  const cookies = request.headers.cookie?.split(';');
+  console.log('Cookies: ', cookies);
+  uuid = cookies?.find((cookie) => cookie.startsWith('uuid='))?.split('=')?.[1];
+  if (!uuid) {
+    ws.close();
+    return;
+  }
+
+  console.log('Players: ', players);
+  if (players[uuid]) {
+    // Close existing websocket, if exists
+    players[uuid].socket.close();
+    players[uuid].socket = ws;
+  } else {
+    players[uuid] = {uuid, socket: ws};
+  }
+
+  // Register method handler
+  addMessageHandler(ws, (message) => {
+    handleMessage(uuid, message);
+  });
+});
 
 const handleMessage = function (uuid, message: Message) {
   if (message.type === 'newGame') {
@@ -110,31 +133,6 @@ const handleMessage = function (uuid, message: Message) {
     delete players[room.p2.uuid].room;
   }
 };
-
-wss.on('connection', function connection(ws: WS.WebSocket, request) {
-  console.log('Client connected:', request.headers.origin);
-  let uuid = '';
-
-  const cookies = request.headers.cookie?.split(';');
-  uuid = cookies?.find((cookie) => cookie.startsWith('uuid='))?.split('=')?.[1];
-  if (!uuid) {
-    ws.close();
-    return;
-  }
-
-  if (players[uuid]) {
-    // Close existing websocket, if exists
-    players[uuid].socket.close();
-    players[uuid].socket = ws;
-  } else {
-    players[uuid] = {uuid, socket: ws};
-  }
-
-  // Register method handler
-  addMessageHandler(ws, (message) => {
-    handleMessage(uuid, message);
-  });
-});
 
 const newGame = (() => {
   const waitingUsers: PlayerInfo[] = [];

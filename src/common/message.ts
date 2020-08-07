@@ -137,13 +137,14 @@ export function addMessageHandler(
   handler: (message: Message) => void
 ) {
   ws.addEventListener('message', async (e: MessageEvent) => {
-    let msg = {};
+    let msg: Message;
     try {
       const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
       msg = JSON.parse(s, reviver) as Message;
     } catch {
       msg = JSON.parse(e.data, reviver) as Message;
     }
+    console.log('Received message of type %s', msg.type);
     handler(msg as Message);
   });
 }
