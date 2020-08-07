@@ -8,12 +8,6 @@ import './my-piece';
 
 const SQUARE_SIZE = Math.min(window.innerWidth / 12, 50); // 50
 
-/**
- * An example element.
- *
- * @slot - This element has a slot
- * @csspart button - The button
- */
 @customElement('my-square')
 export class MySquare extends LitElement {
   static styles = css`
