@@ -10,11 +10,19 @@ import {Piece} from '../chess/piece';
 @customElement('my-piece')
 export class MyPiece extends LitElement {
   static styles = css`
-    .piece {
+    :host {
       height: 100%;
       width: 100%;
       display: inline-block;
-      background-image: url('/img/_dt.png');
+      /* background-image: url('/img/_dt.png'); */
+      /* background-size: cover; */
+      position: absolute;
+    }
+    .piece {
+      height: 100%;
+      width: 100%;
+      /* display: inline-block;
+      background-image: url('/img/_dt.png'); */
       background-size: cover;
       position: absolute;
     }

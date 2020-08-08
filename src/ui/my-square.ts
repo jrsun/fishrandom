@@ -63,12 +63,18 @@ export class MySquare extends LitElement {
         @click=${this._onClick}
         @mousedown=${this._onMouseDown}
         @mouseup=${this._onMouseUp}
+        @dragover=${e => {e.preventDefault()}}
+        @dragenter=${e => {e.preventDefault()}}
+        @drop=${this._onDrop}
         style="
         height:100%;width:100%;
         position:relative;
         background-size:cover;${styleMap(styles)}"
       >
-        ${this.piece && html`<my-piece .piece=${this.piece}></my-piece>`}
+        ${this.piece && html`<my-piece 
+        draggable="true"
+        @dragstart=${this._onDragStart}
+        .piece=${this.piece}></my-piece>`}
       </div>
     `;
   }
@@ -107,6 +113,29 @@ export class MySquare extends LitElement {
         detail: this.square,
       })
     );
+  }
+
+  private _onDragStart(e: DragEvent) {
+    console.log(this.square);
+    this.dispatchEvent(
+      new CustomEvent('square-dragstart', {
+        bubbles: true,
+        composed: true,
+        detail: this.square,
+      })
+    );
+  }
+
+  private _onDrop(e: DragEvent) {
+    console.log(this.square);
+    this.dispatchEvent(
+      new CustomEvent('square-drop', {
+        bubbles: true,
+        composed: true,
+        detail: this.square,
+      })
+    );
+    e.preventDefault();
   }
 }
 

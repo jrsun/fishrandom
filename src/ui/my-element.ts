@@ -91,6 +91,8 @@ export class MyElement extends LitElement {
   count = 0;
 
   pickerPieceSelected: () => void;
+  ods: () => void;
+  od: () => void;
 
   connectedCallback() {
     super.connectedCallback();
@@ -105,6 +107,12 @@ export class MyElement extends LitElement {
     // addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
     this.pickerPieceSelected = this.onPiecePicker.bind(this);
     this.addEventListener('picker-piece-selected', this.pickerPieceSelected);
+
+    this.ods = this.onDragStart.bind(this);
+    this.addEventListener('square-dragstart', this.ods);
+
+    this.od = this.onDrop.bind(this);
+    this.addEventListener('square-drop', this.od);
   }
 
   disconnectedCallback() {
@@ -122,6 +130,9 @@ export class MyElement extends LitElement {
       this.handleSocketMessage.bind(this)
     );
     this.removeEventListener('picker-piece-selected', this.pickerPieceSelected);
+
+    this.removeEventListener('square-dragstart', this.ods);
+    this.removeEventListener('square-drop', this.od);
   }
 
   updated(changedProperties) {
@@ -213,7 +224,6 @@ export class MyElement extends LitElement {
           square.col - this.selectedSquare.col > 0
         );
       } else {
-        // On promotion, rollback move
         turn = this.game.attemptMove(
           this.color,
           this.selectedPiece,
@@ -228,6 +238,7 @@ export class MyElement extends LitElement {
             (turn?.end.row === this.game.state.files - 1 &&
               this.selectedPiece.color === Color.BLACK))
         ) {
+          // On promotion, rollback move
           const lastTurn = this.game.turnHistory.pop();
           this.game.stateHistory.pop();
           if (lastTurn) {
@@ -255,6 +266,16 @@ export class MyElement extends LitElement {
       this.selectedPiece = square.occupant;
     }
     this.performUpdate();
+  }
+
+  private onDragStart(e: CustomEvent) {
+    const square = e.detail as Square;
+    this.selectedSquare = square;
+    this.selectedPiece = square.occupant;
+  }
+
+  private onDrop(e: CustomEvent) {
+    return this.onSquareClicked(e);
   }
 
   private onPiecePicker(e: CustomEvent) {
