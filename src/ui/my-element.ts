@@ -84,11 +84,7 @@ export class MyElement extends LitElement {
   @property({type: Object}) arrowStartSquare: Square | undefined;
   @property({type: Object}) promotionSquare: Square | undefined;
 
-  /**
-   * The number of times the button has been clicked.
-   */
-  @property({type: Number})
-  count = 0;
+  draggedSquare: Square | undefined;
 
   pickerPieceSelected: () => void;
   ods: () => void;
@@ -113,6 +109,12 @@ export class MyElement extends LitElement {
 
     this.od = this.onDrop.bind(this);
     this.addEventListener('square-drop', this.od);
+    
+    document.body.addEventListener('dragend', (e) => {
+      this.draggedSquare = undefined;
+      this.requestUpdate();
+      e.preventDefault();
+    });
   }
 
   disconnectedCallback() {
@@ -191,7 +193,7 @@ export class MyElement extends LitElement {
               (square) => html`<my-square
                 .square=${square}
                 .piece=${square.occupant}
-                .selected=${square === this.selectedSquare}
+                .dragged=${square === this.draggedSquare}
                 .possible=${this.possibleMoves.includes(square)}
                 .lastMove=${lastTurn &&
                 ((lastTurn.type === TurnType.MOVE &&
@@ -272,6 +274,7 @@ export class MyElement extends LitElement {
     const square = e.detail as Square;
     this.selectedSquare = square;
     this.selectedPiece = square.occupant;
+    this.draggedSquare = square;
   }
 
   private onDrop(e: CustomEvent) {

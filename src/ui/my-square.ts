@@ -37,7 +37,7 @@ export class MySquare extends LitElement {
   @property({type: Object}) square: Square;
   @property({type: Object}) piece?: Piece | undefined;
   @property({type: String}) color?: Color;
-  @property({type: Boolean}) selected = false;
+  @property({type: Boolean}) dragged = false;
   @property({type: Boolean}) possible = false;
   @property({type: Boolean}) lastMove = false;
 
@@ -45,17 +45,18 @@ export class MySquare extends LitElement {
     // this.style.setProperty('transform', this.color === Color.BLACK ? 'rotate(180deg)' : '');
     // ${this.possible ? 'background-image:url(../img/_dt.png);' : ''}
     const styles = {};
-    if (this.lastMove) {
-      styles['background-color'] = 'rgba(255, 255, 0, 0.3)';
-    }
-    if (this.selected) {
-      styles['background-color'] = 'rgba(0, 0, 255, 0.3)';
-    }
-    if (this.possible) {
-      styles['background-color'] = 'rgba(0, 255, 0, 0.3)';
-    }
-    if (this.color === Color.BLACK) {
-      styles['transform'] = 'rotate(180deg)';
+    if (this.dragged) {
+      styles['opacity'] = '0.5';
+    } else {
+      if (this.lastMove) {
+        styles['background-color'] = 'rgba(255, 255, 0, 0.3)';
+      }
+      if (this.possible) {
+        styles['background-color'] = 'rgba(0, 255, 0, 0.3)';
+      }
+      if (this.color === Color.BLACK) {
+        styles['transform'] = 'rotate(180deg)';
+      }
     }
     return html`
       <div
@@ -116,7 +117,6 @@ export class MySquare extends LitElement {
   }
 
   private _onDragStart(e: DragEvent) {
-    console.log(this.square);
     this.dispatchEvent(
       new CustomEvent('square-dragstart', {
         bubbles: true,
@@ -127,7 +127,6 @@ export class MySquare extends LitElement {
   }
 
   private _onDrop(e: DragEvent) {
-    console.log(this.square);
     this.dispatchEvent(
       new CustomEvent('square-drop', {
         bubbles: true,

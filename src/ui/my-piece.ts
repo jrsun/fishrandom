@@ -25,6 +25,7 @@ export class MyPiece extends LitElement {
       background-image: url('/img/_dt.png'); */
       background-size: cover;
       position: absolute;
+      cursor: pointer;
     }
   `;
 
