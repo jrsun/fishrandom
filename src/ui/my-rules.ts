@@ -134,6 +134,11 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Checkmate to win.</li>
       <li>No pawn double move from start.</li>
     </ul> `,
+  Dark: html`Each player can only see the squares they can move to.
+    <ul>
+      <li>Checkmate or <b>capture</b> the king to win.</li>
+    </ul>
+  `,
 };
 
 declare global {

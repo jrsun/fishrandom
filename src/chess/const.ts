@@ -32,6 +32,7 @@ const PAWN_HOME_RANK = 1;
 enum Color {
   WHITE = 'white',
   BLACK = 'black',
+  OTHER = 'other',
 }
 
 export function getOpponent(color: Color) {

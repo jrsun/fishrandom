@@ -7,7 +7,6 @@ import {randomChoice} from '../../utils';
 import {Move} from '../move';
 
 export class Hiddenqueen extends Game {
-  // Some jankiness if you try playing as the opponent's pieces (en passant)
   name = 'Hiddenqueen';
   revealed = {
     [Color.WHITE]: false,
@@ -18,8 +17,6 @@ export class Hiddenqueen extends Game {
   }
   visibleState(state: BoardState, color: Color): BoardState {
     if (!this.isServer) return state;
-
-    // if (this.revealed[getOpponent(color)]) return state;
 
     return new BoardState(
       state.squares.map((row) =>
