@@ -57,6 +57,7 @@ export class Game {
   get promotesTo(): (typeof Piece)[] {
     return [Queen, Rook, Bishop, Knight];
   }
+  postProcess(color: Color, turn: Turn): Turn { return turn };
 
   /***********************
    *  Private

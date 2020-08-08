@@ -165,13 +165,16 @@ export class Room {
       console.log('bad move!');
       return;
     }
+
     player.time += INCREMENT_MS;
     // we should send the mover a `replaceState` and the opponent an
     // `appendState`
     const rm = {
       type: 'replaceState',
       turn: {
-        ...turn,
+        // mostly a no-op on turn, but useful in variants
+        ...this.game.postProcess(player.color, turn),
+        // state should be universal
         before: game.visibleState(turn.before, player.color),
         after: game.visibleState(turn.after, player.color),
       },
@@ -179,7 +182,7 @@ export class Room {
     const am = {
       type: 'appendState',
       turn: {
-        ...turn,
+        ...this.game.postProcess(opponent.color, turn),
         before: game.visibleState(turn.before, opponent.color),
         after: game.visibleState(turn.after, opponent.color),
       },

@@ -7,9 +7,10 @@ export enum TurnType {
   CASTLE = 'castle',
   DROP = 'drop',
   PROMOTE = 'promote',
+  UNKNOWN = 'unknown',
 }
 
-export type Turn = Move | Castle | Drop | Promote;
+export type Turn = Move | Castle | Drop | Promote | Unknown;
 
 interface BaseTurn {
   before: BoardState;
@@ -44,6 +45,10 @@ export interface Promote extends BaseTurn {
   to: Piece;
   isCapture: boolean;
   captured?: Piece;
+}
+
+export interface Unknown extends BaseTurn {
+  type: TurnType.UNKNOWN;
 }
 
 export function toFEN(turn: Turn) {

@@ -4,6 +4,7 @@ import {Color, getOpponent} from '../const';
 import BoardState from '../state';
 import Square from '../square';
 import { equals, Pair } from '../pair';
+import { Turn, Unknown, TurnType } from '../move';
 
 export class Dark extends Game {
   name = 'Dark';
@@ -39,6 +40,18 @@ export class Dark extends Game {
       ),
       state.whoseTurn
     );
+  }
+
+  postProcess(color: Color, turn: Turn): Turn {
+    if (color === turn.piece.color) return turn;
+
+    return {
+      type: TurnType.UNKNOWN,
+      before: turn.before,
+      after: turn.after,
+      end: {row: -1, col: -1},
+      piece: new Obscurant(Color.OTHER),
+    };
   }
 
   winCondition(color: Color): boolean {
