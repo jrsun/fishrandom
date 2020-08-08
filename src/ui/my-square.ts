@@ -45,6 +45,9 @@ export class MySquare extends LitElement {
     // this.style.setProperty('transform', this.color === Color.BLACK ? 'rotate(180deg)' : '');
     // ${this.possible ? 'background-image:url(../img/_dt.png);' : ''}
     const styles = {};
+    if (this.color === Color.BLACK) {
+      styles['transform'] = 'rotate(180deg)';
+    }
     if (this.dragged) {
       styles['opacity'] = '0.5';
     } else {
@@ -53,9 +56,6 @@ export class MySquare extends LitElement {
       }
       if (this.possible) {
         styles['background-color'] = 'rgba(0, 255, 0, 0.3)';
-      }
-      if (this.color === Color.BLACK) {
-        styles['transform'] = 'rotate(180deg)';
       }
     }
     return html`
