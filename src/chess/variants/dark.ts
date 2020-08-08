@@ -16,12 +16,12 @@ export class Dark extends Game {
     if (!this.isServer) return state;
 
     const legalTargets: Set<Pair> = new Set();
-    for (const square of this.state.squares.flat()) {
+    for (const square of state.squares.flat()) {
       if (!square.occupant || square.occupant.color !== color) {
         continue;
       }
       legalTargets.add(square);
-      const moves = square.occupant.legalMoves(square.row, square.col, this.state, this.turnHistory);
+      const moves = square.occupant.legalMoves(square.row, square.col, state, this.turnHistory);
       for (const move of moves) {
         legalTargets.add(move.end);
       }

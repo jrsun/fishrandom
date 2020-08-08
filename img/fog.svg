@@ -53,7 +53,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="opacity:0.84244373;fill:#525252;fill-opacity:1;stroke-width:0.219211"
+       style="opacity:0.84244373;fill:#556;fill-opacity:1;stroke-width:0.219211"
        id="rect833"
        width="20.945591"
        height="17.312172"
@@ -61,3 +61,5 @@
        y="-4.915802" />
   </g>
 </svg>
+
+       <!-- style="opacity:0.84244373;fill:#525252;fill-opacity:1;stroke-width:0.219211" -->
