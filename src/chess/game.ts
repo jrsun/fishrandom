@@ -54,6 +54,21 @@ export class Game {
     // Opponent is in check and cannot escape it.
     return opponentLegalMoves.length === 0;
   }
+  // drawCondition(color: Color): boolean {
+  //   const legalMoves = this.state.squares
+  //   .flat()
+  //   .filter((square) => square.occupant?.color === color)
+  //   .flatMap((square) =>
+  //     square.occupant?.legalMoves(
+  //       square.row,
+  //       square.col,
+  //       this.state,
+  //       this.turnHistory
+  //     )
+  //   )
+  //   .filter((move) => move && !this.knowsInCheck(color, move.after));
+  //   return legalMoves.length === 0;
+  // }
   get promotesTo(): (typeof Piece)[] {
     return [Queen, Rook, Bishop, Knight];
   }
@@ -106,7 +121,18 @@ export class Game {
     if (!square || square.occupant) {
       return;
     }
-    const after = state.place(piece, row, col);
+    let after = new BoardState(state.squares, getOpponent(color))
+      .removeFromBank(color, piece);
+    if (!after) {
+      // TEMP
+      console.log('piece unavailable to drop');
+      console.log(piece);
+      console.log(this.state.banks);
+      return;
+    }
+
+    after.place(piece, row, col);
+
     const drop = {
       before: state,
       after,

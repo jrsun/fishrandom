@@ -9,6 +9,7 @@ export default class BoardState {
   files: number = 8;
   squares: Square[][];
   whoseTurn: Color;
+  banks: Map<Color, Map<typeof Piece, number>>= new Map();
 
   constructor(squares: Square[][], whoseTurn) {
     this.ranks = squares.length;
@@ -35,6 +36,18 @@ export default class BoardState {
       throw new Error('square out of bounds' + row + ',' + col);
     }
     square.place(piece);
+    return this;
+  }
+
+  removeFromBank(color: Color, p: Piece): BoardState|undefined {
+    const playerBank = this.banks.get(color);
+    if (!playerBank) return this;
+
+    for (const pieceType of playerBank.keys()) {
+      if (p instanceof pieceType && playerBank.get(pieceType)! > 0) {
+        playerBank.set(pieceType, playerBank.get(pieceType)! - 1);
+      }
+    }
     return this;
   }
 

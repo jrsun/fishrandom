@@ -1,7 +1,7 @@
 - hiddenqueen
 hiddenking
 pieceeater/juggernaut
-dark
+-dark
 dice
 beirut
 syncrhone
@@ -10,10 +10,10 @@ pocket knight
 - horde
 atomic
 recall
-grasshopper
-960
+-grasshopper
+-960
 prechess
-knightmate
+-knightmate
 rifle
 
 fairy pieces:

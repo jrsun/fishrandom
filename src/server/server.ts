@@ -82,14 +82,12 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
   let uuid = '';
 
   const cookies = request.headers.cookie?.split(';');
-  console.log('Cookies: ', cookies);
   uuid = cookies?.find((cookie) => cookie.startsWith('uuid='))?.split('=')?.[1];
   if (!uuid) {
     ws.close();
     return;
   }
 
-  console.log('Players: ', players);
   if (players[uuid]) {
     // Close existing websocket, if exists
     players[uuid].socket.close();
