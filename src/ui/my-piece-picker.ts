@@ -22,12 +22,12 @@ export class MyPiecePicker extends LitElement {
     }
   `;
 
-  @property({type: Array})
-  pieces: Piece[];
+  @property({type: Array}) pieces: Piece[];
+  @property({type: String}) eventName;
 
   pickedPiece(piece: Piece) {
     this.dispatchEvent(
-      new CustomEvent('picker-piece-selected', {
+      new CustomEvent(this.eventName, {
         bubbles: true,
         composed: true,
         detail: piece,

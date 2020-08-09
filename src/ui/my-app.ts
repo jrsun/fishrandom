@@ -23,8 +23,9 @@ import './my-rules';
 import './my-piece-picker';
 import './my-controls';
 import {Game} from '../chess/game';
-import BoardState from '../chess/state';
+import {BoardState} from '../chess/state';
 import {Color} from '../chess/const';
+import { Knight } from '../chess/piece';
 
 @customElement('my-app')
 export class MyApp extends LitElement {
@@ -302,6 +303,15 @@ export class MyApp extends LitElement {
     return `${Math.floor(s/60)}:${secondString}`;
   }
 
+  renderBanks() {
+    if (!this.game?.canDrop) return;
+
+    return html`<div class="bank">
+      <my-piece-picker .pieces=${[new Knight(Color.WHITE)]}>
+      </my-piece-picker>
+    </div>`;
+  }
+
   render() {
     if (!this.game || !this.color) return this.renderWaiting();
 
@@ -329,6 +339,7 @@ export class MyApp extends LitElement {
             </div>
             <div class="timer opponent">${this.renderTimer(this.opponentTimer)}</div>
           </div>
+          ${this.renderBanks()}
           <div class="board-wrapper card">
             <my-element
               .color=${this.color}

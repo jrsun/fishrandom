@@ -1,7 +1,7 @@
 import {Game} from '../game';
 import {RoyalKnight, Mann, Rook, Bishop, Queen, Pawn, Piece} from '../piece';
 import {Color} from '../const';
-import BoardState from '../state';
+import {BoardState} from '../state';
 import Square from '../square';
 
 export class Knightmate extends Game {

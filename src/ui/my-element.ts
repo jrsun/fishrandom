@@ -27,7 +27,7 @@ import {VARIANTS} from '../chess/variants';
 import {Game} from '../chess/game';
 import {Move, toFEN, Turn, TurnType} from '../chess/move';
 import {Color} from '../chess/const';
-import BoardState from '../chess/state';
+import {BoardState} from '../chess/state';
 import {Chess960} from '../chess/variants/960';
 import {equals} from '../chess/pair';
 import './my-piece-picker';
@@ -101,7 +101,7 @@ export class MyElement extends LitElement {
     // this.addEventListener('contextmenu', e => {e.preventDefault()});
     // addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
     this.pickerPieceSelected = this.onPiecePicker.bind(this);
-    this.addEventListener('picker-piece-selected', this.pickerPieceSelected);
+    this.addEventListener('promotion-picked', this.pickerPieceSelected);
 
     this.ods = this.onDragStart.bind(this);
     this.addEventListener('square-dragstart', this.ods);
@@ -130,7 +130,7 @@ export class MyElement extends LitElement {
       'message',
       this.handleSocketMessage.bind(this)
     );
-    this.removeEventListener('picker-piece-selected', this.pickerPieceSelected);
+    this.removeEventListener('promotion-picked', this.pickerPieceSelected);
 
     this.removeEventListener('square-dragstart', this.ods);
     this.removeEventListener('square-drop', this.od);
@@ -180,6 +180,7 @@ export class MyElement extends LitElement {
       <paper-dialog id="promotion-modal" horizontal-align="left" vertical-align="top"
         ><my-piece-picker
           .pieces=${this.game.promotesTo.map((c) => new c(this.color))}
+          .eventName=${'promotion-picked'}
         ></my-piece-picker
       ></paper-dialog>
       <div

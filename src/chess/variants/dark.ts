@@ -1,7 +1,7 @@
 import {Game} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
 import {Color, getOpponent} from '../const';
-import BoardState from '../state';
+import {BoardState} from '../state';
 import Square from '../square';
 import { equals, Pair } from '../pair';
 import { Turn, Unknown, TurnType } from '../move';

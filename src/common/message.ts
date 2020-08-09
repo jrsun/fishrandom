@@ -1,5 +1,5 @@
 import {Piece} from '../chess/piece';
-import BoardState from '../chess/state';
+import {BoardState} from '../chess/state';
 import Square from '../chess/square';
 import zlib from 'zlib';
 import {Turn} from '../chess/move';

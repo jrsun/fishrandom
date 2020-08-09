@@ -1,7 +1,7 @@
 import {Game} from '../game';
 import {King, Knight, Rook, Bishop, Queen, Pawn} from '../piece';
 import {Color} from '../const';
-import BoardState from '../state';
+import {BoardState} from '../state';
 import Square from '../square';
 
 export class Horde extends Game {

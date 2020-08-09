@@ -1,5 +1,5 @@
 import {Game} from '../game';
-import BoardState from '../state';
+import {BoardState} from '../state';
 import {Move} from '../move';
 import {Color} from '../const';
 import Square from '../square';

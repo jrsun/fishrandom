@@ -10,7 +10,7 @@ import {
   getOpponent,
 } from './const';
 import {Move, Turn, TurnType} from './move';
-import BoardState from './state';
+import {BoardState} from './state';
 
 // Classes
 export class Piece {
