@@ -12,6 +12,8 @@ export class BoardState {
   banks: {[color: string]: {[piece: string]: number}} = {};
 
   constructor(squares: Square[][], whoseTurn, banks?) {
+    if (!banks) banks = {};
+    
     this.ranks = squares.length;
     this.files = squares[0].length;
     const newSquares: Square[][] = [];

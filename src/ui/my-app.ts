@@ -25,7 +25,7 @@ import './my-controls';
 import {Game} from '../chess/game';
 import {BoardState} from '../chess/state';
 import {Color} from '../chess/const';
-import { Knight } from '../chess/piece';
+import { Knight, Piece } from '../chess/piece';
 
 @customElement('my-app')
 export class MyApp extends LitElement {
@@ -198,6 +198,14 @@ export class MyApp extends LitElement {
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
     );
+    // TEMP
+    this.addEventListener(
+      'drop-picked',
+      (e: CustomEvent) => {
+        console.log(e.detail);
+        this.game?.drop(this.color, e.detail as Piece, 3, 3);
+      },
+    )
     setInterval(() => {
       if (this.game?.state.whoseTurn === this.color) {
         if (this.playerTimer) {
@@ -307,7 +315,7 @@ export class MyApp extends LitElement {
     if (!this.game?.canDrop) return;
 
     return html`<div class="bank">
-      <my-piece-picker .pieces=${[new Knight(Color.WHITE)]}>
+      <my-piece-picker .pieces=${[new Knight(Color.WHITE)]} .eventName=${'drop-picked'}>
       </my-piece-picker>
     </div>`;
   }
