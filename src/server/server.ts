@@ -48,14 +48,15 @@ app.get('/', function (req, res) {
 
 // viewed at http://localhost:8080
 app.post('/login', function (req, res) {
-  if (!req.body.username || req.body.username !== escape(req.body.username))
+  if (!req.body.username || req.body.username !== escape(req.body.username)) {
     return;
+  }
 
   console.log('logged in', req.body.username);
   if (!req.cookies.uuid) {
     var randomNumber = Math.random().toString();
     randomNumber = randomNumber.substring(2, randomNumber.length);
-    res.cookie('uuid', randomNumber + '|' + req.body.username);
+    res.cookie('uuid', randomNumber + '|' + req.body.username, {encode: String});
   }
   res.end();
 });

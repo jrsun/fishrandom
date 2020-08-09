@@ -258,5 +258,5 @@ export class Room {
 }
 
 function getName(uuid?: string): string {
-  return uuid?.split('%7C')?.[1] ?? 'Fish';
+  return uuid?.split('|')?.[1] ?? 'Fish';
 }
