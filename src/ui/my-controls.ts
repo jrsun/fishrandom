@@ -137,9 +137,7 @@ export class MyControls extends LitElement {
       this.dispatchEvent(
         new CustomEvent('view-move-changed', {
           detail:
-            this.viewMoveIndex !== undefined
-              ? this.turnHistory[this.viewMoveIndex]?.before
-              : undefined,
+            this.viewMoveIndex,
           bubbles: true,
           composed: true,
         })

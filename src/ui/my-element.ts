@@ -75,7 +75,7 @@ export class MyElement extends LitElement {
   @property({type: String}) color: Color;
   @property({type: Object}) game: Game;
   @property({type: Object}) socket: WebSocket;
-  @property({type: Object}) viewHistoryState: BoardState | undefined;
+  @property({type: Number}) viewMoveIndex: number | undefined;
   @property({type: Object}) bankSelectedPiece: Piece | undefined;
 
   // protected
@@ -174,8 +174,13 @@ export class MyElement extends LitElement {
       `${SQUARE_SIZE * state.squares[0].length}px`
     );
 
-    const lastTurn = this.game.turnHistory[this.game.turnHistory.length - 1];
-    const uiState = this.viewHistoryState ?? state;
+    let uiState: BoardState = state;
+    let lastTurn: Turn = this.game.turnHistory[this.game.turnHistory.length - 1];
+    if (this.viewMoveIndex != null) {
+      console.log(this.viewMoveIndex);
+      uiState = this.game.turnHistory[this.viewMoveIndex]?.before ?? state;
+      lastTurn = this.game.turnHistory[this.viewMoveIndex-1];
+    }
 
     // BUG: Promo event keeps firing
     return html`
@@ -194,7 +199,7 @@ export class MyElement extends LitElement {
           (row) => html`<div class="row">
             ${row.map(
               (square) => html`<my-square
-                .frozen=${!!this.viewHistoryState}
+                .frozen=${this.viewMoveIndex != null}
                 .square=${square}
                 .piece=${square.occupant}
                 .dragged=${square === this.draggedSquare}
@@ -218,7 +223,7 @@ export class MyElement extends LitElement {
   // Regular move and castle and drop
   private onSquareClicked(e: CustomEvent) {
     this.dispatchEvent(new CustomEvent('board-clicked', {bubbles: true, composed: true}));
-    if (this.viewHistoryState) return;
+    if (this.viewMoveIndex != null) return;
 
     this.eraseCanvas();
     // There's a bug here where updating the game using attemptMove doesn't cause rerender.

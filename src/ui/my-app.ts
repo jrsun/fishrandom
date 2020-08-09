@@ -185,7 +185,7 @@ export class MyApp extends LitElement {
   private socket: WebSocket;
 
   // private
-  @property({type: Object}) viewHistoryState: BoardState | undefined;
+  @property({type: Number}) viewMoveIndex: number | undefined;
   @property({type: Number}) playerTimer?: number;
   @property({type: Number}) opponentTimer?: number;
   @property({type: Object}) bankSelectedPiece: Piece | undefined;
@@ -297,9 +297,8 @@ export class MyApp extends LitElement {
   }
 
   handleViewMoveChanged(e: CustomEvent) {
+    this.viewMoveIndex = e.detail;
     console.log('caught view move changed');
-    this.viewHistoryState = e.detail as BoardState;
-    this.requestUpdate();
   }
 
   requestNewGame() {
@@ -386,7 +385,7 @@ export class MyApp extends LitElement {
               .socket=${this.socket}
               .game=${this.game}
               .bankSelectedPiece=${this.bankSelectedPiece}
-              .viewHistoryState=${this.viewHistoryState}
+              .viewMoveIndex=${this.viewMoveIndex}
             ></my-element>
           </div>
           <div class="active-game-info player">
