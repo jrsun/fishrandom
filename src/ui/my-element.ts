@@ -174,6 +174,7 @@ export class MyElement extends LitElement {
     );
 
     const lastTurn = this.game.turnHistory[this.game.turnHistory.length - 1];
+    const uiState = this.viewHistoryState ?? state;
 
     return html`
       <paper-dialog id="promotion-modal" horizontal-align="left" vertical-align="top"
@@ -186,7 +187,7 @@ export class MyElement extends LitElement {
         style=${this.color === Color.BLACK ? 'transform:rotate(180deg);' : ''}
       >
         <canvas id="canvas"></canvas>
-        ${(this.viewHistoryState ?? state).squares.map(
+        ${uiState.squares.map(
           (row) => html`<div class="row">
             ${row.map(
               (square) => html`<my-square
@@ -200,6 +201,9 @@ export class MyElement extends LitElement {
                   equals(lastTurn.start, square)) ||
                   equals(lastTurn.end, square))}
                 .color=${this.color}
+                .checked=${square.occupant?.isRoyal && this.game.knowsAttackedSquare(
+                  square.occupant?.color, uiState, square.row, square.col,
+                )}
               ></my-square>`
             )}
           </div>`
