@@ -52,6 +52,19 @@ export class Game {
         )
       )
       .filter((move) => move && !this.knowsInCheck(opponent, move.after));
+    if (this.canDrop && this.state.banks[opponent]) {
+      const bank = this.state.banks[opponent];
+      if (bank.length > 0) {
+        const dropStates = this.state.squares.flat()
+        .filter(square => !square.occupant)
+        .map(square => BoardState.copy(this.state).place(new Piece(opponent), square.row, square.col));
+        for (const dropState of dropStates) {
+          if (!this.knowsInCheck(opponent, dropState)) {
+            return false;
+          }
+        }
+      } 
+    }
     // Opponent is in check and cannot escape it.
     return opponentLegalMoves.length === 0;
   }

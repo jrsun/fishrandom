@@ -53,9 +53,11 @@ export class BoardState {
 
   removeFromBank(color: Color, piece: Piece): BoardState|undefined {
     const playerBank = this.banks[color];
-    if (!playerBank) return this;
+    if (!playerBank) return;
 
     const index = playerBank.findIndex(p => p.name === piece.name);
+    if (index === -1) return;
+
     playerBank.splice(index, 1);
     return this;
   }
