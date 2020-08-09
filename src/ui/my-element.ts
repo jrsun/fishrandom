@@ -176,6 +176,7 @@ export class MyElement extends LitElement {
     const lastTurn = this.game.turnHistory[this.game.turnHistory.length - 1];
     const uiState = this.viewHistoryState ?? state;
 
+    // BUG: Promo event keeps firing
     return html`
       <paper-dialog id="promotion-modal" horizontal-align="left" vertical-align="top"
         ><my-piece-picker

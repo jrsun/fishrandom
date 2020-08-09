@@ -124,10 +124,10 @@ export function log(m: string, type: string, sent: boolean) {
 
 export function sendMessage(ws: WS.WebSocket, m: Message) {
   const input = JSON.stringify(m, replacer);
-  if (process.env.NODE_ENV === 'development') {
-    ws.send(input);
-    return;
-  }
+  // if (process.env.NODE_ENV === 'development') {
+  //   ws.send(input);
+  //   return;
+  // }
   zlib.gzip(input, (err, buffer) => {
     if (err) {
       console.log('Failed to compress and send message %s', input);
@@ -148,12 +148,12 @@ export function addMessageHandler(
 ) {
   ws.addEventListener('message', async (e: MessageEvent) => {
     let msg: Message;
-    if (process.env.NODE_ENV === 'development') {
-      msg = JSON.parse(e.data, reviver) as Message;
-    } else {
+    // if (process.env.NODE_ENV === 'development') {
+    //   msg = JSON.parse(e.data, reviver) as Message;
+    // } else {
       const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
       msg = JSON.parse(s, reviver) as Message;
-    }
+    // }
     console.log('Received message of type %s', msg.type);
     handler(msg as Message);
   });

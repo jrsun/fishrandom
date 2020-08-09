@@ -9,11 +9,11 @@ export class BoardState {
   files: number = 8;
   squares: Square[][];
   whoseTurn: Color;
-  banks: {[color: string]: {[piece: string]: number}} = {};
+  banks: {[color: string]: Piece[]} = {};
 
   constructor(squares: Square[][], whoseTurn, banks?) {
     if (!banks) banks = {};
-    
+
     this.ranks = squares.length;
     this.files = squares[0].length;
     const newSquares: Square[][] = [];
@@ -42,13 +42,12 @@ export class BoardState {
     return this;
   }
 
-  removeFromBank(color: Color, p: Piece): BoardState|undefined {
+  removeFromBank(color: Color, piece: Piece): BoardState|undefined {
     const playerBank = this.banks[color];
     if (!playerBank) return this;
 
-    if (p.name in playerBank && playerBank[p.name] > 0) {
-      playerBank[p.name] -= 1;
-    }
+    const index = playerBank.findIndex(p => p.name === piece.name);
+    playerBank.splice(index, 1);
     return this;
   }
 

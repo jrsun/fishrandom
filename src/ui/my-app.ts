@@ -24,7 +24,7 @@ import './my-piece-picker';
 import './my-controls';
 import {Game} from '../chess/game';
 import {BoardState} from '../chess/state';
-import {Color} from '../chess/const';
+import {Color, getOpponent} from '../chess/const';
 import { Knight, Piece } from '../chess/piece';
 
 @customElement('my-app')
@@ -54,6 +54,16 @@ export class MyApp extends LitElement {
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
+      align-items: stretch;
+    }
+    .bank-wrapper {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      margin-right: 20px;
+    }
+    .bank {
+      padding: 10px;
     }
     .active-game-container {
       display: flex;
@@ -202,6 +212,7 @@ export class MyApp extends LitElement {
     this.addEventListener(
       'drop-picked',
       (e: CustomEvent) => {
+        if (!this.color) return;
         console.log(e.detail);
         this.game?.drop(this.color, e.detail as Piece, 3, 3);
       },
@@ -312,11 +323,20 @@ export class MyApp extends LitElement {
   }
 
   renderBanks() {
-    if (!this.game?.canDrop) return;
+    if (!this.game || !this.color) return;
+    if (!this.game.canDrop) return;
+    const player = this.color;
+    const opponent = getOpponent(this.color);
 
-    return html`<div class="bank">
-      <my-piece-picker .pieces=${[new Knight(Color.WHITE)]} .eventName=${'drop-picked'}>
-      </my-piece-picker>
+    return html`<div class="bank-wrapper">
+      <div class="card bank">
+        <my-piece-picker .pieces=${this.game.state.banks[opponent]} .eventName=${'drop-picked'}>
+        </my-piece-picker>
+      </div>
+      <div class="card bank">
+        <my-piece-picker .pieces=${this.game.state.banks[player]} .eventName=${'drop-picked'}>
+        </my-piece-picker>
+      </div>
     </div>`;
   }
 
@@ -331,7 +351,7 @@ export class MyApp extends LitElement {
         </h1>
       </div>
       <div class="game-container">
-        <!-- dom-if piece bank -->
+        ${this.renderBanks()}
         <div class="active-game-container">
           <div class="active-game-info opponent">
             <!-- this will be a component -->
@@ -347,7 +367,6 @@ export class MyApp extends LitElement {
             </div>
             <div class="timer opponent">${this.renderTimer(this.opponentTimer)}</div>
           </div>
-          ${this.renderBanks()}
           <div class="board-wrapper card">
             <my-element
               .color=${this.color}
