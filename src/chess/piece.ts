@@ -305,7 +305,7 @@ export class Pawn extends Piece {
 
     captureTargets = captureTargets.filter((target) => {
       const occupant = state.getSquare(target.row, target.col)?.occupant;
-      return occupant && occupant.color !== this.color;
+      return occupant && occupant.color === getOpponent(this.color);
     });
 
     const moves: Move[] = [];
