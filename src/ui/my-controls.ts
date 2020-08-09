@@ -8,6 +8,7 @@ import {
 } from 'lit-element';
 import {Game} from '../chess/game';
 import {toFEN, Turn} from '../chess/move';
+import {styleMap} from 'lit-html/directives/style-map';
 import {
   VARIANTS,
   Chess960,
@@ -146,13 +147,28 @@ export class MyControls extends LitElement {
     }
   }
 
+  renderMove(fen: string, index: number) {
+    const styles = {
+      cursor: 'pointer',
+    };
+    if (index + 1 === this.viewMoveIndex) {
+      styles['background-color'] = '#FBEC94';
+    } else if (this.viewMoveIndex === undefined && index === this.turnHistory.length-1) {
+      styles['background-color'] = 'rgb(150, 230, 148)';
+    }
+    return html`<span
+      class="fen"
+      style="${styleMap(styles)}"
+      @click=${() => {this.viewMoveIndex = index+1}}>${fen}</span>`;
+  }
+
   render() {
     return html`
       <div class="container">
         <div class="fen-display">
           ${this.turnHistory
             .map(toFEN)
-            .map((fen: string) => html`<span class="fen">${fen}</span>`)}
+            .map((fen: string, i: number) => this.renderMove(fen, i))}
         </div>
         <div class="controls">
           <paper-button raised .onclick=${this.onClickPrev.bind(this)}

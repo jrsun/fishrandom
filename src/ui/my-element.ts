@@ -26,7 +26,6 @@ import './my-square';
 import {VARIANTS} from '../chess/variants';
 import {Game} from '../chess/game';
 import {Move, toFEN, Turn, TurnType} from '../chess/move';
-import {styleMap} from 'lit-html/directives/style-map';
 import {Color} from '../chess/const';
 import BoardState from '../chess/state';
 import {Chess960} from '../chess/variants/960';
@@ -191,6 +190,7 @@ export class MyElement extends LitElement {
           (row) => html`<div class="row">
             ${row.map(
               (square) => html`<my-square
+                .frozen=${!!this.viewHistoryState}
                 .square=${square}
                 .piece=${square.occupant}
                 .dragged=${square === this.draggedSquare}

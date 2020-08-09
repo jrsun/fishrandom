@@ -40,6 +40,8 @@ export class MySquare extends LitElement {
   @property({type: Boolean}) dragged = false;
   @property({type: Boolean}) possible = false;
   @property({type: Boolean}) lastMove = false;
+  @property({type: Boolean}) frozen = false;
+
 
   render() {
     // this.style.setProperty('transform', this.color === Color.BLACK ? 'rotate(180deg)' : '');
@@ -73,7 +75,7 @@ export class MySquare extends LitElement {
         background-size:cover;${styleMap(styles)}"
       >
         ${this.piece && html`<my-piece 
-        draggable="true"
+        draggable=${!this.frozen}
         @dragstart=${this._onDragStart}
         .piece=${this.piece}></my-piece>`}
       </div>
