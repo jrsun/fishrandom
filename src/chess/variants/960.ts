@@ -75,5 +75,5 @@ function generateStartState(): BoardState {
     }
     squares.push(row);
   }
-  return new BoardState(squares, Color.WHITE);
+  return new BoardState(squares, Color.WHITE, {});
 }

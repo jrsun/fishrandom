@@ -122,7 +122,7 @@ export class Game {
     if (!square || square.occupant) {
       return;
     }
-    let after = new BoardState(state.squares, getOpponent(color))
+    let after = BoardState.copy(state)
       .removeFromBank(color, piece);
     if (!after) {
       // TEMP
@@ -235,7 +235,7 @@ export class Game {
     }
     const before = this.state;
     const king = kingSquare.occupant!;
-    const after = new BoardState(this.state.squares, getOpponent(color))
+    const after = BoardState.copy(before)
       .empty(rookSquare.row, rookSquare.col)
       .empty(row, col)
       .place(king, target.row, target.col)
@@ -288,10 +288,8 @@ export class Game {
       console.log('multiple legal moves??');
     }
     const legalMove = legalMoves[0];
-    const after = new BoardState(
-      this.state.squares,
-      getOpponent(promoter.color)
-    )
+    const after = BoardState.copy(this.state)
+      .setTurn(getOpponent(promoter.color))
       .empty(srow, scol)
       .place(to, drow, dcol);
     if (legalMove.isCapture) {
@@ -349,7 +347,8 @@ export class Game {
     const dummy = new Piece(color);
     const stateWithDummy = new BoardState(
       visibleState.squares,
-      getOpponent(color)
+      getOpponent(color),
+      visibleState.banks,
     ).place(dummy, row, col);
     const squaresWithEnemy = state.squares
       .flat()

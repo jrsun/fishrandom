@@ -11,7 +11,7 @@ export class BoardState {
   whoseTurn: Color;
   banks: {[color: string]: Piece[]} = {};
 
-  constructor(squares: Square[][], whoseTurn, banks?) {
+  constructor(squares: Square[][], whoseTurn, banks) {
     if (!banks) banks = {};
 
     this.ranks = squares.length;
@@ -31,6 +31,15 @@ export class BoardState {
     this.squares = newSquares;
     this.whoseTurn = whoseTurn;
     this.banks = banks;
+  }
+
+  static copy(other: BoardState): BoardState {
+    return new BoardState(other.squares, other.whoseTurn, other.banks);
+  }
+
+  setTurn(color: Color): BoardState {
+    this.whoseTurn = color;
+    return this;
   }
 
   place(piece: Piece, row: number, col: number): BoardState {
@@ -128,5 +137,5 @@ export function generateStartState(): BoardState {
     }
     squares.push(row);
   }
-  return new BoardState(squares, Color.WHITE);
+  return new BoardState(squares, Color.WHITE, {});
 }

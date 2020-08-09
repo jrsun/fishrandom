@@ -50,7 +50,8 @@ export class Hiddenqueen extends Game {
           return square;
         })
       ),
-      state.whoseTurn
+      state.whoseTurn,
+      state.banks,
     );
   }
 
@@ -183,5 +184,5 @@ function generateStartState(): BoardState {
     }
     squares.push(row);
   }
-  return new BoardState(squares, Color.WHITE);
+  return new BoardState(squares, Color.WHITE, {});
 }

@@ -7,47 +7,67 @@ const SQUARE_SIZE = Math.min(window.innerWidth / 12, 50); // 50
 export class MyPiecePicker extends LitElement {
   static styles = css`
     :host {
-      display: block;
-    }
-    .picker {
       display: flex;
+      flex-direction: column;
       justify-content: center;
-      flex-wrap: wrap;
     }
     .picker-piece {
       height: ${SQUARE_SIZE}px;
       width: ${SQUARE_SIZE}px;
-      display: inline-block;
+      cursor: pointer;
       background-size: cover;
+      display: block;
     }
   `;
 
   @property({type: Array}) pieces: Piece[];
-  @property({type: String}) eventName;
+  @property({type: Boolean}) needsTarget = false;
+  @property({type: String}) eventName?;
 
-  pickedPiece(piece: Piece) {
-    this.dispatchEvent(
-      new CustomEvent(this.eventName, {
-        bubbles: true,
-        composed: true,
-        detail: piece,
-      })
-    );
+  @property({type: Object}) selected?: Piece;
+
+  attached() {
+  }
+
+  pickedPiece(piece: Piece, e: CustomEvent) {
+    let newSelected: Piece | undefined;
+    if (this.needsTarget) {
+      if (this.selected === piece) {
+        newSelected = undefined;
+      } else {
+        newSelected = piece;
+      }
+    } else {
+      newSelected = piece;
+    }
+
+    if (this.eventName) {
+      this.dispatchEvent(
+        new CustomEvent(this.eventName, {
+          bubbles: true,
+          composed: true,
+          detail: newSelected,
+        })
+      );
+    }
   }
 
   render() {
     return html`
-      <div class="picker">
         ${this.pieces.map(
           (piece) => html`<div
             class="picker-piece ${piece.name}"
-            style="background-image:url(/img/${piece.img});"
-            @click=${() => {
-              this.pickedPiece(piece);
+            draggable=${this.needsTarget}
+            
+            style="
+              background-image:url(/img/${piece.img});
+              ${this.selected === piece ? 'background-color: rgb(0, 255, 0, 0.3);' : ''}
+            "
+            @click=${(e) => {
+              this.pickedPiece(piece, e);
             }}
           ></div>`
         )}
-      </div>
     `;
   }
 }

@@ -38,7 +38,8 @@ export class Dark extends Game {
           }
         })
       ),
-      state.whoseTurn
+      state.whoseTurn,
+      state.banks,
     );
   }
 

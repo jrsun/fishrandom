@@ -26,6 +26,7 @@ import {Game} from '../chess/game';
 import {BoardState} from '../chess/state';
 import {Color, getOpponent} from '../chess/const';
 import { Knight, Piece } from '../chess/piece';
+import { MyElement } from './my-element';
 
 @customElement('my-app')
 export class MyApp extends LitElement {
@@ -187,6 +188,7 @@ export class MyApp extends LitElement {
   @property({type: Object}) viewHistoryState: BoardState | undefined;
   @property({type: Number}) playerTimer?: number;
   @property({type: Number}) opponentTimer?: number;
+  @property({type: Object}) bankSelectedPiece: Piece | undefined;
 
   private gameResult: string | undefined;
   private player = 'cheems';
@@ -208,14 +210,18 @@ export class MyApp extends LitElement {
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
     );
-    // TEMP
+    // Bank-related
     this.addEventListener(
-      'drop-picked',
+      'bank-picked',
       (e: CustomEvent) => {
-        if (!this.color) return;
-        console.log(e.detail);
-        this.game?.drop(this.color, e.detail as Piece, 3, 3);
+        this.bankSelectedPiece = e.detail as Piece;
       },
+    )
+    this.addEventListener(
+      'board-clicked',
+      () => {
+        this.bankSelectedPiece = undefined;
+      }
     )
     setInterval(() => {
       if (this.game?.state.whoseTurn === this.color) {
@@ -293,6 +299,7 @@ export class MyApp extends LitElement {
   handleViewMoveChanged(e: CustomEvent) {
     console.log('caught view move changed');
     this.viewHistoryState = e.detail as BoardState;
+    this.requestUpdate();
   }
 
   requestNewGame() {
@@ -330,11 +337,17 @@ export class MyApp extends LitElement {
 
     return html`<div class="bank-wrapper">
       <div class="card bank">
-        <my-piece-picker .pieces=${this.game.state.banks[opponent]} .eventName=${'drop-picked'}>
+        <my-piece-picker
+          .pieces=${this.game.state.banks[opponent]}
+        >
         </my-piece-picker>
       </div>
       <div class="card bank">
-        <my-piece-picker .pieces=${this.game.state.banks[player]} .eventName=${'drop-picked'}>
+        <my-piece-picker
+          .pieces=${this.game.state.banks[player]}
+          .selected=${this.bankSelectedPiece}
+          .eventName=${'bank-picked'}
+          .needsTarget=${true}>
         </my-piece-picker>
       </div>
     </div>`;
@@ -372,6 +385,7 @@ export class MyApp extends LitElement {
               .color=${this.color}
               .socket=${this.socket}
               .game=${this.game}
+              .bankSelectedPiece=${this.bankSelectedPiece}
               .viewHistoryState=${this.viewHistoryState}
             ></my-element>
           </div>

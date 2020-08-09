@@ -76,6 +76,7 @@ export class MyElement extends LitElement {
   @property({type: Object}) game: Game;
   @property({type: Object}) socket: WebSocket;
   @property({type: Object}) viewHistoryState: BoardState | undefined;
+  @property({type: Object}) bankSelectedPiece: Piece | undefined;
 
   // protected
   @property({type: Object}) selectedPiece: Piece | undefined;
@@ -103,7 +104,7 @@ export class MyElement extends LitElement {
     this.pickerPieceSelected = this.onPiecePicker.bind(this);
     this.addEventListener('promotion-picked', this.pickerPieceSelected);
 
-    this.ods = this.onDragStart.bind(this);
+    this.ods = this.onSquareDragStart.bind(this);
     this.addEventListener('square-dragstart', this.ods);
 
     this.od = this.onDrop.bind(this);
@@ -214,14 +215,23 @@ export class MyElement extends LitElement {
     `;
   }
 
+  // Regular move and castle and drop
   private onSquareClicked(e: CustomEvent) {
+    this.dispatchEvent(new CustomEvent('board-clicked', {bubbles: true, composed: true}));
     if (this.viewHistoryState) return;
 
     this.eraseCanvas();
     // There's a bug here where updating the game using attemptMove doesn't cause rerender.
     const square = e.detail as Square;
     let turn: Turn | undefined;
-    if (this.selectedPiece && this.selectedSquare) {
+    if (this.bankSelectedPiece) {
+      turn = this.game.drop(this.color, this.bankSelectedPiece, square.row, square.col);
+      if (!turn) {
+        console.log('bad drop', square.row, square.col);
+        return;
+      }
+      sendMessage(this.socket, {type: 'turn', turn});
+    } else if (this.selectedPiece && this.selectedSquare) {
       if (
         this.selectedPiece.isRoyal &&
         this.selectedSquare.row === square.row &&
@@ -276,7 +286,7 @@ export class MyElement extends LitElement {
     this.performUpdate();
   }
 
-  private onDragStart(e: CustomEvent) {
+  private onSquareDragStart(e: CustomEvent) {
     const square = e.detail as Square;
     this.selectedSquare = square;
     this.selectedPiece = square.occupant;
@@ -287,6 +297,7 @@ export class MyElement extends LitElement {
     return this.onSquareClicked(e);
   }
 
+  // Promotion
   private onPiecePicker(e: CustomEvent) {
     const piece = e.detail as Piece;
     if (!this.promotionSquare || !this.selectedSquare || !this.selectedPiece)
@@ -310,6 +321,7 @@ export class MyElement extends LitElement {
     this.performUpdate();
   }
 
+  // Drawing arrows
   private onSquareMousedown(e: CustomEvent) {
     const square = e.detail as Square;
     this.arrowStartSquare = square;
@@ -323,10 +335,6 @@ export class MyElement extends LitElement {
     if (row === square.row && col === square.col) return;
     this.drawArrow(row, col, square.row, square.col);
   }
-
-  // updated() {
-  //   this.drawArrow(1, 4, 3, 4);
-  // }
 
   get possibleMoves(): Square[] {
     if (!this.selectedPiece || !this.selectedSquare) return [];

@@ -76,7 +76,7 @@ export class Hopper extends Piece {
     );
     return {
       before: state,
-      after: new BoardState(state.squares, getOpponent(this.color))
+      after: BoardState.copy(state).setTurn(getOpponent(this.color))
         .place(this, square.row, square.col)
         .empty(row, col),
       piece: this,
@@ -146,5 +146,5 @@ function generateStartState(): BoardState {
     }
     squares.push(row);
   }
-  return new BoardState(squares, Color.WHITE);
+  return new BoardState(squares, Color.WHITE, {});
 }
