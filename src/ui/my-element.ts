@@ -83,6 +83,7 @@ export class MyElement extends LitElement {
   @property({type: Object}) selectedSquare: Square | undefined;
   @property({type: Object}) arrowStartSquare: Square | undefined;
   @property({type: Object}) promotionSquare: Square | undefined;
+  @property({type: Boolean}) gameOver = false;
 
   draggedSquare: Square | undefined;
 
@@ -115,6 +116,8 @@ export class MyElement extends LitElement {
       this.requestUpdate();
       e.preventDefault();
     });
+
+    this.gameOver = this.game.winCondition(Color.BLACK) || this.game.winCondition(Color.WHITE);
   }
 
   disconnectedCallback() {
@@ -162,6 +165,8 @@ export class MyElement extends LitElement {
       this.game.state = turn.after;
       console.log(toFEN(turn));
     }
+    // async?
+    this.gameOver = this.game.winCondition(Color.BLACK) || this.game.winCondition(Color.BLACK);
     this.performUpdate();
   }
 
@@ -199,7 +204,7 @@ export class MyElement extends LitElement {
           (row) => html`<div class="row">
             ${row.map(
               (square) => html`<my-square
-                .frozen=${this.viewMoveIndex != null}
+                .frozen=${this.viewMoveIndex != null || this.gameOver}
                 .square=${square}
                 .piece=${square.occupant}
                 .dragged=${square === this.draggedSquare}
