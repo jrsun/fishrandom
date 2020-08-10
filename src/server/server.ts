@@ -103,11 +103,15 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
 });
 
 const handleMessage = function (uuid, message: Message) {
+  const room = players[uuid].room;
+  if (room?.state === RoomState.COMPLETED) {
+    delete players[room.p1.uuid].room;
+    delete players[room.p2.uuid].room;
+  }
   if (message.type === 'newGame') {
     newGame(uuid, players[uuid].socket);
     return;
   }
-  const room = players[uuid].room;
   if (!room) {
     console.log('not in a room! exiting');
     return;

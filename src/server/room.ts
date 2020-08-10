@@ -30,7 +30,7 @@ interface PlayerInfo {
 }
 
 // const PLAYER_TIME_MS = 5 * 1000;
-const PLAYER_TIME_MS = 5 * 60 * 1000;
+const PLAYER_TIME_MS = 3 * 60 * 1000;
 const INCREMENT_MS = 5 * 1000;
 
 export class Room {
