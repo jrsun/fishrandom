@@ -1,8 +1,7 @@
 import {Game} from '../game';
 import {King, Knight, Rook, Bishop, Queen, Pawn} from '../piece';
 import {Color} from '../const';
-import {BoardState} from '../state';
-import Square from '../square';
+import {BoardState, squaresFromPos, backRank} from '../state';
 
 export class Horde extends Game {
   // TODO: pawns on 1st rank can move 2 squares
@@ -15,16 +14,7 @@ export class Horde extends Game {
 
 function generateStartState(): BoardState {
   const piecePositions = {
-    0: {
-      0: new Rook(Color.BLACK),
-      1: new Knight(Color.BLACK),
-      2: new Bishop(Color.BLACK),
-      3: new Queen(Color.BLACK),
-      4: new King(Color.BLACK),
-      5: new Bishop(Color.BLACK),
-      6: new Knight(Color.BLACK),
-      7: new Rook(Color.BLACK),
-    },
+    0: backRank(Color.BLACK),
     1: {},
     3: {
       1: new Pawn(Color.WHITE),
@@ -45,17 +35,6 @@ function generateStartState(): BoardState {
     }
   }
 
-  const squares: Square[][] = [];
-  for (let i = 0; i < 8; i++) {
-    const row: Square[] = [];
-    for (let j = 0; j < 8; j++) {
-      const square = new Square(i, j);
-      row.push(square);
-      if (piecePositions[i]?.[j]) {
-        square.place(piecePositions[i][j]);
-      }
-    }
-    squares.push(row);
-  }
+  const squares = squaresFromPos(piecePositions);
   return new BoardState(squares, Color.WHITE, {});
 }

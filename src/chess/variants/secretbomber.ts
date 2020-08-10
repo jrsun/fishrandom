@@ -1,7 +1,7 @@
 import {Game} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
 import {Color, getOpponent} from '../const';
-import {BoardState} from '../state';
+import {BoardState, generateStartState} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
 import {Move, Turn, Activate, TurnType} from '../move';
@@ -9,7 +9,7 @@ import {Move, Turn, Activate, TurnType} from '../move';
 export class Secretbomber extends Game {
   name = 'Secretbomber';
   constructor(isServer: boolean) {
-    super(isServer, generateStartState());
+    super(isServer, genInitial());
   }
   visibleState(state: BoardState, color: Color): BoardState {
     if (!this.isServer) return state;
@@ -122,53 +122,14 @@ export class BomberPawn extends Pawn {
   }
 }
 
-function generateStartState(): BoardState {
-  const piecePositions = {
-    0: {
-      0: new Rook(Color.BLACK),
-      1: new Knight(Color.BLACK),
-      2: new Bishop(Color.BLACK),
-      3: new Queen(Color.BLACK),
-      4: new King(Color.BLACK),
-      5: new Bishop(Color.BLACK),
-      6: new Knight(Color.BLACK),
-      7: new Rook(Color.BLACK),
-    },
-    1: {},
-    6: {},
-    7: {
-      0: new Rook(Color.WHITE),
-      1: new Knight(Color.WHITE),
-      2: new Bishop(Color.WHITE),
-      3: new Queen(Color.WHITE),
-      4: new King(Color.WHITE),
-      5: new Bishop(Color.WHITE),
-      6: new Knight(Color.WHITE),
-      7: new Rook(Color.WHITE),
-    },
-  };
+function genInitial(): BoardState {
+  const state = generateStartState();
 
-  for (let col = 0; col < 8; col++) {
-    piecePositions[1][col] = new Pawn(Color.BLACK);
-    piecePositions[6][col] = new Pawn(Color.WHITE);
-  }
   const files = [0, 1, 2, 3, 4, 5, 6, 7];
   const bhqf = randomChoice(files);
-  piecePositions[1][bhqf] = new BomberPawn(Color.BLACK);
+  state.squares[1][bhqf].place(new BomberPawn(Color.BLACK));
   const whqf = randomChoice(files);
-  piecePositions[6][whqf] = new BomberPawn(Color.WHITE);
+  state.squares[6][whqf].place(new BomberPawn(Color.WHITE));
 
-  const squares: Square[][] = [];
-  for (let i = 0; i < 8; i++) {
-    const row: Square[] = [];
-    for (let j = 0; j < 8; j++) {
-      const square = new Square(i, j);
-      row.push(square);
-      if (piecePositions[i]?.[j]) {
-        square.place(piecePositions[i][j]);
-      }
-    }
-    squares.push(row);
-  }
-  return new BoardState(squares, Color.WHITE, {});
+  return state;
 }

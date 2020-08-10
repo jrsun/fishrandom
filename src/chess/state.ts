@@ -114,7 +114,7 @@ export class BoardState {
   }
 }
 
-function backRank(color: Color): {[i: number]: Piece} {
+export function backRank(color: Color): {[i: number]: Piece} {
   return {
     0: new Rook(color),
     1: new Knight(color),
@@ -162,7 +162,7 @@ function randomBackRank(): {[i: number]: typeof Piece} {
   }
 }
 
-function squaresFromPos(pos): Square[][] {
+export function squaresFromPos(pos): Square[][] {
   const squares: Square[][] = [];
   for (let i = 0; i < 8; i++) {
     const row: Square[] = [];

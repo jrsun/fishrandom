@@ -1,7 +1,7 @@
 import {Game} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn, Amazon} from '../piece';
 import {Color, getOpponent} from '../const';
-import {BoardState} from '../state';
+import {BoardState, backRank} from '../state';
 import Square from '../square';
 
 export class Maharaja extends Game {
@@ -13,16 +13,7 @@ export class Maharaja extends Game {
 
 function generateStartState(): BoardState {
   const piecePositions = {
-    0: {
-      0: new Rook(Color.BLACK),
-      1: new Knight(Color.BLACK),
-      2: new Bishop(Color.BLACK),
-      3: new Queen(Color.BLACK),
-      4: new King(Color.BLACK),
-      5: new Bishop(Color.BLACK),
-      6: new Knight(Color.BLACK),
-      7: new Rook(Color.BLACK),
-    },
+    0: backRank(Color.BLACK),
     1: {},
     7: {
       4: new Amazon(Color.WHITE),

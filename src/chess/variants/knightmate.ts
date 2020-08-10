@@ -1,7 +1,7 @@
 import {Game} from '../game';
 import {RoyalKnight, Mann, Rook, Bishop, Queen, Pawn, Piece} from '../piece';
 import {Color} from '../const';
-import {BoardState} from '../state';
+import {BoardState, squaresFromPos} from '../state';
 import Square from '../square';
 
 export class Knightmate extends Game {
@@ -47,17 +47,6 @@ function generateStartState(): BoardState {
     piecePositions[6][col] = new Pawn(Color.WHITE);
   }
 
-  const squares: Square[][] = [];
-  for (let i = 0; i < 8; i++) {
-    const row: Square[] = [];
-    for (let j = 0; j < 8; j++) {
-      const square = new Square(i, j);
-      row.push(square);
-      if (piecePositions[i]?.[j]) {
-        square.place(piecePositions[i][j]);
-      }
-    }
-    squares.push(row);
-  }
+  const squares = squaresFromPos(piecePositions);
   return new BoardState(squares, Color.WHITE, {});
 }

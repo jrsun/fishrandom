@@ -1,7 +1,7 @@
 import {Game} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
 import {Color, getOpponent} from '../const';
-import {BoardState} from '../state';
+import {BoardState, generateStartState} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
 import {Move, TurnType} from '../move';
@@ -10,7 +10,7 @@ import {dedup, Pair} from '../pair';
 export class Grasshopper extends Game {
   name = 'Grasshopper';
   constructor(isServer: boolean) {
-    super(isServer, generateStartState());
+    super(isServer, generateInitial());
   }
 }
 
@@ -101,51 +101,14 @@ export class Hopper extends Piece {
   }
 }
 
-function generateStartState(): BoardState {
-  const piecePositions = {
-    0: {
-      0: new Rook(Color.BLACK),
-      1: new Knight(Color.BLACK),
-      2: new Bishop(Color.BLACK),
-      3: new Queen(Color.BLACK),
-      4: new King(Color.BLACK),
-      5: new Bishop(Color.BLACK),
-      6: new Knight(Color.BLACK),
-      7: new Rook(Color.BLACK),
-    },
-    1: {},
-    2: {},
-    5: {},
-    6: {},
-    7: {
-      0: new Rook(Color.WHITE),
-      1: new Knight(Color.WHITE),
-      2: new Bishop(Color.WHITE),
-      3: new Queen(Color.WHITE),
-      4: new King(Color.WHITE),
-      5: new Bishop(Color.WHITE),
-      6: new Knight(Color.WHITE),
-      7: new Rook(Color.WHITE),
-    },
-  };
-
+function generateInitial(): BoardState {
+  const state = generateStartState();
+  const squares = state.squares;
   for (let col = 0; col < 8; col++) {
-    piecePositions[1][col] = new Hopper(Color.BLACK);
-    piecePositions[2][col] = new Pawn(Color.BLACK);
-    piecePositions[5][col] = new Pawn(Color.WHITE);
-    piecePositions[6][col] = new Hopper(Color.WHITE);
+    squares[1][col].place(new Hopper(Color.BLACK));
+    squares[2][col].place(new Pawn(Color.BLACK));
+    squares[5][col].place(new Pawn(Color.WHITE));
+    squares[6][col].place(new Hopper(Color.WHITE));
   }
-  const squares: Square[][] = [];
-  for (let i = 0; i < 8; i++) {
-    const row: Square[] = [];
-    for (let j = 0; j < 8; j++) {
-      const square = new Square(i, j);
-      row.push(square);
-      if (piecePositions[i]?.[j]) {
-        square.place(piecePositions[i][j]);
-      }
-    }
-    squares.push(row);
-  }
-  return new BoardState(squares, Color.WHITE, {});
+  return state;
 }
