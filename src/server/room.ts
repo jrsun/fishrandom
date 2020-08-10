@@ -157,8 +157,17 @@ export class Room {
         } = turnAttempt;
         turn = game.promote(player.color, promoter, to, prow, pcol, drow, dcol);
         break;
+      case TurnType.ACTIVATE:
+        const apiece = game.state.getSquare(
+          turnAttempt.end.row,
+          turnAttempt.end.col
+        )?.occupant;
+        if (!apiece) return;
+        turn = game.activate(player.color, apiece, turnAttempt.end.row,
+          turnAttempt.end.col);
+        break;
       default:
-        throw new Error('unimplemented');
+        throw new Error(`unimplemented turn type ${turnAttempt.type}`);
     }
 
     if (!turn) {

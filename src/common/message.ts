@@ -8,6 +8,8 @@ import WS from 'ws';
 import {QueenPawn} from '../chess/variants/hiddenqueen';
 import {Hopper} from '../chess/variants/grasshopper';
 import {Obscurant} from '../chess/variants/dark';
+import { Secretbomber } from '../chess/variants';
+import { BomberPawn } from '../chess/variants/secretbomber';
 
 // TODO: Set game type and start game.
 export type Message =
@@ -81,6 +83,7 @@ export interface GameOverMessage {
 export function replacer(k: string, o: Piece | BoardState | Square): object {
   if (o instanceof Obscurant) return Obscurant.freeze(o);
   if (o instanceof QueenPawn) return QueenPawn.freeze(o);
+  if (o instanceof BomberPawn) return BomberPawn.freeze(o);
   if (o instanceof Hopper) return Hopper.freeze(o);
   if (o instanceof Piece) return Piece.freeze(o);
   if (o instanceof BoardState) return BoardState.freeze(o);
@@ -95,6 +98,9 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
     }
     if (v._class === 'Obscurant') {
       return Obscurant.thaw(v);
+    }
+    if (v._class === 'BomberPawn') {
+      return BomberPawn.thaw(v);
     }
     if (v._class === 'Hopper') {
       return Hopper.thaw(v);

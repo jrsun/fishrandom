@@ -140,6 +140,11 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     </ul> `,
   Pocketknight: html`Each player has a knight in pocket. It can be dropped on an
   empty square anywhere on the board instead of moving a piece.`,
+  Secretbomber: html`Each player has a hidden bomber pawn. <b>Double click</b> it to destroy
+  it and the pieces on the adjacent eight squares.
+  <ul>
+    <li>Checkmate or <b>explode</b> the king to win.</li>
+  </ul>`,
 };
 
 declare global {

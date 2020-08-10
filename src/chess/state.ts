@@ -62,7 +62,7 @@ export class BoardState {
   place(piece: Piece, row: number, col: number): BoardState {
     const square = this.getSquare(row, col);
     if (!square) {
-      throw new Error('square out of bounds' + row + ',' + col);
+      return this;
     }
     square.place(piece);
     return this;
@@ -82,7 +82,7 @@ export class BoardState {
   empty(row: number, col: number): BoardState {
     const square = this.getSquare(row, col);
     if (!square) {
-      throw new Error('square out of bounds' + row + ',' + col);
+      return this;
     }
     square.empty();
     return this;

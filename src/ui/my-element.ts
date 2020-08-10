@@ -262,7 +262,10 @@ export class MyElement extends LitElement {
       }
       sendMessage(this.socket, {type: 'turn', turn});
     } else if (this.selectedPiece && this.selectedSquare) {
-      if (
+      if (this.selectedSquare.row === square.row &&
+        this.selectedSquare.col === square.col) {
+        turn = this.game.activate(this.color, this.selectedPiece, square.row, square.col);
+      } else if (
         this.selectedPiece.isRoyal &&
         this.selectedSquare.row === square.row &&
         Math.abs(this.selectedSquare.col - square.col) === 2

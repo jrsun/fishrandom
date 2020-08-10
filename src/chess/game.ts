@@ -33,6 +33,7 @@ export class Game {
   captureEffects(move: Move) {
     // in atomic chess, explode, etc.
   }
+  activate(color: Color, piece: Piece, row: number, col: number): Turn | undefined {return}
   visibleState(state: BoardState, color: Color) {
     return state;
   } // dark chess

@@ -8,9 +8,10 @@ export enum TurnType {
   DROP = 'drop',
   PROMOTE = 'promote',
   UNKNOWN = 'unknown',
+  ACTIVATE = 'activate',
 }
 
-export type Turn = Move | Castle | Drop | Promote | Unknown;
+export type Turn = Move | Castle | Drop | Promote | Unknown | Activate;
 
 interface BaseTurn {
   before: BoardState;
@@ -51,7 +52,18 @@ export interface Unknown extends BaseTurn {
   type: TurnType.UNKNOWN;
 }
 
+export interface Activate extends BaseTurn {
+  type: TurnType.ACTIVATE;
+}
+
 export function toFEN(turn: Turn) {
+  const {
+    end: {row, col},
+    after,
+  } = turn;
+  const file = (col + 10).toString(36);
+  const rank = after.ranks - row;
+
   switch (turn.type) {
     case TurnType.MOVE:
       return moveToFen(turn as Move);
@@ -63,13 +75,9 @@ export function toFEN(turn: Turn) {
         type: TurnType.MOVE,
       } as Move)}=${turn.to.toFEN()}`;
     case TurnType.DROP:
-      const {
-        end: {row, col},
-        after,
-      } = turn;
-      const file = (col + 10).toString(36);
-      const rank = after.ranks - row;
       return `${turn.piece.toFEN()}@${file}${rank}`;
+    case TurnType.ACTIVATE:
+      return `💥${file}${rank}`;
     default:
       return '?';
   }
