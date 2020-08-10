@@ -59,9 +59,9 @@ export class Piece {
 }
 
 class Leaper extends Piece {
-  moves: Pair[];
+  jumps: Pair[];
   legalMoves(row: number, col: number, state: BoardState): Move[] {
-    let targets = this.moves
+    let targets = this.jumps
       .flatMap((move) =>
         [-1, 1]
           .map((sign) => move.row * sign)
@@ -214,7 +214,7 @@ export class Rook extends Rider {
 
 export class Knight extends Leaper {
   name = 'Knight';
-  moves = [{row: 1, col: 2}];
+  jumps = [{row: 1, col: 2}];
 
   toFEN() {
     return 'N';
@@ -253,7 +253,7 @@ export class Queen extends Rider {
 
 export class King extends Leaper {
   name = 'King';
-  moves = [
+  jumps = [
     {row: 1, col: 1},
     {row: 1, col: 0},
   ];
@@ -423,6 +423,34 @@ export class RoyalKnight extends Knight {
   }
 }
 
+export class Amazon extends Piece {
+  name = 'Amazon';
+  isRoyal = true;
+
+  toFEN() {
+    return 'A';
+  }
+
+  legalMoves(row, col, state): Move[] {
+    return [
+      ...new Knight(this.color).legalMoves(row, col, state),
+      ...new Queen(this.color).legalMoves(row, col, state),
+    ].map((move: Move) => {
+      const {end, after} = move;
+      return {
+        ...move,
+        after: after.place(this, end.row, end.col),
+        piece: this,
+      };
+    });
+  }
+
+  get img(): string {
+    return this.color === Color.BLACK ? '_dt.svg' : 'svg/alt.svg';
+  }
+}
+
+
 export class Mann extends King {
   name = 'Mann';
   isRoyal = false;
@@ -441,4 +469,5 @@ export const ALL_PIECES: {[name: string]: typeof Piece} = {
   King,
   RoyalKnight,
   Mann,
+  Amazon,
 };

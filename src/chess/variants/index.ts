@@ -8,6 +8,7 @@ import {Hiddenqueen} from './hiddenqueen';
 import {Grasshopper} from './grasshopper';
 import {Pocketknight} from './pocketknight';
 import {Secretbomber} from './secretbomber';
+import {Maharaja} from './maharaja';
 import {Test} from './test';
 import {randomChoice} from '../../utils';
 
@@ -22,6 +23,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Pocketknight,
   Test,
   Secretbomber,
+  Maharaja,
 };
 
 const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
@@ -32,6 +34,7 @@ const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Dark,
   Pocketknight,
   Secretbomber,
+  Maharaja,
 };
 
 export function Random(): typeof Game {
@@ -49,4 +52,5 @@ export {
   Dark,
   Secretbomber,
   Test,
+  Maharaja,
 };
