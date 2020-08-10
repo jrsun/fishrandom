@@ -202,14 +202,12 @@ export class MyApp extends LitElement {
   private gameResult: string | undefined;
   private player = 'cheems';
   private opponent = 'SwoleDoge94';
-  private server =
-    process.env.NODE_ENV === 'development' ? 'localhost' : 'fishrandom.io';
   private color?: Color;
 
   connectedCallback() {
     super.connectedCallback();
 
-    this.socket = new WebSocket(`ws://${this.server}:8081`);
+    this.socket = new WebSocket(`ws://${location.hostname}:8081`);
     this.socket.onopen = () => {
       this.requestNewGame();
       addMessageHandler(this.socket, this.handleSocketMessage.bind(this));

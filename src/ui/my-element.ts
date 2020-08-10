@@ -408,25 +408,25 @@ export class MyElement extends LitElement {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  private _validateLastMove(
-    smove: Move,
-    turnHistory: Turn[],
-    sstate: BoardState,
-    stateHistory: BoardState[]
-  ) {
-    const cmove = turnHistory?.[turnHistory.length - 1];
-    if (JSON.stringify(cmove, replacer) !== JSON.stringify(smove, replacer)) {
-      throw new Error(`last client move does not match server,
-      client: ${JSON.stringify(cmove, replacer)},\n
-      server:${JSON.stringify(smove, replacer)}`);
-    }
-    const cstate = stateHistory?.[stateHistory.length - 1];
-    if (JSON.stringify(sstate, replacer) !== JSON.stringify(sstate, replacer)) {
-      throw new Error(`last client state does not match server,
-      client: ${JSON.stringify(cstate, replacer)},\n
-      server:${JSON.stringify(sstate, replacer)}`);
-    }
-  }
+  // private _validateLastMove(
+  //   smove: Move,
+  //   turnHistory: Turn[],
+  //   sstate: BoardState,
+  //   stateHistory: BoardState[]
+  // ) {
+  //   const cmove = turnHistory?.[turnHistory.length - 1];
+  //   if (JSON.stringify(cmove, replacer) !== JSON.stringify(smove, replacer)) {
+  //     throw new Error(`last client move does not match server,
+  //     client: ${JSON.stringify(cmove, replacer)},\n
+  //     server:${JSON.stringify(smove, replacer)}`);
+  //   }
+  //   const cstate = stateHistory?.[stateHistory.length - 1];
+  //   if (JSON.stringify(sstate, replacer) !== JSON.stringify(sstate, replacer)) {
+  //     throw new Error(`last client state does not match server,
+  //     client: ${JSON.stringify(cstate, replacer)},\n
+  //     server:${JSON.stringify(sstate, replacer)}`);
+  //   }
+  // }
 }
 
 declare global {
