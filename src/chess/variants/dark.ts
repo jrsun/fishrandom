@@ -1,15 +1,15 @@
 import {Game} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
 import {Color, getOpponent} from '../const';
-import {BoardState} from '../state';
+import {BoardState, generate9602} from '../state';
 import Square from '../square';
 import {equals, Pair} from '../pair';
 import {Turn, Unknown, TurnType} from '../move';
 
 export class Dark extends Game {
   name = 'Dark';
-  constructor(isServer: boolean) {
-    super(isServer);
+  constructor(isServer: boolean, initial?: BoardState) {
+    super(isServer, initial);
   }
   visibleState(state: BoardState, color: Color): BoardState {
     // Speed this up
@@ -75,6 +75,13 @@ export class Dark extends Game {
       return true;
     }
     return false;
+  }
+}
+
+export class Dark2r extends Dark {
+  name = 'Dark2r';
+  constructor(isServer: boolean) {
+    super(isServer, generate9602());
   }
 }
 

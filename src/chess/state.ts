@@ -10,6 +10,7 @@ import {
   Pawn,
 } from './piece';
 import {hash, Color} from './const';
+import { randomChoice } from '../utils';
 
 type BoardJson = (string | null)[][];
 
@@ -113,30 +114,121 @@ export class BoardState {
   }
 }
 
-export function generateStartState(): BoardState {
+function backRank(color: Color): {[i: number]: Piece} {
+  return {
+    0: new Rook(color),
+    1: new Knight(color),
+    2: new Bishop(color),
+    3: new Queen(color),
+    4: new King(color),
+    5: new Bishop(color),
+    6: new Knight(color),
+    7: new Rook(color),
+  };
+}
+
+function randomBackRank(): {[i: number]: typeof Piece} {
+  const allFiles = [0, 1, 2, 3, 4, 5, 6, 7];
+  const usedFiles: number[] = [];
+  const bishop1File = randomChoice([0, 2, 4, 6]);
+  const bishop2File = randomChoice([1, 3, 5, 7]);
+  usedFiles.push(bishop1File);
+  usedFiles.push(bishop2File);
+  const queenFile = randomChoice(
+    allFiles.filter((file) => !usedFiles.includes(file))
+  );
+  usedFiles.push(queenFile);
+
+  const n1file = randomChoice(
+    allFiles.filter((file) => !usedFiles.includes(file))
+  );
+  usedFiles.push(n1file);
+  const n2file = randomChoice(
+    allFiles.filter((file) => !usedFiles.includes(file))
+  );
+  usedFiles.push(n2file);
+  const [r1file, kfile, r2file] = allFiles.filter(
+    (file) => !usedFiles.includes(file)
+  );
+  return {
+    [bishop1File]: Bishop,
+    [bishop2File]: Bishop,
+    [queenFile]: Queen,
+    [n1file]: Knight,
+    [n2file]: Knight,
+    [r1file]: Rook,
+    [kfile]: King,
+    [r2file]: Rook,
+  }
+}
+
+function squaresFromPos(pos): Square[][] {
+  const squares: Square[][] = [];
+  for (let i = 0; i < 8; i++) {
+    const row: Square[] = [];
+    for (let j = 0; j < 8; j++) {
+      const square = new Square(i, j);
+      row.push(square);
+      if (pos[i]?.[j]) {
+        square.place(pos[i][j]);
+      }
+    }
+    squares.push(row);
+  }
+  return squares;
+}
+
+export function generate9602(): BoardState {
+  const blackRank = {};
+  const whiteRank = {};
+  for (const [file, piece] of Object.entries(randomBackRank())) {
+    blackRank[file] = new piece(Color.BLACK);
+  }
+  for (const [file, piece] of Object.entries(randomBackRank())) {
+    whiteRank[file] = new piece(Color.WHITE);
+  }
+
   const piecePositions = {
-    0: {
-      0: new Rook(Color.BLACK),
-      1: new Knight(Color.BLACK),
-      2: new Bishop(Color.BLACK),
-      3: new Queen(Color.BLACK),
-      4: new King(Color.BLACK),
-      5: new Bishop(Color.BLACK),
-      6: new Knight(Color.BLACK),
-      7: new Rook(Color.BLACK),
-    },
+    0: blackRank,
     1: {},
     6: {},
-    7: {
-      0: new Rook(Color.WHITE),
-      1: new Knight(Color.WHITE),
-      2: new Bishop(Color.WHITE),
-      3: new Queen(Color.WHITE),
-      4: new King(Color.WHITE),
-      5: new Bishop(Color.WHITE),
-      6: new Knight(Color.WHITE),
-      7: new Rook(Color.WHITE),
-    },
+    7: whiteRank,
+  };
+  for (let col = 0; col < 8; col++) {
+    piecePositions[1][col] = new Pawn(Color.BLACK);
+    piecePositions[6][col] = new Pawn(Color.WHITE);
+  }
+  return new BoardState(squaresFromPos(piecePositions), Color.WHITE, {});
+}
+
+export function generate960(): BoardState {
+  const backRank = randomBackRank();
+  const blackRank = {};
+  const whiteRank = {};
+  for (const [file, piece] of Object.entries(backRank)) {
+    blackRank[file] = new piece(Color.BLACK);
+    whiteRank[file] = new piece(Color.WHITE);
+  }
+
+  const piecePositions = {
+    0: blackRank,
+    1: {},
+    6: {},
+    7: whiteRank,
+  };
+  for (let col = 0; col < 8; col++) {
+    piecePositions[1][col] = new Pawn(Color.BLACK);
+    piecePositions[6][col] = new Pawn(Color.WHITE);
+  }
+  return new BoardState(squaresFromPos(piecePositions), Color.WHITE, {});
+}
+
+export function generateStartState(): BoardState {
+  const piecePositions = {
+    0: backRank(Color.BLACK),
+    1: {},
+    6: {},
+    7: backRank(Color.WHITE),
   };
 
   for (let col = 0; col < 8; col++) {
@@ -144,17 +236,5 @@ export function generateStartState(): BoardState {
     piecePositions[6][col] = new Pawn(Color.WHITE);
   }
 
-  const squares: Square[][] = [];
-  for (let i = 0; i < 8; i++) {
-    const row: Square[] = [];
-    for (let j = 0; j < 8; j++) {
-      const square = new Square(i, j);
-      row.push(square);
-      if (piecePositions[i]?.[j]) {
-        square.place(piecePositions[i][j]);
-      }
-    }
-    squares.push(row);
-  }
-  return new BoardState(squares, Color.WHITE, {});
+  return new BoardState(squaresFromPos(piecePositions), Color.WHITE, {});
 }

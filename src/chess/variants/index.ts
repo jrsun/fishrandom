@@ -1,9 +1,9 @@
 import {Classic} from './classic';
-import {Chess960} from './960';
+import {Chess960, Chess921600} from './960';
 import {Game} from '../game';
 import {Knightmate} from './knightmate';
 import {Horde} from './horde';
-import {Dark} from './dark';
+import {Dark, Dark2r} from './dark';
 import {Hiddenqueen} from './hiddenqueen';
 import {Grasshopper} from './grasshopper';
 import {Pocketknight} from './pocketknight';
@@ -20,10 +20,12 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Hiddenqueen,
   Grasshopper,
   Dark,
+  Dark2r,
   Pocketknight,
   Test,
   Secretbomber,
   Maharaja,
+  Chess921600,
 };
 
 const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
@@ -32,9 +34,12 @@ const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Hiddenqueen,
   Grasshopper,
   Dark,
+  Dark2r,
   Pocketknight,
   Secretbomber,
   Maharaja,
+  Chess921600,
+  Chess960,
 };
 
 export function Random(): typeof Game {
@@ -50,7 +55,9 @@ export {
   Hiddenqueen,
   Grasshopper,
   Dark,
+  Dark2r,
   Secretbomber,
   Test,
   Maharaja,
+  Chess921600,
 };

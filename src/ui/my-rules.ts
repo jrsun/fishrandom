@@ -145,6 +145,19 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   <ul>
     <li>Checkmate or <b>explode</b> the king to win.</li>
   </ul>`,
+  Maharaja: html`White's sole piece is the powerful <b>Amazon</b>, which moves like
+  a Knight + Queen.
+  <ul>
+    <li>White wins by checkmate.</li>
+    <li>Black wins by checkmating the Amazon.</li>
+  </ul>`,
+  Chess921600:  html`Starting position of the pieces on the players' home ranks is
+  independently randomized.
+  <!-- <div class="examples"><img src="../img/variants/960.png"/></div> -->
+  <ul>
+    <li>Orthodox rules.</li>
+    <li>Checkmate to win.</li>
+  </ul>`,
 };
 
 declare global {
