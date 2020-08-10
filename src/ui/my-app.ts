@@ -184,6 +184,10 @@ export class MyApp extends LitElement {
       90% {transform: translate(0, 5px) rotate(60deg);}
       to {transform: rotate(90deg)}
     }
+    .blinking {animation: blink 0.5s linear 7;}
+    @keyframes blink {
+      from {color: #d80c0c};
+    }
   }`;
 
   @property({type: Object}) game?: Game;
@@ -226,10 +230,18 @@ export class MyApp extends LitElement {
       if (this.game?.state.whoseTurn === this.color) {
         if (this.playerTimer) {
           this.playerTimer = Math.max(this.playerTimer - 1000, 0);
+          if (this.playerTimer === 10 * 1000) {
+            const timerEl = this.shadowRoot?.querySelector('.timer.player');
+            timerEl?.classList.add('blinking');
+          }
         }
       } else {
         if (this.opponentTimer) {
           this.opponentTimer = Math.max(this.opponentTimer - 1000, 0);
+          if (this.opponentTimer === 10 * 1000) {
+            const timerEl = this.shadowRoot?.querySelector('.timer.opponent');
+            timerEl?.classList.add('blinking');
+          }
         }
       }
     }, 1000);
