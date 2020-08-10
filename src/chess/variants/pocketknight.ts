@@ -11,7 +11,7 @@ export class Pocketknight extends Game {
   constructor(isServer: boolean) {
     super(isServer, new BoardState(generateStartState().squares, Color.WHITE, {
       [Color.WHITE]: [new Knight(Color.WHITE)],
-      [Color.BLACK]: [new Knight(Color.BLACK), new Knight(Color.BLACK), new Queen(Color.BLACK)],
+      [Color.BLACK]: [new Knight(Color.BLACK)],
     }));
   }
   canDrop = true;

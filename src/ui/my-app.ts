@@ -60,11 +60,14 @@ export class MyApp extends LitElement {
     .bank-wrapper {
       display: flex;
       flex-direction: column;
-      justify-content: space-around;
+      justify-content: center;
       margin-right: 20px;
     }
     .bank {
       padding: 10px;
+    }
+    .bank:first-child {
+      margin-bottom: 20px;
     }
     .active-game-container {
       display: flex;

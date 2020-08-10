@@ -10,6 +10,7 @@ export class MyPiecePicker extends LitElement {
       display: flex;
       flex-direction: column;
       justify-content: center;
+      min-height: ${SQUARE_SIZE}px;
     }
     .picker-piece {
       height: ${SQUARE_SIZE}px;
