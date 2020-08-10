@@ -51,7 +51,7 @@ export class Hiddenqueen extends Game {
         })
       ),
       state.whoseTurn,
-      state.banks,
+      state.banks
     );
   }
 

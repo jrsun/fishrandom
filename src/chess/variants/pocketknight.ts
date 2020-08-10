@@ -9,10 +9,13 @@ import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from '../piece';
 export class Pocketknight extends Game {
   name = 'Pocketknight';
   constructor(isServer: boolean) {
-    super(isServer, new BoardState(generateStartState().squares, Color.WHITE, {
-      [Color.WHITE]: [new Knight(Color.WHITE)],
-      [Color.BLACK]: [new Knight(Color.BLACK)],
-    }));
+    super(
+      isServer,
+      new BoardState(generateStartState().squares, Color.WHITE, {
+        [Color.WHITE]: [new Knight(Color.WHITE)],
+        [Color.BLACK]: [new Knight(Color.BLACK)],
+      })
+    );
   }
   canDrop = true;
 }

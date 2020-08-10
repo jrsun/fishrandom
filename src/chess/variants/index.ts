@@ -27,6 +27,10 @@ export function Random(): typeof Game {
 export {
   Chess960,
   Pocketknight,
-  Classic, Knightmate, Horde, Hiddenqueen, Grasshopper, 
-  Dark
+  Classic,
+  Knightmate,
+  Horde,
+  Hiddenqueen,
+  Grasshopper,
+  Dark,
 };

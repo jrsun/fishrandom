@@ -7,7 +7,7 @@ import {Color} from '../chess/const';
 import WS from 'ws';
 import {QueenPawn} from '../chess/variants/hiddenqueen';
 import {Hopper} from '../chess/variants/grasshopper';
-import { Obscurant } from '../chess/variants/dark';
+import {Obscurant} from '../chess/variants/dark';
 
 // TODO: Set game type and start game.
 export type Message =
@@ -151,8 +151,8 @@ export function addMessageHandler(
     // if (process.env.NODE_ENV === 'development') {
     //   msg = JSON.parse(e.data, reviver) as Message;
     // } else {
-      const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
-      msg = JSON.parse(s, reviver) as Message;
+    const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
+    msg = JSON.parse(s, reviver) as Message;
     // }
     console.log('Received message of type %s', msg.type);
     handler(msg as Message);

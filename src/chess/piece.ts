@@ -100,7 +100,8 @@ class Leaper extends Piece {
 
       moves.push({
         before: state,
-        after: BoardState.copy(state).setTurn(getOpponent(this.color))
+        after: BoardState.copy(state)
+          .setTurn(getOpponent(this.color))
           .place(this, target.row, target.col)
           .empty(row, col),
         piece: this,
@@ -156,7 +157,8 @@ class Rider extends Piece {
         );
         moves.push({
           before: state,
-          after: BoardState.copy(state).setTurn(getOpponent(this.color))
+          after: BoardState.copy(state)
+            .setTurn(getOpponent(this.color))
             .place(this, square.row, square.col)
             .empty(row, col),
           piece: this,
@@ -312,7 +314,8 @@ export class Pawn extends Piece {
     for (const target of moveTargets) {
       moves.push({
         before: state,
-        after: BoardState.copy(state).setTurn(getOpponent(this.color))
+        after: BoardState.copy(state)
+          .setTurn(getOpponent(this.color))
           .place(this, target.row, target.col)
           .empty(row, col),
         piece: this,
@@ -325,7 +328,8 @@ export class Pawn extends Piece {
     for (const target of captureTargets) {
       moves.push({
         before: state,
-        after: BoardState.copy(state).setTurn(getOpponent(this.color))
+        after: BoardState.copy(state)
+          .setTurn(getOpponent(this.color))
           .place(this, target.row, target.col)
           .empty(row, col),
         piece: this,
@@ -369,7 +373,8 @@ export class Pawn extends Piece {
         const captured = lastMove.piece;
         const type = TurnType.MOVE;
 
-        const after = BoardState.copy(state).setTurn(getOpponent(this.color))
+        const after = BoardState.copy(state)
+          .setTurn(getOpponent(this.color))
           .place(this, end.row, end.col)
           .empty(row, col)
           // capturing the pawn

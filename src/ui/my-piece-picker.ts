@@ -27,8 +27,7 @@ export class MyPiecePicker extends LitElement {
 
   @property({type: Object}) selected?: Piece;
 
-  attached() {
-  }
+  attached() {}
 
   pickedPiece(piece: Piece, e: CustomEvent) {
     let newSelected: Piece | undefined;
@@ -55,20 +54,21 @@ export class MyPiecePicker extends LitElement {
 
   render() {
     return html`
-        ${this.pieces.map(
-          (piece) => html`<div
-            class="picker-piece ${piece.name}"
-            draggable=${this.needsTarget}
-            
-            style="
+      ${this.pieces.map(
+        (piece) => html`<div
+          class="picker-piece ${piece.name}"
+          draggable=${this.needsTarget}
+          style="
               background-image:url(/img/${piece.img});
-              ${this.selected === piece ? 'background-color: rgb(0, 255, 0, 0.3);' : ''}
+              ${this.selected === piece
+            ? 'background-color: rgb(0, 255, 0, 0.3);'
+            : ''}
             "
-            @click=${(e) => {
-              this.pickedPiece(piece, e);
-            }}
-          ></div>`
-        )}
+          @click=${(e) => {
+            this.pickedPiece(piece, e);
+          }}
+        ></div>`
+      )}
     `;
   }
 }

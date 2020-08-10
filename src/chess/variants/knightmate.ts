@@ -11,7 +11,7 @@ export class Knightmate extends Game {
     super(isServer, generateStartState());
   }
 
-  get promotesTo(): (typeof Piece)[] {
+  get promotesTo(): typeof Piece[] {
     return [Queen, Rook, Bishop, Mann];
   }
 }

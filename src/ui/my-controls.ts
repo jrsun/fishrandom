@@ -136,8 +136,7 @@ export class MyControls extends LitElement {
       console.log('fired view move changed');
       this.dispatchEvent(
         new CustomEvent('view-move-changed', {
-          detail:
-            this.viewMoveIndex,
+          detail: this.viewMoveIndex,
           bubbles: true,
           composed: true,
         })
@@ -151,13 +150,20 @@ export class MyControls extends LitElement {
     };
     if (index + 1 === this.viewMoveIndex) {
       styles['background-color'] = '#FBEC94';
-    } else if (this.viewMoveIndex === undefined && index === this.turnHistory.length-1) {
+    } else if (
+      this.viewMoveIndex === undefined &&
+      index === this.turnHistory.length - 1
+    ) {
       styles['background-color'] = 'rgb(150, 230, 148)';
     }
     return html`<span
       class="fen"
       style="${styleMap(styles)}"
-      @click=${() => {this.viewMoveIndex = index+1}}>${fen}</span>`;
+      @click=${() => {
+        this.viewMoveIndex = index + 1;
+      }}
+      >${fen}</span
+    >`;
   }
 
   render() {

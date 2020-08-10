@@ -56,7 +56,9 @@ app.post('/login', function (req, res) {
   if (!req.cookies.uuid) {
     var randomNumber = Math.random().toString();
     randomNumber = randomNumber.substring(2, randomNumber.length);
-    res.cookie('uuid', randomNumber + '|' + req.body.username, {encode: String});
+    res.cookie('uuid', randomNumber + '|' + req.body.username, {
+      encode: String,
+    });
   }
   res.end();
 });
@@ -140,7 +142,7 @@ const handleMessage = function (uuid, message: Message) {
 const newGame = (() => {
   const waitingUsers: PlayerInfo[] = [];
   return (uuid: string, ws: WebSocket) => {
-    console.log(`${uuid} requested new game.`)
+    console.log(`${uuid} requested new game.`);
     // Handle existing room
     const activeRoom = players[uuid].room;
     if (!!activeRoom) {
@@ -150,7 +152,7 @@ const newGame = (() => {
     }
     if (!waitingUsers.filter((user) => user.uuid !== uuid).length) {
       // If no users are queuing
-      if (!waitingUsers.some(user => user.uuid === uuid)) {
+      if (!waitingUsers.some((user) => user.uuid === uuid)) {
         waitingUsers.unshift(players[uuid]);
       }
       console.log('waiting', uuid);

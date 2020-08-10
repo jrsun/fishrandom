@@ -137,10 +137,9 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   Dark: html`Each player can only see the squares they can move to.
     <ul>
       <li>Checkmate or <b>capture</b> the king to win.</li>
-    </ul>
-  `,
-  Pocketknight: html`Each player has a knight in pocket. It can be dropped
-  on an empty square anywhere on the board instead of moving a piece.`
+    </ul> `,
+  Pocketknight: html`Each player has a knight in pocket. It can be dropped on an
+  empty square anywhere on the board instead of moving a piece.`,
 };
 
 declare global {

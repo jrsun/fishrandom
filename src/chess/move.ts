@@ -63,7 +63,10 @@ export function toFEN(turn: Turn) {
         type: TurnType.MOVE,
       } as Move)}=${turn.to.toFEN()}`;
     case TurnType.DROP:
-      const {end: {row, col}, after} = turn;
+      const {
+        end: {row, col},
+        after,
+      } = turn;
       const file = (col + 10).toString(36);
       const rank = after.ranks - row;
       return `${turn.piece.toFEN()}@${file}${rank}`;

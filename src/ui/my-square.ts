@@ -68,18 +68,24 @@ export class MySquare extends LitElement {
         @click=${this._onClick}
         @mousedown=${this._onMouseDown}
         @mouseup=${this._onMouseUp}
-        @dragover=${e => {e.preventDefault()}}
-        @dragenter=${e => {e.preventDefault()}}
+        @dragover=${(e) => {
+          e.preventDefault();
+        }}
+        @dragenter=${(e) => {
+          e.preventDefault();
+        }}
         @drop=${this._onDrop}
         style="
         height:100%;width:100%;
         position:relative;
         background-size:cover;${styleMap(styles)}"
       >
-        ${this.piece && html`<my-piece 
-        draggable=${!this.frozen}
-        @dragstart=${this._onDragStart}
-        .piece=${this.piece}></my-piece>`}
+        ${this.piece &&
+        html`<my-piece
+          draggable=${!this.frozen}
+          @dragstart=${this._onDragStart}
+          .piece=${this.piece}
+        ></my-piece>`}
       </div>
     `;
   }

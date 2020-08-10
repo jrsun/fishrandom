@@ -76,7 +76,8 @@ export class Hopper extends Piece {
     );
     return {
       before: state,
-      after: BoardState.copy(state).setTurn(getOpponent(this.color))
+      after: BoardState.copy(state)
+        .setTurn(getOpponent(this.color))
         .place(this, square.row, square.col)
         .empty(row, col),
       piece: this,

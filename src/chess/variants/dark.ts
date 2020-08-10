@@ -3,8 +3,8 @@ import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
 import {Color, getOpponent} from '../const';
 import {BoardState} from '../state';
 import Square from '../square';
-import { equals, Pair } from '../pair';
-import { Turn, Unknown, TurnType } from '../move';
+import {equals, Pair} from '../pair';
+import {Turn, Unknown, TurnType} from '../move';
 
 export class Dark extends Game {
   name = 'Dark';
@@ -21,7 +21,12 @@ export class Dark extends Game {
         continue;
       }
       legalTargets.add(square);
-      const moves = square.occupant.legalMoves(square.row, square.col, state, this.turnHistory);
+      const moves = square.occupant.legalMoves(
+        square.row,
+        square.col,
+        state,
+        this.turnHistory
+      );
       for (const move of moves) {
         legalTargets.add(move.end);
       }
@@ -29,17 +34,21 @@ export class Dark extends Game {
     return new BoardState(
       state.squares.map((row, i) =>
         row.map((square, j) => {
-          if (Array.from(legalTargets).some(pair => equals(pair, {row: i, col: j}))) {
+          if (
+            Array.from(legalTargets).some((pair) =>
+              equals(pair, {row: i, col: j})
+            )
+          ) {
             return square;
           } else {
-            const hidden =  new Square(i, j);
+            const hidden = new Square(i, j);
             hidden.place(new Obscurant(Color.OTHER));
             return hidden;
           }
         })
       ),
       state.whoseTurn,
-      state.banks,
+      state.banks
     );
   }
 
@@ -79,7 +88,7 @@ export class Obscurant extends Piece {
       _class: 'Obscurant',
       n: p.name,
       c: Color.OTHER,
-    }
+    };
   }
   static thaw(o): Obscurant {
     return new Obscurant(o.c);

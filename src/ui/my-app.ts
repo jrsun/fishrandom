@@ -25,8 +25,8 @@ import './my-controls';
 import {Game} from '../chess/game';
 import {BoardState} from '../chess/state';
 import {Color, getOpponent} from '../chess/const';
-import { Knight, Piece } from '../chess/piece';
-import { MyElement } from './my-element';
+import {Knight, Piece} from '../chess/piece';
+import {MyElement} from './my-element';
 
 @customElement('my-app')
 export class MyApp extends LitElement {
@@ -35,6 +35,8 @@ export class MyApp extends LitElement {
       display: flex;
       flex-direction: column;
       align-items: center;
+      height: 100%;
+      width: 100%;
     }
     .title {
       color: #EEEEEE;
@@ -56,6 +58,7 @@ export class MyApp extends LitElement {
       flex-direction: row;
       flex-wrap: wrap;
       align-items: stretch;
+      justify-content: center;
     }
     .bank-wrapper {
       display: flex;
@@ -141,7 +144,6 @@ export class MyApp extends LitElement {
     }
     .rules {
       flex: 1;
-      height: 300px;
     }
     paper-dialog {
       font-family: 'JelleeBold';
@@ -214,18 +216,12 @@ export class MyApp extends LitElement {
       this.handleViewMoveChanged.bind(this)
     );
     // Bank-related
-    this.addEventListener(
-      'bank-picked',
-      (e: CustomEvent) => {
-        this.bankSelectedPiece = e.detail as Piece;
-      },
-    )
-    this.addEventListener(
-      'board-clicked',
-      () => {
-        this.bankSelectedPiece = undefined;
-      }
-    )
+    this.addEventListener('bank-picked', (e: CustomEvent) => {
+      this.bankSelectedPiece = e.detail as Piece;
+    });
+    this.addEventListener('board-clicked', () => {
+      this.bankSelectedPiece = undefined;
+    });
     setInterval(() => {
       if (this.game?.state.whoseTurn === this.color) {
         if (this.playerTimer) {
@@ -327,8 +323,8 @@ export class MyApp extends LitElement {
   renderTimer(ms?: number): string {
     if (!ms || ms < 0 || isNaN(ms)) return '0:00';
     const s = ms / 1000;
-    const secondString = (s % 60 < 10) ? `0${s%60}` : s%60;
-    return `${Math.floor(s/60)}:${secondString}`;
+    const secondString = s % 60 < 10 ? `0${s % 60}` : s % 60;
+    return `${Math.floor(s / 60)}:${secondString}`;
   }
 
   renderBanks() {
@@ -339,9 +335,7 @@ export class MyApp extends LitElement {
 
     return html`<div class="bank-wrapper">
       <div class="card bank">
-        <my-piece-picker
-          .pieces=${this.game.state.banks[opponent]}
-        >
+        <my-piece-picker .pieces=${this.game.state.banks[opponent]}>
         </my-piece-picker>
       </div>
       <div class="card bank">
@@ -349,7 +343,8 @@ export class MyApp extends LitElement {
           .pieces=${this.game.state.banks[player]}
           .selected=${this.bankSelectedPiece}
           .eventName=${'bank-picked'}
-          .needsTarget=${true}>
+          .needsTarget=${true}
+        >
         </my-piece-picker>
       </div>
     </div>`;
@@ -380,7 +375,9 @@ export class MyApp extends LitElement {
                 <div class="captures"></div>
               </div>
             </div>
-            <div class="timer opponent">${this.renderTimer(this.opponentTimer)}</div>
+            <div class="timer opponent">
+              ${this.renderTimer(this.opponentTimer)}
+            </div>
           </div>
           <div class="board-wrapper card">
             <my-element
@@ -403,7 +400,9 @@ export class MyApp extends LitElement {
                 <div class="captures"></div>
               </div>
             </div>
-            <div class="timer player">${this.renderTimer(this.playerTimer)}</div>
+            <div class="timer player">
+              ${this.renderTimer(this.playerTimer)}
+            </div>
           </div>
         </div>
         <div class="right-panel">

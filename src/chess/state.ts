@@ -1,5 +1,14 @@
 import Square from './square';
-import {Piece, ALL_PIECES, Rook, Knight, Bishop, Queen, King, Pawn} from './piece';
+import {
+  Piece,
+  ALL_PIECES,
+  Rook,
+  Knight,
+  Bishop,
+  Queen,
+  King,
+  Pawn,
+} from './piece';
 import {hash, Color} from './const';
 
 type BoardJson = (string | null)[][];
@@ -11,8 +20,11 @@ export class BoardState {
   whoseTurn: Color;
   banks: {[color: string]: Piece[]} = {};
 
-  constructor(squares: Square[][], whoseTurn: Color, banks: {[color: string]: Piece[]}) {
-
+  constructor(
+    squares: Square[][],
+    whoseTurn: Color,
+    banks: {[color: string]: Piece[]}
+  ) {
     this.ranks = squares.length;
     this.files = squares[0].length;
     const newSquares: Square[][] = [];
@@ -29,10 +41,13 @@ export class BoardState {
     }
     this.squares = newSquares;
     this.whoseTurn = whoseTurn;
-    this.banks = Object.keys(banks).reduce((acc: {[color: string]: Piece[]}, color: Color) => {
-      acc[color] = [...banks[color]];
-      return acc;
-    }, {});
+    this.banks = Object.keys(banks).reduce(
+      (acc: {[color: string]: Piece[]}, color: Color) => {
+        acc[color] = [...banks[color]];
+        return acc;
+      },
+      {}
+    );
   }
 
   static copy(other: BoardState): BoardState {
@@ -53,11 +68,11 @@ export class BoardState {
     return this;
   }
 
-  removeFromBank(color: Color, piece: Piece): BoardState|undefined {
+  removeFromBank(color: Color, piece: Piece): BoardState | undefined {
     const playerBank = this.banks[color];
     if (!playerBank) return;
 
-    const index = playerBank.findIndex(p => p.name === piece.name);
+    const index = playerBank.findIndex((p) => p.name === piece.name);
     if (index === -1) return;
 
     playerBank.splice(index, 1);

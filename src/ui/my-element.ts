@@ -110,14 +110,16 @@ export class MyElement extends LitElement {
 
     this.od = this.onDrop.bind(this);
     this.addEventListener('square-drop', this.od);
-    
+
     document.body.addEventListener('dragend', (e) => {
       this.draggedSquare = undefined;
       this.requestUpdate();
       e.preventDefault();
     });
 
-    this.gameOver = this.game.winCondition(Color.BLACK) || this.game.winCondition(Color.WHITE);
+    this.gameOver =
+      this.game.winCondition(Color.BLACK) ||
+      this.game.winCondition(Color.WHITE);
   }
 
   disconnectedCallback() {
@@ -166,7 +168,9 @@ export class MyElement extends LitElement {
       console.log(toFEN(turn));
     }
     // async?
-    this.gameOver = this.game.winCondition(Color.BLACK) || this.game.winCondition(Color.BLACK);
+    this.gameOver =
+      this.game.winCondition(Color.BLACK) ||
+      this.game.winCondition(Color.BLACK);
     this.performUpdate();
   }
 
@@ -180,16 +184,21 @@ export class MyElement extends LitElement {
     );
 
     let uiState: BoardState = state;
-    let lastTurn: Turn = this.game.turnHistory[this.game.turnHistory.length - 1];
+    let lastTurn: Turn = this.game.turnHistory[
+      this.game.turnHistory.length - 1
+    ];
     if (this.viewMoveIndex != null) {
       console.log(this.viewMoveIndex);
       uiState = this.game.turnHistory[this.viewMoveIndex]?.before ?? state;
-      lastTurn = this.game.turnHistory[this.viewMoveIndex-1];
+      lastTurn = this.game.turnHistory[this.viewMoveIndex - 1];
     }
 
     // BUG: Promo event keeps firing
     return html`
-      <paper-dialog id="promotion-modal" horizontal-align="left" vertical-align="top"
+      <paper-dialog
+        id="promotion-modal"
+        horizontal-align="left"
+        vertical-align="top"
         ><my-piece-picker
           .pieces=${this.game.promotesTo.map((c) => new c(this.color))}
           .eventName=${'promotion-picked'}
@@ -214,8 +223,12 @@ export class MyElement extends LitElement {
                   equals(lastTurn.start, square)) ||
                   equals(lastTurn.end, square))}
                 .color=${this.color}
-                .checked=${square.occupant?.isRoyal && this.game.knowsAttackedSquare(
-                  square.occupant?.color, uiState, square.row, square.col,
+                .checked=${square.occupant?.isRoyal &&
+                this.game.knowsAttackedSquare(
+                  square.occupant?.color,
+                  uiState,
+                  square.row,
+                  square.col
                 )}
               ></my-square>`
             )}
@@ -227,7 +240,9 @@ export class MyElement extends LitElement {
 
   // Regular move and castle and drop
   private onSquareClicked(e: CustomEvent) {
-    this.dispatchEvent(new CustomEvent('board-clicked', {bubbles: true, composed: true}));
+    this.dispatchEvent(
+      new CustomEvent('board-clicked', {bubbles: true, composed: true})
+    );
     if (this.viewMoveIndex != null) return;
 
     this.eraseCanvas();
@@ -235,7 +250,12 @@ export class MyElement extends LitElement {
     const square = e.detail as Square;
     let turn: Turn | undefined;
     if (this.bankSelectedPiece) {
-      turn = this.game.drop(this.color, this.bankSelectedPiece, square.row, square.col);
+      turn = this.game.drop(
+        this.color,
+        this.bankSelectedPiece,
+        square.row,
+        square.col
+      );
       if (!turn) {
         console.log('bad drop', square.row, square.col);
         return;

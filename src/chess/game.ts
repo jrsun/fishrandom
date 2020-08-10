@@ -55,15 +55,22 @@ export class Game {
     if (this.canDrop && this.state.banks[opponent]) {
       const bank = this.state.banks[opponent];
       if (bank.length > 0) {
-        const dropStates = this.state.squares.flat()
-        .filter(square => !square.occupant)
-        .map(square => BoardState.copy(this.state).place(new Piece(opponent), square.row, square.col));
+        const dropStates = this.state.squares
+          .flat()
+          .filter((square) => !square.occupant)
+          .map((square) =>
+            BoardState.copy(this.state).place(
+              new Piece(opponent),
+              square.row,
+              square.col
+            )
+          );
         for (const dropState of dropStates) {
           if (!this.knowsInCheck(opponent, dropState)) {
             return false;
           }
         }
-      } 
+      }
     }
     // Opponent is in check and cannot escape it.
     return opponentLegalMoves.length === 0;
@@ -83,10 +90,12 @@ export class Game {
   //   .filter((move) => move && !this.knowsInCheck(color, move.after));
   //   return legalMoves.length === 0;
   // }
-  get promotesTo(): (typeof Piece)[] {
+  get promotesTo(): typeof Piece[] {
     return [Queen, Rook, Bishop, Knight];
   }
-  postProcess(color: Color, turn: Turn): Turn { return turn };
+  postProcess(color: Color, turn: Turn): Turn {
+    return turn;
+  }
 
   /***********************
    *  Private
@@ -279,7 +288,9 @@ export class Game {
   ): Promote | undefined {
     if (!this.checkTurn(color, promoter)) return;
 
-    if (!this.promotesTo.some(legalPromotion => to instanceof legalPromotion)) {
+    if (
+      !this.promotesTo.some((legalPromotion) => to instanceof legalPromotion)
+    ) {
       return;
     }
 
@@ -360,7 +371,7 @@ export class Game {
     const stateWithDummy = new BoardState(
       visibleState.squares,
       getOpponent(color),
-      visibleState.banks,
+      visibleState.banks
     ).place(dummy, row, col);
     const squaresWithEnemy = state.squares
       .flat()
@@ -375,15 +386,12 @@ export class Game {
     return enemyMoves.some((move) => move.captured === dummy);
   }
 
-  checkTurn(
-    color: Color,
-    piece?: Piece,
-  ): boolean {
+  checkTurn(color: Color, piece?: Piece): boolean {
     if (process.env.NODE_ENV === 'development') return true;
 
-    let result = (color === this.state.whoseTurn);
+    let result = color === this.state.whoseTurn;
     if (piece) {
-      result = result && (color === piece.color);
+      result = result && color === piece.color;
     }
     return result;
   }
