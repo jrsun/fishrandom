@@ -3,15 +3,16 @@ hiddenking
 pieceeater/juggernaut
 -dark
 dice
-beirut
 syncrhone
-pocket knight
+- pocket knight
 
 - horde
 atomic
 recall
 -grasshopper
 -960
+
+beirut
 prechess
 -knightmate
 rifle

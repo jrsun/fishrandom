@@ -18,6 +18,7 @@ export class Test extends Game {
           new Rook(Color.WHITE),
           new Bishop(Color.WHITE),
           new Queen(Color.WHITE),
+          new King(Color.WHITE),
         ],
         [Color.BLACK]: [
           new Pawn(Color.BLACK),
@@ -25,6 +26,7 @@ export class Test extends Game {
           new Rook(Color.BLACK),
           new Bishop(Color.BLACK),
           new Queen(Color.BLACK),
+          new King(Color.BLACK),
         ],
       })
     );

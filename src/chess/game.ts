@@ -181,7 +181,7 @@ export class Game {
     const cols: number[] = [];
     let rookSquare: Square;
     // check history for castling or rook/king moves
-    if (this.turnHistory.some((move) => move.piece.isRoyal)) {
+    if (this.turnHistory.some((move) => move.piece.isRoyal && move.piece.color === color)) {
       console.log('king moved');
       return;
     }
