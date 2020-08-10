@@ -11,8 +11,7 @@ export class BoardState {
   whoseTurn: Color;
   banks: {[color: string]: Piece[]} = {};
 
-  constructor(squares: Square[][], whoseTurn, banks) {
-    if (!banks) banks = {};
+  constructor(squares: Square[][], whoseTurn: Color, banks: {[color: string]: Piece[]}) {
 
     this.ranks = squares.length;
     this.files = squares[0].length;
@@ -30,7 +29,10 @@ export class BoardState {
     }
     this.squares = newSquares;
     this.whoseTurn = whoseTurn;
-    this.banks = banks;
+    this.banks = Object.keys(banks).reduce((acc: {[color: string]: Piece[]}, color: Color) => {
+      acc[color] = [...banks[color]];
+      return acc;
+    }, {});
   }
 
   static copy(other: BoardState): BoardState {

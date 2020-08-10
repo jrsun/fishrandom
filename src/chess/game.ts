@@ -135,8 +135,7 @@ export class Game {
     if (!square || square.occupant) {
       return;
     }
-    let after = BoardState.copy(state)
-      .removeFromBank(color, piece);
+    let after = BoardState.copy(state).removeFromBank(color, piece);
     if (!after) {
       // TEMP
       console.log('piece unavailable to drop');
