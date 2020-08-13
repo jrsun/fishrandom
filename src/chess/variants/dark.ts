@@ -63,19 +63,6 @@ export class Dark extends Game {
       piece: new Obscurant(Color.OTHER),
     };
   }
-
-  winCondition(color: Color): boolean {
-    if (super.winCondition(color)) return true;
-
-    if (
-      !this.state.pieces
-        .filter((piece) => piece.color === getOpponent(color))
-        .some((piece) => piece instanceof King)
-    ) {
-      return true;
-    }
-    return false;
-  }
 }
 
 export class Dark2r extends Dark {

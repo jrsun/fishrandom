@@ -46,6 +46,15 @@ export class Game {
   } // dark chess
   winCondition(color: Color): boolean {
     const opponent = getOpponent(color);
+    // fallback if king gets taken
+    if (
+      !this.state.pieces
+        .filter((piece) => piece.color === opponent)
+        .some((piece) => piece.isRoyal)
+    ) {
+      return true;
+    }
+
     if (!this.knowsInCheck(opponent, this.state)) return false;
 
     const opponentLegalMoves = this.state.squares
@@ -191,7 +200,7 @@ export class Game {
     // check history for castling or rook/king moves
     if (
       this.turnHistory.some(
-        (move) => move.piece.isRoyal && move.piece.color === color
+        (move) => move.piece instanceof King && move.piece.color === color
       )
     ) {
       console.log('king moved');

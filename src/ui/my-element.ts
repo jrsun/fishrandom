@@ -5,7 +5,7 @@ import {
   property,
   css,
 } from '../../node_modules/lit-element';
-import {Piece} from '../chess/piece';
+import {Piece, King} from '../chess/piece';
 import Square from '../chess/square';
 // import {MoveMessage} from '../common/message';
 import {
@@ -306,7 +306,7 @@ export class MyElement extends LitElement {
           square.col
         );
       } else if (
-        this.selectedPiece.isRoyal &&
+        this.selectedPiece instanceof King &&
         this.selectedSquare.row === square.row &&
         Math.abs(this.selectedSquare.col - square.col) === 2
       ) {
