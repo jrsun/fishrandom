@@ -63,7 +63,10 @@ app.post('/login', function (req, res) {
   res.end();
 });
 
-app.use('/dist', express.static(path.join(path.resolve() + '/dist')));
+app.use('/dist/index.bundle.js', express.static(path.join(path.resolve() + '/dist/index.bundle.js')));
+app.use('/dist/login.bundle.js', express.static(path.join(path.resolve() + '/dist/login.bundle.js')));
+
+// app.use('/dist/index.bundle.js, ')
 
 app.use('/img', express.static(path.join(path.resolve() + '/img')));
 app.use('/font', express.static(path.join(path.resolve() + '/font')));
@@ -135,6 +138,7 @@ const handleMessage = function (uuid, message: Message) {
     room.handleResign(uuid);
   }
   if (room.state === RoomState.COMPLETED) {
+    console.log('game completed');
     delete players[room.p1.uuid].room;
     delete players[room.p2.uuid].room;
   }

@@ -41,6 +41,7 @@ export class Secretbomber extends Game {
     row: number,
     col: number
   ): Activate | undefined {
+    if (!this.checkTurn(color, piece)) return;
     if (!(piece instanceof BomberPawn)) return;
     if (piece.color !== color) return;
 
