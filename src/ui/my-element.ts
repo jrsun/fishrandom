@@ -173,6 +173,10 @@ export class MyElement extends LitElement {
     if (changedProperties.has('socket')) {
       addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
     }
+    if (changedProperties.has('selectedSquare') ||
+    changedProperties.has('selectedPieve')) {
+      this.computeTargets(this.selectedPiece, this.selectedSquare);
+    }
   }
 
   handleSocketMessage(message: Message) {
@@ -344,7 +348,6 @@ export class MyElement extends LitElement {
 
       this.selectedSquare = undefined;
       this.selectedPiece = undefined;
-      this.computeTargets(this.selectedPiece, this.selectedSquare);
       if (!turn) {
         return;
       }
@@ -353,7 +356,6 @@ export class MyElement extends LitElement {
       this.selectedSquare = square;
       this.selectedPiece = square.occupant;
     }
-    this.computeTargets(this.selectedPiece, this.selectedSquare);
     this.performUpdate();
   }
 
