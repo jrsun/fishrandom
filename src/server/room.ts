@@ -43,6 +43,7 @@ export class Room {
   // protected
   state: RoomState;
   lastMoveTime: number;
+  timerInterval: any; // timer
 
   constructor(
     p1: string,
@@ -88,14 +89,13 @@ export class Room {
       player: getName(this.p2.uuid),
       opponent: getName(this.p1.uuid),
     } as InitGameMessage);
-    const interval = setInterval(() => {
+    this.timerInterval = setInterval(() => {
       const player =
         this.game.state.whoseTurn === this.p1.color ? this.p1 : this.p2;
       const opponent = player === this.p1 ? this.p2 : this.p1;
       player.time -= 1000;
       if (player.time <= 0) {
         this.wins(opponent.uuid);
-        clearInterval(interval);
       }
     }, 1000);
     this.sendTimers();
@@ -248,6 +248,8 @@ export class Room {
 
   wins(uuid: string) {
     this.setState(RoomState.COMPLETED);
+    clearInterval(this.timerInterval);
+
     const player = this.p1.uuid === uuid ? this.p1 : this.p2;
     const opponent = player === this.p1 ? this.p2 : this.p1;
 
@@ -286,6 +288,8 @@ export class Room {
 
   draws() {
     this.setState(RoomState.COMPLETED);
+    clearInterval(this.timerInterval);
+
     const gom = {
       type: 'gameOver',
       stateHistory: this.game.stateHistory,

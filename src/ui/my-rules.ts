@@ -163,6 +163,11 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Orthodox rules.</li>
       <li>Checkmate to win.</li>
     </ul>`,
+  Dark2r: html`Each player can only see the squares they can move to. In addition,
+  each player's piece starting positions are independently randomized.
+  <ul>
+    <li>Checkmate or <b>capture</b> the king to win.</li>
+  </ul> `,
 };
 
 declare global {
