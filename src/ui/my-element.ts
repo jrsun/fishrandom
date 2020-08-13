@@ -25,7 +25,7 @@ import {drawArrow} from '../utils';
 import './my-square';
 import {VARIANTS} from '../chess/variants';
 import {Game} from '../chess/game';
-import {Move, toFEN, Turn, TurnType} from '../chess/move';
+import {Move, toFEN, Turn, TurnType, toEndSquare} from '../chess/move';
 import {Color, ROULETTE_SECONDS} from '../chess/const';
 import {BoardState} from '../chess/state';
 import {Chess960} from '../chess/variants/960';
@@ -110,6 +110,7 @@ export class MyElement extends LitElement {
   @property({type: Object}) promotionSquare: Square | undefined;
   @property({type: Boolean}) gameOver = false;
   @property({type: Boolean, reflect: true}) started = false;
+  @property({type: Array}) possibleTargets: Square[] = [];
 
   draggedSquare: Square | undefined;
 
@@ -244,7 +245,7 @@ export class MyElement extends LitElement {
                   .square=${square}
                   .piece=${square.occupant}
                   .dragged=${square === this.draggedSquare}
-                  .possible=${this.possibleMoves.includes(square)}
+                  .possible=${this.possibleTargets.includes(square)}
                   .lastMove=${lastTurn &&
                   ((lastTurn.type === TurnType.MOVE &&
                     equals(lastTurn.start, square)) ||
@@ -343,6 +344,7 @@ export class MyElement extends LitElement {
 
       this.selectedSquare = undefined;
       this.selectedPiece = undefined;
+      this.computeTargets(this.selectedPiece, this.selectedSquare);
       if (!turn) {
         return;
       }
@@ -351,6 +353,7 @@ export class MyElement extends LitElement {
       this.selectedSquare = square;
       this.selectedPiece = square.occupant;
     }
+    this.computeTargets(this.selectedPiece, this.selectedSquare);
     this.performUpdate();
   }
 
@@ -404,21 +407,27 @@ export class MyElement extends LitElement {
     this.drawArrow(row, col, square.row, square.col);
   }
 
-  get possibleMoves(): Square[] {
-    if (!this.selectedPiece || !this.selectedSquare) return [];
+  computeTargets(piece?: Piece, square?: Square) {
+    if (!this.selectedPiece || !this.selectedSquare) {
+      this.possibleTargets = [];
+      return;
+    };
 
-    const squares = this.selectedPiece!.legalMoves(
+    const moves = this.selectedPiece!.legalMoves(
       this.selectedSquare!.row,
       this.selectedSquare!.col,
       this.game.state,
       this.game.turnHistory
     )
-      .filter((move) => {
+    this.possibleTargets = moves.map(move => toEndSquare(this.game.state, move)).filter(square => !!square) as Square[];
+    setTimeout(() => {
+      this.possibleTargets = moves.filter(move => {
         return this.game.isTurnLegal(this.color, move);
       })
-      .map((move) => this.game.state.getSquare(move.end.row, move.end.col));
-
-    return squares.filter((square) => !!square) as Square[];
+      .map(move => toEndSquare(this.game.state, move))
+      .filter(square => !!square) as Square[];
+      this.requestUpdate();
+    }, 0);
   }
 
   private drawArrow(srow: number, scol: number, erow: number, ecol: number) {

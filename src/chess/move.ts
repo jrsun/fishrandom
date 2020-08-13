@@ -1,6 +1,7 @@
 import {Pair, Color} from './const';
 import {Piece, Pawn, King} from './piece';
 import {BoardState} from './state';
+import Square from './square';
 
 export enum TurnType {
   MOVE = 'move',
@@ -81,6 +82,10 @@ export function toFEN(turn: Turn) {
     default:
       return '?';
   }
+}
+
+export function toEndSquare(state: BoardState, move: Move): Square|undefined {
+  return state.getSquare(move.end.row, move.end.col);
 }
 
 function moveToFen(move: Move): string {
