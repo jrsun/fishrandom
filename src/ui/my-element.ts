@@ -34,7 +34,7 @@ import './my-piece-picker';
 import '@polymer/paper-dialog/paper-dialog';
 import {PaperDialogElement} from '@polymer/paper-dialog/paper-dialog';
 
-const SQUARE_SIZE = Math.min(window.innerWidth / 12, 50); // 50
+const SQUARE_SIZE = Math.min(window.innerWidth / 8, 50); // 50
 /**
  * An example element.
  *
@@ -56,7 +56,7 @@ export class MyElement extends LitElement {
       display: inline-block;
       background-position-y: 8000px;
       height: 10000px;
-      width: 400px;
+      width: ${SQUARE_SIZE*8}px;
       position: relative;
       transition: none;
     }

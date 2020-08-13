@@ -84,11 +84,27 @@ export class MyApp extends LitElement {
       flex-direction: column;
       margin-right: 30px;
     }
+    @media only screen and (max-width: 600px) {
+      .active-game-container {
+        margin-right: 0;
+      }
+      .board-wrapper.card {
+        padding: 0px;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .bank-wrapper { flex-direction: row;}
+      .bank:first-child{
+        margin-bottom: 0;
+        margin-right: 20px;
+      }
+    }
     .active-game-info {
       display: flex;
       flex-direction: row;
       /* align-items: center; */
       justify-content: space-between;
+      margin-bottom: 20px;
     }
     .active-game-info.opponent {
       align-items: flex-end;
@@ -194,6 +210,19 @@ export class MyApp extends LitElement {
     .blinking {animation: blink 0.5s linear 7;}
     @keyframes blink {
       from {color: #d80c0c};
+    }
+
+    .footer {
+      /* position: fixed; */
+      /* background-color: var(--google-blue-300); */
+      margin-top: 100px;
+      /* padding: 5px; */
+      /* border-top-left-radius: 4px; */
+      /* bottom: 0; */
+      /* right: 0; */
+    }
+    .footer a {
+      color: #6a0dad;
     }
   }`;
 
@@ -407,7 +436,7 @@ export class MyApp extends LitElement {
     return html`<div class="app">
       <canvas id="confetti-canvas"></canvas>
       <div>
-        <h1 class="title"></h1>
+        <h1 class="title">${this.started ? this.game?.name.toUpperCase().split('').join(' ') : ''}</h1>
       </div>
       <div class="game-container">
         ${this.renderBanks()}
@@ -468,6 +497,7 @@ export class MyApp extends LitElement {
           </div>
         </div>
       </div>
+      <div class="footer"><a target="_blank" href="https://discord.gg/DpWUJYt">Discord</a></div>
       <paper-dialog
         entry-animation="scale-up-animation"
         exit-animation="fade-out-animation"

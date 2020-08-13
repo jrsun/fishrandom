@@ -1,7 +1,7 @@
 import {LitElement, html, customElement, property, css} from 'lit-element';
 import {Piece} from '../chess/piece';
 
-const SQUARE_SIZE = Math.min(window.innerWidth / 12, 50); // 50
+const SQUARE_SIZE = Math.min(window.innerWidth / 8, 50); // 50
 
 @customElement('my-piece-picker')
 export class MyPiecePicker extends LitElement {
