@@ -10,17 +10,7 @@ import {Game} from '../chess/game';
 import {toFEN, Turn} from '../chess/move';
 import {styleMap} from 'lit-html/directives/style-map';
 import {
-  VARIANTS,
-  Chess960,
-  Classic,
-  Knightmate,
-  Horde,
-} from '../chess/variants/index';
-import {
   Message,
-  InitGameMessage,
-  reviver,
-  ResignMessage,
   addMessageHandler,
   sendMessage,
 } from '../common/message';

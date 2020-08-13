@@ -20,7 +20,8 @@ export type Message =
   | NewGameMessage
   | InitGameMessage
   | GameOverMessage
-  | TimerMessage;
+  | TimerMessage
+  | ReconnectMessage;
 
 /*
  * Client-initiated
@@ -77,6 +78,17 @@ export interface GameOverMessage {
   stateHistory: BoardState[];
   turnHistory: Turn[];
   result: GameResult;
+}
+
+export interface ReconnectMessage {
+  type: 'reconnect',
+  state: BoardState;
+  stateHistory: BoardState[];
+  turnHistory: Turn[];
+  variantName: string;
+  color: Color;
+  player: string;
+  opponent: string;
 }
 
 // Could use evals here instead

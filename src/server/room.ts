@@ -12,6 +12,7 @@ import {
   sendMessage,
   InitGameMessage,
   TimerMessage,
+  ReconnectMessage,
 } from '../common/message';
 
 // States progress from top to bottom within a room.
@@ -187,7 +188,7 @@ export class Room {
     // we should send the mover a `replaceState` and the opponent an
     // `appendState`
     const rm = {
-      type: 'replaceState',
+      type: 'replaceState' as const,
       turn: {
         // mostly a no-op on turn, but useful in variants
         ...this.game.postProcess(player.color, turn),
@@ -195,15 +196,15 @@ export class Room {
         before: game.visibleState(turn.before, player.color),
         after: game.visibleState(turn.after, player.color),
       },
-    } as ReplaceMessage;
+    };
     const am = {
-      type: 'appendState',
+      type: 'appendState' as const,
       turn: {
         ...this.game.postProcess(opponent.color, turn),
         before: game.visibleState(turn.before, opponent.color),
         after: game.visibleState(turn.after, opponent.color),
       },
-    } as AppendMessage;
+    };
 
     sendMessage(player.socket, rm);
     sendMessage(opponent.socket, am);
@@ -219,15 +220,22 @@ export class Room {
     const opponent = this.p1.uuid === uuid ? this.p2 : this.p1;
     player.socket = socket;
 
-    const igm = {
-      type: 'initGame',
+    const rec = {
+      type: 'reconnect' as const,
       state: this.game.visibleState(this.game.state, player.color),
       variantName: this.game.name,
       color: player.color,
       player: getName(player.uuid),
       opponent: getName(opponent.uuid),
-    } as InitGameMessage;
-    sendMessage(socket, igm);
+      turnHistory: this.game.turnHistory.map(turn => ({
+        ...this.game.postProcess(player.color, turn),
+        before: this.game.visibleState(turn.before, player.color),
+        after: this.game.visibleState(turn.after, player.color),
+      })),
+      stateHistory: this.game.stateHistory.map(state => 
+        this.game.visibleState(state, player.color)),
+    };
+    sendMessage(socket, rec);
     this.sendTimers();
   }
 

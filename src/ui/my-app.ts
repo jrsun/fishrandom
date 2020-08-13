@@ -62,10 +62,16 @@ export class MyApp extends LitElement {
       justify-content: center;
     }
     .bank-wrapper {
+      position: relative;
+      top: 8000px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       margin-right: 20px;
+    }
+    :host([started]) .bank-wrapper {
+      top: 0;
+      transition: all ${ROULETTE_SECONDS}s cubic-bezier(0.15, 0.82, 0.58, 1.02);
     }
     .bank {
       padding: 10px;
@@ -199,7 +205,7 @@ export class MyApp extends LitElement {
   @property({type: Number}) playerTimer?: number;
   @property({type: Number}) opponentTimer?: number;
   @property({type: Object}) bankSelectedPiece: Piece | undefined;
-  @property({type: Boolean}) started = false;
+  @property({type: Boolean, reflect: true}) started = false;
 
   private gameResult: string | undefined;
   private player = 'cheems';
@@ -261,45 +267,55 @@ export class MyApp extends LitElement {
     );
   }
 
+  onInitGame() {
+    // Reset animations in child elements
+    this.started = false;
+    this.performUpdate();
+
+    setTimeout(() => {
+      this.started = true;
+    }, 0);
+
+    const titleEl = this.shadowRoot?.querySelector('.title');
+    const titleScrambler = setInterval(() => {
+      if (titleEl) {
+        titleEl.innerHTML = memecase(
+          randomChoice(Object.keys(RANDOM_VARIANTS))
+        );
+      }
+    }, 50);
+    setTimeout(() => {
+      clearInterval(titleScrambler);
+      if (titleEl) {
+        titleEl.innerHTML =
+          this.game?.name.toUpperCase().split('').join(' ') ?? '';
+      }
+    }, ROULETTE_SECONDS * 1000);
+  }
+
   handleSocketMessage(message: Message) {
     console.log('Received message of type %s', message.type);
     console.log(message);
-    if (message.type === 'initGame') {
-      const igm = message as InitGameMessage;
-      const {variantName, state, color, player, opponent} = igm;
+    if (message.type === 'initGame' || message.type === 'reconnect') {
+      const {variantName, state, color, player, opponent} = message;
       this.game = new VARIANTS[variantName](/* isServer=*/ false);
       this.game.turnHistory = [];
       this.game.stateHistory = [state];
+
+      if (message.type === 'reconnect') {
+        this.started = true;
+        this.game.turnHistory = message.turnHistory;
+        this.game.stateHistory = message.stateHistory;
+      }
+
       this.game.state = state;
       this.player = player;
       this.opponent = opponent;
       this.color = color;
 
       this.gameResult = '';
+      if (message.type === 'initGame') this.onInitGame();
 
-      // Reset animations in child elements
-      this.started = false;
-      this.performUpdate();
-
-      setTimeout(() => {
-        this.started = true;
-      }, 0);
-
-      const titleEl = this.shadowRoot?.querySelector('.title');
-      const titleScrambler = setInterval(() => {
-        if (titleEl) {
-          titleEl.innerHTML = memecase(
-            randomChoice(Object.keys(RANDOM_VARIANTS))
-          );
-        }
-      }, 50);
-      setTimeout(() => {
-        clearInterval(titleScrambler);
-        if (titleEl) {
-          titleEl.innerHTML =
-            this.game?.name.toUpperCase().split('').join(' ') ?? '';
-        }
-      }, ROULETTE_SECONDS * 1000);
     } else if (message.type === 'gameOver') {
       const gom = message as GameOverMessage;
       const {turnHistory, stateHistory, result} = gom;

@@ -7,21 +7,6 @@ import {
   TemplateResult,
 } from 'lit-element';
 import {Game} from '../chess/game';
-import {
-  VARIANTS,
-  Chess960,
-  Classic,
-  Knightmate,
-  Horde,
-  Hiddenqueen,
-} from '../chess/variants/index';
-import {
-  Message,
-  InitGameMessage,
-  reviver,
-  addMessageHandler,
-} from '../common/message';
-import {randomChoice} from '../utils';
 import {ROULETTE_SECONDS} from '../chess/const';
 
 @customElement('my-rules')
