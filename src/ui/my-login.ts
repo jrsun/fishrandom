@@ -11,7 +11,13 @@ import '@polymer/paper-button';
 @customElement('my-login')
 export class MyLogin extends LitElement {
   static styles = css`
-    :host {
+    .host {
+      display: block;
+    }
+    
+    .container {
+      height: 100%;
+      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -19,7 +25,7 @@ export class MyLogin extends LitElement {
     }
     .title {
       color: #eeeeee;
-      font-size: 80px;
+      font-size: 7vw;
       margin-bottom: 10px;
     }
     .row {
@@ -31,13 +37,13 @@ export class MyLogin extends LitElement {
     }
     #username {
       border-radius: 4px;
-      flex: 1;
-      margin-right: 20px;
       font-size: 40px;
       padding-left: 5px;
+      width: 50vw;
       font-family: Verdana, sans-serif;
       border: #888;
       outline: none;
+      margin-bottom: 10px;
     }
     #username::placeholder {
       /* Chrome, Firefox, Opera, Safari 10.1+ */
@@ -78,20 +84,20 @@ export class MyLogin extends LitElement {
   }
 
   render() {
-    return html` <div class="title">F I S H R A N D O M</div>
-      <form .onsubmit=${this.login.bind(this)}>
-        <div class="row">
-          <input
-            id="username"
-            type="text"
-            autocomplete="off"
-            placeholder="Username"
-          />
-          <paper-button id="button" raised .onclick=${this.login.bind(this)}
+    return html`<form .onsubmit=${this.login.bind(this)}>
+    <div class="container">
+    <div class="title">F I S H R A N D O M</div>
+        <input
+          id="username"
+          type="text"
+          autocomplete="off"
+          placeholder="Username"
+        />
+        <paper-button id="button" raised .onclick=${this.login.bind(this)}
             >Play</paper-button
           >
           <input type="submit" style="display: none" />
-        </div>
+  </div>
       </form>`;
   }
 }

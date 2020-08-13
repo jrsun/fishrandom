@@ -87,6 +87,7 @@ export class MyApp extends LitElement {
     @media only screen and (max-width: 600px) {
       .active-game-container {
         margin-right: 0;
+        margin-top: 20px;
       }
       .board-wrapper.card {
         padding: 0px;
