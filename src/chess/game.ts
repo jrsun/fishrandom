@@ -92,21 +92,42 @@ export class Game {
     // Opponent is in check and cannot escape it.
     return opponentLegalMoves.length === 0;
   }
-  // drawCondition(color: Color): boolean {
-  //   const legalMoves = this.state.squares
-  //   .flat()
-  //   .filter((square) => square.occupant?.color === color)
-  //   .flatMap((square) =>
-  //     square.occupant?.legalMoves(
-  //       square.row,
-  //       square.col,
-  //       this.state,
-  //       this.turnHistory
-  //     )
-  //   )
-  //   .filter((move) => move && !this.knowsInCheck(color, move.after));
-  //   return legalMoves.length === 0;
-  // }
+  drawCondition(color: Color): boolean {
+    const legalMoves = this.state.squares
+    .flat()
+    .filter((square) => square.occupant?.color === color)
+    .flatMap((square) =>
+      square.occupant?.legalMoves(
+        square.row,
+        square.col,
+        this.state,
+        this.turnHistory
+      )
+    )
+    .filter((move) => move && !this.knowsInCheck(color, move.after));
+
+    if (this.canDrop && this.state.banks[color]) {
+      const bank = this.state.banks[color];
+      if (bank.length > 0) {
+        const dropStates = this.state.squares
+          .flat()
+          .filter((square) => !square.occupant)
+          .map((square) =>
+            BoardState.copy(this.state).place(
+              new Piece(color),
+              square.row,
+              square.col
+            )
+          );
+        for (const dropState of dropStates) {
+          if (!this.knowsInCheck(color, dropState)) {
+            return false;
+          }
+        }
+      }
+    }
+    return legalMoves.length === 0;
+  }
   get promotesTo(): typeof Piece[] {
     return [Queen, Rook, Bishop, Knight];
   }

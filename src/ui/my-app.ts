@@ -197,6 +197,19 @@ export class MyApp extends LitElement {
       -moz-animation-fill-mode:forwards;
       animation-fill-mode:forwards;
     }
+    .game-over-dialog {
+      display: flex;
+      flex-direction:column;
+      align-items: center;
+    }
+    .game-over-result {
+      font-family: 'JelleeBold';
+    }
+    .game-over-button:hover {
+      transition: 0.2s;
+      background-color: #82d7ba;
+      font-weight: bold;
+    }
     @keyframes swim {
       from {transform: rotate(90deg)}
       10% {transform: translate(0, 5px) rotate(120deg);}
@@ -393,7 +406,7 @@ export class MyApp extends LitElement {
     return html`<div class="app">
       <div>
         <h1 class="title">
-          F I S H R A N D O M
+          Waiting for players...
         </h1>
       </div>
       <div class="fish-con"><div class="fish"></div></div>
@@ -499,13 +512,13 @@ export class MyApp extends LitElement {
         </div>
       </div>
       <div class="footer"><a target="_blank" href="https://discord.gg/DpWUJYt">Discord</a></div>
-      <paper-dialog
+      <paper-dialog class="game-over-dialog"
         entry-animation="scale-up-animation"
         exit-animation="fade-out-animation"
       >
-        <h2>${this.gameResult}</h2>
+        <h2 class="game-over-result">${memecase(this.gameResult ?? '')}</h2>
         <div>
-          <paper-button raised .onclick=${this.requestNewGame.bind(this)}>
+          <paper-button class="game-over-button" raised .onclick=${this.requestNewGame.bind(this)}>
             New Game
           </paper-button>
         </div>

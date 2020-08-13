@@ -61,6 +61,7 @@ export class MyRules extends LitElement {
   @property({type: Boolean}) realStarted = false;
 
   updated(changedProperties) {
+    // TODO reconnect
     if (changedProperties.has('started')) {
       if (this.started) {
         setTimeout(() => {

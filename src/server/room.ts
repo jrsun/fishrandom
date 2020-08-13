@@ -213,6 +213,9 @@ export class Room {
     if (game.winCondition(player.color)) {
       this.wins(player.uuid);
     }
+    if (game.drawCondition(player.color)) {
+      this.draws();
+    }
   }
 
   reconnect(uuid: string, socket: WebSocket) {
@@ -279,6 +282,25 @@ export class Room {
       player: this.p2.time,
       opponent: this.p1.time,
     } as TimerMessage);
+  }
+
+  draws() {
+    this.setState(RoomState.COMPLETED);
+    const gom = {
+      type: 'gameOver',
+      stateHistory: this.game.stateHistory,
+      turnHistory: this.game.turnHistory,
+    };
+
+    sendMessage(this.p1.socket, {
+      ...gom,
+      result: GameResult.DRAW,
+    } as GameOverMessage);
+    sendMessage(this.p2.socket, {
+      ...gom,
+      result: GameResult.DRAW,
+    } as GameOverMessage);
+    this.sendTimers();
   }
 }
 
