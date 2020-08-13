@@ -1,7 +1,7 @@
 import {Game} from '../chess/game';
 import {randomChoice} from '../utils';
 import {Move, Turn, TurnType} from '../chess/move';
-import {Color, getOpponent} from '../chess/const';
+import {Color, getOpponent, ROULETTE_SECONDS} from '../chess/const';
 import {
   AppendMessage,
   replacer,
@@ -29,7 +29,6 @@ interface PlayerInfo {
   time: number;
 }
 
-// const PLAYER_TIME_MS = 15 * 1000;
 const PLAYER_TIME_MS = 3 * 60 * 1000;
 const INCREMENT_MS = 5 * 1000;
 
@@ -63,6 +62,11 @@ export class Room {
       color: getOpponent(this.p1.color),
       time: PLAYER_TIME_MS,
     };
+    if (this.p1.color === Color.WHITE) {
+      this.p1.time += ROULETTE_SECONDS * 1000;
+    } else {
+      this.p2.time += ROULETTE_SECONDS * 1000;
+    }
     this.setState(RoomState.PLAYING);
     this.game = game;
 
