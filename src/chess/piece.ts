@@ -450,7 +450,6 @@ export class Amazon extends Piece {
   }
 }
 
-
 export class Mann extends King {
   name = 'Mann';
   isRoyal = false;

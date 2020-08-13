@@ -33,7 +33,14 @@ export class Game {
   captureEffects(move: Move) {
     // in atomic chess, explode, etc.
   }
-  activate(color: Color, piece: Piece, row: number, col: number): Turn | undefined {return}
+  activate(
+    color: Color,
+    piece: Piece,
+    row: number,
+    col: number
+  ): Turn | undefined {
+    return;
+  }
   visibleState(state: BoardState, color: Color) {
     return state;
   } // dark chess
@@ -182,7 +189,11 @@ export class Game {
     const cols: number[] = [];
     let rookSquare: Square;
     // check history for castling or rook/king moves
-    if (this.turnHistory.some((move) => move.piece.isRoyal && move.piece.color === color)) {
+    if (
+      this.turnHistory.some(
+        (move) => move.piece.isRoyal && move.piece.color === color
+      )
+    ) {
       console.log('king moved');
       return;
     }

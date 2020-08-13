@@ -26,7 +26,7 @@ import './my-square';
 import {VARIANTS} from '../chess/variants';
 import {Game} from '../chess/game';
 import {Move, toFEN, Turn, TurnType} from '../chess/move';
-import {Color} from '../chess/const';
+import {Color, ROULETTE_SECONDS} from '../chess/const';
 import {BoardState} from '../chess/state';
 import {Chess960} from '../chess/variants/960';
 import {equals} from '../chess/pair';
@@ -46,14 +46,24 @@ export class MyElement extends LitElement {
   static styles = css`
     :host {
       display: inline-block;
+      overflow-y: hidden;
     }
 
-    #board {
+    .board-bg {
       background-image: url('/img/bg.svg');
-      background-repeat: no-repeat;
+      background-repeat: repeat-y;
       border-radius: 4px;
       display: inline-block;
+      background-position-y: 8000px;
+      height: 10000px;
+      width: 400px;
       position: relative;
+      transition: none;
+    }
+
+    :host([started]) .board-bg {
+      background-position-y: 0;
+      transition: all ${ROULETTE_SECONDS}s cubic-bezier(0.15, 0.82, 0.58, 1.02);
     }
 
     #canvas {
@@ -66,13 +76,28 @@ export class MyElement extends LitElement {
       z-index: 1;
     }
 
+    my-square {
+      position: relative;
+      transition: none;
+    }
+    :host([color='black']) my-square {
+      top: -8000px;
+    }
+    :host([color='white']) my-square {
+      top: 8000px;
+    }
+    :host([started]) my-square {
+      top: 0;
+      transition: all ${ROULETTE_SECONDS}s cubic-bezier(0.15, 0.82, 0.58, 1.02);
+    }
+
     .row {
       height: ${SQUARE_SIZE}px;
     }
   `;
 
   // public
-  @property({type: String}) color: Color;
+  @property({type: String, reflect: true}) color: Color;
   @property({type: Object}) game: Game;
   @property({type: Object}) socket: WebSocket;
   @property({type: Number}) viewMoveIndex: number | undefined;
@@ -84,6 +109,7 @@ export class MyElement extends LitElement {
   @property({type: Object}) arrowStartSquare: Square | undefined;
   @property({type: Object}) promotionSquare: Square | undefined;
   @property({type: Boolean}) gameOver = false;
+  @property({type: Boolean, reflect: true}) started = false;
 
   draggedSquare: Square | undefined;
 
@@ -204,36 +230,38 @@ export class MyElement extends LitElement {
           .eventName=${'promotion-picked'}
         ></my-piece-picker
       ></paper-dialog>
-      <div
-        id="board"
-        style=${this.color === Color.BLACK ? 'transform:rotate(180deg);' : ''}
-      >
-        <canvas id="canvas"></canvas>
-        ${uiState.squares.map(
-          (row) => html`<div class="row">
-            ${row.map(
-              (square) => html`<my-square
-                .frozen=${this.viewMoveIndex != null || this.gameOver}
-                .square=${square}
-                .piece=${square.occupant}
-                .dragged=${square === this.draggedSquare}
-                .possible=${this.possibleMoves.includes(square)}
-                .lastMove=${lastTurn &&
-                ((lastTurn.type === TurnType.MOVE &&
-                  equals(lastTurn.start, square)) ||
-                  equals(lastTurn.end, square))}
-                .color=${this.color}
-                .checked=${square.occupant?.isRoyal &&
-                this.game.knowsAttackedSquare(
-                  square.occupant?.color,
-                  uiState,
-                  square.row,
-                  square.col
-                )}
-              ></my-square>`
-            )}
-          </div>`
-        )}
+      <div class="board-bg">
+        <div
+          id="board"
+          style=${this.color === Color.BLACK ? 'transform:rotate(180deg);' : ''}
+        >
+          <canvas id="canvas"></canvas>
+          ${uiState.squares.map(
+            (row) => html`<div class="row">
+              ${row.map(
+                (square) => html`<my-square
+                  .frozen=${this.viewMoveIndex != null || this.gameOver}
+                  .square=${square}
+                  .piece=${square.occupant}
+                  .dragged=${square === this.draggedSquare}
+                  .possible=${this.possibleMoves.includes(square)}
+                  .lastMove=${lastTurn &&
+                  ((lastTurn.type === TurnType.MOVE &&
+                    equals(lastTurn.start, square)) ||
+                    equals(lastTurn.end, square))}
+                  .color=${this.color}
+                  .checked=${square.occupant?.isRoyal &&
+                  this.game.knowsAttackedSquare(
+                    square.occupant?.color,
+                    uiState,
+                    square.row,
+                    square.col
+                  )}
+                ></my-square>`
+              )}
+            </div>`
+          )}
+        </div>
       </div>
     `;
   }
@@ -262,9 +290,16 @@ export class MyElement extends LitElement {
       }
       sendMessage(this.socket, {type: 'turn', turn});
     } else if (this.selectedPiece && this.selectedSquare) {
-      if (this.selectedSquare.row === square.row &&
-        this.selectedSquare.col === square.col) {
-        turn = this.game.activate(this.color, this.selectedPiece, square.row, square.col);
+      if (
+        this.selectedSquare.row === square.row &&
+        this.selectedSquare.col === square.col
+      ) {
+        turn = this.game.activate(
+          this.color,
+          this.selectedPiece,
+          square.row,
+          square.col
+        );
       } else if (
         this.selectedPiece.isRoyal &&
         this.selectedSquare.row === square.row &&

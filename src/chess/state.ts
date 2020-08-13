@@ -10,7 +10,7 @@ import {
   Pawn,
 } from './piece';
 import {hash, Color} from './const';
-import { randomChoice } from '../utils';
+import {randomChoice} from '../utils';
 
 type BoardJson = (string | null)[][];
 
@@ -159,7 +159,7 @@ function randomBackRank(): {[i: number]: typeof Piece} {
     [r1file]: Rook,
     [kfile]: King,
     [r2file]: Rook,
-  }
+  };
 }
 
 export function squaresFromPos(pos): Square[][] {

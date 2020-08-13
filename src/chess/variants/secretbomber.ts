@@ -35,22 +35,27 @@ export class Secretbomber extends Game {
     );
   }
 
-  activate(color: Color, piece: Piece, row: number, col: number): Activate|undefined {
+  activate(
+    color: Color,
+    piece: Piece,
+    row: number,
+    col: number
+  ): Activate | undefined {
     if (!(piece instanceof BomberPawn)) return;
     if (piece.color !== color) return;
-    
+
     const after = BoardState.copy(this.state)
       .setTurn(getOpponent(color))
-      .empty(row-1, col-1)
-      .empty(row-1, col)
-      .empty(row-1, col+1)
-      .empty(row, col-1)
+      .empty(row - 1, col - 1)
+      .empty(row - 1, col)
+      .empty(row - 1, col + 1)
+      .empty(row, col - 1)
       .empty(row, col)
-      .empty(row, col+1)
-      .empty(row+1, col-1)
-      .empty(row+1, col)
-      .empty(row+1, col+1);
-    
+      .empty(row, col + 1)
+      .empty(row + 1, col - 1)
+      .empty(row + 1, col)
+      .empty(row + 1, col + 1);
+
     const turn = {
       type: TurnType.ACTIVATE,
       before: this.state,

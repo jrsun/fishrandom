@@ -66,6 +66,7 @@ app.post('/login', function (req, res) {
 app.use('/dist', express.static(path.join(path.resolve() + '/dist')));
 
 app.use('/img', express.static(path.join(path.resolve() + '/img')));
+app.use('/font', express.static(path.join(path.resolve() + '/font')));
 
 console.log('serving on 8080');
 app.listen(8080);

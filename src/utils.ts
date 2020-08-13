@@ -7,6 +7,10 @@ export function randomInt(...args) {
   return min + Math.floor(Math.random() * (max - min));
 }
 
+export function memecase(s: string) {
+  return s.toUpperCase().split('').join(' ');
+}
+
 export function randomChoice<T>(arr: T[]): T {
   return arr[randomInt(arr.length)];
 }

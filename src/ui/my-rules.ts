@@ -21,6 +21,8 @@ import {
   reviver,
   addMessageHandler,
 } from '../common/message';
+import {randomChoice} from '../utils';
+import {ROULETTE_SECONDS} from '../chess/const';
 
 @customElement('my-rules')
 export class MyRules extends LitElement {
@@ -69,6 +71,21 @@ export class MyRules extends LitElement {
     }
   `;
   @property({type: Object}) game: Game;
+  @property({type: Boolean}) started = false;
+
+  @property({type: Boolean}) realStarted = false;
+
+  updated(changedProperties) {
+    if (changedProperties.has('started')) {
+      if (this.started) {
+        setTimeout(() => {
+          this.realStarted = true;
+        }, ROULETTE_SECONDS * 1000);
+      } else {
+        this.realStarted = false;
+      }
+    }
+  }
 
   render() {
     if (!this.game) return html`Loading...`; // TODO Loading spinner
@@ -83,6 +100,7 @@ export class MyRules extends LitElement {
   }
 
   private getVariantRules() {
+    if (!this.realStarted) return html``;
     return VARIANT_INFO[this.game.name] ?? `${this.game.name} rules not found.`;
   }
 }
@@ -140,24 +158,25 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     </ul> `,
   Pocketknight: html`Each player has a knight in pocket. It can be dropped on an
   empty square anywhere on the board instead of moving a piece.`,
-  Secretbomber: html`Each player has a hidden bomber pawn. <b>Double click</b> it to destroy
-  it and the pieces on the adjacent eight squares.
-  <ul>
-    <li>Checkmate or <b>explode</b> the king to win.</li>
-  </ul>`,
-  Maharaja: html`White's sole piece is the powerful <b>Amazon</b>, which moves like
-  a Knight + Queen.
-  <ul>
-    <li>White wins by checkmate.</li>
-    <li>Black wins by checkmating the Amazon.</li>
-  </ul>`,
-  Chess921600:  html`Starting position of the pieces on the players' home ranks is
-  independently randomized.
-  <!-- <div class="examples"><img src="../img/variants/960.png"/></div> -->
-  <ul>
-    <li>Orthodox rules.</li>
-    <li>Checkmate to win.</li>
-  </ul>`,
+  Secretbomber: html`Each player has a hidden bomber pawn.
+    <b>Double click</b> it to destroy it and the pieces on the adjacent eight
+    squares.
+    <ul>
+      <li>Checkmate or <b>explode</b> the king to win.</li>
+    </ul>`,
+  Maharaja: html`White's sole piece is the powerful <b>Amazon</b>, which moves
+    like a Knight + Queen.
+    <ul>
+      <li>White wins by checkmate.</li>
+      <li>Black wins by checkmating the Amazon.</li>
+    </ul>`,
+  Chess921600: html`Starting position of the pieces on the players' home ranks
+    is independently randomized.
+    <!-- <div class="examples"><img src="../img/variants/960.png"/></div> -->
+    <ul>
+      <li>Orthodox rules.</li>
+      <li>Checkmate to win.</li>
+    </ul>`,
 };
 
 declare global {

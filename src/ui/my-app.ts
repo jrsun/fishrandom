@@ -7,7 +7,7 @@ import {
 } from '../../node_modules/lit-element';
 import '@polymer/paper-dialog';
 import './my-element';
-import {VARIANTS, Chess960} from '../chess/variants/index';
+import {VARIANTS, Chess960, RANDOM_VARIANTS} from '../chess/variants/index';
 import {
   reviver,
   Message,
@@ -24,9 +24,10 @@ import './my-piece-picker';
 import './my-controls';
 import {Game} from '../chess/game';
 import {BoardState} from '../chess/state';
-import {Color, getOpponent} from '../chess/const';
+import {Color, getOpponent, ROULETTE_SECONDS} from '../chess/const';
 import {Knight, Piece} from '../chess/piece';
 import {MyElement} from './my-element';
+import {randomChoice, memecase} from '../utils';
 
 @customElement('my-app')
 export class MyApp extends LitElement {
@@ -121,7 +122,7 @@ export class MyApp extends LitElement {
       padding: 10px;
       padding-left: 60px;
       border-radius: 4px;
-      font-family: 'Jellee';
+      font-family: 'JelleeBold';
       min-width: 75px;
     }
     .timer.opponent {
@@ -198,6 +199,7 @@ export class MyApp extends LitElement {
   @property({type: Number}) playerTimer?: number;
   @property({type: Number}) opponentTimer?: number;
   @property({type: Object}) bankSelectedPiece: Piece | undefined;
+  @property({type: Boolean}) started = false;
 
   private gameResult: string | undefined;
   private player = 'cheems';
@@ -275,7 +277,29 @@ export class MyApp extends LitElement {
 
       this.gameResult = '';
 
+      // Reset animations in child elements
+      this.started = false;
       this.performUpdate();
+
+      setTimeout(() => {
+        this.started = true;
+      }, 0);
+
+      const titleEl = this.shadowRoot?.querySelector('.title');
+      const titleScrambler = setInterval(() => {
+        if (titleEl) {
+          titleEl.innerHTML = memecase(
+            randomChoice(Object.keys(RANDOM_VARIANTS))
+          );
+        }
+      }, 50);
+      setTimeout(() => {
+        clearInterval(titleScrambler);
+        if (titleEl) {
+          titleEl.innerHTML =
+            this.game?.name.toUpperCase().split('').join(' ') ?? '';
+        }
+      }, ROULETTE_SECONDS * 1000);
     } else if (message.type === 'gameOver') {
       const gom = message as GameOverMessage;
       const {turnHistory, stateHistory, result} = gom;
@@ -321,8 +345,8 @@ export class MyApp extends LitElement {
 
   renderWaiting() {
     return html`<div class="app">
-      <div class="title">
-        <h1>
+      <div>
+        <h1 class="title">
           F I S H R A N D O M
         </h1>
       </div>
@@ -343,6 +367,7 @@ export class MyApp extends LitElement {
     const player = this.color;
     const opponent = getOpponent(this.color);
 
+    // TODO: Banks when randomizing anim?
     return html`<div class="bank-wrapper">
       <div class="card bank">
         <my-piece-picker .pieces=${this.game.state.banks[opponent]}>
@@ -365,10 +390,8 @@ export class MyApp extends LitElement {
 
     return html`<div class="app">
       <canvas id="confetti-canvas"></canvas>
-      <div class="title">
-        <h1>
-          ${this.game.name.toUpperCase().split('').join(' ')}
-        </h1>
+      <div>
+        <h1 class="title"></h1>
       </div>
       <div class="game-container">
         ${this.renderBanks()}
@@ -396,6 +419,7 @@ export class MyApp extends LitElement {
               .game=${this.game}
               .bankSelectedPiece=${this.bankSelectedPiece}
               .viewMoveIndex=${this.viewMoveIndex}
+              .started=${this.started}
             ></my-element>
           </div>
           <div class="active-game-info player">
@@ -424,7 +448,7 @@ export class MyApp extends LitElement {
             ></my-controls>
           </div>
           <div class="card rules">
-            <my-rules .game=${this.game}></my-rules>
+            <my-rules .game=${this.game} .started=${this.started}></my-rules>
           </div>
         </div>
       </div>

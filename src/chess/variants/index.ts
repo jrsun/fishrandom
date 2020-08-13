@@ -28,7 +28,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Chess921600,
 };
 
-const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
+export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Knightmate,
   Horde,
   Hiddenqueen,

@@ -35,6 +35,9 @@ enum Color {
   OTHER = 'other',
 }
 
+/** UI */
+export const ROULETTE_SECONDS = 5;
+
 export function getOpponent(color: Color) {
   return color === Color.WHITE ? Color.BLACK : Color.WHITE;
 }

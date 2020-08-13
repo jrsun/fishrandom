@@ -8,8 +8,8 @@ import WS from 'ws';
 import {QueenPawn} from '../chess/variants/hiddenqueen';
 import {Hopper} from '../chess/variants/grasshopper';
 import {Obscurant} from '../chess/variants/dark';
-import { Secretbomber } from '../chess/variants';
-import { BomberPawn } from '../chess/variants/secretbomber';
+import {Secretbomber} from '../chess/variants';
+import {BomberPawn} from '../chess/variants/secretbomber';
 
 // TODO: Set game type and start game.
 export type Message =

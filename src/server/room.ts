@@ -163,8 +163,12 @@ export class Room {
           turnAttempt.end.col
         )?.occupant;
         if (!apiece) return;
-        turn = game.activate(player.color, apiece, turnAttempt.end.row,
-          turnAttempt.end.col);
+        turn = game.activate(
+          player.color,
+          apiece,
+          turnAttempt.end.row,
+          turnAttempt.end.col
+        );
         break;
       default:
         throw new Error(`unimplemented turn type ${turnAttempt.type}`);
