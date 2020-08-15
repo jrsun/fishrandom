@@ -28,6 +28,7 @@ export class Game {
   /***********************
    *  Override in variants
    *************************/
+  castler: typeof Piece = King;
   canDrop = false;
   afterMove() {} // In Piece Eater, do something
   captureEffects(move: Move) {
@@ -221,7 +222,7 @@ export class Game {
     // check history for castling or rook/king moves
     if (
       this.turnHistory.some(
-        (move) => move.piece instanceof King && move.piece.color === color
+        (move) => move.piece instanceof this.castler && move.piece.color === color
       )
     ) {
       console.log('king moved');
@@ -230,7 +231,7 @@ export class Game {
     const kingSquares = this.state.squares
       .flat()
       .filter(
-        (square) => square?.occupant?.isRoyal && square.occupant.color === color
+        (square) => square?.occupant instanceof this.castler && square.occupant.color === color
       );
     if (kingSquares.length !== 1) {
       console.log('error, expected 1 royal, got %s', kingSquares.length);

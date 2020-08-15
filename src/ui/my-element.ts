@@ -306,7 +306,7 @@ export class MyElement extends LitElement {
           square.col
         );
       } else if (
-        this.selectedPiece instanceof King &&
+        this.selectedPiece instanceof this.game.castler &&
         this.selectedSquare.row === square.row &&
         Math.abs(this.selectedSquare.col - square.col) === 2
       ) {
