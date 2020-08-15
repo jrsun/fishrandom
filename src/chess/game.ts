@@ -13,7 +13,6 @@ export class Game {
   turnHistory: Turn[];
   stateHistory: BoardState[];
 
-  // PAWN_HOME_RANK = 1;
 
   constructor(public isServer: boolean, initial?: BoardState) {
     this.state = initial ?? generateStartState();
@@ -28,11 +27,12 @@ export class Game {
   /***********************
    *  Override in variants
    *************************/
+  // pawnHomeRanks: number[] = [1]; // 0 indexed from player's side
   castler: typeof Piece = King;
   canDrop = false;
-  afterMove() {} // In Piece Eater, do something
-  captureEffects(move: Move) {
+  modifyTurn(turn: Turn): Turn {
     // in atomic chess, explode, etc.
+    return turn;
   }
   activate(
     color: Color,
@@ -163,9 +163,6 @@ export class Game {
       console.log('invalid move', piece.name, drow, dcol);
       console.log('legal moves are', legalMoves);
       return; // invalid move
-    }
-    if (legalMove.isCapture) {
-      this.captureEffects(legalMove);
     }
     return legalMove;
   }
@@ -347,9 +344,6 @@ export class Game {
       .setTurn(getOpponent(promoter.color))
       .empty(srow, scol)
       .place(to, drow, dcol);
-    if (legalMove.isCapture) {
-      this.captureEffects(legalMove);
-    }
     const promote = {
       ...legalMove,
       after,

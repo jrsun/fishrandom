@@ -183,6 +183,11 @@ export class Room {
       console.log('bad move!');
       return;
     }
+    turn = game.modifyTurn(turn);
+    if (!turn) {
+      console.log('bad move after modify!');
+      return;
+    }
 
     game.state = turn.after;
     game.turnHistory.push(turn);
