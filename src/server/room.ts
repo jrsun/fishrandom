@@ -1,5 +1,5 @@
 import {Game} from '../chess/game';
-import {randomChoice} from '../utils';
+import {randomChoice, uuidToName} from '../utils';
 import {Move, Turn, TurnType} from '../chess/move';
 import {Color, getOpponent, ROULETTE_SECONDS} from '../chess/const';
 import {
@@ -58,14 +58,14 @@ export class Room {
       socket: p1s,
       color: randomChoice([Color.WHITE, Color.BLACK]),
       time: PLAYER_TIME_MS,
-      name: p1.split('|')[1] ?? 'anon',
+      name: uuidToName(p1),
     };
     this.p2 = {
       uuid: p2,
       socket: p2s,
       color: getOpponent(this.p1.color),
       time: PLAYER_TIME_MS,
-      name: p2.split('|')[1] ?? 'anon',
+      name: uuidToName(p2),
     };
     if (this.p1.color === Color.WHITE) {
       this.p1.time += ROULETTE_SECONDS * 1000;
@@ -339,5 +339,5 @@ export class Room {
 }
 
 function getName(uuid?: string): string {
-  return uuid?.split('|')?.[1] ?? 'Fish';
+  return uuidToName(uuid ?? '');
 }

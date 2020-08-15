@@ -13,7 +13,7 @@ import WS from 'ws';
 import * as Variants from '../chess/variants/index';
 import {Color} from '../chess/const';
 import yargs from 'yargs';
-import {randomChoice, randomInt} from '../utils';
+import {randomChoice, randomInt, uuidToName} from '../utils';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import escape from 'validator/lib/escape';
@@ -119,7 +119,7 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
 });
 
 const handleMessage = function (uuid, message: Message) {
-  const playerLog = log.get(uuid.split('|')[1] ?? 'anon');
+  const playerLog = log.get(uuidToName(uuid));
   const room = players[uuid].room;
   if (room?.state === RoomState.COMPLETED) {
     delete players[room.p1.uuid].room;
@@ -158,7 +158,7 @@ const handleMessage = function (uuid, message: Message) {
 const newGame = (() => {
   const waitingUsers: PlayerInfo[] = [];
   return (uuid: string, ws: WebSocket) => {
-    const playerLog = log.get(uuid.split('|')[1] ?? 'anon');
+    const playerLog = log.get(uuidToName(uuid));
     playerLog.notice(`${uuid} requested new game.`);
     // Handle existing room
     const activeRoom = players[uuid].room;
@@ -189,7 +189,7 @@ const newGame = (() => {
       players[uuid].room = room;
 
       playerLog.notice('found a game');
-      log.get(p1info.uuid.split('|')[1] ?? 'anon').notice('after waiting, found a game');
+      log.get(uuidToName(p1info.uuid)).notice('after waiting, found a game');
     }
   };
 })();

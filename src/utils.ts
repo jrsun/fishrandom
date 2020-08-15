@@ -15,6 +15,10 @@ export function randomChoice<T>(arr: T[]): T {
   return arr[randomInt(arr.length)];
 }
 
+export function uuidToName(s: string): string {
+  return s.split('|')?.[1].replace(/[^0-9A-Z]+/gi,"").toLocaleLowerCase() ?? 'fish';
+}
+
 export function drawArrow(
   ctx: CanvasRenderingContext2D,
   fromx,
