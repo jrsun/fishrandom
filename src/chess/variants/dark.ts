@@ -52,7 +52,7 @@ export class Dark extends Game {
     );
   }
 
-  postProcess(color: Color, turn: Turn): Turn {
+  visibleTurn(turn: Turn, color: Color): Turn {
     if (color === turn.piece.color) return turn;
 
     return {

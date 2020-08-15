@@ -45,6 +45,10 @@ export class Game {
   visibleState(state: BoardState, color: Color) {
     return state;
   } // dark chess
+  visibleTurn(turn: Turn, color: Color): Turn {
+    return turn;
+  }
+
   winCondition(color: Color): boolean {
     const opponent = getOpponent(color);
     // fallback if king gets taken
@@ -132,9 +136,6 @@ export class Game {
   get promotesTo(): typeof Piece[] {
     return [Queen, Rook, Bishop, Knight];
   }
-  postProcess(color: Color, turn: Turn): Turn {
-    return turn;
-  }
 
   /***********************
    *  Private
@@ -166,11 +167,6 @@ export class Game {
     if (legalMove.isCapture) {
       this.captureEffects(legalMove);
     }
-
-    this.turnHistory.push(legalMove);
-    this.stateHistory.push(legalMove.after);
-    this.state = legalMove.after;
-
     return legalMove;
   }
 
@@ -206,10 +202,6 @@ export class Game {
       console.log('illegal drop');
       return;
     }
-    console.log('dropped!');
-    this.state = after;
-    this.turnHistory.push(drop);
-    this.stateHistory.push(after);
     return drop;
   }
 
@@ -304,7 +296,7 @@ export class Game {
       .empty(row, col)
       .place(king, target.row, target.col)
       .place(new Rook(color), target.row, target.col + (kingside ? -1 : 1));
-    const type = TurnType.CASTLE;
+    const type = TurnType.CASTLE as const;
     const move = {
       before,
       after,
@@ -313,10 +305,7 @@ export class Game {
       type,
       start: {row, col},
       kingside,
-    } as Castle;
-    this.turnHistory.push(move);
-    this.stateHistory.push(after);
-    this.state = after;
+    };
     return move;
   }
 
@@ -364,12 +353,9 @@ export class Game {
     const promote = {
       ...legalMove,
       after,
-      type: TurnType.PROMOTE,
+      type: TurnType.PROMOTE as const,
       to,
-    } as Promote;
-    this.turnHistory.push(promote);
-    this.stateHistory.push(after);
-    this.state = after;
+    };
     return promote;
   }
 

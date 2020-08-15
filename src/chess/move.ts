@@ -31,7 +31,7 @@ export interface Move extends BaseTurn {
 
 export interface Castle extends BaseTurn {
   type: TurnType.CASTLE;
-  piece: King;
+  piece: Piece;
   start: Pair;
   kingside: boolean;
 }
@@ -42,7 +42,7 @@ export interface Drop extends BaseTurn {
 
 export interface Promote extends BaseTurn {
   type: TurnType.PROMOTE;
-  piece: Pawn;
+  piece: Piece;
   start: Pair;
   to: Piece;
   isCapture: boolean;

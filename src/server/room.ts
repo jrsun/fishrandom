@@ -184,6 +184,10 @@ export class Room {
       return;
     }
 
+    game.state = turn.after;
+    game.turnHistory.push(turn);
+    game.stateHistory.push(turn.after);
+
     player.time += INCREMENT_MS;
     // we should send the mover a `replaceState` and the opponent an
     // `appendState`
@@ -191,7 +195,7 @@ export class Room {
       type: 'replaceState' as const,
       turn: {
         // mostly a no-op on turn, but useful in variants
-        ...this.game.postProcess(player.color, turn),
+        ...this.game.visibleTurn(turn, player.color),
         // state should be universal
         before: game.visibleState(turn.before, player.color),
         after: game.visibleState(turn.after, player.color),
@@ -200,7 +204,7 @@ export class Room {
     const am = {
       type: 'appendState' as const,
       turn: {
-        ...this.game.postProcess(opponent.color, turn),
+        ...this.game.visibleTurn(turn, opponent.color),
         before: game.visibleState(turn.before, opponent.color),
         after: game.visibleState(turn.after, opponent.color),
       },
@@ -231,7 +235,7 @@ export class Room {
       player: getName(player.uuid),
       opponent: getName(opponent.uuid),
       turnHistory: this.game.turnHistory.map(turn => ({
-        ...this.game.postProcess(player.color, turn),
+        ...this.game.visibleTurn(turn, player.color),
         before: this.game.visibleState(turn.before, player.color),
         after: this.game.visibleState(turn.after, player.color),
       })),

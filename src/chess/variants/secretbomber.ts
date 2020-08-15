@@ -58,15 +58,12 @@ export class Secretbomber extends Game {
       .empty(row + 1, col + 1);
 
     const turn = {
-      type: TurnType.ACTIVATE,
+      type: TurnType.ACTIVATE as const,
       before: this.state,
       after,
       end: {row, col},
       piece,
-    } as Activate;
-    this.turnHistory.push(turn);
-    this.stateHistory.push(after);
-    this.state = after;
+    };
     return turn;
   }
 
