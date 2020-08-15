@@ -83,7 +83,7 @@ export class Secretbomber extends Game {
     return false;
   }
 
-  attemptMove(
+  move(
     color: Color,
     piece: Piece,
     srow: number,
@@ -92,9 +92,9 @@ export class Secretbomber extends Game {
     dcol: number
   ): Move | undefined {
     if (!this.isServer) {
-      return super.attemptMove(color, piece, srow, scol, drow, dcol);
+      return super.move(color, piece, srow, scol, drow, dcol);
     }
-    const move = super.attemptMove(color, piece, srow, scol, drow, dcol);
+    const move = super.move(color, piece, srow, scol, drow, dcol);
     if (!move) return;
 
     return {

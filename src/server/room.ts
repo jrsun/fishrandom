@@ -142,7 +142,7 @@ export class Room {
           dcol
         );
 
-        turn = game.attemptMove(player.color, piece, srow, scol, drow, dcol);
+        turn = game.move(player.color, piece, srow, scol, drow, dcol);
         break;
       case TurnType.CASTLE:
         turn = game.castle(player.color, turnAttempt.kingside);

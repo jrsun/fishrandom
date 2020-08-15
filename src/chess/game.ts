@@ -140,7 +140,7 @@ export class Game {
    *  Private
    *************************/
 
-  attemptMove(
+  move(
     color: Color,
     piece: Piece,
     srow: number,

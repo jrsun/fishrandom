@@ -279,7 +279,7 @@ export class MyElement extends LitElement {
     if (this.viewMoveIndex != null) return;
 
     this.eraseCanvas();
-    // There's a bug here where updating the game using attemptMove doesn't cause rerender.
+    // There's a bug here where updating the game using move doesn't cause rerender.
     const square = e.detail as Square;
     let turn: Turn | undefined;
     if (this.bankSelectedPiece) {
@@ -315,7 +315,7 @@ export class MyElement extends LitElement {
           square.col - this.selectedSquare.col > 0
         );
       } else {
-        turn = this.game.attemptMove(
+        turn = this.game.move(
           this.color,
           this.selectedPiece,
           this.selectedSquare.row,
