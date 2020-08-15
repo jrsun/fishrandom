@@ -239,13 +239,14 @@ export class Room {
       color: player.color,
       player: getName(player.uuid),
       opponent: getName(opponent.uuid),
-      turnHistory: this.game.turnHistory.map(turn => ({
+      turnHistory: this.game.turnHistory.map((turn) => ({
         ...this.game.visibleTurn(turn, player.color),
         before: this.game.visibleState(turn.before, player.color),
         after: this.game.visibleState(turn.after, player.color),
       })),
-      stateHistory: this.game.stateHistory.map(state => 
-        this.game.visibleState(state, player.color)),
+      stateHistory: this.game.stateHistory.map((state) =>
+        this.game.visibleState(state, player.color)
+      ),
     };
     sendMessage(socket, rec);
     this.sendTimers();

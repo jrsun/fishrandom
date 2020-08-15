@@ -14,7 +14,7 @@ export class MyLogin extends LitElement {
     .host {
       display: block;
     }
-    
+
     .container {
       height: 100%;
       width: 100%;
@@ -89,9 +89,9 @@ export class MyLogin extends LitElement {
 
   render() {
     return html`<form .onsubmit=${this.login.bind(this)}>
-    <div class="container">
-    <div class="title">F I S H R A N D O M</div>
-    <div class="subtitle">Randomized Chess Variants</div>
+      <div class="container">
+        <div class="title">F I S H R A N D O M</div>
+        <div class="subtitle">Randomized Chess Variants</div>
         <input
           id="username"
           type="text"
@@ -99,11 +99,11 @@ export class MyLogin extends LitElement {
           placeholder="Username"
         />
         <paper-button id="button" raised .onclick=${this.login.bind(this)}
-            >Play</paper-button
-          >
-          <input type="submit" style="display: none" />
-  </div>
-      </form>`;
+          >Play</paper-button
+        >
+        <input type="submit" style="display: none" />
+      </div>
+    </form>`;
   }
 }
 

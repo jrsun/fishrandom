@@ -9,11 +9,7 @@ import {
 import {Game} from '../chess/game';
 import {toFEN, Turn} from '../chess/move';
 import {styleMap} from 'lit-html/directives/style-map';
-import {
-  Message,
-  addMessageHandler,
-  sendMessage,
-} from '../common/message';
+import {Message, addMessageHandler, sendMessage} from '../common/message';
 import '@polymer/paper-button';
 import {Move} from '../chess/move';
 

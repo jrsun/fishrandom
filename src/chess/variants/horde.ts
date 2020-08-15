@@ -6,6 +6,7 @@ import {BoardState, squaresFromPos, backRank} from '../state';
 export class Horde extends Game {
   // TODO: pawns on 1st rank can move 2 squares
   name = 'Horde';
+  pawnHomeRanks = [0, 1];
 
   constructor(isServer) {
     super(isServer, generateStartState());
@@ -16,9 +17,11 @@ export class Horde extends Game {
       return super.winCondition(color);
     }
     // Black wins by capturing all the pawns
-    return this.state.squares.flat().filter(
-      square => square.occupant?.color === opponent
-    ).length === 0;
+    return (
+      this.state.squares
+        .flat()
+        .filter((square) => square.occupant?.color === opponent).length === 0
+    );
   }
 }
 

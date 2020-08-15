@@ -81,7 +81,7 @@ export interface GameOverMessage {
 }
 
 export interface ReconnectMessage {
-  type: 'reconnect',
+  type: 'reconnect';
   state: BoardState;
   stateHistory: BoardState[];
   turnHistory: Turn[];

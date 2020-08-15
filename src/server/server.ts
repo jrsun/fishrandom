@@ -63,8 +63,14 @@ app.post('/login', function (req, res) {
   res.end();
 });
 
-app.use('/dist/index.bundle.js', express.static(path.join(path.resolve() + '/dist/index.bundle.js')));
-app.use('/dist/login.bundle.js', express.static(path.join(path.resolve() + '/dist/login.bundle.js')));
+app.use(
+  '/dist/index.bundle.js',
+  express.static(path.join(path.resolve() + '/dist/index.bundle.js'))
+);
+app.use(
+  '/dist/login.bundle.js',
+  express.static(path.join(path.resolve() + '/dist/login.bundle.js'))
+);
 
 // app.use('/dist/index.bundle.js, ')
 

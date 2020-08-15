@@ -31,8 +31,9 @@ export interface Move extends BaseTurn {
 
 export interface Castle extends BaseTurn {
   type: TurnType.CASTLE;
-  piece: Piece;
   start: Pair;
+  isCapture: false;
+  captured?: undefined;
   kingside: boolean;
 }
 
@@ -42,7 +43,6 @@ export interface Drop extends BaseTurn {
 
 export interface Promote extends BaseTurn {
   type: TurnType.PROMOTE;
-  piece: Piece;
   start: Pair;
   to: Piece;
   isCapture: boolean;
@@ -84,8 +84,8 @@ export function toFEN(turn: Turn) {
   }
 }
 
-export function toEndSquare(state: BoardState, move: Move): Square|undefined {
-  return state.getSquare(move.end.row, move.end.col);
+export function toEndSquare(state: BoardState, turn: Turn): Square | undefined {
+  return state.getSquare(turn.end.row, turn.end.col);
 }
 
 function moveToFen(move: Move): string {
@@ -108,6 +108,7 @@ function moveToFen(move: Move): string {
       !!occupant &&
       occupant.color === piece.color &&
       occupant.name === piece.name &&
+      // TODO: pass in game so we can use legalMovesFrom
       occupant
         .legalMoves(
           square.row,

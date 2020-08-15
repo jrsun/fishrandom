@@ -358,7 +358,6 @@ export class MyApp extends LitElement {
 
       this.gameResult = '';
       if (message.type === 'initGame') this.onInitGame();
-
     } else if (message.type === 'gameOver') {
       const gom = message as GameOverMessage;
       const {turnHistory, stateHistory, result} = gom;
@@ -450,7 +449,11 @@ export class MyApp extends LitElement {
     return html`<div class="app">
       <canvas id="confetti-canvas"></canvas>
       <div>
-        <h1 class="title">${this.started ? this.game?.name.toUpperCase().split('').join(' ') : ''}</h1>
+        <h1 class="title">
+          ${this.started
+            ? this.game?.name.toUpperCase().split('').join(' ')
+            : ''}
+        </h1>
       </div>
       <div class="game-container">
         ${this.renderBanks()}
@@ -511,14 +514,21 @@ export class MyApp extends LitElement {
           </div>
         </div>
       </div>
-      <div class="footer"><a target="_blank" href="https://discord.gg/DpWUJYt">Discord</a></div>
-      <paper-dialog class="game-over-dialog"
+      <div class="footer">
+        <a target="_blank" href="https://discord.gg/DpWUJYt">Discord</a>
+      </div>
+      <paper-dialog
+        class="game-over-dialog"
         entry-animation="scale-up-animation"
         exit-animation="fade-out-animation"
       >
         <h2 class="game-over-result">${memecase(this.gameResult ?? '')}</h2>
         <div>
-          <paper-button class="game-over-button" raised .onclick=${this.requestNewGame.bind(this)}>
+          <paper-button
+            class="game-over-button"
+            raised
+            .onclick=${this.requestNewGame.bind(this)}
+          >
             New Game
           </paper-button>
         </div>

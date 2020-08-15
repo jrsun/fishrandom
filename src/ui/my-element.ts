@@ -56,7 +56,7 @@ export class MyElement extends LitElement {
       display: inline-block;
       background-position-y: 8000px;
       height: 10000px;
-      width: ${SQUARE_SIZE*8}px;
+      width: ${SQUARE_SIZE * 8}px;
       position: relative;
       transition: none;
     }
@@ -173,8 +173,10 @@ export class MyElement extends LitElement {
     if (changedProperties.has('socket')) {
       addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
     }
-    if (changedProperties.has('selectedSquare') ||
-    changedProperties.has('selectedPieve')) {
+    if (
+      changedProperties.has('selectedSquare') ||
+      changedProperties.has('selectedPiece')
+    ) {
       this.computeTargets(this.selectedPiece, this.selectedSquare);
     }
   }
@@ -308,7 +310,9 @@ export class MyElement extends LitElement {
       } else if (
         this.selectedPiece instanceof this.game.castler &&
         this.selectedSquare.row === square.row &&
-        Math.abs(this.selectedSquare.col - square.col) === 2
+        (Math.abs(this.selectedSquare.col - square.col) === 2 ||
+          (square.occupant instanceof Rook &&
+            square.occupant.color === this.color))
       ) {
         turn = this.game.castle(
           this.color,
@@ -351,6 +355,10 @@ export class MyElement extends LitElement {
       if (!turn) {
         return;
       }
+      this.game.turnHistory.push(turn);
+      this.game.stateHistory.push(turn.after);
+      this.game.state = turn.after;
+
       sendMessage(this.socket, {type: 'turn', turn});
     } else {
       this.selectedSquare = square;
@@ -410,24 +418,23 @@ export class MyElement extends LitElement {
   }
 
   computeTargets(piece?: Piece, square?: Square) {
-    if (!this.selectedPiece || !this.selectedSquare) {
+    const {game} = this;
+    if (!piece || !square || !game) {
       this.possibleTargets = [];
       return;
-    };
+    }
 
-    const moves = this.selectedPiece!.legalMoves(
-      this.selectedSquare!.row,
-      this.selectedSquare!.col,
-      this.game.state,
-      this.game.turnHistory
-    )
-    this.possibleTargets = moves.map(move => toEndSquare(this.game.state, move)).filter(square => !!square) as Square[];
+    const moves = game.legalMovesFrom(game.state, square.row, square.col, true);
+    this.possibleTargets = moves
+      .map((move) => toEndSquare(game.state, move))
+      .filter((square) => !!square) as Square[];
     setTimeout(() => {
-      this.possibleTargets = moves.filter(move => {
-        return this.game.isTurnLegal(this.color, move);
-      })
-      .map(move => toEndSquare(this.game.state, move))
-      .filter(square => !!square) as Square[];
+      this.possibleTargets = moves
+        .filter((move) => {
+          return this.game.isTurnLegal(this.color, move);
+        })
+        .map((move) => toEndSquare(this.game.state, move))
+        .filter((square) => !!square) as Square[];
       this.requestUpdate();
     }, 0);
   }

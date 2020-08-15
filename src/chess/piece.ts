@@ -5,7 +5,6 @@ import {
   hash,
   unhash,
   NotImplementedError,
-  PAWN_HOME_RANK,
   Color,
   getOpponent,
 } from './const';
@@ -284,17 +283,6 @@ export class Pawn extends Piece {
     const yDir = this.color === Color.WHITE ? -1 : 1;
     let moveTargets = [{row: row + yDir, col}];
 
-    // 2 move
-    if (
-      (row === PAWN_HOME_RANK && this.color === Color.BLACK) ||
-      (row === state.ranks - PAWN_HOME_RANK - 1 && this.color === Color.WHITE)
-    ) {
-      const skippedSquare = state.getSquare(row + yDir, col);
-      if (skippedSquare && !skippedSquare.occupant) {
-        moveTargets.push({row: row + 2 * yDir, col});
-      }
-    }
-
     moveTargets = moveTargets.filter((target) => {
       const square = state.getSquare(target.row, target.col);
       return square && !square.occupant;
@@ -340,14 +328,11 @@ export class Pawn extends Piece {
         type: TurnType.MOVE,
       });
     }
-    const enpassant = this.enPassant(row, col, state, turnHistory);
-    if (enpassant) {
-      moves.push(enpassant);
-    }
+
     return moves;
   }
 
-  private enPassant(
+  enPassant(
     row: number,
     col: number,
     state: BoardState,
