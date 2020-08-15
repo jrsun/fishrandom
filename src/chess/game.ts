@@ -191,7 +191,7 @@ export class Game {
       return;
     }
 
-    after.place(piece, row, col);
+    after.place(piece, row, col).setTurn(getOpponent(color));
 
     const drop = {
       before: state,
@@ -298,7 +298,7 @@ export class Game {
     }
     const before = this.state;
     const king = kingSquare.occupant!;
-    const after = BoardState.copy(before)
+    const after = BoardState.copy(before).setTurn(getOpponent(color))
       .empty(rookSquare.row, rookSquare.col)
       .empty(row, col)
       .place(king, target.row, target.col)
