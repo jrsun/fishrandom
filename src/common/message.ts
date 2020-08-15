@@ -131,15 +131,6 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
   return v;
 }
 
-export function log(m: string, type: string, sent: boolean) {
-  console.log(
-    '%s message of type %s with size %s',
-    sent ? 'Sent' : 'Received',
-    type,
-    m.length
-  );
-}
-
 export function sendMessage(ws: WS.WebSocket, m: Message) {
   const input = JSON.stringify(m, replacer);
   // if (process.env.NODE_ENV === 'development') {

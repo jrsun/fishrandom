@@ -8,12 +8,12 @@ import {
   ReplaceMessage,
   GameResult,
   GameOverMessage,
-  log,
   sendMessage,
   InitGameMessage,
   TimerMessage,
   ReconnectMessage,
 } from '../common/message';
+import log from 'log';
 
 // States progress from top to bottom within a room.
 export enum RoomState {
@@ -28,6 +28,7 @@ interface PlayerInfo {
   color: Color;
   socket: WebSocket;
   time: number;
+  name: string; // for logging namespace
 }
 
 const PLAYER_TIME_MS = 3 * 60 * 1000;
@@ -57,12 +58,14 @@ export class Room {
       socket: p1s,
       color: randomChoice([Color.WHITE, Color.BLACK]),
       time: PLAYER_TIME_MS,
+      name: p1.split('|')[1] ?? 'anon',
     };
     this.p2 = {
       uuid: p2,
       socket: p2s,
       color: getOpponent(this.p1.color),
       time: PLAYER_TIME_MS,
+      name: p2.split('|')[1] ?? 'anon',
     };
     if (this.p1.color === Color.WHITE) {
       this.p1.time += ROULETTE_SECONDS * 1000;
@@ -95,6 +98,7 @@ export class Room {
       const opponent = player === this.p1 ? this.p2 : this.p1;
       player.time -= 1000;
       if (player.time <= 0) {
+        log.get(player.name).notice('lost by timeout');
         this.wins(opponent.uuid);
       }
     }, 1000);
@@ -130,10 +134,10 @@ export class Room {
 
         const piece = game.state.getSquare(srow, scol)?.occupant;
         if (!piece) {
-          console.log('no piece at ', srow, scol);
+          log.get(player.name).warn('no piece at ', srow, scol);
           return;
         }
-        console.log(
+        log.get(player.name).notice(
           '%s: (%s, %s) -> (%s, %s)',
           piece.name,
           srow,
@@ -180,12 +184,12 @@ export class Room {
     }
 
     if (!turn) {
-      console.log('bad move!');
+      log.get(player.name).warn('submitted an invalid move!');
       return;
     }
     turn = game.modifyTurn(turn);
     if (!turn) {
-      console.log('bad move after modify!');
+      log.get(player.name).error('bad move after modify!');
       return;
     }
 
@@ -290,6 +294,8 @@ export class Room {
       result: GameResult.LOSS,
     } as GameOverMessage);
     this.sendTimers();
+    log.get(player.name).notice('won');
+    log.get(opponent.name).notice('lost');
   }
 
   sendTimers() {
@@ -327,6 +333,8 @@ export class Room {
       result: GameResult.DRAW,
     } as GameOverMessage);
     this.sendTimers();
+    log.get(this.p1.name).notice('draw');
+    log.get(this.p2.name).notice('draw');
   }
 }
 

@@ -18,6 +18,10 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import escape from 'validator/lib/escape';
 
+import log from 'log';
+import logNode from 'log-node';
+logNode();
+
 var app = express();
 
 const argv = yargs
@@ -52,7 +56,7 @@ app.post('/login', function (req, res) {
     return;
   }
 
-  console.log('logged in', req.body.username);
+  log.notice('logged in', req.body.username);
   if (!req.cookies.uuid) {
     var randomNumber = Math.random().toString();
     randomNumber = randomNumber.substring(2, randomNumber.length);
@@ -77,7 +81,7 @@ app.use(
 app.use('/img', express.static(path.join(path.resolve() + '/img')));
 app.use('/font', express.static(path.join(path.resolve() + '/font')));
 
-console.log('serving on 8080');
+log.notice('serving on 8080');
 app.listen(8080);
 
 const wss = new WS.Server({port: 8081});
@@ -90,7 +94,7 @@ interface PlayerInfo {
 const players: {[uuid: string]: PlayerInfo} = {};
 
 wss.on('connection', function connection(ws: WS.WebSocket, request) {
-  console.log('Client connected:', request.headers['user-agent']);
+  log.notice('Client connected:', request.headers['user-agent']);
   let uuid = '';
 
   const cookies = request.headers.cookie?.split(';');
@@ -115,6 +119,7 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
 });
 
 const handleMessage = function (uuid, message: Message) {
+  const playerLog = log.get(uuid.split('|')[1] ?? 'anon');
   const room = players[uuid].room;
   if (room?.state === RoomState.COMPLETED) {
     delete players[room.p1.uuid].room;
@@ -125,7 +130,7 @@ const handleMessage = function (uuid, message: Message) {
     return;
   }
   if (!room) {
-    console.log('not in a room! exiting');
+    playerLog.notice('not in a room! exiting');
     return;
   }
 
@@ -135,7 +140,7 @@ const handleMessage = function (uuid, message: Message) {
       return message.type === 'turn';
     }
     if (!tg(message)) {
-      console.log('message is not valid turn message', message);
+      log.warn('message is not valid turn message', message);
       return;
     }
     room.handleTurn(uuid, message.turn);
@@ -144,7 +149,7 @@ const handleMessage = function (uuid, message: Message) {
     room.handleResign(uuid);
   }
   if (room.state === RoomState.COMPLETED) {
-    console.log('game completed');
+    playerLog.notice('game completed');
     delete players[room.p1.uuid].room;
     delete players[room.p2.uuid].room;
   }
@@ -153,11 +158,12 @@ const handleMessage = function (uuid, message: Message) {
 const newGame = (() => {
   const waitingUsers: PlayerInfo[] = [];
   return (uuid: string, ws: WebSocket) => {
-    console.log(`${uuid} requested new game.`);
+    const playerLog = log.get(uuid.split('|')[1] ?? 'anon');
+    playerLog.notice(`${uuid} requested new game.`);
     // Handle existing room
     const activeRoom = players[uuid].room;
     if (!!activeRoom) {
-      console.log('already in a room');
+      playerLog.notice('already in a room');
       activeRoom.reconnect(uuid, ws);
       return;
     }
@@ -166,7 +172,7 @@ const newGame = (() => {
       if (!waitingUsers.some((user) => user.uuid === uuid)) {
         waitingUsers.unshift(players[uuid]);
       }
-      console.log('waiting', uuid);
+      playerLog.notice('waiting', uuid);
     } else {
       // If a user is queuing
       const p1info = waitingUsers.pop()!;
@@ -182,7 +188,8 @@ const newGame = (() => {
       p1info.room = room;
       players[uuid].room = room;
 
-      console.log('joined');
+      playerLog.notice('found a game');
+      log.get(p1info.uuid.split('|')[1] ?? 'anon').notice('after waiting, found a game');
     }
   };
 })();
