@@ -254,6 +254,7 @@ export class MyApp extends LitElement {
   private player = 'cheems';
   private opponent = 'SwoleDoge94';
   private color?: Color;
+  private timerInterval;
 
   connectedCallback() {
     super.connectedCallback();
@@ -275,7 +276,7 @@ export class MyApp extends LitElement {
     this.addEventListener('board-clicked', () => {
       this.bankSelectedPiece = undefined;
     });
-    setInterval(() => {
+    this.timerInterval = setInterval(() => {
       if (this.game?.state.whoseTurn === this.color) {
         if (this.playerTimer) {
           this.playerTimer = Math.max(this.playerTimer - 1000, 0);
@@ -298,6 +299,8 @@ export class MyApp extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback();
+
+    clearInterval(this.timerInterval);
 
     this.socket.removeEventListener('open', function (e) {}.bind(this));
     this.socket.removeEventListener(
@@ -366,6 +369,7 @@ export class MyApp extends LitElement {
         this.game.stateHistory = stateHistory;
         this.game.state = stateHistory?.[stateHistory.length - 1];
       }
+      clearInterval(this.timerInterval);
 
       this.gameResult = result;
       const goDialog = this.shadowRoot?.querySelector('paper-dialog');

@@ -219,11 +219,23 @@ export class Room {
     sendMessage(opponent.socket, am);
     this.sendTimers();
 
-    if (game.winCondition(player.color)) {
-      this.wins(player.uuid);
+    const playerWins = game.winCondition(player.color);
+    const opponentWins = game.winCondition(opponent.color);
+    if (playerWins) {
+      if (opponentWins) {
+        this.draws();
+        return;
+      } else {
+        this.wins(player.uuid);
+        return;
+      }
+    } else if (opponentWins) {
+      this.wins(opponent.uuid);
+      return;
     }
     if (game.drawCondition(player.color)) {
       this.draws();
+      return;
     }
   }
 
