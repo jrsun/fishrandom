@@ -279,25 +279,6 @@ export class MyApp extends LitElement {
     this.addEventListener('board-clicked', () => {
       this.bankSelectedPiece = undefined;
     });
-    this.timerInterval = setInterval(() => {
-      if (this.game?.state.whoseTurn === this.color) {
-        if (this.playerTimer) {
-          this.playerTimer = Math.max(this.playerTimer - 1000, 0);
-          if (this.playerTimer === 10 * 1000) {
-            const timerEl = this.shadowRoot?.querySelector('.timer.player');
-            timerEl?.classList.add('blinking');
-          }
-        }
-      } else {
-        if (this.opponentTimer) {
-          this.opponentTimer = Math.max(this.opponentTimer - 1000, 0);
-          if (this.opponentTimer === 10 * 1000) {
-            const timerEl = this.shadowRoot?.querySelector('.timer.opponent');
-            timerEl?.classList.add('blinking');
-          }
-        }
-      }
-    }, 1000);
   }
 
   disconnectedCallback() {
@@ -350,6 +331,26 @@ export class MyApp extends LitElement {
       this.game = new VARIANTS[variantName](/* isServer=*/ false);
       this.game.turnHistory = [];
       this.game.stateHistory = [state];
+
+      this.timerInterval = setInterval(() => {
+        if (this.game?.state.whoseTurn === this.color) {
+          if (this.playerTimer) {
+            this.playerTimer = Math.max(this.playerTimer - 1000, 0);
+            if (this.playerTimer === 10 * 1000) {
+              const timerEl = this.shadowRoot?.querySelector('.timer.player');
+              timerEl?.classList.add('blinking');
+            }
+          }
+        } else {
+          if (this.opponentTimer) {
+            this.opponentTimer = Math.max(this.opponentTimer - 1000, 0);
+            if (this.opponentTimer === 10 * 1000) {
+              const timerEl = this.shadowRoot?.querySelector('.timer.opponent');
+              timerEl?.classList.add('blinking');
+            }
+          }
+        }
+      }, 1000);
 
       if (message.type === 'reconnect') {
         this.started = true;
