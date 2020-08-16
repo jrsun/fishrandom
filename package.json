@@ -36,7 +36,6 @@
   "dependencies": {
     "@polymer/paper-button": "^3.0.1",
     "@polymer/paper-dialog": "^3.0.1",
-    "bad-words": "^3.0.3",
     "body-parser": "^1.19.0",
     "confetti-js": "0.0.18",
     "cookie-parser": "^1.4.5",
