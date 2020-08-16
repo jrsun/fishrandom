@@ -78,7 +78,9 @@ app.use('/font', express.static(path.join(path.resolve() + '/font')));
 log.notice('serving on 8080');
 app.listen(8080);
 
-const wss = new WS.Server({port: 8081});
+const wss = new WS.Server({port: 
+  process.env.NODE_ENV === 'development' ? 8081 : 8082
+});
 
 /** Game server state */
 interface PlayerInfo {

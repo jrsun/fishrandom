@@ -259,7 +259,11 @@ export class MyApp extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    this.socket = new WebSocket(`ws://${location.hostname}:8081`);
+    if (process.env.NODE_ENV === 'development') {
+      this.socket = new WebSocket('ws://localhost:8081');
+    } else {
+      this.socket = new WebSocket(`wss://${location.hostname}:8081`);
+    }
     this.socket.onopen = () => {
       this.requestNewGame();
       addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
