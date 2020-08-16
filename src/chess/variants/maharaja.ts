@@ -1,5 +1,5 @@
 import {Game} from '../game';
-import {Rook, Knight, Bishop, King, Piece, Queen, Pawn, Amazon} from '../piece';
+import {Knight, Pawn, Amazon} from '../piece';
 import {Color, getOpponent} from '../const';
 import {BoardState, backRank} from '../state';
 import Square from '../square';
@@ -15,6 +15,11 @@ function generateStartState(): BoardState {
   const piecePositions = {
     0: backRank(Color.BLACK),
     1: {},
+    6: {
+      3: new Pawn(Color.WHITE),
+      4: new Pawn(Color.WHITE),
+      5: new Pawn(Color.WHITE),
+    },
     7: {
       4: new Amazon(Color.WHITE),
     },
