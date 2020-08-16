@@ -42,7 +42,12 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Chess960,
 };
 
-export function Random(): typeof Game {
+export function Random(...except: string[]): typeof Game {
+  if (except) {
+    return VARIANTS[randomChoice(Object.keys(RANDOM_VARIANTS).filter(
+      name => !except.includes(name)
+    ))];
+  }
   return VARIANTS[randomChoice(Object.keys(RANDOM_VARIANTS))];
 }
 

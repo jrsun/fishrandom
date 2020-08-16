@@ -98,7 +98,7 @@ export class Room {
       const opponent = player === this.p1 ? this.p2 : this.p1;
       player.time -= 1000;
       if (player.time <= 0) {
-        log.get(player.name).notice('lost by timeout');
+        log.get(player.name).notice('ran out of time');
         this.wins(opponent.uuid);
       }
     }, 1000);

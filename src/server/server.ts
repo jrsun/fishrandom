@@ -90,6 +90,7 @@ interface PlayerInfo {
   uuid: string;
   room?: Room;
   socket: WS.Websocket;
+  lastVariant?: string;
 }
 const players: {[uuid: string]: PlayerInfo} = {};
 
@@ -182,11 +183,18 @@ const newGame = (() => {
           argv.game.charAt(0).toUpperCase() + argv.game.slice(1);
         newGame = new Variants[uppercase](true);
       } else {
-        newGame = new (Variants.Random())(/*isserver*/ true);
+        newGame = new (Variants.Random(/**except*/
+          p1info.lastVariant ?? '',
+          players[uuid].lastVariant ?? '',
+        ))(/*isserver*/ true);
       }
       const room = new Room(p1info.uuid, p1info.socket, uuid, ws, newGame);
       p1info.room = room;
       players[uuid].room = room;
+
+      // Set the last variant
+      p1info.lastVariant = room.game.name;
+      players[uuid].lastVariant = room.game.name;
 
       playerLog.notice('found a game');
       log.get(uuidToName(p1info.uuid)).notice('after waiting, found a game');
