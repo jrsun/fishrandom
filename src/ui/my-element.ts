@@ -127,8 +127,8 @@ export class MyElement extends LitElement {
       this.onSquareMousedown.bind(this)
     );
     this.addEventListener('square-mouseup', this.onSquareMouseup.bind(this));
-    // this.addEventListener('contextmenu', e => {e.preventDefault()});
-    // addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
+    // Swallow right-click events
+    this.addEventListener('contextmenu', e => {e.preventDefault()});
     this.pickerPieceSelected = this.onPiecePicker.bind(this);
     this.addEventListener('promotion-picked', this.pickerPieceSelected);
 

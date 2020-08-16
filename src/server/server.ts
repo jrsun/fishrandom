@@ -20,6 +20,7 @@ import escape from 'validator/lib/escape';
 
 import log from 'log';
 import logNode from 'log-node';
+import Filter from 'bad-words';
 logNode();
 
 var app = express();
@@ -46,16 +47,18 @@ app.get('/', function (req, res) {
 });
 
 /** Login page */
+const filter = new Filter({placeholder: 'x'});
 app.post('/login', function (req, res) {
   if (!req.body.username || req.body.username !== escape(req.body.username)) {
     return;
   }
 
-  log.notice('logged in', req.body.username);
+  const username = filter.clean(req.body.username);
+  log.notice('logged in', req.body.username, username);
   if (!req.cookies.uuid) {
     var randomNumber = Math.random().toString();
     randomNumber = randomNumber.substring(2, randomNumber.length);
-    res.cookie('uuid', randomNumber + '|' + req.body.username, {
+    res.cookie('uuid', randomNumber + '|' + username, {
       encode: String,
     });
   }
