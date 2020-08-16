@@ -11,12 +11,12 @@ import {Obscurant} from '../chess/variants/dark';
 import {Secretbomber} from '../chess/variants';
 import {BomberPawn} from '../chess/variants/secretbomber';
 
-// TODO: Set game type and start game.
 export type Message =
   | TurnMessage
   | ReplaceMessage
   | AppendMessage
   | ResignMessage
+  | ExitMessage
   | NewGameMessage
   | InitGameMessage
   | GameOverMessage
@@ -37,6 +37,10 @@ export interface ResignMessage {
 
 export interface NewGameMessage {
   type: 'newGame';
+}
+
+export interface ExitMessage {
+  type: 'exit';
 }
 
 /*
@@ -133,10 +137,12 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
 
 export function sendMessage(ws: WS.WebSocket, m: Message) {
   const input = JSON.stringify(m, replacer);
-  // if (process.env.NODE_ENV === 'development') {
-  //   ws.send(input);
-  //   return;
-  // }
+  if (m.type === 'exit') {
+    // Send exit message synchronously to avoid race when browser closes.
+    const buffer = zlib.gzipSync(input);
+    ws.send(buffer.toString('base64'));
+    return;
+  }
   zlib.gzip(input, (err, buffer) => {
     if (err) {
       console.log('Failed to compress and send message %s', input);

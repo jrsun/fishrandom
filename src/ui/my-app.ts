@@ -269,6 +269,9 @@ export class MyApp extends LitElement {
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
     );
+    window.onbeforeunload = () => {
+      sendMessage(this.socket, {type: 'exit' as const});
+    };
     // Bank-related
     this.addEventListener('bank-picked', (e: CustomEvent) => {
       this.bankSelectedPiece = e.detail as Piece;

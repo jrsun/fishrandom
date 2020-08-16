@@ -36,13 +36,8 @@ const argv = yargs
 app.use(cookieParser());
 app.use(bodyParser.json());
 
-// viewed at http://localhost:8080
+/** HTTP entry point */
 app.get('/', function (req, res) {
-  // if (!req.cookies.uuid) {
-  //   var randomNumber=Math.random().toString();
-  //   randomNumber=randomNumber.substring(2,randomNumber.length);
-  //   res.cookie('uuid',randomNumber, { maxAge: 900000});
-  // }
   if (req.cookies.uuid) {
     res.sendFile(path.join(path.resolve() + '/dist/index.html'));
   } else {
@@ -50,7 +45,7 @@ app.get('/', function (req, res) {
   }
 });
 
-// viewed at http://localhost:8080
+/** Login page */
 app.post('/login', function (req, res) {
   if (!req.body.username || req.body.username !== escape(req.body.username)) {
     return;
@@ -67,6 +62,7 @@ app.post('/login', function (req, res) {
   res.end();
 });
 
+/** Static files */
 app.use(
   '/dist/index.bundle.js',
   express.static(path.join(path.resolve() + '/dist/index.bundle.js'))
@@ -76,8 +72,6 @@ app.use(
   express.static(path.join(path.resolve() + '/dist/login.bundle.js'))
 );
 
-// app.use('/dist/index.bundle.js, ')
-
 app.use('/img', express.static(path.join(path.resolve() + '/img')));
 app.use('/font', express.static(path.join(path.resolve() + '/font')));
 
@@ -86,6 +80,7 @@ app.listen(8080);
 
 const wss = new WS.Server({port: 8081});
 
+/** Game server state */
 interface PlayerInfo {
   uuid: string;
   room?: Room;
@@ -93,6 +88,7 @@ interface PlayerInfo {
   lastVariant?: string;
 }
 const players: {[uuid: string]: PlayerInfo} = {};
+const waitingUsers: PlayerInfo[] = [];
 
 wss.on('connection', function connection(ws: WS.WebSocket, request) {
   log.notice('Client connected:', request.headers['user-agent']);
@@ -113,12 +109,12 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
     players[uuid] = {uuid, socket: ws};
   }
 
-  // Register method handler
   addMessageHandler(ws, (message) => {
     handleMessage(uuid, message);
   });
 });
 
+/** Handle websocket messages and delegate to room */
 const handleMessage = function (uuid, message: Message) {
   const playerLog = log.get(uuidToName(uuid));
   const room = players[uuid].room;
@@ -128,6 +124,19 @@ const handleMessage = function (uuid, message: Message) {
   }
   if (message.type === 'newGame') {
     newGame(uuid, players[uuid].socket);
+    return;
+  }
+  if (
+    message.type === 'exit' &&
+    waitingUsers.map(player => player.uuid).includes(uuid)
+  ) {
+    // Clean up references if a player left while waiting
+    playerLog.notice('left the game');
+    const i = waitingUsers.findIndex(wu => wu === players[uuid]);
+    if (i !== -1) {
+      waitingUsers.splice(i, 1);
+    } 
+    delete players[uuid];
     return;
   }
   if (!room) {
@@ -156,8 +165,8 @@ const handleMessage = function (uuid, message: Message) {
   }
 };
 
+/** Handle new game message */
 const newGame = (() => {
-  const waitingUsers: PlayerInfo[] = [];
   return (uuid: string, ws: WebSocket) => {
     const playerLog = log.get(uuidToName(uuid));
     playerLog.notice(`${uuid} requested new game.`);
