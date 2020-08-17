@@ -26,11 +26,12 @@ export class MyLogin extends LitElement {
     .title {
       color: #eeeeee;
       font-size: 7vw;
+      margin-bottom: 1vw;
     }
     .subtitle {
       color: #eeeeee;
-      font-size: 5vw;
-      margin-bottom: 10vw;
+      font-size: 3vw;
+      margin: 8vw;
     }
     .row {
       display: flex;
@@ -91,7 +92,6 @@ export class MyLogin extends LitElement {
     return html`<form .onsubmit=${this.login.bind(this)}>
       <div class="container">
         <div class="title">F I S H R A N D O M</div>
-        <div class="subtitle">Randomized Chess Variants</div>
         <input
           id="username"
           type="text"
@@ -102,6 +102,7 @@ export class MyLogin extends LitElement {
           >Play</paper-button
         >
         <input type="submit" style="display: none" />
+        <div class="subtitle">"Chess is not an examination of knowledge; it is a battle of nerves." - GM David Bronstein</div>
       </div>
     </form>`;
   }
