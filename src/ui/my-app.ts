@@ -22,11 +22,13 @@ import ConfettiGenerator from 'confetti-js';
 import './my-rules';
 import './my-piece-picker';
 import './my-controls';
+import './my-captures';
+import './my-element';
+
 import {Game} from '../chess/game';
 import {BoardState} from '../chess/state';
 import {Color, getOpponent, ROULETTE_SECONDS} from '../chess/const';
 import {Knight, Piece} from '../chess/piece';
-import {MyElement} from './my-element';
 import {randomChoice, memecase} from '../utils';
 
 @customElement('my-app')
@@ -83,6 +85,7 @@ export class MyApp extends LitElement {
       display: flex;
       flex-direction: column;
       margin-right: 30px;
+      margin-bottom: 20px;
     }
     @media only screen and (max-width: 600px) {
       .active-game-container {
@@ -105,7 +108,6 @@ export class MyApp extends LitElement {
       flex-direction: row;
       /* align-items: center; */
       justify-content: space-between;
-      margin-bottom: 20px;
     }
     .active-game-info.opponent {
       align-items: flex-end;
@@ -310,6 +312,7 @@ export class MyApp extends LitElement {
       this.started = true;
     }, 0);
 
+    // Animate title
     const titleEl = this.shadowRoot?.querySelector('.title');
     const titleScrambler = setInterval(() => {
       if (titleEl) {
@@ -437,7 +440,6 @@ export class MyApp extends LitElement {
     const player = this.color;
     const opponent = getOpponent(this.color);
 
-    // TODO: Banks when randomizing anim?
     return html`<div class="bank-wrapper">
       <div class="card bank">
         <my-piece-picker .pieces=${this.game.state.banks[opponent]}>
@@ -471,7 +473,6 @@ export class MyApp extends LitElement {
         ${this.renderBanks()}
         <div class="active-game-container">
           <div class="active-game-info opponent">
-            <!-- this will be a component -->
             <div class="user-info">
               <div
                 class="avatar"
@@ -479,7 +480,12 @@ export class MyApp extends LitElement {
               ></div>
               <div class="user-capture">
                 <div class="username">${this.opponent}</div>
-                <div class="captures"></div>
+                <div class="opponent win-streak"></div>
+                <div class="captures">
+                  <my-captures
+                    .turnHistory=${this.game?.turnHistory ?? []}
+                    .color=${this.color ? getOpponent(this.color) : Color.BLACK}></my-captures>
+                </div>
               </div>
             </div>
             <div class="timer opponent">
@@ -505,7 +511,12 @@ export class MyApp extends LitElement {
               ></div>
               <div class="user-capture">
                 <div class="username">${this.player}</div>
-                <div class="captures"></div>
+                <div class="player win-streak"></div>
+                <div class="captures">
+                  <my-captures
+                  .turnHistory=${this.game?.turnHistory ?? []}
+                  .color=${this.color}></my-captures>
+                </div>
               </div>
             </div>
             <div class="timer player">
@@ -517,7 +528,7 @@ export class MyApp extends LitElement {
           <div class="card controls">
             <my-controls
               .socket=${this.socket}
-              .turnHistory=${this.game.turnHistory}
+              .turnHistory=${this.game?.turnHistory ?? []}
               .playing=${!!this.gameResult}
             ></my-controls>
           </div>

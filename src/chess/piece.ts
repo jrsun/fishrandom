@@ -95,7 +95,6 @@ class Leaper extends Piece {
     const moves: Move[] = [];
     for (const target of dedup(targets)) {
       const occupant = state.getSquare(target.row, target.col)?.occupant;
-      const isCapture = !!(occupant && occupant.color !== this.color);
 
       moves.push({
         before: state,
@@ -106,7 +105,6 @@ class Leaper extends Piece {
         piece: this,
         start: {row, col},
         end: target,
-        isCapture,
         captured: occupant,
         type: TurnType.MOVE,
       });
@@ -151,9 +149,6 @@ class Rider extends Piece {
 
     while (square) {
       if (!square.occupant || square.occupant.color !== this.color) {
-        const isCapture = !!(
-          square.occupant && square.occupant.color !== this.color
-        );
         moves.push({
           before: state,
           after: BoardState.copy(state)
@@ -163,7 +158,6 @@ class Rider extends Piece {
           piece: this,
           start: {row, col},
           end: square,
-          isCapture,
           captured: square.occupant,
           type: TurnType.MOVE,
         });
@@ -309,7 +303,6 @@ export class Pawn extends Piece {
         piece: this,
         start: {row, col},
         end: target,
-        isCapture: false,
         type: TurnType.MOVE,
       });
     }
@@ -323,7 +316,6 @@ export class Pawn extends Piece {
         piece: this,
         start: {row, col},
         end: target,
-        isCapture: true,
         captured: state.getSquare(target.row, target.col)?.occupant,
         type: TurnType.MOVE,
       });
@@ -354,7 +346,6 @@ export class Pawn extends Piece {
         const before = state;
         const start = {row, col};
         const end = {row: row + yDir, col: lastMove.end.col};
-        const isCapture = true;
         const captured = lastMove.piece;
         const type = TurnType.MOVE;
 
@@ -370,7 +361,6 @@ export class Pawn extends Piece {
           piece: this,
           start,
           end,
-          isCapture,
           captured,
           type,
         };

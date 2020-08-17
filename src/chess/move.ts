@@ -20,20 +20,17 @@ interface BaseTurn {
   end: Pair;
   piece: Piece;
   type: TurnType; // 'move', 'castle', etc.
+  captured?: Piece;
 }
 
 export interface Move extends BaseTurn {
   type: TurnType.MOVE;
   start: Pair;
-  isCapture: boolean;
-  captured?: Piece;
 }
 
 export interface Castle extends BaseTurn {
   type: TurnType.CASTLE;
   start: Pair;
-  isCapture: false;
-  captured?: undefined;
   kingside: boolean;
 }
 
@@ -45,8 +42,6 @@ export interface Promote extends BaseTurn {
   type: TurnType.PROMOTE;
   start: Pair;
   to: Piece;
-  isCapture: boolean;
-  captured?: Piece;
 }
 
 export interface Unknown extends BaseTurn {
@@ -89,11 +84,12 @@ export function toEndSquare(state: BoardState, turn: Turn): Square | undefined {
 }
 
 function moveToFen(move: Move): string {
-  const {type, piece, start, end, before, after, isCapture} = move;
+  const {type, piece, start, end, before, after, captured} = move;
   const endFile = (end.col + 10).toString(36);
   const endRank = after.ranks - end.row;
   const startFile = (start.col + 10).toString(36);
   const startRank = after.ranks - start.row;
+  const isCapture = !!captured;
 
   if (piece instanceof Pawn) {
     if (!isCapture) {

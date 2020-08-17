@@ -195,7 +195,7 @@ export class MyElement extends LitElement {
     } else if (message.type === 'appendState') {
       const am = message as AppendMessage;
       const {turn} = am;
-      this.game.turnHistory.push(turn);
+      this.game.turnHistory = [...this.game.turnHistory, turn];
       this.game.stateHistory.push(turn.after);
       this.game.state = turn.after;
       console.log(toFEN(turn));
@@ -221,7 +221,6 @@ export class MyElement extends LitElement {
       this.game.turnHistory.length - 1
     ];
     if (this.viewMoveIndex != null) {
-      console.log(this.viewMoveIndex);
       uiState = this.game.turnHistory[this.viewMoveIndex]?.before ?? state;
       lastTurn = this.game.turnHistory[this.viewMoveIndex - 1];
     }
@@ -355,7 +354,7 @@ export class MyElement extends LitElement {
       if (!turn) {
         return;
       }
-      this.game.turnHistory.push(turn);
+      this.game.turnHistory = [...this.game.turnHistory, turn];
       this.game.stateHistory.push(turn.after);
       this.game.state = turn.after;
 

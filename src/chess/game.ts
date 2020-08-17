@@ -83,7 +83,6 @@ export class Game {
           moves.push({
             type: TurnType.MOVE,
             start: {row, col},
-            isCapture: false,
             before: state,
             after: BoardState.copy(state)
               .setTurn(getOpponent(piece.color))
@@ -118,7 +117,6 @@ export class Game {
           moves.push({
             type: TurnType.CASTLE,
             start: {row, col},
-            isCapture: false as const,
             kingside,
             before: state,
             after: move.after,
@@ -384,7 +382,6 @@ export class Game {
       type,
       start: {row, col},
       kingside,
-      isCapture: false as const,
     };
   }
 

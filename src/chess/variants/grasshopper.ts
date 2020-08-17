@@ -83,7 +83,6 @@ export class Hopper extends Piece {
       piece: this,
       start: {row, col},
       end: square,
-      isCapture,
       captured: square.occupant,
       type: TurnType.MOVE,
     };
