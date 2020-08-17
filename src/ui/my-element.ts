@@ -369,6 +369,13 @@ export class MyElement extends LitElement {
   }
 
   private onDrop(e: CustomEvent) {
+    const square = e.detail as Square;
+    if (this.selectedSquare && equals(square, this.selectedSquare)) {
+      // Prevent accidental activation
+      this.selectedSquare = undefined;
+      this.selectedPiece = undefined;
+      return;
+    }
     return this.onSquareClicked(e);
   }
 
