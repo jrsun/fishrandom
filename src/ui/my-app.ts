@@ -269,13 +269,13 @@ export class MyApp extends LitElement {
       addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
     };
 
-    this.addEventListener(
-      'view-move-changed',
-      this.handleViewMoveChanged.bind(this)
-    );
-    window.onbeforeunload = () => {
-      sendMessage(this.socket, {type: 'exit' as const});
-    };
+    this.addEventListener('view-move-changed', this.handleViewMoveChanged.bind(this));
+
+    // Unload
+    const onUnload = () => {sendMessage(this.socket, {type: 'exit' as const})};
+    window.onbeforeunload = onUnload;
+    window.onunload = onUnload;
+
     // Bank-related
     this.addEventListener('bank-picked', (e: CustomEvent) => {
       this.bankSelectedPiece = e.detail as Piece;
