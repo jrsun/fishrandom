@@ -138,6 +138,8 @@ export class MyElement extends LitElement {
     this.od = this.onDrop.bind(this);
     this.addEventListener('square-drop', this.od);
 
+    this.addEventListener('square-double', this.onDoubleClick);
+
     document.body.addEventListener('dragend', (e) => {
       this.draggedSquare = undefined;
       this.requestUpdate();
@@ -167,6 +169,7 @@ export class MyElement extends LitElement {
 
     this.removeEventListener('square-dragstart', this.ods);
     this.removeEventListener('square-drop', this.od);
+    this.removeEventListener('square-double', this.onDoubleClick);
   }
 
   updated(changedProperties) {
@@ -296,17 +299,7 @@ export class MyElement extends LitElement {
       }
       sendMessage(this.socket, {type: 'turn', turn});
     } else if (this.selectedPiece && this.selectedSquare) {
-      if (
-        this.selectedSquare.row === square.row &&
-        this.selectedSquare.col === square.col
-      ) {
-        turn = this.game.activate(
-          this.color,
-          this.selectedPiece,
-          square.row,
-          square.col
-        );
-      } else if (
+     if (
         this.selectedPiece instanceof this.game.castler &&
         this.selectedSquare.row === square.row &&
         (Math.abs(this.selectedSquare.col - square.col) === 2 ||
@@ -370,13 +363,28 @@ export class MyElement extends LitElement {
 
   private onDrop(e: CustomEvent) {
     const square = e.detail as Square;
-    if (this.selectedSquare && equals(square, this.selectedSquare)) {
-      // Prevent accidental activation
-      this.selectedSquare = undefined;
-      this.selectedPiece = undefined;
-      return;
-    }
     return this.onSquareClicked(e);
+  }
+
+  private onDoubleClick = (e: CustomEvent) => {
+    const square = e.detail as Square;
+    if (square.occupant) {
+      const turn = this.game.activate(
+        this.color,
+        square.occupant,
+        square.row,
+        square.col
+      );
+      if (!turn) {
+        return;
+      }
+      this.game.turnHistory = [...this.game.turnHistory, turn];
+      this.game.stateHistory.push(turn.after);
+      this.game.state = turn.after;
+
+      sendMessage(this.socket, {type: 'turn', turn});
+      this.performUpdate();
+    }
   }
 
   // Promotion

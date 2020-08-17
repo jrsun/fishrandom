@@ -68,6 +68,7 @@ export class MySquare extends LitElement {
         @click=${this._onClick}
         @mousedown=${this._onMouseDown}
         @mouseup=${this._onMouseUp}
+        @dblclick=${this._onDblClick}
         @dragover=${(e) => {
           e.preventDefault();
         }}
@@ -145,6 +146,16 @@ export class MySquare extends LitElement {
       })
     );
     e.preventDefault();
+  }
+
+  private _onDblClick(e: MouseEvent) {
+    this.dispatchEvent(
+      new CustomEvent('square-double', {
+        bubbles: true,
+        composed: true,
+        detail: this.square,
+      })
+    );
   }
 }
 
