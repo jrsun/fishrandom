@@ -27,6 +27,8 @@ export class MyCaptures extends LitElement {
     .captured-group {
       display: flex;
       position: relative;
+      height: ${IMG_WIDTH}px;
+      margin-right: -${IMG_WIDTH/4}px;
     }
     .captured-piece {
       height: ${IMG_WIDTH}px;
@@ -63,8 +65,8 @@ export class MyCaptures extends LitElement {
       Array.from(
         this.capturedFromHistory(this.turnHistory)
       ).map(([img, count]) => html`
-      <span class="captured-group" style="width: ${3*IMG_WIDTH/4 + (count-1) * IMG_WIDTH/4}px;">
-        ${new Array(count).fill(0).map((_, i) => html`<span
+      <div class="captured-group" style="width: ${IMG_WIDTH + (count-1) * IMG_WIDTH/4}px;">
+        ${new Array(count).fill(0).map((_, i) => html`<div
           class="captured-piece"
           style="
             background-image:url(../img/${img});
@@ -72,8 +74,8 @@ export class MyCaptures extends LitElement {
             position: absolute;
             left: ${i * IMG_WIDTH/4}px;
           "
-        ></span>`)}
-      </span>`
+        ></div>`)}
+      </div>`
     )}`;
   }
 }
