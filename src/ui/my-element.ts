@@ -332,12 +332,6 @@ export class MyElement extends LitElement {
             (turn?.end.row === this.game.state.files - 1 &&
               this.selectedPiece.color === Color.BLACK))
         ) {
-          // On promotion, rollback move
-          const lastTurn = this.game.turnHistory.pop();
-          this.game.stateHistory.pop();
-          if (lastTurn) {
-            this.game.state = lastTurn.before;
-          }
           // popup the promotion modal
           const promotionModal = this.shadowRoot!.querySelector(
             '#promotion-modal'
@@ -345,6 +339,7 @@ export class MyElement extends LitElement {
           this.promotionSquare = square;
           promotionModal.positionTarget = this;
           promotionModal.open();
+          // Early return to avoid saving the move.
           return;
         }
       }
@@ -393,7 +388,12 @@ export class MyElement extends LitElement {
       this.promotionSquare.col
     );
     if (!turn) return;
+
+    this.game.turnHistory = [...this.game.turnHistory, turn];
+    this.game.stateHistory.push(turn.after);
+    this.game.state = turn.after;
     sendMessage(this.socket, {type: 'turn', turn});
+
     this.selectedSquare = undefined;
     this.selectedPiece = undefined;
     const promotionModal = this.shadowRoot!.querySelector('#promotion-modal');

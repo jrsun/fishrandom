@@ -12,7 +12,7 @@ import { addMessageHandler, Message, AppendMessage, ReplaceMessage } from '../co
 import { Piece } from '../chess/piece';
 import { Turn } from '../chess/move';
 
-type PieceName = string;
+type PieceImg = string;
 
 @customElement('my-captures')
 export class MyCaptures extends LitElement {
@@ -20,7 +20,12 @@ export class MyCaptures extends LitElement {
     :host {
       /* max-height: 100%;
       width: 300px; */
-      display: block;
+      display: flex;
+    }
+    .captured-piece {
+      height: 20px;
+      width: 20px;
+      background-size: cover;
     }
   `;
   
@@ -28,7 +33,7 @@ export class MyCaptures extends LitElement {
   @property({type: String}) color: Color;
   @property({type: Array}) turnHistory: Turn[];
 
-  addPiece(m: Map<PieceName, number>, p: PieceName) {
+  addPiece(m: Map<PieceImg, number>, p: PieceImg) {
     const value = m.get(p);
     if (value !== undefined) {
       m.set(p, value + 1);
@@ -37,23 +42,23 @@ export class MyCaptures extends LitElement {
     }
   }
 
-  capturedFromHistory(history: Turn[]): Map<PieceName, number> {
-    const pieces = new Map<PieceName, number>();
+  capturedFromHistory(history: Turn[]): Map<PieceImg, number> {
+    const pieces = new Map<PieceImg, number>();
     for (const turn of history) {
       if (turn.captured?.color === getOpponent(this.color)) {
-        this.addPiece(pieces, turn.captured.name);
+        this.addPiece(pieces, turn.captured.img);
       }
     }
     return pieces;
   }
 
   render() {
-    return html`<div>${
+    return html`${
       Array.from(
         this.capturedFromHistory(this.turnHistory)
-      ).map(([p, count]) => html`<div
-      class="captured-piece">${p}: ${count}</div>`
-    )}</div>`;
+      ).map(([img, count]) => html`<span
+      class="captured-piece" style="background-image:url(../img/${img});"></span>`
+    )}`;
   }
 }
 
