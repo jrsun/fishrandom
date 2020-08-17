@@ -14,6 +14,8 @@ import { Turn } from '../chess/move';
 
 type PieceImg = string;
 
+const IMG_WIDTH = 20;
+
 @customElement('my-captures')
 export class MyCaptures extends LitElement {
   static styles = css`
@@ -22,9 +24,13 @@ export class MyCaptures extends LitElement {
       width: 300px; */
       display: flex;
     }
+    .captured-group {
+      display: flex;
+      position: relative;
+    }
     .captured-piece {
-      height: 20px;
-      width: 20px;
+      height: ${IMG_WIDTH}px;
+      width: ${IMG_WIDTH}px;
       background-size: cover;
     }
   `;
@@ -56,8 +62,18 @@ export class MyCaptures extends LitElement {
     return html`${
       Array.from(
         this.capturedFromHistory(this.turnHistory)
-      ).map(([img, count]) => html`<span
-      class="captured-piece" style="background-image:url(../img/${img});"></span>`
+      ).map(([img, count]) => html`
+      <span class="captured-group" style="width: ${3*IMG_WIDTH/4 + (count-1) * IMG_WIDTH/4}px;">
+        ${new Array(count).fill(0).map((_, i) => html`<span
+          class="captured-piece"
+          style="
+            background-image:url(../img/${img});
+            z-index:${i+1};
+            position: absolute;
+            left: ${i * IMG_WIDTH/4}px;
+          "
+        ></span>`)}
+      </span>`
     )}`;
   }
 }
