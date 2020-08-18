@@ -31,7 +31,7 @@ export class MyLogin extends LitElement {
     .subtitle {
       color: #eeeeee;
       font-size: 3vw;
-      margin: 8vw;
+      margin: 4vw;
     }
     .row {
       display: flex;
@@ -102,7 +102,7 @@ export class MyLogin extends LitElement {
           >Play</paper-button
         >
         <input type="submit" style="display: none" />
-        <div class="subtitle">"Chess is not an examination of knowledge; it is a battle of nerves." - GM David Bronstein</div>
+        <div class="subtitle">theoria incognita</div>
       </div>
     </form>`;
   }

@@ -7,7 +7,7 @@
       <g id="d">
         <rect width="1" height="1" fill="#383847" id="e"/>
         <use x="1" y="1" href="#e" x:href="#e"/>
-        <rect y="1" width="1" height="1" fill="#999AB8" id="f"/>
+        <rect y="1" width="1" height="1" fill="#696A88" id="f"/>
         <use x="1" y="-1" href="#f" x:href="#f"/>
       </g>
       <use x="2" href="#d" x:href="#d"/>
@@ -21,6 +21,7 @@
 <!-- 
   off white = #EFECE0
   purple = #8D7EA0
+  light blue = #999AB8
   sea red = #E2A28B
   classic light = #F5C895
   classic dark = #C19763
