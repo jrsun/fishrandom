@@ -41,13 +41,16 @@ export class Bario extends Game {
   move(color, piece, srow, scol, drow, dcol): Move | undefined {
     const turn = super.move(color, piece, srow, scol, drow, dcol);
     if (!turn) return;
-
-    const extra = this.state.extra?.bario;
-    if (!extra) return;
-    const options = turn.piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
-    const index = options.findIndex(piece => piece.name === turn.piece.name);
-    if (index !== -1) {
-      options.splice(index, 1);
+      
+    // Note: piece is Zero, turn.piece is the piece the Zero moved as.
+    if (piece instanceof Zero) {
+      const extra = this.state.extra?.bario;
+      if (!extra) return;
+      const options = turn.piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
+      const index = options.findIndex(opt => opt.name === turn.piece.name);
+      if (index !== -1) {
+        options.splice(index, 1);
+      }
     }
 
     // If no zeroes are left, replace all pieces with zeroes.
