@@ -31,7 +31,12 @@ export class MyLogin extends LitElement {
     .subtitle {
       color: #eeeeee;
       font-size: 3vw;
-      margin: 4vw;
+      margin-bottom: 1vw;
+    }
+    .tagline {
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: lightsteelblue;
+      font-size: 2vw;
     }
     .row {
       display: flex;
@@ -42,8 +47,8 @@ export class MyLogin extends LitElement {
     }
     #username {
       border-radius: 4px;
-      font-size: 40px;
-      padding-left: 5px;
+      font-size: 25px;
+      text-align: center;
       width: 50vw;
       font-family: Verdana, sans-serif;
       border: #888;
@@ -60,6 +65,7 @@ export class MyLogin extends LitElement {
       height: 50px;
       font-size: 20px;
       color: #223322;
+      margin-bottom: 4vw;
     }
   `;
 
@@ -102,8 +108,8 @@ export class MyLogin extends LitElement {
           >Play</paper-button
         >
         <input type="submit" style="display: none" />
-        <div class="subtitle">theoria incognita</div>
-        <div>8.17 / bario / atomic / royalpawn</div>
+        <div class="subtitle">8.17 - bario / atomic / royalpawn</div>
+        <div class="subtitle tagline">theoria incognita</div>
       </div>
     </form>`;
   }
