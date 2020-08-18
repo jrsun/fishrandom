@@ -355,6 +355,7 @@ export class Pawn extends Piece {
           // capturing the pawn
           .empty(lastMove.end.row, lastMove.end.col);
         return {
+          enpassant: true,
           before,
           after,
           piece: this,

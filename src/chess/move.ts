@@ -26,6 +26,7 @@ interface BaseTurn {
 export interface Move extends BaseTurn {
   type: TurnType.MOVE;
   start: Pair;
+  enpassant?: boolean;
 }
 
 export interface Castle extends BaseTurn {

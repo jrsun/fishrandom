@@ -21,14 +21,17 @@ export class Dark extends Game {
         continue;
       }
       legalTargets.add(square);
-      const moves = square.occupant.legalMoves(
-        square.row,
-        square.col,
-        state,
-        this.turnHistory
+      const moves = this.legalMovesFrom(
+        state, square.row, square.col, false,
       );
       for (const move of moves) {
         legalTargets.add(move.end);
+      }
+      // En passant
+      const ep = moves.find(move => move.type === TurnType.MOVE && move.enpassant);
+      if (ep) {
+        const yDir = color === Color.WHITE ? -1 : 1;
+        legalTargets.add({row: ep.end.row - yDir, col: ep.end.col});
       }
     }
     return new BoardState(
@@ -54,6 +57,17 @@ export class Dark extends Game {
 
   visibleTurn(turn: Turn, color: Color): Turn {
     if (color === turn.piece.color) return turn;
+    // Hack: Pawn double steps as is, if visible, for en-passant
+    if (
+      turn.piece instanceof Pawn &&
+      turn.type === TurnType.MOVE &&
+      Math.abs(turn.end.row - turn.start.row) === 2 &&
+      !(this.visibleState(this.state, color).getSquare(
+        turn.end.row, turn.end.col
+      )?.occupant instanceof Obscurant)
+    ) {
+      return turn;
+    }
 
     return {
       type: TurnType.UNKNOWN,
