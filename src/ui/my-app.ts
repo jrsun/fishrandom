@@ -86,12 +86,12 @@ export class MyApp extends LitElement {
       display: flex;
       flex-direction: column;
       margin-right: 30px;
-      margin-bottom: 20px;
     }
-    @media only screen and (max-width: 600px) {
+    @media only screen and (max-width: 700px) {
       .active-game-container {
         margin-right: 0;
         margin-top: 20px;
+        margin-bottom: 20px;
       }
       .board-wrapper.card {
         padding: 0px;

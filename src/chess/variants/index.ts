@@ -2,6 +2,7 @@ import {Classic} from './classic';
 import {Chess960, Chess921600} from './960';
 import {Game} from '../game';
 import {Knightmate} from './knightmate';
+import {Atomic} from './atomic';
 import {Horde} from './horde';
 import {Dark, Dark2r} from './dark';
 import {Hiddenqueen} from './hiddenqueen';
@@ -14,6 +15,7 @@ import {Test} from './test';
 import {randomChoice} from '../../utils';
 
 export const VARIANTS: {[name: string]: typeof Game} = {
+  Atomic,
   Chess960,
   Classic,
   Bario,
@@ -31,6 +33,8 @@ export const VARIANTS: {[name: string]: typeof Game} = {
 };
 
 export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
+  Atomic,
+  Bario,
   Knightmate,
   Horde,
   Hiddenqueen,
@@ -54,6 +58,7 @@ export function Random(...except: string[]): typeof Game {
 }
 
 export {
+  Atomic,
   Chess960,
   Bario,
   Pocketknight,

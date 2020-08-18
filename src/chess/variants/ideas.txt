@@ -12,7 +12,7 @@ recall
 -grasshopper
 -960
 
-beirut
+-beirut
 prechess
 -knightmate
 rifle
