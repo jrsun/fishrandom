@@ -433,6 +433,16 @@ export class Mann extends King {
   }
 }
 
+export class Zero extends Piece {
+  name = 'Zero';
+  isRoyal = false;
+
+  get img(): string {
+    return this.color === Color.BLACK ? 'moondt.svg' : 'moonlt.svg'; // TEMP
+  }
+}
+
+
 export const ALL_PIECES: {[name: string]: typeof Piece} = {
   Pawn,
   Bishop,
@@ -443,4 +453,5 @@ export const ALL_PIECES: {[name: string]: typeof Piece} = {
   RoyalKnight,
   Mann,
   Amazon,
+  Zero,
 };
