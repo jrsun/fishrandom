@@ -185,9 +185,9 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   <ul>
     <li>Checkmate or <b>explode</b> the king to win.</li>
   </ul>`,
-  Royalpawn: html`Both sides have a secret, randomly chosen, pawn which they must protect, signified
-  by an upside down King. It moves as a pawn always.
+  Royalpawn: html`Both sides have a <b>secret</b>, randomly chosen, pawn which they must protect.
   <ul>
+    <li>King is replaced by a Mann which is a regular piece that moves like a King.</li>
     <li>Capture the opponent's royal pawn to win.</li>
     <li>Or promote your royal pawn to win.</li>
     <li>There is no check or checkmate.</li>
