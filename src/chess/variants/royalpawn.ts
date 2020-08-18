@@ -4,12 +4,16 @@ import {Color, getOpponent} from '../const';
 import {BoardState, generateStartState} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
-import {Move, Castle, Turn} from '../move';
+import {Move, Castle, Turn, TurnType} from '../move';
 
 export class Royalpawn extends Game {
   name = 'Royalpawn';
   constructor(isServer: boolean) {
     super(isServer, genInitial());
+  }
+  promotions(turn: Turn): (typeof Piece)[] | undefined {
+    if (turn.piece instanceof KingPawn) return;
+    return super.promotions(turn);
   }
   visibleState(state: BoardState, color: Color): BoardState {
     if (!this.isServer) return state;
@@ -104,9 +108,9 @@ export class KingPawn extends Pawn {
   isRoyal = true;
   get img(): string {
     if (this.color === Color.BLACK) {
-      return 'Chess_fdt45.svg';
+      return 'svg/rpb.svg';
     } else if (this.color === Color.WHITE) {
-      return 'Chess_flt45.svg';
+      return 'svg/rpw.svg';
     }
     throw new Error(
       'no image for color: ' + this.color + 'for piece ' + this.name
