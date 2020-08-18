@@ -14,17 +14,26 @@ import {randomChoice} from '../utils';
 
 type BoardJson = (string | null)[][];
 
+interface Extra {
+  bario?: {
+    whiteOptions: Piece[],
+    blackOptions: Piece[],
+  }
+}
+
 export class BoardState {
   ranks: number = 8;
   files: number = 8;
   squares: Square[][];
   whoseTurn: Color;
   banks: {[color: string]: Piece[]} = {};
+  extra?: Extra;
 
   constructor(
     squares: Square[][],
     whoseTurn: Color,
-    banks: {[color: string]: Piece[]}
+    banks: {[color: string]: Piece[]},
+    extra?: {[variant: string]: any},
   ) {
     this.ranks = squares.length;
     this.files = squares[0].length;
@@ -49,10 +58,11 @@ export class BoardState {
       },
       {}
     );
+    this.extra = {...extra};
   }
 
   static copy(other: BoardState): BoardState {
-    return new BoardState(other.squares, other.whoseTurn, other.banks);
+    return new BoardState(other.squares, other.whoseTurn, other.banks, other.extra);
   }
 
   setTurn(color: Color): BoardState {
@@ -106,11 +116,12 @@ export class BoardState {
       squares: state.squares,
       whoseTurn: state.whoseTurn,
       banks: state.banks,
+      extra: state.extra,
     };
   }
 
   static thaw(o): BoardState {
-    return new BoardState(o.squares, o.whoseTurn, o.banks);
+    return new BoardState(o.squares, o.whoseTurn, o.banks, o.extra);
   }
 }
 

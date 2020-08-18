@@ -450,20 +450,28 @@ export class MyElement extends LitElement {
       this.possibleTargets = [];
       return;
     }
-
     const moves = game.legalMovesFrom(game.state, square.row, square.col, true);
-    this.possibleTargets = moves
+    if (game.knowsInCheck(this.color, game.state)) {
+      // If in check, compute legal immediately
+      this.possibleTargets = moves
+      .filter(move => this.game.isTurnLegal(this.color, move))
       .map((move) => toEndSquare(game.state, move))
       .filter((square) => !!square) as Square[];
-    setTimeout(() => {
+    } else {
+      // Else, get the possible targets first
       this.possibleTargets = moves
-        .filter((move) => {
-          return this.game.isTurnLegal(this.color, move);
-        })
-        .map((move) => toEndSquare(this.game.state, move))
+        .map((move) => toEndSquare(game.state, move))
         .filter((square) => !!square) as Square[];
-      this.requestUpdate();
-    }, 0);
+      setTimeout(() => {
+        this.possibleTargets = moves
+          .filter((move) => {
+            return this.game.isTurnLegal(this.color, move);
+          })
+          .map((move) => toEndSquare(this.game.state, move))
+          .filter((square) => !!square) as Square[];
+        this.requestUpdate();
+      }, 0);
+    }
   }
 
   private drawArrow(srow: number, scol: number, erow: number, ecol: number) {

@@ -11,8 +11,6 @@ const OPTIONS = [Bishop, Bishop, Knight, Knight, Rook, Rook, Queen];
 
 export class Bario extends Game {
   name = 'Bario';
-  whiteOptions = OPTIONS.map(c => new c(Color.WHITE));
-  blackOptions = OPTIONS.map(c => new c(Color.BLACK));
   constructor(isServer: boolean) {
     super(isServer, generateInitial());
   }
@@ -24,7 +22,9 @@ export class Bario extends Game {
     if (!(piece instanceof Zero)) return super.legalMovesFrom(state, row, col, allowCastles);
     
     const moves: Move[] = [];
-    const options = piece.color === Color.WHITE ? this.whiteOptions : this.blackOptions;
+    const extra = state.extra?.bario;
+    if (!extra) return [];
+    const options = piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
     
     const dedupOptions = options.reduce((acc: {[name: string]: Piece}, p: Piece) => {
       if (!acc[p.name]) {
@@ -42,15 +42,14 @@ export class Bario extends Game {
     const turn = super.move(color, piece, srow, scol, drow, dcol);
     if (!turn) return;
 
-    const options = turn.piece.color === Color.WHITE ? this.whiteOptions : this.blackOptions;
+    const extra = this.state.extra?.bario;
+    if (!extra) return;
+    const options = turn.piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
     const index = options.findIndex(piece => piece.name === turn.piece.name);
     if (index !== -1) {
       options.splice(index, 1);
     }
-    return turn;   
-  }
 
-  modifyTurn(turn: Turn): Turn {
     // If no zeroes are left, replace all pieces with zeroes.
     if (turn.after.squares.flat().filter(square => square?.occupant instanceof Zero).length === 0) {
       const newState = BoardState.copy(turn.after);
@@ -63,12 +62,13 @@ export class Bario extends Game {
           }
         }
       }
+      this.resetOptions();
       return {
         ...turn,
         after: newState,
       };
     }
-    return turn;
+    return turn;   
   }
 
   winCondition(color: Color): boolean {
@@ -82,6 +82,13 @@ export class Bario extends Game {
       return true;
     }
     return false;
+  }
+
+  private resetOptions() {
+    const extra = this.state.extra?.bario;
+    if (!extra) return;
+    extra.whiteOptions = OPTIONS.map(c => new c(Color.WHITE));
+    extra.blackOptions = OPTIONS.map(c => new c(Color.BLACK));
   }
 }
 
@@ -103,5 +110,15 @@ export function generateInitial(): BoardState {
   piecePositions[0][4] = new King(Color.BLACK);
   piecePositions[7][4] = new King(Color.WHITE);
 
-  return new BoardState(squaresFromPos(piecePositions), Color.WHITE, {});
+  return new BoardState(
+    squaresFromPos(piecePositions),
+    Color.WHITE,
+    {},
+    {
+      bario: {
+        whiteOptions: OPTIONS.map(c => new c(Color.WHITE)),
+        blackOptions: OPTIONS.map(c => new c(Color.BLACK)),
+      },
+    }
+  );
 }

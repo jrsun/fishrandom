@@ -103,6 +103,7 @@ export class MyLogin extends LitElement {
         >
         <input type="submit" style="display: none" />
         <div class="subtitle">theoria incognita</div>
+        <div>8.17 / bario / atomic / royalpawn</div>
       </div>
     </form>`;
   }
