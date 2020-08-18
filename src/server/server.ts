@@ -8,7 +8,7 @@ import {
   addMessageHandler,
   ReplaceMessage,
 } from '../common/message';
-import {Room, RoomState} from './room';
+import {Room, RoomState, Player} from './room';
 import WS from 'ws';
 import * as Variants from '../chess/variants/index';
 import {Color} from '../chess/const';
@@ -84,14 +84,9 @@ const wss = new WS.Server({port:
 });
 
 /** Game server state */
-interface PlayerInfo {
-  uuid: string;
-  room?: Room;
-  socket: WS.Websocket;
-  lastVariant?: string;
-}
-const players: {[uuid: string]: PlayerInfo} = {};
-const waitingUsers: PlayerInfo[] = [];
+
+const players: {[uuid: string]: Player} = {};
+const waitingUsers: Player[] = [];
 
 wss.on('connection', function connection(ws: WS.WebSocket, request) {
   log.notice('Client connected:', request.headers['user-agent']);
@@ -109,7 +104,7 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
     players[uuid].socket.close();
     players[uuid].socket = ws;
   } else {
-    players[uuid] = {uuid, socket: ws};
+    players[uuid] = {uuid, socket: ws, streak: 0};
   }
 
   addMessageHandler(ws, (message) => {
@@ -121,10 +116,6 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
 const handleMessage = function (uuid, message: Message) {
   const playerLog = log.get(uuidToName(uuid));
   const room = players[uuid].room;
-  if (room?.state === RoomState.COMPLETED) {
-    delete players[room.p1.uuid].room;
-    delete players[room.p2.uuid].room;
-  }
   if (message.type === 'newGame') {
     newGame(uuid, players[uuid].socket);
     return;
@@ -139,7 +130,7 @@ const handleMessage = function (uuid, message: Message) {
     if (i !== -1) {
       waitingUsers.splice(i, 1);
     } 
-    delete players[uuid];
+    delete players[uuid].socket; // TODO: clean up the user
     return;
   }
   if (!room) {
@@ -163,8 +154,6 @@ const handleMessage = function (uuid, message: Message) {
   }
   if (room.state === RoomState.COMPLETED) {
     playerLog.notice('game completed');
-    delete players[room.p1.uuid].room;
-    delete players[room.p2.uuid].room;
   }
 };
 
@@ -200,7 +189,7 @@ const newGame = (() => {
           players[uuid].lastVariant ?? '',
         ))(/*isserver*/ true);
       }
-      const room = new Room(p1info.uuid, p1info.socket, uuid, ws, newGame);
+      const room = new Room(p1info, players[uuid], newGame);
       p1info.room = room;
       players[uuid].room = room;
 

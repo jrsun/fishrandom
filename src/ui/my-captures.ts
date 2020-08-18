@@ -23,6 +23,8 @@ export class MyCaptures extends LitElement {
       /* max-height: 100%;
       width: 300px; */
       display: flex;
+      height: ${IMG_WIDTH}px;
+      margin-left: -${IMG_WIDTH/4}px;
     }
     .captured-group {
       display: flex;

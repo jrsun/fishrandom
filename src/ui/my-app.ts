@@ -17,6 +17,7 @@ import {
   addMessageHandler,
   TimerMessage,
   sendMessage,
+  PlayerInfo,
 } from '../common/message';
 import ConfettiGenerator from 'confetti-js';
 import './my-rules';
@@ -117,24 +118,22 @@ export class MyApp extends LitElement {
     }
     .user-info {
       display: flex;
+      color: #eee;
+      font-family: 'JelleeBold';
     }
     .user-capture {
       display: flex;
       flex-direction: column;
     }
     .avatar {
-      height: 40px;
-      width: 40px;
+      height: 60px;
+      width: 60px;
       background-size: cover;
       margin-right: 10px;
       border-radius: 4px;
     }
     .board-wrapper {
       margin: 20px 0;
-    }
-    .username {
-      color: #eee;
-      font-family: 'JelleeBold';
     }
     /* timer */
     .timer {
@@ -248,13 +247,13 @@ export class MyApp extends LitElement {
   // private
   @property({type: Number}) viewMoveIndex: number | undefined;
   @property({type: Number}) playerTimer?: number;
+  @property({type: Object}) playerInfo?: PlayerInfo;
+  @property({type: Object}) opponentInfo?: PlayerInfo;
   @property({type: Number}) opponentTimer?: number;
   @property({type: Object}) bankSelectedPiece: Piece | undefined;
   @property({type: Boolean, reflect: true}) started = false;
 
   private gameResult: string | undefined;
-  private player = 'cheems';
-  private opponent = 'SwoleDoge94';
   private color?: Color;
   private timerInterval;
 
@@ -366,15 +365,17 @@ export class MyApp extends LitElement {
       }
 
       this.game.state = state;
-      this.player = player;
-      this.opponent = opponent;
+      this.playerInfo = player;
+      this.opponentInfo = opponent;
       this.color = color;
 
       this.gameResult = '';
       if (message.type === 'initGame') this.onInitGame();
     } else if (message.type === 'gameOver') {
       const gom = message as GameOverMessage;
-      const {turnHistory, stateHistory, result} = gom;
+      const {turnHistory, stateHistory, result, player, opponent} = gom;
+      this.playerInfo = player;
+      this.opponentInfo = opponent;
       if (this.game) {
         this.game.turnHistory = turnHistory;
         this.game.stateHistory = stateHistory;
@@ -479,8 +480,8 @@ export class MyApp extends LitElement {
                 style="background-image:url(../img/swoledoge.jpg)"
               ></div>
               <div class="user-capture">
-                <div class="username">${this.opponent}</div>
-                <div class="opponent win-streak"></div>
+                <div class="username">${this.opponentInfo?.name}</div>
+                <div class="opponent win-streak">streak: ${this.opponentInfo?.streak}</div>
                 <div class="captures">
                   <my-captures
                     .turnHistory=${this.game?.turnHistory ?? []}
@@ -510,8 +511,8 @@ export class MyApp extends LitElement {
                 style="background-image:url(../img/cheems.jpeg)"
               ></div>
               <div class="user-capture">
-                <div class="username">${this.player}</div>
-                <div class="player win-streak"></div>
+                <div class="username">${this.playerInfo?.name}</div>
+                <div class="player win-streak">streak: ${this.playerInfo?.streak}</div>
                 <div class="captures">
                   <my-captures
                   .turnHistory=${this.game?.turnHistory ?? []}

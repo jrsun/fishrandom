@@ -56,13 +56,29 @@ export interface AppendMessage {
   turn: Turn;
 }
 
+export interface PlayerInfo {
+  name: string;
+  streak: number;
+}
+
 export interface InitGameMessage {
   type: 'initGame';
   state: BoardState;
   variantName: string;
   color: Color; // color for the receiving player
-  player: string; // player name
-  opponent: string; // opponent name
+  player: PlayerInfo; // player name
+  opponent: PlayerInfo; // opponent name
+}
+
+export interface ReconnectMessage {
+  type: 'reconnect';
+  state: BoardState;
+  stateHistory: BoardState[];
+  turnHistory: Turn[];
+  variantName: string;
+  color: Color;
+  player: PlayerInfo;
+  opponent: PlayerInfo;
 }
 
 export interface TimerMessage {
@@ -82,17 +98,9 @@ export interface GameOverMessage {
   stateHistory: BoardState[];
   turnHistory: Turn[];
   result: GameResult;
-}
 
-export interface ReconnectMessage {
-  type: 'reconnect';
-  state: BoardState;
-  stateHistory: BoardState[];
-  turnHistory: Turn[];
-  variantName: string;
-  color: Color;
-  player: string;
-  opponent: string;
+  player: PlayerInfo;
+  opponent: PlayerInfo;
 }
 
 // Could use evals here instead

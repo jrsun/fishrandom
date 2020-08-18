@@ -13,6 +13,7 @@ import {
   TimerMessage,
   ReconnectMessage,
 } from '../common/message';
+import WS from 'ws';
 import log from 'log';
 
 // States progress from top to bottom within a room.
@@ -23,10 +24,19 @@ export enum RoomState {
   COMPLETED = 'completed',
 }
 
-interface PlayerInfo {
+// Player outside room
+export interface Player {
   uuid: string;
+  room?: Room;
+  socket: WS.Websocket;
+  lastVariant?: string;
+  streak: number;
+}
+
+// Player inside room
+interface RoomPlayer {
+  player: Player;
   color: Color;
-  socket: WebSocket;
   time: number;
   name: string; // for logging namespace
 }
@@ -38,8 +48,8 @@ export class Room {
   // public
   game: Game;
 
-  p1: PlayerInfo;
-  p2: PlayerInfo;
+  p1: RoomPlayer;
+  p2: RoomPlayer;
 
   // protected
   state: RoomState;
@@ -47,25 +57,21 @@ export class Room {
   timerInterval: any; // timer
 
   constructor(
-    p1: string,
-    p1s: WebSocket,
-    p2: string,
-    p2s: WebSocket,
+    p1: Player,
+    p2: Player,
     game: Game
   ) {
     this.p1 = {
-      uuid: p1,
-      socket: p1s,
+      player: p1,
       color: randomChoice([Color.WHITE, Color.BLACK]),
       time: PLAYER_TIME_MS,
-      name: uuidToName(p1),
+      name: uuidToName(p1.uuid),
     };
     this.p2 = {
-      uuid: p2,
-      socket: p2s,
+      player: p2,
       color: getOpponent(this.p1.color),
       time: PLAYER_TIME_MS,
-      name: uuidToName(p2),
+      name: uuidToName(p2.uuid),
     };
     if (this.p1.color === Color.WHITE) {
       this.p1.time += ROULETTE_SECONDS * 1000;
@@ -75,31 +81,46 @@ export class Room {
     this.setState(RoomState.PLAYING);
     this.game = game;
 
+    const player1 = this.p1.player;
+    const player2 = this.p2.player;
+
     // Send init game messages
-    sendMessage(this.p1.socket, {
+    sendMessage(player1.socket, {
       type: 'initGame',
       state: this.game.visibleState(this.game.state, this.p1.color),
       variantName: this.game.name,
       color: this.p1.color,
-      player: getName(this.p1.uuid),
-      opponent: getName(this.p2.uuid),
+      player: {
+        name: getName(player1.uuid),
+        streak: player1.streak,
+      },
+      opponent: {
+        name: getName(player2.uuid),
+        streak: player2.streak,
+      },
     } as InitGameMessage);
-    sendMessage(this.p2.socket, {
+    sendMessage(player2.socket, {
       type: 'initGame',
       state: this.game.visibleState(this.game.state, this.p2.color),
       variantName: this.game.name,
       color: this.p2.color,
-      player: getName(this.p2.uuid),
-      opponent: getName(this.p1.uuid),
+      player: {
+        name: getName(player2.uuid),
+        streak: player2.streak,
+      },
+      opponent: {
+        name: getName(player1.uuid),
+        streak: player1.streak,
+      },
     } as InitGameMessage);
     this.timerInterval = setInterval(() => {
-      const player =
+      const me =
         this.game.state.whoseTurn === this.p1.color ? this.p1 : this.p2;
-      const opponent = player === this.p1 ? this.p2 : this.p1;
-      player.time -= 1000;
-      if (player.time <= 0) {
-        log.get(player.name).notice('ran out of time');
-        this.wins(opponent.uuid);
+      const opponent = me === this.p1 ? this.p2 : this.p1;
+      me.time -= 1000;
+      if (me.time <= 0) {
+        log.get(me.name).notice('ran out of time');
+        this.wins(opponent.player.uuid);
       }
     }, 1000);
     this.sendTimers();
@@ -112,15 +133,15 @@ export class Room {
   handleResign(uuid: string) {
     if (this.state !== RoomState.PLAYING) return;
 
-    return this.wins(uuid === this.p1.uuid ? this.p2.uuid : this.p1.uuid);
+    return this.wins(uuid === this.p1.player.uuid ? this.p2.player.uuid : this.p1.player.uuid);
   }
 
   handleTurn(uuid: string, turnAttempt: Turn) {
     if (this.state !== RoomState.PLAYING) return;
 
     const game = this.game;
-    const player = this.p1.uuid === uuid ? this.p1 : this.p2;
-    const opponent = player === this.p1 ? this.p2 : this.p1;
+    const me = this.p1.player.uuid === uuid ? this.p1 : this.p2;
+    const opponent = me === this.p1 ? this.p2 : this.p1;
     let turn: Turn | undefined;
     const {
       end: {row: drow, col: dcol},
@@ -134,10 +155,10 @@ export class Room {
 
         const piece = game.state.getSquare(srow, scol)?.occupant;
         if (!piece) {
-          log.get(player.name).warn('no piece at ', srow, scol);
+          log.get(me.name).warn('no piece at ', srow, scol);
           return;
         }
-        log.get(player.name).notice(
+        log.get(me.name).notice(
           '%s: (%s, %s) -> (%s, %s)',
           piece.name,
           srow,
@@ -146,17 +167,17 @@ export class Room {
           dcol
         );
 
-        turn = game.move(player.color, piece, srow, scol, drow, dcol);
+        turn = game.move(me.color, piece, srow, scol, drow, dcol);
         break;
       case TurnType.CASTLE:
-        turn = game.castle(player.color, turnAttempt.kingside);
+        turn = game.castle(me.color, turnAttempt.kingside);
         break;
       case TurnType.DROP:
         const {
           piece: droppedPiece,
           end: {row, col},
         } = turnAttempt;
-        turn = game.drop(player.color, droppedPiece, row, col);
+        turn = game.drop(me.color, droppedPiece, row, col);
         break;
       case TurnType.PROMOTE:
         const {
@@ -164,7 +185,7 @@ export class Room {
           piece: promoter,
           start: {row: prow, col: pcol},
         } = turnAttempt;
-        turn = game.promote(player.color, promoter, to, prow, pcol, drow, dcol);
+        turn = game.promote(me.color, promoter, to, prow, pcol, drow, dcol);
         break;
       case TurnType.ACTIVATE:
         const apiece = game.state.getSquare(
@@ -173,7 +194,7 @@ export class Room {
         )?.occupant;
         if (!apiece) return;
         turn = game.activate(
-          player.color,
+          me.color,
           apiece,
           turnAttempt.end.row,
           turnAttempt.end.col
@@ -184,12 +205,12 @@ export class Room {
     }
 
     if (!turn) {
-      log.get(player.name).warn('submitted an invalid move!');
+      log.get(me.name).warn('submitted an invalid move!');
       return;
     }
     turn = game.modifyTurn(turn);
     if (!turn) {
-      log.get(player.name).error('bad move after modify!');
+      log.get(me.name).error('bad move after modify!');
       return;
     }
 
@@ -197,17 +218,17 @@ export class Room {
     game.turnHistory.push(turn);
     game.stateHistory.push(turn.after);
 
-    player.time += INCREMENT_MS;
+    me.time += INCREMENT_MS;
     // we should send the mover a `replaceState` and the opponent an
     // `appendState`
     const rm = {
       type: 'replaceState' as const,
       turn: {
         // mostly a no-op on turn, but useful in variants
-        ...this.game.visibleTurn(turn, player.color),
+        ...this.game.visibleTurn(turn, me.color),
         // state should be universal
-        before: game.visibleState(turn.before, player.color),
-        after: game.visibleState(turn.after, player.color),
+        before: game.visibleState(turn.before, me.color),
+        after: game.visibleState(turn.after, me.color),
       },
     };
     const am = {
@@ -219,49 +240,55 @@ export class Room {
       },
     };
 
-    sendMessage(player.socket, rm);
-    sendMessage(opponent.socket, am);
+    sendMessage(me.player.socket, rm);
+    sendMessage(opponent.player.socket, am);
     this.sendTimers();
 
-    const playerWins = game.winCondition(player.color);
+    const playerWins = game.winCondition(me.color);
     const opponentWins = game.winCondition(opponent.color);
     if (playerWins) {
       if (opponentWins) {
         this.draws();
         return;
       } else {
-        this.wins(player.uuid);
+        this.wins(me.player.uuid);
         return;
       }
     } else if (opponentWins) {
-      this.wins(opponent.uuid);
+      this.wins(opponent.player.uuid);
       return;
     }
-    if (game.drawCondition(player.color)) {
+    if (game.drawCondition(me.color)) {
       this.draws();
       return;
     }
   }
 
   reconnect(uuid: string, socket: WebSocket) {
-    const player = this.p1.uuid === uuid ? this.p1 : this.p2;
-    const opponent = this.p1.uuid === uuid ? this.p2 : this.p1;
-    player.socket = socket;
+    const me = this.p1.player.uuid === uuid ? this.p1 : this.p2;
+    const opponent = this.p1.player.uuid === uuid ? this.p2 : this.p1;
+    me.player.socket = socket;
 
     const rec = {
       type: 'reconnect' as const,
-      state: this.game.visibleState(this.game.state, player.color),
+      state: this.game.visibleState(this.game.state, me.color),
       variantName: this.game.name,
-      color: player.color,
-      player: getName(player.uuid),
-      opponent: getName(opponent.uuid),
+      color: me.color,
+      player: {
+        name: getName(me.player.uuid),
+        streak: me.player.streak,
+      },
+      opponent: {
+        name: getName(opponent.player.uuid),
+        streak: opponent.player.streak,
+      },  
       turnHistory: this.game.turnHistory.map((turn) => ({
-        ...this.game.visibleTurn(turn, player.color),
-        before: this.game.visibleState(turn.before, player.color),
-        after: this.game.visibleState(turn.after, player.color),
+        ...this.game.visibleTurn(turn, me.color),
+        before: this.game.visibleState(turn.before, me.color),
+        after: this.game.visibleState(turn.after, me.color),
       })),
       stateHistory: this.game.stateHistory.map((state) =>
-        this.game.visibleState(state, player.color)
+        this.game.visibleState(state, me.color)
       ),
     };
     sendMessage(socket, rec);
@@ -269,72 +296,113 @@ export class Room {
   }
 
   getColor(uuid: string) {
-    return this.p1.uuid === uuid ? this.p1.color : this.p2.color;
+    return this.p1.player.uuid === uuid ? this.p1.color : this.p2.color;
   }
 
   wins(uuid: string) {
-    this.setState(RoomState.COMPLETED);
-    clearInterval(this.timerInterval);
-
-    const player = this.p1.uuid === uuid ? this.p1 : this.p2;
-    const opponent = player === this.p1 ? this.p2 : this.p1;
+    const me = this.p1.player.uuid === uuid ? this.p1 : this.p2;
+    const opponent = me === this.p1 ? this.p2 : this.p1;
 
     const gom = {
-      type: 'gameOver',
+      type: 'gameOver' as const,
       stateHistory: this.game.stateHistory,
       turnHistory: this.game.turnHistory,
     };
 
-    sendMessage(player.socket, {
+    // Set streak
+    me.player.streak += 1;
+    opponent.player.streak = 0;
+
+    sendMessage(me.player.socket, {
       ...gom,
       result: GameResult.WIN,
-    } as GameOverMessage);
-    sendMessage(opponent.socket, {
+      player: {
+        name: getName(me.player.uuid),
+        streak: me.player.streak,
+      },
+      opponent: {
+        name: getName(opponent.player.uuid),
+        streak: opponent.player.streak,
+      },  
+    });
+    sendMessage(opponent.player.socket, {
       ...gom,
       result: GameResult.LOSS,
-    } as GameOverMessage);
-    this.sendTimers();
-    log.get(player.name).notice('won');
+      player: {
+        name: getName(opponent.player.uuid),
+        streak: opponent.player.streak,
+      },
+      opponent: {
+        name: getName(me.player.uuid),
+        streak: me.player.streak,
+      },
+    });
+    this.end();
+
+    log.get(me.name).notice('won');
     log.get(opponent.name).notice('lost');
+  }
+
+  draws() {
+    const gom = {
+      type: 'gameOver' as const,
+      stateHistory: this.game.stateHistory,
+      turnHistory: this.game.turnHistory,
+    };
+
+    sendMessage(this.p1.player.socket, {
+      ...gom,
+      result: GameResult.DRAW,
+      player: {
+        name: getName(this.p1.player.uuid),
+        streak: this.p1.player.streak,
+      },
+      opponent: {
+        name: getName(this.p2.player.uuid),
+        streak: this.p2.player.streak,
+      },  
+    });
+    sendMessage(this.p2.player.socket, {
+      ...gom,
+      result: GameResult.DRAW,
+      player: {
+        name: getName(this.p2.player.uuid),
+        streak: this.p2.player.streak,
+      },
+      opponent: {
+        name: getName(this.p1.player.uuid),
+        streak: this.p1.player.streak,
+      },  
+    });
+    this.end();
+
+    log.get(this.p1.name).notice('draw');
+    log.get(this.p2.name).notice('draw');
   }
 
   sendTimers() {
     const timerMessage = {
       type: 'timer',
     };
-    sendMessage(this.p1.socket, {
+    sendMessage(this.p1.player.socket, {
       ...timerMessage,
       player: this.p1.time,
       opponent: this.p2.time,
     } as TimerMessage);
-    sendMessage(this.p2.socket, {
+    sendMessage(this.p2.player.socket, {
       ...timerMessage,
       player: this.p2.time,
       opponent: this.p1.time,
     } as TimerMessage);
   }
 
-  draws() {
+  end() {
     this.setState(RoomState.COMPLETED);
     clearInterval(this.timerInterval);
 
-    const gom = {
-      type: 'gameOver',
-      stateHistory: this.game.stateHistory,
-      turnHistory: this.game.turnHistory,
-    };
-
-    sendMessage(this.p1.socket, {
-      ...gom,
-      result: GameResult.DRAW,
-    } as GameOverMessage);
-    sendMessage(this.p2.socket, {
-      ...gom,
-      result: GameResult.DRAW,
-    } as GameOverMessage);
     this.sendTimers();
-    log.get(this.p1.name).notice('draw');
-    log.get(this.p2.name).notice('draw');
+    delete this.p1.player.room;
+    delete this.p2.player.room;
   }
 }
 
