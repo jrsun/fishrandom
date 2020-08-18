@@ -101,7 +101,6 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
 
   if (players[uuid]) {
     // Close existing websocket, if exists
-    players[uuid].socket.close();
     players[uuid].socket = ws;
   } else {
     players[uuid] = {uuid, socket: ws, streak: 0};

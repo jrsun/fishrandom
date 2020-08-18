@@ -42,6 +42,24 @@ export class MyApp extends LitElement {
       height: 100%;
       width: 100%;
     }
+    .waiting {
+      /* background-attachment: fixed;
+      margin:0;
+      background-size: 220%;
+      background-image: url('/img/bg-dark.svg'); */
+      justify-content: center;
+      font-family: "JelleeBold";
+    }
+    .subtitle {
+      color: #eeeeee;
+      font-size: 3vw;
+      margin-bottom: 1vw;
+    }
+    .tagline {
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      color: lightsteelblue;
+      font-size: 2vw;
+    }
     .title {
       color: #EEEEEE;
       font-family: "JelleeBold"
@@ -86,12 +104,12 @@ export class MyApp extends LitElement {
       display: flex;
       flex-direction: column;
       margin-right: 30px;
+      margin-bottom: 20px;
     }
-    @media only screen and (max-width: 700px) {
+    @media only screen and (max-width: 600px) {
       .active-game-container {
         margin-right: 0;
         margin-top: 20px;
-        margin-bottom: 20px;
       }
       .board-wrapper.card {
         padding: 0px;
@@ -185,6 +203,7 @@ export class MyApp extends LitElement {
       display: block;
       height: 100px;
       width: 50px;
+      margin-bottom: 50px;
     }
     .fish {
       height: 50px;
@@ -418,13 +437,14 @@ export class MyApp extends LitElement {
   }
 
   renderWaiting() {
-    return html`<div class="app">
+    return html`<div class="app waiting">
       <div>
         <h1 class="title">
           Waiting for players...
         </h1>
       </div>
       <div class="fish-con"><div class="fish"></div></div>
+      <div class="subtitle">8.17 - bario / atomic / royalpawn</div>
     </div>`;
   }
 
