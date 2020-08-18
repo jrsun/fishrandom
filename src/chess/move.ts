@@ -73,7 +73,7 @@ export function toFEN(turn: Turn) {
     case TurnType.DROP:
       return `${turn.piece.toFEN()}@${file}${rank}`;
     case TurnType.ACTIVATE:
-      return `💥${file}${rank}`;
+      return `@${file}${rank}`;
     default:
       return '?';
   }

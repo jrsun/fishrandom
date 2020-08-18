@@ -6,6 +6,7 @@ import {Atomic} from './atomic';
 import {Horde} from './horde';
 import {Dark, Dark2r} from './dark';
 import {Hiddenqueen} from './hiddenqueen';
+import {Royalpawn} from './royalpawn';
 import {Bario} from './bario';
 import {Grasshopper} from './grasshopper';
 import {Pocketknight} from './pocketknight';
@@ -20,6 +21,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Classic,
   Bario,
   Knightmate,
+  Royalpawn,
   Horde,
   Hiddenqueen,
   Grasshopper,
@@ -38,6 +40,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Knightmate,
   Horde,
   Hiddenqueen,
+  Royalpawn,
   Grasshopper,
   Dark,
   Dark2r,
@@ -62,6 +65,7 @@ export {
   Chess960,
   Bario,
   Pocketknight,
+  Royalpawn,
   Classic,
   Knightmate,
   Horde,

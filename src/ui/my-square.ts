@@ -83,7 +83,7 @@ export class MySquare extends LitElement {
       >
         ${this.piece &&
         html`<my-piece
-          draggable=${!this.frozen}
+          draggable=${true}
           @dragstart=${this._onDragStart}
           .piece=${this.piece}
         ></my-piece>`}

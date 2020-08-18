@@ -10,6 +10,7 @@ import {Hopper} from '../chess/variants/grasshopper';
 import {Obscurant} from '../chess/variants/dark';
 import {Secretbomber} from '../chess/variants';
 import {BomberPawn} from '../chess/variants/secretbomber';
+import { KingPawn } from '../chess/variants/royalpawn';
 
 export type Message =
   | TurnMessage
@@ -107,6 +108,7 @@ export interface GameOverMessage {
 export function replacer(k: string, o: Piece | BoardState | Square): object {
   if (o instanceof Obscurant) return Obscurant.freeze(o);
   if (o instanceof QueenPawn) return QueenPawn.freeze(o);
+  if (o instanceof KingPawn) return KingPawn.freeze(o);
   if (o instanceof BomberPawn) return BomberPawn.freeze(o);
   if (o instanceof Hopper) return Hopper.freeze(o);
   if (o instanceof Piece) return Piece.freeze(o);
@@ -119,6 +121,9 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
   if (v instanceof Object) {
     if (v._class === 'QueenPawn') {
       return QueenPawn.thaw(v);
+    }
+    if (v._class === 'KingPawn') {
+      return KingPawn.thaw(v);
     }
     if (v._class === 'Obscurant') {
       return Obscurant.thaw(v);

@@ -7,10 +7,11 @@ syncrhone
 - pocket knight
 
 - horde
-atomic
+-atomic
 recall
 -grasshopper
 -960
+
 
 -beirut
 prechess
@@ -21,3 +22,6 @@ fairy pieces:
 immobilizer
 jester copies last op move
 -maharajah
+
+intrigue
+disguised king
