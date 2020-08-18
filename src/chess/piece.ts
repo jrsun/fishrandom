@@ -266,7 +266,6 @@ export class King extends Leaper {
 
 export class Pawn extends Piece {
   name = 'Pawn';
-  promotable = true;
   legalMoves(
     row: number,
     col: number,

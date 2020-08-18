@@ -111,6 +111,7 @@ export class MyElement extends LitElement {
   @property({type: Boolean}) gameOver = false;
   @property({type: Boolean, reflect: true}) started = false;
   @property({type: Array}) possibleTargets: Square[] = [];
+  @property({type: Array}) promotions: Piece[] | undefined;
 
   draggedSquare: Square | undefined;
 
@@ -128,7 +129,7 @@ export class MyElement extends LitElement {
     );
     this.addEventListener('square-mouseup', this.onSquareMouseup.bind(this));
     // Swallow right-click events
-    this.addEventListener('contextmenu', e => {e.preventDefault()});
+    // this.addEventListener('contextmenu', e => {e.preventDefault()});
     this.pickerPieceSelected = this.onPiecePicker.bind(this);
     this.addEventListener('promotion-picked', this.pickerPieceSelected);
 
@@ -235,7 +236,7 @@ export class MyElement extends LitElement {
         horizontal-align="left"
         vertical-align="top"
         ><my-piece-picker
-          .pieces=${this.game.promotesTo.map((c) => new c(this.color))}
+          .pieces=${this.promotions ?? []}
           .eventName=${'promotion-picked'}
         ></my-piece-picker
       ></paper-dialog>
@@ -319,13 +320,28 @@ export class MyElement extends LitElement {
           square.row,
           square.col
         );
-        if (
-          this.selectedPiece.promotable &&
-          ((turn?.end.row === 0 && this.selectedPiece.color === Color.WHITE) ||
-            (turn?.end.row === this.game.state.files - 1 &&
-              this.selectedPiece.color === Color.BLACK))
-        ) {
-          // popup the promotion modal
+      }
+      if (!turn) {
+        this.selectedSquare = undefined;
+        this.selectedPiece = undefined;
+        return;
+      }
+
+      const promotions = this.game.promotions(turn);
+      if (promotions?.length) {
+        if (promotions.length === 1) {
+          // If only one possible promotion, just do it.
+          const pturn = this.game.promote(
+            this.color,
+            this.selectedPiece,
+            new promotions[0](this.color),
+            turn.start.row, turn.start.col,
+            turn.end.row, turn.end.col,
+          );
+          turn = pturn ?? turn;
+        } else {
+          // Else, popup the modal
+          this.promotions = promotions.map(c => new c(this.color));
           const promotionModal = this.shadowRoot!.querySelector(
             '#promotion-modal'
           ) as PaperDialogElement;
@@ -339,12 +355,9 @@ export class MyElement extends LitElement {
 
       this.selectedSquare = undefined;
       this.selectedPiece = undefined;
-      if (!turn) {
-        return;
-      }
+      this.game.state = turn.after;
       this.game.turnHistory = [...this.game.turnHistory, turn];
       this.game.stateHistory.push(turn.after);
-      this.game.state = turn.after;
 
       sendMessage(this.socket, {type: 'turn', turn});
     } else {

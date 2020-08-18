@@ -21,13 +21,11 @@ export class MyPiecePicker extends LitElement {
     }
   `;
 
-  @property({type: Array}) pieces: Piece[];
+  @property({type: Array}) pieces: Piece[] = [];
   @property({type: Boolean}) needsTarget = false;
   @property({type: String}) eventName?;
 
   @property({type: Object}) selected?: Piece;
-
-  attached() {}
 
   pickedPiece(piece: Piece, e: CustomEvent) {
     let newSelected: Piece | undefined;

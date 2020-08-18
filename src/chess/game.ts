@@ -1,6 +1,6 @@
 import {BoardState, generateStartState} from './state';
 import {Move, TurnType, Castle, Turn, Drop, Promote} from './move';
-import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from './piece';
+import {Piece, King, Rook, Pawn, Knight, Bishop, Queen, Mann} from './piece';
 import Square from './square';
 import {Color, Pair, NotImplementedError, getOpponent, equals} from './const';
 
@@ -46,6 +46,17 @@ export class Game {
   } // dark chess
   visibleTurn(turn: Turn, color: Color): Turn {
     return turn;
+  }
+  promotions(turn: Turn): (typeof Piece)[] | undefined {
+    if (turn.piece instanceof Pawn && turn.type === TurnType.MOVE) {
+      const pawn = turn.piece;
+      if (
+        (turn.end.row === 0 && pawn.color === Color.WHITE) || 
+        (turn.end.row === this.state.files - 1 && pawn.color === Color.BLACK))
+      {
+      return [Queen, Rook, Bishop, Knight];
+      }
+    }
   }
   legalMovesFrom(
     state: BoardState,
@@ -202,9 +213,6 @@ export class Game {
       }
     }
     return legalMoves.length === 0;
-  }
-  get promotesTo(): typeof Piece[] {
-    return [Queen, Rook, Bishop, Knight];
   }
 
   /***********************
@@ -396,12 +404,6 @@ export class Game {
   ): Promote | undefined {
     if (!this.checkTurn(color, promoter)) return;
 
-    if (
-      !this.promotesTo.some((legalPromotion) => to instanceof legalPromotion)
-    ) {
-      return;
-    }
-
     // Using the piece's own legal moves is intentional because most
     // variants don't allow special moves to result in promotion.
     const legalMoves = promoter
@@ -421,6 +423,10 @@ export class Game {
       console.log('multiple legal moves??');
     }
     const legalMove = legalMoves[0];
+    if (!this.promotions(legalMove)) {
+      console.log('bad promotion');
+      return;
+    }
     const after = BoardState.copy(this.state)
       .setTurn(getOpponent(promoter.color))
       .empty(srow, scol)
