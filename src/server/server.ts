@@ -75,6 +75,7 @@ app.use(
 
 app.use('/img', express.static(path.join(path.resolve() + '/img')));
 app.use('/font', express.static(path.join(path.resolve() + '/font')));
+app.use('/snd', express.static(path.join(path.resolve() + '/snd')));
 
 log.notice('serving on 8080');
 app.listen(8080);

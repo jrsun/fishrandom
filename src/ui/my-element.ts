@@ -114,6 +114,7 @@ export class MyElement extends LitElement {
   @property({type: Array}) promotions: Piece[] | undefined;
 
   draggedSquare: Square | undefined;
+  audio: {[name: string]: HTMLAudioElement|null|undefined} = {};
 
   pickerPieceSelected: () => void;
   ods: () => void;
@@ -150,6 +151,11 @@ export class MyElement extends LitElement {
     this.gameOver =
       this.game.winCondition(Color.BLACK) ||
       this.game.winCondition(Color.WHITE);
+    
+  }
+
+  firstUpdated() {
+    this.audio.move = this.shadowRoot?.querySelector('#move-audio');
   }
 
   disconnectedCallback() {
@@ -201,6 +207,7 @@ export class MyElement extends LitElement {
       this.game.turnHistory = [...this.game.turnHistory, turn];
       this.game.stateHistory.push(turn.after);
       this.game.state = turn.after;
+      this.audio.move?.play();
     }
     // async?
     this.gameOver =
@@ -229,6 +236,7 @@ export class MyElement extends LitElement {
 
     // BUG: Promo event keeps firing
     return html`
+      <audio id="move-audio" src="../../snd/move-piece.mp3" preload="auto"></audio>
       <paper-dialog
         id="promotion-modal"
         horizontal-align="left"
@@ -297,6 +305,7 @@ export class MyElement extends LitElement {
         return;
       }
       sendMessage(this.socket, {type: 'turn', turn});
+      this.audio.move?.play();
     } else if (this.selectedPiece && this.selectedSquare) {
      if (
         this.selectedPiece instanceof this.game.castler &&
@@ -358,6 +367,7 @@ export class MyElement extends LitElement {
       this.game.stateHistory.push(turn.after);
 
       sendMessage(this.socket, {type: 'turn', turn});
+      this.audio.move?.play();
     } else {
       this.selectedSquare = square;
       this.selectedPiece = square.occupant;
@@ -394,6 +404,7 @@ export class MyElement extends LitElement {
       this.game.state = turn.after;
 
       sendMessage(this.socket, {type: 'turn', turn});
+      this.audio.move?.play();
       this.performUpdate();
     }
   }
@@ -419,6 +430,7 @@ export class MyElement extends LitElement {
     this.game.stateHistory.push(turn.after);
     this.game.state = turn.after;
     sendMessage(this.socket, {type: 'turn', turn});
+    this.audio.move?.play();
 
     this.selectedSquare = undefined;
     this.selectedPiece = undefined;

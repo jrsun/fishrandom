@@ -112,7 +112,7 @@ export function generateInitial(): BoardState {
     7: {},
   };
 
-  for (let col = 0; col < 3; col++) {
+  for (let col = 0; col < 8; col++) {
     piecePositions[0][col] = new Zero(Color.BLACK);
     piecePositions[1][col] = new Pawn(Color.BLACK);
     piecePositions[6][col] = new Pawn(Color.WHITE);
