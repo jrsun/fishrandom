@@ -195,14 +195,12 @@ export class MyElement extends LitElement {
       turnHistory[turnHistory.length - 1] = turn;
       stateHistory[stateHistory.length - 1] = turn.after;
       this.game.state = turn.after;
-      console.log(toFEN(turn));
     } else if (message.type === 'appendState') {
       const am = message as AppendMessage;
       const {turn} = am;
       this.game.turnHistory = [...this.game.turnHistory, turn];
       this.game.stateHistory.push(turn.after);
       this.game.state = turn.after;
-      console.log(toFEN(turn));
     }
     // async?
     this.gameOver =

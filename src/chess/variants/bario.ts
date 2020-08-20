@@ -32,35 +32,43 @@ export class Bario extends Game {
       }
       return acc;
     }, {});
-    for (const piece of Object.values(dedupOptions)) {
-      moves.push(...piece.legalMoves(row, col, state, this.turnHistory));
+    for (const opt of Object.values(dedupOptions)) {
+      moves.push(...opt.legalMoves(row, col, state, this.turnHistory).map(move => ({
+        ...move,
+        piece,
+      })));
     }
     return moves;
   }
 
-  move(color, piece, srow, scol, drow, dcol): Move | undefined {
-    const turn = super.move(color, piece, srow, scol, drow, dcol);
-    if (!turn) return;
-      
-    // Note: piece is Zero, turn.piece is the piece the Zero moved as.
+  modifyTurn(turn: Turn): Turn {
+    const {piece, after, end} = turn;
+    // Note: piece is Zero, afterPiece is the piece the Zero moved as.
     if (piece instanceof Zero) {
+      const afterPiece = after.getSquare(end.row, end.col)?.occupant;
+      if (!afterPiece) return turn;
+
       const extra = this.state.extra?.bario;
-      if (!extra) return;
-      const options = turn.piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
-      const index = options.findIndex(opt => opt.name === turn.piece.name);
+      if (!extra) return turn;
+
+      const options = piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
+      const index = options.findIndex(opt => opt.name === afterPiece.name);
       if (index !== -1) {
         options.splice(index, 1);
       }
     }
 
-    // If no zeroes are left, replace all pieces with zeroes.
-    if (turn.after.squares.flat().filter(square => square?.occupant instanceof Zero).length === 0) {
-      const newState = BoardState.copy(turn.after);
-      for (let i=0; i < turn.after.squares.length; i++) {
-        for (let j=0; j < turn.after.squares[i].length; j++) {
-          const occupant = turn.after.getSquare(i, j)?.occupant;
+    // If no zeroes of the player's color are left, replace all their pieces with zeroes.
+    if (after.squares.flat().filter(square =>
+      square?.occupant instanceof Zero &&
+      square.occupant.color === piece.color
+    ).length === 0) {
+      const newState = BoardState.copy(after);
+      for (let i=0; i < after.squares.length; i++) {
+        for (let j=0; j < after.squares[i].length; j++) {
+          const occupant = after.getSquare(i, j)?.occupant;
           if (!occupant) continue;
-          if ([Bishop, Knight, Rook, Queen].some(t => occupant instanceof t)) {
+          if (occupant.color === piece.color && [Bishop, Knight, Rook, Queen].some(t => occupant instanceof t)) {
             newState.place(new Zero(occupant.color), i, j);
           }
         }
@@ -104,7 +112,7 @@ export function generateInitial(): BoardState {
     7: {},
   };
 
-  for (let col = 0; col < 8; col++) {
+  for (let col = 0; col < 3; col++) {
     piecePositions[0][col] = new Zero(Color.BLACK);
     piecePositions[1][col] = new Pawn(Color.BLACK);
     piecePositions[6][col] = new Pawn(Color.WHITE);

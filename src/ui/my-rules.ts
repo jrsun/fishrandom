@@ -169,17 +169,17 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <ul>
       <li>Checkmate or <b>capture</b> the king to win.</li>
     </ul> `,
-  Bario: html`A challenging variant. Your <b>Crescents</b> represent undefined pieces. They can be moved
+  Bario: html`<b>Crescents</b> can be moved
     as any standard piece, and then become that piece. For instance, if you move a Crescent
     as a Knight, it will become a Knight. <b>However</b>, you are limited
     to the number of pieces of a regular chess set (i.e., 2 Knights, 2 Bishops, 2
     Rooks, 1 Queen.) So if you have made two Knights, you <b>cannot</b> move
     any more Crescents as Knights.
     <ul>
-      <li>When no Crescents remain, <b>every piece reverts to a Crescent.</b></li>
+      <li>When no Crescents of a color remain, <b>that color's pieces all revert to Crescents.</b></li>
       <li>Checkmate or <b>capture</b> the king to win.</li>
       <li>No castling.</li>
-      <li>When possible, a Bishop or Rook will be made instead of a Queen.</li>
+      <li>When possible, a Bishop or Rook will be made before a Queen.</li>
     </ul> `,
   Atomic: html`Captures explode all surrounding pieces except pawns.
   <ul>
