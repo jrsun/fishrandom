@@ -195,8 +195,9 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   Pieceeater: html`An uncapturable <b>Elephant</b> wanders the board gobbling pieces.
   <ul>
     <li>Elephant moves after every turn.</li>
-    <li>If you move a piece next to the Elephant, it will capture it, except...</li>
-    <li>Elephant will not capture or move adjacent to a King.</li>
+    <li>If you move/drop a piece next to the Elephant, it will <b>capture</b> it, except...</li>
+    <li>Elephant will not capture or move adjacent to a <b>King</b>.</li>
+    <li>Each player has an extra <b>pawn</b> drop, anywhere except the first or last rank.</li>
     <li>Checkmate or capture the opponent's king to win.</li>
   </ul>`,
 };

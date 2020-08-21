@@ -9,6 +9,7 @@ import {dedup, Pair} from '../pair';
 
 export class Pieceeater extends Game {
   name = 'Pieceeater';
+  canDrop = true;
   constructor(isServer: boolean) {
     super(isServer, generateInitial());
   }
@@ -90,5 +91,10 @@ function generateInitial(): BoardState {
     squares[6][col].place(new Pawn(Color.WHITE));
   }
   squares[4][3].place(new Elephant(Color.OTHER));
-  return state;
+
+  const banks = {
+    [Color.WHITE]: [new Pawn(Color.WHITE)],
+    [Color.BLACK]: [new Pawn(Color.BLACK)],
+  }
+  return new BoardState(squares, Color.WHITE, banks);
 }

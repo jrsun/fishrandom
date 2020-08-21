@@ -275,13 +275,12 @@ export class Game {
     }
     let after = BoardState.copy(state).removeFromBank(color, piece);
     if (!after) {
-      // TEMP
-      console.log('piece unavailable to drop');
-      console.log(piece);
-      console.log(this.state.banks);
       return;
     }
 
+    if (piece instanceof Pawn && (row === 0 || row === this.state.ranks-1)) {
+      return;
+    }
     after.place(piece, row, col).setTurn(getOpponent(color));
 
     const drop = {
