@@ -15,6 +15,15 @@ export function randomChoice<T>(arr: T[]): T {
   return arr[randomInt(arr.length)];
 }
 
+export function cartesian<T>(...allEntries: T[][]): T[][] {
+  return allEntries.reduce<T[][]>(
+    (results, entries) =>
+      results
+        .map(result => entries.map(entry => result.concat([entry])))
+        .reduce((subResults, result) => subResults.concat(result), []),
+    [[]]
+  )
+}
 export function uuidToName(s: string): string {
   return s.split('|')?.[1]?.replace(/[^0-9A-Z]+/gi,"").toLocaleLowerCase() ?? 'fish';
 }

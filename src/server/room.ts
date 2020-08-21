@@ -55,6 +55,7 @@ export class Room {
   state: RoomState;
   lastMoveTime: number;
   timerInterval: any; // timer
+  timerPaused: boolean;
 
   constructor(
     p1: Player,
@@ -114,6 +115,7 @@ export class Room {
       },
     } as InitGameMessage);
     this.timerInterval = setInterval(() => {
+      if (this.timerPaused) return;
       const me =
         this.game.state.whoseTurn === this.p1.color ? this.p1 : this.p2;
       const opponent = me === this.p1 ? this.p2 : this.p1;
@@ -123,6 +125,7 @@ export class Room {
         this.wins(opponent.player.uuid);
       }
     }, 1000);
+    this.timerPaused = false;
     this.sendTimers();
   }
 
@@ -243,25 +246,47 @@ export class Room {
     sendMessage(me.player.socket, rm);
     sendMessage(opponent.player.socket, am);
     this.sendTimers();
+    // Pause timer because we're now handling afterTurn
+    this.timerPaused = true;
 
-    const playerWins = game.winCondition(me.color);
-    const opponentWins = game.winCondition(opponent.color);
-    if (playerWins) {
-      if (opponentWins) {
-        this.draws();
-        return;
-      } else {
-        this.wins(me.player.uuid);
-        return;
-      }
-    } else if (opponentWins) {
-      this.wins(opponent.player.uuid);
-      return;
-    }
-    if (game.drawCondition(me.color)) {
-      this.draws();
-      return;
-    }
+    if (this.checkIfOver()) return;
+
+    // BUG: Don't let people move before afterTurn
+    this.handleAfterTurn(game.afterTurn());
+    this.checkIfOver();
+    this.timerPaused = false;
+  }
+
+  handleAfterTurn(turn?: Turn) {
+    if (!turn) return;
+
+    const {game, p1, p2} = this;
+    turn = game.modifyTurn(turn);
+    if (!turn) return;
+
+    game.state = turn.after;
+    game.turnHistory.push(turn);
+    game.stateHistory.push(turn.after);
+
+    const am1 = {
+      type: 'appendState' as const,
+      turn: {
+        ...game.visibleTurn(turn, p1.color),
+        before: game.visibleState(turn.before, p1.color),
+        after: game.visibleState(turn.after, p1.color),
+      },
+    };
+    const am2 = {
+      type: 'appendState' as const,
+      turn: {
+        ...game.visibleTurn(turn, p2.color),
+        before: game.visibleState(turn.before, p2.color),
+        after: game.visibleState(turn.after, p2.color),
+      },
+    };
+
+    sendMessage(p1.player.socket, am1);
+    sendMessage(p2.player.socket, am2);
   }
 
   reconnect(uuid: string, socket: WebSocket) {
@@ -293,6 +318,29 @@ export class Room {
     };
     sendMessage(socket, rec);
     this.sendTimers();
+  }
+
+  checkIfOver(): boolean {
+    const {game, p1: me, p2: opponent} = this;
+    const playerWins = game.winCondition(me.color);
+    const opponentWins = game.winCondition(opponent.color);
+    if (playerWins) {
+      if (opponentWins) {
+        this.draws();
+        return true;
+      } else {
+        this.wins(me.player.uuid);
+        return true;
+      }
+    } else if (opponentWins) {
+      this.wins(opponent.player.uuid);
+      return true;
+    }
+    if (game.drawCondition(me.color)) {
+      this.draws();
+      return true;
+    }
+    return false;
   }
 
   getColor(uuid: string) {

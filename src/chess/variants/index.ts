@@ -13,6 +13,7 @@ import {Pocketknight} from './pocketknight';
 import {Secretbomber} from './secretbomber';
 import {Maharaja} from './maharaja';
 import {Test} from './test';
+import {Pieceeater} from './pieceeater';
 import {randomChoice} from '../../utils';
 
 export const VARIANTS: {[name: string]: typeof Game} = {
@@ -21,6 +22,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Classic,
   Bario,
   Knightmate,
+  Pieceeater,
   Royalpawn,
   Horde,
   Hiddenqueen,
@@ -49,6 +51,12 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Maharaja,
   Chess921600,
   Chess960,
+  Pieceeater,
+  // Dice Chess,
+  // Prechess
+  // Loser's Chess
+  // Intrigue
+  // Synchrone
 };
 
 export function Random(...except: string[]): typeof Game {
@@ -68,6 +76,7 @@ export {
   Royalpawn,
   Classic,
   Knightmate,
+  Pieceeater,
   Horde,
   Hiddenqueen,
   Grasshopper,

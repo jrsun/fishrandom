@@ -11,6 +11,7 @@ import {Obscurant} from '../chess/variants/dark';
 import {Secretbomber} from '../chess/variants';
 import {BomberPawn} from '../chess/variants/secretbomber';
 import { KingPawn } from '../chess/variants/royalpawn';
+import { Elephant } from '../chess/variants/pieceeater';
 
 export type Message =
   | TurnMessage
@@ -109,6 +110,7 @@ export function replacer(k: string, o: Piece | BoardState | Square): object {
   if (o instanceof Obscurant) return Obscurant.freeze(o);
   if (o instanceof QueenPawn) return QueenPawn.freeze(o);
   if (o instanceof KingPawn) return KingPawn.freeze(o);
+  if (o instanceof Elephant) return Elephant.freeze(o);
   if (o instanceof BomberPawn) return BomberPawn.freeze(o);
   if (o instanceof Hopper) return Hopper.freeze(o);
   if (o instanceof Piece) return Piece.freeze(o);
@@ -124,6 +126,9 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
     }
     if (v._class === 'KingPawn') {
       return KingPawn.thaw(v);
+    }
+    if (v._class === 'Elephant') {
+      return Elephant.thaw(v);
     }
     if (v._class === 'Obscurant') {
       return Obscurant.thaw(v);

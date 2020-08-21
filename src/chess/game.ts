@@ -33,6 +33,7 @@ export class Game {
     // in atomic chess, explode, etc.
     return turn;
   }
+  afterTurn(): Turn|undefined { return }
   activate(
     color: Color,
     piece: Piece,
@@ -213,6 +214,21 @@ export class Game {
       }
     }
     return legalMoves.length === 0;
+  }
+
+  isTurnLegal(color: Color, turn: Turn): boolean {
+    if (
+      turn.end.row < 0 ||
+      turn.end.row >= this.state.ranks ||
+      turn.end.col < 0 ||
+      turn.end.col >= this.state.files
+    ) {
+      return false;
+    }
+    if (this.knowsInCheck(color, turn.after)) {
+      return false;
+    }
+    return true;
   }
 
   /***********************
@@ -442,20 +458,6 @@ export class Game {
 
   // Private
 
-  isTurnLegal(color: Color, turn: Turn): boolean {
-    if (
-      turn.end.row < 0 ||
-      turn.end.row >= this.state.ranks ||
-      turn.end.col < 0 ||
-      turn.end.col >= this.state.files
-    ) {
-      return false;
-    }
-    if (this.knowsInCheck(color, turn.after)) {
-      return false;
-    }
-    return true;
-  }
 
   knowsInCheck(color: Color, state: BoardState): boolean {
     const visibleState = this.visibleState(state, color);

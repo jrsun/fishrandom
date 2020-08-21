@@ -191,7 +191,14 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <li>Capture the opponent's royal pawn to win.</li>
     <li>Or promote your royal pawn to win.</li>
     <li>There is no check or checkmate.</li>
-  </ul>`
+  </ul>`,
+  Pieceeater: html`An uncapturable <b>Elephant</b> wanders the board gobbling pieces.
+  <ul>
+    <li>Elephant moves after every turn.</li>
+    <li>If you move a piece next to the Elephant, it will capture it, except...</li>
+    <li>Elephant will not capture or move adjacent to a King.</li>
+    <li>Checkmate or capture the opponent's king to win.</li>
+  </ul>`,
 };
 
 declare global {
