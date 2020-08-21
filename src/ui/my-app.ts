@@ -275,6 +275,10 @@ export class MyApp extends LitElement {
   private gameResult: string | undefined;
   private color?: Color;
   private timerInterval;
+  private audio: {
+    lowTime: HTMLAudioElement|null|undefined;
+    played: boolean;
+  }
 
   connectedCallback() {
     super.connectedCallback();
@@ -305,6 +309,13 @@ export class MyApp extends LitElement {
     });
   }
 
+  firstUpdated() {
+    this.audio = {
+      lowTime: this.shadowRoot?.querySelector('#low-time-audio'),
+      played: false,
+    };
+  }
+
   disconnectedCallback() {
     super.disconnectedCallback();
 
@@ -324,6 +335,7 @@ export class MyApp extends LitElement {
   onInitGame() {
     // Reset animations in child elements
     this.started = false;
+    this.audio.played = false;
     this.performUpdate();
 
     setTimeout(() => {
@@ -364,6 +376,10 @@ export class MyApp extends LitElement {
             if (this.playerTimer === 10 * 1000) {
               const timerEl = this.shadowRoot?.querySelector('.timer.player');
               timerEl?.classList.add('blinking');
+              if (!this.audio.played) {
+                this.audio.lowTime?.play();
+                this.audio.played = true;
+              }
             }
           }
         } else {
@@ -438,6 +454,7 @@ export class MyApp extends LitElement {
 
   renderWaiting() {
     return html`<div class="app waiting">
+      <audio id="low-time-audio" src="../../snd/3beeps.mp3" preload="auto"></audio>
       <div>
         <h1 class="title">
           Waiting for players...
@@ -482,6 +499,7 @@ export class MyApp extends LitElement {
     if (!this.game || !this.color) return this.renderWaiting();
 
     return html`<div class="app">
+      <audio id="low-time-audio" src="../../snd/3beeps.mp3" preload="auto"></audio>
       <canvas id="confetti-canvas"></canvas>
       <div>
         <h1 class="title">
@@ -577,7 +595,8 @@ export class MyApp extends LitElement {
           </paper-button>
         </div>
       </paper-dialog>
-    </div>`;
+    </div>
+    `;
   }
 }
 

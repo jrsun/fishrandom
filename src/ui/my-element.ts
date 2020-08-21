@@ -266,13 +266,13 @@ export class MyElement extends LitElement {
                     equals(lastTurn.start, square)) ||
                     equals(lastTurn.end, square))}
                   .color=${this.color}
-                  .checked=${square.occupant?.isRoyal &&
+                  .checked=${!!(square.occupant?.isRoyal &&
                   this.game.knowsAttackedSquare(
                     square.occupant?.color,
                     uiState,
                     square.row,
                     square.col
-                  )}
+                  ))}
                 ></my-square>`
               )}
             </div>`
