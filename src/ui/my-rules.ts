@@ -200,6 +200,11 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <li>Each player has an extra <b>pawn</b> drop, anywhere except the first or last rank.</li>
     <li>Checkmate or capture the opponent's king to win.</li>
   </ul>`,
+  Football: html`Get a piece on your opponent's King or Queen starting squares to win.
+  <ul>
+    <li>Get to d8 or e8 to win as white, d1 or e1 as black.</li>
+    <li>King can be captured without ending game.</li>
+  </ul>`
 };
 
 declare global {
