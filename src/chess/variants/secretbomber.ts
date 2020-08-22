@@ -4,12 +4,12 @@ import {Color, getOpponent} from '../const';
 import {BoardState, generateStartState} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
-import {Move, Turn, Activate, TurnType, Castle} from '../turn';
+import {Move, Turn, Activate, TurnType, Castle, Unknown} from '../turn';
 
 export class Secretbomber extends Game {
   name = 'Secretbomber';
   constructor(isServer: boolean) {
-    super(isServer, genInitial());
+    super(isServer, generateStartState());
   }
   visibleState(state: BoardState, color: Color): BoardState {
     if (!this.isServer) return state;
@@ -35,28 +35,56 @@ export class Secretbomber extends Game {
     );
   }
 
+  visibleTurn(turn: Turn, color: Color): Turn {
+    if (color === turn.piece.color) return turn;
+    if (turn.type === TurnType.ACTIVATE && turn.piece instanceof Pawn) {
+      return {
+        type: TurnType.UNKNOWN,
+        before: turn.before,
+        after: turn.after,
+        end: {row: -1, col: -1},
+        captured: turn.captured,
+        piece: new Pawn(turn.piece.color),
+      };
+    }
+    if (turn.piece instanceof BomberPawn) {
+      return {
+        ...turn,
+        piece: new Pawn(turn.piece.color),
+      };
+    }
+    return turn;
+  }
+
   activate(
     color: Color,
     piece: Piece,
     row: number,
     col: number
-  ): Activate | undefined {
+  ): Turn | undefined {
     if (!this.checkTurn(color, piece)) return;
-    if (!(piece instanceof BomberPawn)) return;
     if (piece.color !== color) return;
 
-    const after = BoardState.copy(this.state)
+    let after: BoardState|undefined;
+    if (piece instanceof BomberPawn) {
+      after = BoardState.copy(this.state)
+        .setTurn(getOpponent(color))
+        .empty(row - 1, col - 1)
+        .empty(row - 1, col)
+        .empty(row - 1, col + 1)
+        .empty(row, col - 1)
+        .empty(row, col)
+        .empty(row, col + 1)
+        .empty(row + 1, col - 1)
+        .empty(row + 1, col)
+        .empty(row + 1, col + 1);
+    } else if (piece instanceof Pawn) {
+      after = BoardState.copy(this.state)
       .setTurn(getOpponent(color))
-      .empty(row - 1, col - 1)
-      .empty(row - 1, col)
-      .empty(row - 1, col + 1)
-      .empty(row, col - 1)
-      .empty(row, col)
-      .empty(row, col + 1)
-      .empty(row + 1, col - 1)
-      .empty(row + 1, col)
-      .empty(row + 1, col + 1);
-
+      .place(new BomberPawn(color), row, col);
+    } else {
+      return;
+    }
     const turn = {
       type: TurnType.ACTIVATE as const,
       before: this.state,
@@ -64,40 +92,16 @@ export class Secretbomber extends Game {
       end: {row, col},
       piece,
     };
+    if (!this.isTurnLegal(color, turn)) return;
     return turn;
   }
 
-  winCondition(color: Color): boolean {
-    if (super.winCondition(color)) return true;
+  isTurnLegal(color: Color, turn: Turn): boolean {
+    if (!super.isTurnLegal(color, turn)) return false;
 
-    if (
-      !this.state.pieces
-        .filter((piece) => piece.color === getOpponent(color))
-        .some((piece) => piece instanceof King)
-    ) {
-      return true;
-    }
-    return false;
-  }
-
-  move(
-    color: Color,
-    piece: Piece,
-    srow: number,
-    scol: number,
-    drow: number,
-    dcol: number
-  ): Move | undefined {
-    if (!this.isServer) {
-      return super.move(color, piece, srow, scol, drow, dcol);
-    }
-    const move = super.move(color, piece, srow, scol, drow, dcol);
-    if (!move) return;
-
-    return {
-      ...move,
-      piece: piece instanceof BomberPawn ? new Pawn(color) : piece,
-    };
+    const isSelectBomber = turn.type === TurnType.ACTIVATE && turn.piece.name === 'Pawn';
+    const isFirstMove = this.turnHistory.filter(turn => turn.piece.color === color).length === 0;
+    return (isSelectBomber && isFirstMove) || (!isSelectBomber && !isFirstMove);
   }
 }
 
@@ -123,16 +127,4 @@ export class BomberPawn extends Pawn {
   static thaw(o): BomberPawn {
     return new BomberPawn(o.c);
   }
-}
-
-function genInitial(): BoardState {
-  const state = generateStartState();
-
-  const files = [0, 1, 2, 3, 4, 5, 6, 7];
-  const bhqf = randomChoice(files);
-  state.squares[1][bhqf].place(new BomberPawn(Color.BLACK));
-  const whqf = randomChoice(files);
-  state.squares[6][whqf].place(new BomberPawn(Color.WHITE));
-
-  return state;
 }

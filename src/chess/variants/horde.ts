@@ -11,14 +11,14 @@ export class Horde extends Game {
   constructor(isServer) {
     super(isServer, generateStartState());
   }
-  winCondition(color: Color): boolean {
+  winCondition(color: Color, state: BoardState): boolean {
     const opponent = getOpponent(color);
     if (color === Color.WHITE) {
-      return super.winCondition(color);
+      return super.winCondition(color, state);
     }
     // Black wins by capturing all the pawns
     return (
-      this.state.squares
+      state.squares
         .flat()
         .filter((square) => square.occupant?.color === opponent).length === 0
     );

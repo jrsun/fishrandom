@@ -43,29 +43,4 @@ export class Atomic extends Game {
       after,
     };
   }
-
-  isTurnLegal(color: Color, turn: Turn): boolean {
-    if (
-      turn.end.row < 0 ||
-      turn.end.row >= this.state.ranks ||
-      turn.end.col < 0 ||
-      turn.end.col >= this.state.files
-    ) {
-      return false;
-    }
-    return true;
-  }
-
-  winCondition(color: Color): boolean {
-    if (super.winCondition(color)) return true;
-
-    if (
-      !this.state.pieces
-        .filter((piece) => piece.color === getOpponent(color))
-        .some((piece) => piece instanceof King)
-    ) {
-      return true;
-    }
-    return false;
-  }
 }

@@ -149,8 +149,8 @@ export class MyElement extends LitElement {
     });
 
     this.gameOver =
-      this.game.winCondition(Color.BLACK) ||
-      this.game.winCondition(Color.WHITE);
+      this.game.winCondition(Color.BLACK, this.game.state) ||
+      this.game.winCondition(Color.WHITE, this.game.state);
     
   }
 
@@ -211,8 +211,8 @@ export class MyElement extends LitElement {
     }
     // async?
     this.gameOver =
-      this.game.winCondition(Color.BLACK) ||
-      this.game.winCondition(Color.BLACK);
+      this.game.winCondition(Color.WHITE, this.game.state) ||
+      this.game.winCondition(Color.BLACK, this.game.state);
     this.performUpdate();
   }
 
@@ -461,21 +461,21 @@ export class MyElement extends LitElement {
       return;
     }
     const moves = game.legalMovesFrom(game.state, square.row, square.col, true);
-    if (game.knowsInCheck(this.color, game.state)) {
-      // If in check, compute legal immediately
+    if (game.knowsInCheck(this.color, game.state) || moves.length < 10) {
+      // If in check, or few moves, compute immediately
       this.possibleTargets = moves
-      .filter(move => this.game.isTurnLegal(this.color, move))
+      .filter(move => this.game.isTurnLegal(piece.color, move))
       .map((move) => toEndSquare(game.state, move))
       .filter((square) => !!square) as Square[];
     } else {
-      // Else, get the possible targets first
+      // Else, do it async
       this.possibleTargets = moves
         .map((move) => toEndSquare(game.state, move))
         .filter((square) => !!square) as Square[];
       setTimeout(() => {
         this.possibleTargets = moves
           .filter((move) => {
-            return this.game.isTurnLegal(this.color, move);
+            return this.game.isTurnLegal(piece.color, move);
           })
           .map((move) => toEndSquare(this.game.state, move))
           .filter((square) => !!square) as Square[];

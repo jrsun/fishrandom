@@ -323,8 +323,8 @@ export class Room {
 
   checkIfOver(): boolean {
     const {game, p1: me, p2: opponent} = this;
-    const playerWins = game.winCondition(me.color);
-    const opponentWins = game.winCondition(opponent.color);
+    const playerWins = game.winCondition(me.color, game.state);
+    const opponentWins = game.winCondition(opponent.color, game.state);
     if (playerWins) {
       if (opponentWins) {
         this.draws();
@@ -337,7 +337,7 @@ export class Room {
       this.wins(opponent.player.uuid);
       return true;
     }
-    if (game.drawCondition(me.color)) {
+    if (game.drawCondition(me.color, game.state)) {
       this.draws();
       return true;
     }

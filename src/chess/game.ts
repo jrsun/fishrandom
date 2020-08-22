@@ -144,34 +144,36 @@ export class Game {
     return moves;
   }
 
-  winCondition(color: Color): boolean {
+  winCondition(color: Color, state: BoardState): boolean {
     const opponent = getOpponent(color);
     // fallback if king gets taken
     if (
-      !this.state.pieces
+      !state.pieces
         .filter((piece) => piece.color === opponent)
         .some((piece) => piece.isRoyal)
     ) {
       return true;
     }
 
-    if (!this.knowsInCheck(opponent, this.state)) return false;
+    if (!this.knowsInCheck(opponent, state)) return false;
+    // Can't get out of check by checkmating
+    if (this.knowsInCheck(color, state)) return false;
 
-    const opponentLegalMoves = this.state.squares
+    const opponentLegalMoves = state.squares
       .flat()
       .filter((square) => square.occupant?.color === opponent)
       .flatMap((square) =>
-        this.legalMovesFrom(this.state, square.row, square.col, true)
+        this.legalMovesFrom(state, square.row, square.col, true)
       )
       .filter((move) => move && !this.knowsInCheck(opponent, move.after));
-    if (this.canDrop && this.state.banks[opponent]) {
-      const bank = this.state.banks[opponent];
+    if (this.canDrop && state.banks[opponent]) {
+      const bank = state.banks[opponent];
       if (bank.length > 0) {
-        const dropStates = this.state.squares
+        const dropStates = state.squares
           .flat()
           .filter((square) => !square.occupant)
           .map((square) =>
-            BoardState.copy(this.state).place(
+            BoardState.copy(state).place(
               new Piece(opponent),
               square.row,
               square.col
@@ -187,23 +189,23 @@ export class Game {
     // Opponent is in check and cannot escape it.
     return opponentLegalMoves.length === 0;
   }
-  drawCondition(color: Color): boolean {
-    const legalMoves = this.state.squares
+  drawCondition(color: Color, state: BoardState): boolean {
+    const legalMoves = state.squares
       .flat()
       .filter((square) => square.occupant?.color === color)
       .flatMap((square) =>
-        this.legalMovesFrom(this.state, square.row, square.col, true)
+        this.legalMovesFrom(state, square.row, square.col, true)
       )
       .filter((move) => move && !this.knowsInCheck(color, move.after));
 
-    if (this.canDrop && this.state.banks[color]) {
-      const bank = this.state.banks[color];
+    if (this.canDrop && state.banks[color]) {
+      const bank = state.banks[color];
       if (bank.length > 0) {
-        const dropStates = this.state.squares
+        const dropStates = state.squares
           .flat()
           .filter((square) => !square.occupant)
           .map((square) =>
-            BoardState.copy(this.state).place(
+            BoardState.copy(state).place(
               new Piece(color),
               square.row,
               square.col
@@ -228,7 +230,13 @@ export class Game {
     ) {
       return false;
     }
-    if (this.knowsInCheck(color, turn.after)) {
+    // This check is for the client
+    const modifiedTurn = this.modifyTurn(turn);
+    if (this.winCondition(color, modifiedTurn.after)) {
+      return true;
+    }
+    // TODO: This call repeats work done in winCondition
+    if (this.knowsInCheck(color, modifiedTurn.after)) {
       return false;
     }
     return true;
@@ -254,7 +262,7 @@ export class Game {
       scol,
       /* allowCastles */ false
     ).filter((move) => {
-      return move.type === TurnType.MOVE && this.isTurnLegal(color, move);
+      return move.type === TurnType.MOVE && this.isTurnLegal(piece.color, move);
     }) as Move[];
     const legalMove = legalMoves.find((move) =>
       equals(move.end, {row: drow, col: dcol})
@@ -294,7 +302,7 @@ export class Game {
       piece,
       type: TurnType.DROP,
     } as Drop;
-    if (!this.isTurnLegal(color, drop)) {
+    if (!this.isTurnLegal(piece.color, drop)) {
       console.log('illegal drop');
       return;
     }
@@ -428,7 +436,7 @@ export class Game {
       .legalMoves(srow, scol, this.state, this.turnHistory)
       .filter((move) => {
         return (
-          this.isTurnLegal(color, move) &&
+          this.isTurnLegal(promoter.color, move) &&
           move.end.col === dcol &&
           move.end.row === drow
         );
@@ -459,7 +467,6 @@ export class Game {
   }
 
   // Private
-
 
   knowsInCheck(color: Color, state: BoardState): boolean {
     const visibleState = this.visibleState(state, color);

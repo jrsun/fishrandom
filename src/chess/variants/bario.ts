@@ -82,19 +82,6 @@ export class Bario extends Game {
     return turn;   
   }
 
-  winCondition(color: Color): boolean {
-    if (super.winCondition(color)) return true;
-
-    if (
-      !this.state.pieces
-        .filter((piece) => piece.color === getOpponent(color))
-        .some((piece) => piece instanceof King)
-    ) {
-      return true;
-    }
-    return false;
-  }
-
   private resetOptions() {
     const extra = this.state.extra?.bario;
     if (!extra) return;
