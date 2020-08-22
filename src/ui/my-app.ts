@@ -177,6 +177,9 @@ export class MyApp extends LitElement {
       color: #344155;
       box-shadow: 0px 7px #bbb;
     }
+    .timer.paused {
+      opacity: 0.5;
+    }
     /* right */
     .right-panel {
       display: flex;
@@ -537,7 +540,9 @@ export class MyApp extends LitElement {
                 </div>
               </div>
             </div>
-            <div class="timer opponent">
+            <div class="timer opponent ${
+              this.game.state.whoseTurn === getOpponent(this.color) ? '' : 'paused'
+            }">
               ${this.renderTimer(this.opponentTimer)}
             </div>
           </div>
@@ -568,7 +573,9 @@ export class MyApp extends LitElement {
                 </div>
               </div>
             </div>
-            <div class="timer player">
+            <div class="timer player ${
+              this.game.state.whoseTurn === this.color ? '' : 'paused'
+            }">
               ${this.renderTimer(this.playerTimer)}
             </div>
           </div>

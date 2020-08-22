@@ -74,6 +74,7 @@ export class Dark extends Game {
       before: turn.before,
       after: turn.after,
       end: {row: -1, col: -1},
+      captured: turn.captured,
       piece: new Obscurant(Color.OTHER),
     };
   }
