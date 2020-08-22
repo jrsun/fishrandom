@@ -15,11 +15,7 @@ function generateStartState(): BoardState {
   const piecePositions = {
     0: backRank(Color.BLACK),
     1: {},
-    6: {
-      3: new Pawn(Color.WHITE),
-      4: new Pawn(Color.WHITE),
-      5: new Pawn(Color.WHITE),
-    },
+    6: {},
     7: {
       4: new Amazon(Color.WHITE),
     },
@@ -27,6 +23,7 @@ function generateStartState(): BoardState {
 
   for (let col = 0; col < 8; col++) {
     piecePositions[1][col] = new Pawn(Color.BLACK);
+    piecePositions[6][col] = new Pawn(Color.WHITE);
   }
   const squares: Square[][] = [];
   for (let i = 0; i < 8; i++) {
