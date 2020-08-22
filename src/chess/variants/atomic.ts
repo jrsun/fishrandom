@@ -28,6 +28,7 @@ export class Atomic extends Game {
 
     const {row, col} = turn.end;
     const after = BoardState.copy(turn.after);
+    after.empty(row, col);
 
     for (let i = row - 1; i < row + 2; i++) {
       for (let j = col - 1; j < col + 2; j++) {

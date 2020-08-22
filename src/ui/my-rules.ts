@@ -181,7 +181,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>No castling.</li>
       <li>When possible, a Bishop or Rook will be made before a Queen.</li>
     </ul> `,
-  Atomic: html`Captures explode all surrounding pieces except pawns.
+  Atomic: html`Captures explode the captured piece and all neighboring pieces except pawns.
   <ul>
     <li>Checkmate or <b>explode</b> the king to win.</li>
   </ul>`,
