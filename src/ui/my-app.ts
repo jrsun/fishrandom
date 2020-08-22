@@ -24,6 +24,7 @@ import './my-rules';
 import './my-piece-picker';
 import './my-controls';
 import './my-captures';
+import './my-release-notes';
 import './my-element';
 
 import {Game} from '../chess/game';
@@ -49,11 +50,6 @@ export class MyApp extends LitElement {
       background-image: url('/img/bg-dark.svg'); */
       justify-content: center;
       font-family: "JelleeBold";
-    }
-    .subtitle {
-      color: #eeeeee;
-      font-size: 3vw;
-      margin-bottom: 1vw;
     }
     .tagline {
       font-family: Georgia, 'Times New Roman', Times, serif;
@@ -475,8 +471,7 @@ export class MyApp extends LitElement {
         </h1>
       </div>
       <div class="fish-con"><div class="fish"></div></div>
-      <div class="subtitle">8.21 - piece eater</div>
-      <div class="subtitle">8.17 - bario / atomic / royal pawn</div>
+      <my-release-notes></my-release-notes>
     </div>`;
   }
 

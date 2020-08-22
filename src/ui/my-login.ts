@@ -7,11 +7,12 @@ import {
   TemplateResult,
 } from 'lit-element';
 import '@polymer/paper-button';
+import './my-release-notes';
 
 @customElement('my-login')
 export class MyLogin extends LitElement {
   static styles = css`
-    .host {
+    :host {
       display: block;
     }
 
@@ -27,16 +28,6 @@ export class MyLogin extends LitElement {
       color: #eeeeee;
       font-size: 7vw;
       margin-bottom: 1vw;
-    }
-    .subtitle {
-      color: #eeeeee;
-      font-size: 3vw;
-      margin-bottom: 1vw;
-    }
-    .tagline {
-      font-family: Georgia, 'Times New Roman', Times, serif;
-      color: lightsteelblue;
-      font-size: 2vw;
     }
     .row {
       display: flex;
@@ -108,9 +99,7 @@ export class MyLogin extends LitElement {
           >Play</paper-button
         >
         <input type="submit" style="display: none" />
-        <div class="subtitle">8.21 - piece eater</div>
-        <div class="subtitle">8.17 - bario / atomic / royal pawn</div>
-        <div class="subtitle tagline">theoria incognita</div>
+        <my-release-notes></my-release-notes>
       </div>
     </form>`;
   }

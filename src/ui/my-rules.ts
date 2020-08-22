@@ -205,7 +205,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <li>Get to d8 or e8 to win as white, d1 or e1 as black.</li>
     <li>King can be captured without ending game.</li>
   </ul>`,
-  Chigorin: html`Knights vs bishops.
+  Chigorin: html`The knight army vs the bishop army.
   <ul>
     <li>Pawns only promote to pieces in same color's starting army.</li>
     <li><b>Chancellor</b> moves as Rook + Knight.</li>
