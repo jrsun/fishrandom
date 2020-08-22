@@ -44,6 +44,18 @@ export class Atomic extends Game {
     };
   }
 
+  isTurnLegal(color: Color, turn: Turn): boolean {
+    if (
+      turn.end.row < 0 ||
+      turn.end.row >= this.state.ranks ||
+      turn.end.col < 0 ||
+      turn.end.col >= this.state.files
+    ) {
+      return false;
+    }
+    return true;
+  }
+
   winCondition(color: Color): boolean {
     if (super.winCondition(color)) return true;
 
