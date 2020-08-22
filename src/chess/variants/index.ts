@@ -7,6 +7,7 @@ import {Horde} from './horde';
 import {Dark, Dark2r} from './dark';
 import {Hiddenqueen} from './hiddenqueen';
 import {Royalpawn} from './royalpawn';
+import {Chigorin} from './chigorin';
 import {Bario} from './bario';
 import {Grasshopper} from './grasshopper';
 import {Pocketknight} from './pocketknight';
@@ -20,6 +21,7 @@ import {randomChoice} from '../../utils';
 export const VARIANTS: {[name: string]: typeof Game} = {
   Atomic,
   Chess960,
+  Chigorin,
   Classic,
   Bario,
   Knightmate,
@@ -41,6 +43,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
 export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Atomic,
   Bario,
+  Chigorin,
   Knightmate,
   Horde,
   Hiddenqueen,
@@ -72,7 +75,6 @@ export function Random(...except: string[]): typeof Game {
 }
 
 export {
-  Atomic,
   Chess960,
   Bario,
   Pocketknight,
@@ -81,7 +83,6 @@ export {
   Knightmate,
   Pieceeater,
   Horde,
-  Football,
   Hiddenqueen,
   Grasshopper,
   Dark,
@@ -90,4 +91,7 @@ export {
   Test,
   Maharaja,
   Chess921600,
+  Atomic,
+  Football,
+  Chigorin,
 };

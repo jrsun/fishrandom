@@ -425,6 +425,36 @@ export class Amazon extends Piece {
   }
 }
 
+export class Chancellor extends Piece {
+  name = 'Chancellor';
+
+  toFEN() {
+    return 'C';
+  }
+
+  legalMoves(row, col, state): Move[] {
+    return [
+      ...new Knight(this.color).legalMoves(row, col, state),
+      ...new Rook(this.color).legalMoves(row, col, state),
+    ].map((move: Move) => {
+      const {end, after} = move;
+      return {
+        ...move,
+        after: after.place(this, end.row, end.col),
+        piece: this,
+      };
+    });
+  }
+
+  get img(): string {
+    if (this.color === Color.BLACK) {
+      return 'cdt45.svg';
+    } else {
+      return 'clt45.svg';
+    }
+  }
+}
+
 export class Mann extends King {
   name = 'Mann';
   isRoyal = false;
@@ -448,6 +478,7 @@ export const ALL_PIECES: {[name: string]: typeof Piece} = {
   Pawn,
   Bishop,
   Knight,
+  Chancellor,
   Rook,
   Queen,
   King,

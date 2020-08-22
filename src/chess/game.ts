@@ -55,9 +55,12 @@ export class Game {
         (turn.end.row === 0 && pawn.color === Color.WHITE) || 
         (turn.end.row === this.state.files - 1 && pawn.color === Color.BLACK))
       {
-      return [Queen, Rook, Bishop, Knight];
+        return this.promotesTo(pawn);
       }
     }
+  }
+  promotesTo(piece?: Piece): (typeof Piece)[] {
+    return [Queen, Rook, Bishop, Knight];
   }
   legalMovesFrom(
     state: BoardState,

@@ -21,7 +21,7 @@ export class Football extends Game {
     return goals.some(goal => goal.occupant?.color === color);
   }
 
-  get promotesTo(): typeof Piece[] {
+  promotesTo(): typeof Piece[] {
     return [Queen, Rook, Bishop, Knight, Mann];
   }
 }
