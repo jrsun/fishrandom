@@ -2,7 +2,7 @@ import {Piece} from '../chess/piece';
 import {BoardState} from '../chess/state';
 import Square from '../chess/square';
 import zlib from 'zlib';
-import {Turn} from '../chess/move';
+import {Turn} from '../chess/turn';
 import {Color} from '../chess/const';
 import WS from 'ws';
 import {QueenPawn} from '../chess/variants/hiddenqueen';

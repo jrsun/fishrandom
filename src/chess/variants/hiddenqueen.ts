@@ -4,7 +4,7 @@ import {Color, getOpponent} from '../const';
 import {BoardState, generateStartState} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
-import {Move, Castle} from '../move';
+import {Move, Castle} from '../turn';
 
 export class Hiddenqueen extends Game {
   name = 'Hiddenqueen';

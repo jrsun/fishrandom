@@ -4,7 +4,7 @@ import {Color, getOpponent} from '../const';
 import {BoardState, generate9602} from '../state';
 import Square from '../square';
 import {equals, Pair} from '../pair';
-import {Turn, Unknown, TurnType} from '../move';
+import {Turn, Unknown, TurnType} from '../turn';
 
 export class Dark extends Game {
   name = 'Dark';

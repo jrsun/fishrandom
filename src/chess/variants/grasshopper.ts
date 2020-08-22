@@ -4,7 +4,7 @@ import {Color, getOpponent} from '../const';
 import {BoardState, generateStartState} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
-import {Move, TurnType} from '../move';
+import {Move, TurnType} from '../turn';
 import {dedup, Pair} from '../pair';
 
 export class Grasshopper extends Game {

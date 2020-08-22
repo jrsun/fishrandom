@@ -4,7 +4,7 @@ import {Color, getOpponent} from '../const';
 import {BoardState, generateStartState} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
-import {Move, Turn, Activate, TurnType, Castle} from '../move';
+import {Move, Turn, Activate, TurnType, Castle} from '../turn';
 
 export class Secretbomber extends Game {
   name = 'Secretbomber';

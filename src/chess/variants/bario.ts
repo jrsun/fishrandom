@@ -4,7 +4,7 @@ import {Color, getOpponent} from '../const';
 import {BoardState, squaresFromPos} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
-import {Move, TurnType, Castle, Turn} from '../move';
+import {Move, TurnType, Castle, Turn} from '../turn';
 import {dedup, Pair} from '../pair';
 
 const OPTIONS = [Bishop, Bishop, Knight, Knight, Rook, Rook, Queen];

@@ -4,7 +4,7 @@ import {Color, getOpponent} from '../const';
 import {BoardState, generateStartState} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
-import {Move, Castle, Turn, TurnType} from '../move';
+import {Move, Castle, Turn, TurnType} from '../turn';
 
 export class Royalpawn extends Game {
   name = 'Royalpawn';

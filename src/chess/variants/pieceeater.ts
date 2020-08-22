@@ -4,7 +4,7 @@ import {Color, getOpponent, equals} from '../const';
 import {BoardState, generateStartState} from '../state';
 import Square from '../square';
 import {randomChoice, cartesian} from '../../utils';
-import {Move, TurnType, Turn} from '../move';
+import {Move, TurnType, Turn} from '../turn';
 import {dedup, Pair} from '../pair';
 
 export class Pieceeater extends Game {

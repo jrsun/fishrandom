@@ -25,7 +25,7 @@ import {drawArrow} from '../utils';
 import './my-square';
 import {VARIANTS} from '../chess/variants';
 import {Game} from '../chess/game';
-import {Move, toFEN, Turn, TurnType, toEndSquare} from '../chess/move';
+import {Move, toFEN, Turn, TurnType, toEndSquare} from '../chess/turn';
 import {Color, ROULETTE_SECONDS} from '../chess/const';
 import {BoardState} from '../chess/state';
 import {Chess960} from '../chess/variants/960';

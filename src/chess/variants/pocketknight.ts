@@ -1,6 +1,6 @@
 import {Game} from '../game';
 import {BoardState, generateStartState} from '../state';
-import {Move} from '../move';
+import {Move} from '../turn';
 import {Color} from '../const';
 import Square from '../square';
 import {randomChoice} from '../../utils';

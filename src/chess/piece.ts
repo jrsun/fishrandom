@@ -8,7 +8,7 @@ import {
   Color,
   getOpponent,
 } from './const';
-import {Move, Turn, TurnType} from './move';
+import {Move, Turn, TurnType} from './turn';
 import {BoardState} from './state';
 
 // Classes

@@ -10,7 +10,7 @@ import {Game} from '../chess/game';
 import {ROULETTE_SECONDS, Color, getOpponent} from '../chess/const';
 import { addMessageHandler, Message, AppendMessage, ReplaceMessage } from '../common/message';
 import { Piece } from '../chess/piece';
-import { Turn } from '../chess/move';
+import { Turn } from '../chess/turn';
 
 type PieceImg = string;
 

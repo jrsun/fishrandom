@@ -1,6 +1,6 @@
 import {Game} from '../chess/game';
 import {randomChoice, uuidToName} from '../utils';
-import {Move, Turn, TurnType} from '../chess/move';
+import {Move, Turn, TurnType} from '../chess/turn';
 import {Color, getOpponent, ROULETTE_SECONDS} from '../chess/const';
 import {
   AppendMessage,
