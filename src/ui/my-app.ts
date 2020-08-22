@@ -241,9 +241,9 @@ export class MyApp extends LitElement {
       90% {transform: translate(0, 5px) rotate(60deg);}
       to {transform: rotate(90deg)}
     }
-    .blinking {animation: blink 0.5s linear 7;}
+    .blinking {animation: blink 0.5s linear 3;}
     @keyframes blink {
-      from {color: #d80c0c};
+      from {opacity: 0};
     }
 
     .footer {
@@ -277,7 +277,9 @@ export class MyApp extends LitElement {
   private timerInterval;
   private audio: {
     lowTime: HTMLAudioElement|null|undefined;
-    played: boolean;
+    win: HTMLAudioElement|null|undefined;
+    lose: HTMLAudioElement|null|undefined;
+    init: HTMLAudioElement|null|undefined;
   }
 
   connectedCallback() {
@@ -312,7 +314,9 @@ export class MyApp extends LitElement {
   firstUpdated() {
     this.audio = {
       lowTime: this.shadowRoot?.querySelector('#low-time-audio'),
-      played: false,
+      win: this.shadowRoot?.querySelector('#win-audio'),
+      lose: this.shadowRoot?.querySelector('#lose-audio'),
+      init: this.shadowRoot?.querySelector('#init-audio'),
     };
   }
 
@@ -335,7 +339,6 @@ export class MyApp extends LitElement {
   onInitGame() {
     // Reset animations in child elements
     this.started = false;
-    this.audio.played = false;
     this.performUpdate();
 
     setTimeout(() => {
@@ -376,9 +379,11 @@ export class MyApp extends LitElement {
             if (this.playerTimer === 10 * 1000) {
               const timerEl = this.shadowRoot?.querySelector('.timer.player');
               timerEl?.classList.add('blinking');
-              if (!this.audio.played) {
-                this.audio.lowTime?.play();
-                this.audio.played = true;
+              const {lowTime} = this.audio;
+              if (lowTime) {
+                lowTime.volume = 0.6;
+                lowTime.play();
+                lowTime.volume = 1;
               }
             }
           }
@@ -426,9 +431,12 @@ export class MyApp extends LitElement {
         var confettiSettings = {target: canvas};
         var confetti = new ConfettiGenerator(confettiSettings);
         confetti.render();
+        this.audio.win?.play();
         setTimeout(() => {
           confetti.clear();
         }, 5000);
+      } else {
+        this.audio.lose?.play();
       }
       this.performUpdate();
     } else if (message.type === 'timer') {
@@ -454,7 +462,10 @@ export class MyApp extends LitElement {
 
   renderWaiting() {
     return html`<div class="app waiting">
-      <audio id="low-time-audio" src="../../snd/3beeps.mp3" preload="auto"></audio>
+      <audio id="low-time-audio" src="../../snd/low-time.mp3" preload="auto"></audio>
+      <audio id="win-audio" src="../../snd/win.mp3" preload="auto"></audio>
+      <audio id="lose-audio" src="../../snd/lose.mp3" preload="auto"></audio>
+      <audio id="init-audio" src="../../snd/init.mp3" preload="auto"></audio>
       <div>
         <h1 class="title">
           Waiting for players...
@@ -499,7 +510,6 @@ export class MyApp extends LitElement {
     if (!this.game || !this.color) return this.renderWaiting();
 
     return html`<div class="app">
-      <audio id="low-time-audio" src="../../snd/3beeps.mp3" preload="auto"></audio>
       <canvas id="confetti-canvas"></canvas>
       <div>
         <h1 class="title">
