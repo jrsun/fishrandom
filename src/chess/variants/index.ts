@@ -12,6 +12,7 @@ import {Grasshopper} from './grasshopper';
 import {Pocketknight} from './pocketknight';
 import {Secretbomber} from './secretbomber';
 import {Maharaja} from './maharaja';
+import {Football} from './football';
 import {Test} from './test';
 import {Pieceeater} from './pieceeater';
 import {randomChoice} from '../../utils';
@@ -23,6 +24,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Bario,
   Knightmate,
   Pieceeater,
+  Football,
   Royalpawn,
   Horde,
   Hiddenqueen,
@@ -52,6 +54,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Chess921600,
   Chess960,
   Pieceeater,
+  Football,
   // Dice Chess,
   // Prechess
   // Loser's Chess
@@ -78,6 +81,7 @@ export {
   Knightmate,
   Pieceeater,
   Horde,
+  Football,
   Hiddenqueen,
   Grasshopper,
   Dark,

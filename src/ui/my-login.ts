@@ -108,7 +108,8 @@ export class MyLogin extends LitElement {
           >Play</paper-button
         >
         <input type="submit" style="display: none" />
-        <div class="subtitle">8.17 - bario / atomic / royalpawn</div>
+        <div class="subtitle">8.21 - piece eater</div>
+        <div class="subtitle">8.17 - bario / atomic / royal pawn</div>
         <div class="subtitle tagline">theoria incognita</div>
       </div>
     </form>`;

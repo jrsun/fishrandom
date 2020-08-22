@@ -475,7 +475,8 @@ export class MyApp extends LitElement {
         </h1>
       </div>
       <div class="fish-con"><div class="fish"></div></div>
-      <div class="subtitle">8.17 - bario / atomic / royalpawn</div>
+      <div class="subtitle">8.21 - piece eater</div>
+      <div class="subtitle">8.17 - bario / atomic / royal pawn</div>
     </div>`;
   }
 
