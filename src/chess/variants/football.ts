@@ -15,7 +15,7 @@ export class Football extends Game {
     if (this.eventHandler) {
       this.eventHandler({
         name: GameEventName.Finish,
-        type: GameEventType.Temporary,
+        type: GameEventType.Static,
         pairs: [
           {row: 0, col: 3}, {row: 0, col: 4},
           {row: 7, col: 3}, {row: 7, col: 4}

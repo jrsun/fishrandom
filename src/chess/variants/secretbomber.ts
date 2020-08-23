@@ -11,17 +11,17 @@ export class Secretbomber extends Game {
   constructor(isServer: boolean) {
     super(isServer, generateStartState());
   }
-  onConnect() {
-    if (this.eventHandler) {
-      this.eventHandler({
-        type: GameEventType.Turn,
-        name: GameEventName.Highlight,
-        pairs: [0,1,2,3,4,5,6,7].map(col => ([
-          {row: 1, col}, {row: 6, col}
-        ])).flat(),
-      });
-    }
-  }
+  // onConnect() {
+  //   if (this.eventHandler) {
+  //     this.eventHandler({
+  //       type: GameEventType.Turn,
+  //       name: GameEventName.Highlight,
+  //       pairs: [0,1,2,3,4,5,6,7].map(col => ([
+  //         {row: 1, col}, {row: 6, col}
+  //       ])).flat(),
+  //     });
+  //   }
+  // }
   visibleState(state: BoardState, color: Color): BoardState {
     if (!this.isServer) return state;
 
