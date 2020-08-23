@@ -131,7 +131,6 @@ const handleMessage = function (uuid, message: Message) {
     if (i !== -1) {
       waitingUsers.splice(i, 1);
     } 
-    delete players[uuid].socket; // TODO: clean up the user
     return;
   }
   if (!room) {

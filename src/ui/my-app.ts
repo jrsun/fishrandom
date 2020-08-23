@@ -333,6 +333,7 @@ export class MyApp extends LitElement {
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
     );
+    this.socket.close();
   }
 
   onInitGame() {
