@@ -1,4 +1,4 @@
-import {Game} from '../game';
+import {Game, GameEventName, GameEventType} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
 import {Color, getOpponent, Pair} from '../const';
 import {BoardState, generateStartState} from '../state';
@@ -43,8 +43,8 @@ export class Atomic extends Game {
     if (this.eventHandler) {
       this.eventHandler({
         pairs,
-        type: 'explode' as const,
-        temporary: true,
+        name: GameEventName.Explode,
+        type: GameEventType.Temporary,
       });
     }
     return {

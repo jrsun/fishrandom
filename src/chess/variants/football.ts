@@ -1,4 +1,4 @@
-import {Game} from '../game';
+import {Game, GameEventName, GameEventType} from '../game';
 import {Knight, Rook, Bishop, Queen, Pawn, Piece, Mann} from '../piece';
 import {Color} from '../const';
 import {BoardState, squaresFromPos} from '../state';
@@ -14,12 +14,12 @@ export class Football extends Game {
   onConnect() {
     if (this.eventHandler) {
       this.eventHandler({
-        type: 'highlight' as const,
+        name: GameEventName.Finish,
+        type: GameEventType.Temporary,
         pairs: [
           {row: 0, col: 3}, {row: 0, col: 4},
           {row: 7, col: 3}, {row: 7, col: 4}
         ],
-        temporary: false,
       });
     }
   }

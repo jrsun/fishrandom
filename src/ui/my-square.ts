@@ -22,8 +22,11 @@ export class MySquare extends LitElement {
       display: 'inline-block';
       background-size: cover;
     }
-    :host(.highlight) .square {
+    :host(.finish) .square {
       background-image: url('/img/bg.svg');
+    }
+    :host(.highlight) .square {
+      background-color: rgba(0, 255, 0, 0.3);
     }
     :host([lastmove]) .square {
       background-color: rgba(255, 255, 0, 0.3);

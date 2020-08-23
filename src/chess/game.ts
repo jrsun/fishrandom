@@ -526,8 +526,18 @@ export class Game {
   }
 }
 
+export enum GameEventName {
+  Explode = 'explode',
+  Finish = 'finish',
+  Highlight = 'highlight',
+}
+export enum GameEventType {
+  Static = 'static',
+  Temporary = 'temporary',
+  Turn = 'turn',
+}
 export interface GameEvent {
   pairs: Pair[];
-  type: 'explode' | 'highlight';
-  temporary: boolean;
+  name: GameEventName;
+  type: GameEventType;
 }

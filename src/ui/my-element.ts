@@ -26,12 +26,12 @@ import './my-square';
 import {classMap, ClassInfo} from 'lit-html/directives/class-map';
 
 import {VARIANTS} from '../chess/variants';
-import {Game, GameEvent} from '../chess/game';
+import {Game, GameEvent, GameEventType, GameEventName} from '../chess/game';
 import {Move, toFEN, Turn, TurnType, toEndSquare} from '../chess/turn';
 import {Color, ROULETTE_SECONDS} from '../chess/const';
 import {BoardState} from '../chess/state';
 import {Chess960} from '../chess/variants/960';
-import {equals, hash} from '../chess/pair';
+import {equals, hash, Pair} from '../chess/pair';
 import './my-piece-picker';
 import '@polymer/paper-dialog/paper-dialog';
 import {PaperDialogElement} from '@polymer/paper-dialog/paper-dialog';
@@ -119,7 +119,8 @@ export class MyElement extends LitElement {
   draggedSquare: Square | undefined;
   audio: {[name: string]: HTMLAudioElement|null|undefined} = {};
   canvas: HTMLCanvasElement;
-  pairToClass: {[pair: string]: {}} = {};
+  pairToClass: {[pair: string]: {[name: string]: boolean}} = {};
+  onNextTurn: (() => void)|undefined;
 
   pickerPieceSelected: () => void;
   ods: () => void;
@@ -206,6 +207,10 @@ export class MyElement extends LitElement {
   handleSocketMessage(message: Message) {
     // const message: Message = JSON.parse(e.data, reviver);
     if (message.type === 'replaceState') {
+      if (this.onNextTurn) {
+        this.onNextTurn();
+        this.onNextTurn = undefined;
+      }
       const rm = message as ReplaceMessage;
       const {turn} = rm;
       const {turnHistory: turnHistory, stateHistory} = this.game;
@@ -214,6 +219,10 @@ export class MyElement extends LitElement {
       stateHistory[stateHistory.length - 1] = turn.after;
       this.game.state = turn.after;
     } else if (message.type === 'appendState') {
+      if (this.onNextTurn) {
+        this.onNextTurn();
+        this.onNextTurn = undefined;
+      }
       const am = message as AppendMessage;
       const {turn} = am;
       this.game.turnHistory = [...this.game.turnHistory, turn];
@@ -221,22 +230,31 @@ export class MyElement extends LitElement {
       this.game.state = turn.after;
       this.audio.move?.play();
     } else if (message.type === 'gameEvent') {
-      const {pairs, type, temporary} = message.content;
+      const {pairs, type, name} = message.content;
       for (const pair of pairs) {
         if (!this.pairToClass[hash(pair)]) {
           this.pairToClass[hash(pair)] = {};
         }
-        this.pairToClass[hash(pair)][type] = true;
+        this.pairToClass[hash(pair)][name] = true;
       }
       
-      if (temporary) {
+      if (type === GameEventType.Temporary) {
         setTimeout(() => {
           for (const pair of pairs) {
-            this.pairToClass[hash(pair)][type] = false;
+            this.pairToClass[hash(pair)][name] = false;
           }
           this.performUpdate();
         }, 200);
-      }
+      } else if (type === GameEventType.Turn) {
+        // Hack to avoid race conditions
+        setTimeout(() => {
+          this.onNextTurn = () => {
+            for (const pair of pairs) {
+              this.pairToClass[hash(pair)][name] = false;
+            }
+          };
+        }, 100);
+      } 
     }
     // async?
     this.gameOver =

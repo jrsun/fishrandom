@@ -1,4 +1,4 @@
-import {Game} from '../game';
+import {Game, GameEventType, GameEventName} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
 import {Color, getOpponent, Pair} from '../const';
 import {BoardState, generateStartState} from '../state';
@@ -10,6 +10,17 @@ export class Secretbomber extends Game {
   name = 'Secretbomber';
   constructor(isServer: boolean) {
     super(isServer, generateStartState());
+  }
+  onConnect() {
+    if (this.eventHandler) {
+      this.eventHandler({
+        type: GameEventType.Turn,
+        name: GameEventName.Highlight,
+        pairs: [0,1,2,3,4,5,6,7].map(col => ([
+          {row: 1, col}, {row: 6, col}
+        ])).flat(),
+      });
+    }
   }
   visibleState(state: BoardState, color: Color): BoardState {
     if (!this.isServer) return state;
@@ -77,8 +88,8 @@ export class Secretbomber extends Game {
       if (this.eventHandler) {
         this.eventHandler({
           pairs,
-          type: 'explode' as const,
-          temporary: true,
+          name: GameEventName.Explode,
+          type: GameEventType.Temporary,
         });
       }
     } else if (piece instanceof Pawn) {
