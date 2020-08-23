@@ -16,8 +16,14 @@ export class MySquare extends LitElement {
       width: ${SQUARE_SIZE}px;
       display: inline-block;
     }
-    :host(.explode) .square {
-      background-color: #fa0;
+    .square {
+      height: 100%;
+      width: 100%;
+      display: 'inline-block';
+      background-size: cover;
+    }
+    :host(.highlight) .square {
+      background-image: url('/img/bg.svg');
     }
     :host([lastmove]) .square {
       background-color: rgba(255, 255, 0, 0.3);
@@ -28,26 +34,19 @@ export class MySquare extends LitElement {
     :host([checked]) .square {
       background-color: rgba(255, 0, 0, 0.6);
     }
+    :host(.explode) .square {
+      background-color: #fa0;
+    }
 
-    :host([dragged]) .square {
-      background-color: transparent;
+    :host([dragged]) my-piece {
       opacity: 0.5;
-    }
-    .square {
-      height: 100%;
-      width: 100%;
-      display: 'inline-block';
-      position: relative;
-      background-size: cover;
-    }
-    .square[data-selected] {
-      background-color: rgba(0, 0, 255, 0.3);
-    }
-    .square[data-possible] {
-      background-color: rgba(0, 255, 0, 0.3);
     }
     :host([color="black"]) .square {
       transform: rotate(180deg);
+    }
+
+    my-piece {
+      z-index: 1;
     }
   `;
 

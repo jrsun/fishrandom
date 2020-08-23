@@ -61,7 +61,7 @@ export class Room {
   constructor(
     p1: Player,
     p2: Player,
-    game: Game
+    gc: typeof Game
   ) {
     this.p1 = {
       player: p1,
@@ -81,7 +81,7 @@ export class Room {
       this.p2.time += ROULETTE_SECONDS * 1000;
     }
     this.setState(RoomState.PLAYING);
-    this.game = game;
+    this.game = new gc(true);
     this.game.onEvent(this.handleGameEvent);
 
     const player1 = this.p1.player;
@@ -116,6 +116,7 @@ export class Room {
         streak: player1.streak,
       },
     } as InitGameMessage);
+    this.game.onConnect();
     this.timerInterval = setInterval(() => {
       if (this.timerPaused) return;
       const me =
@@ -320,6 +321,7 @@ export class Room {
     };
     sendMessage(socket, rec);
     this.sendTimers();
+    this.game.onConnect();
   }
 
   checkIfOver(): boolean {

@@ -1,6 +1,6 @@
 import {Game} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
-import {Color, getOpponent} from '../const';
+import {Color, getOpponent, Pair} from '../const';
 import {BoardState, generateStartState} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
@@ -30,13 +30,22 @@ export class Atomic extends Game {
     const after = BoardState.copy(turn.after);
     after.empty(row, col);
 
+    const pairs: Pair[] = [];
     for (let i = row - 1; i < row + 2; i++) {
       for (let j = col - 1; j < col + 2; j++) {
+        pairs.push({row: i, col: j});
         const occupant = after.getSquare(i,j)?.occupant;
         if (occupant && !(occupant instanceof Pawn)) {
           after.empty(i, j);
         }
       }
+    }
+    if (this.eventHandler) {
+      this.eventHandler({
+        pairs,
+        type: 'explode' as const,
+        temporary: true,
+      });
     }
     return {
       ...turn,

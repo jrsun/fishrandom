@@ -11,6 +11,19 @@ export class Football extends Game {
     super(isServer, generateStartState());
   }
 
+  onConnect() {
+    if (this.eventHandler) {
+      this.eventHandler({
+        type: 'highlight' as const,
+        pairs: [
+          {row: 0, col: 3}, {row: 0, col: 4},
+          {row: 7, col: 3}, {row: 7, col: 4}
+        ],
+        temporary: false,
+      });
+    }
+  }
+
   winCondition(color: Color): boolean {
     const {state} = this;
     const goals: Square[] = (

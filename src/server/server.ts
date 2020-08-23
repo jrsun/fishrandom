@@ -20,6 +20,7 @@ import escape from 'validator/lib/escape';
 
 import log from 'log';
 import logNode from 'log-node';
+import { Game } from '../chess/game';
 logNode();
 
 var app = express();
@@ -178,16 +179,16 @@ const newGame = (() => {
     } else {
       // If a user is queuing
       const p1info = waitingUsers.pop()!;
-      let newGame;
+      let newGame: typeof Game;
       if (argv.game) {
         const uppercase =
           argv.game.charAt(0).toUpperCase() + argv.game.slice(1);
-        newGame = new Variants[uppercase](true);
+        newGame = Variants[uppercase];
       } else {
-        newGame = new (Variants.Random(/**except*/
+        newGame = Variants.Random(/**except*/
           p1info.lastVariant ?? '',
           players[uuid].lastVariant ?? '',
-        ))(/*isserver*/ true);
+        );
       }
       const room = new Room(p1info, players[uuid], newGame);
       p1info.room = room;

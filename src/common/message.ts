@@ -162,8 +162,8 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
 
 export function sendMessage(ws: WS.WebSocket, m: Message) {
   const input = JSON.stringify(m, replacer);
-  if (m.type === 'exit') {
-    // Send exit message synchronously to avoid race when browser closes.
+  if (['exit', 'reconnect', 'initGame'].includes(m.type)) {
+    // Send message synchronously to avoid race.
     const buffer = zlib.gzipSync(input);
     ws.send(buffer.toString('base64'));
     return;

@@ -38,6 +38,7 @@ export class Game {
     // in atomic chess, explode, etc.
     return turn;
   }
+  onConnect() {}
   afterTurn(): Turn|undefined { return }
   activate(
     color: Color,
