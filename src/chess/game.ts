@@ -221,7 +221,7 @@ export class Game {
     return legalMoves.length === 0;
   }
 
-  isTurnLegal(color: Color, turn: Turn): boolean {
+  validateTurn(color: Color, turn: Turn): boolean {
     if (
       turn.end.row < 0 ||
       turn.end.row >= this.state.ranks ||
@@ -254,7 +254,7 @@ export class Game {
     drow: number,
     dcol: number
   ): Move | undefined {
-    if (!this.checkTurn(color, piece)) return;
+    if (!this.isWhoseTurn(color, piece)) return;
 
     const legalMoves = this.legalMovesFrom(
       this.state,
@@ -262,21 +262,19 @@ export class Game {
       scol,
       /* allowCastles */ false
     ).filter((move) => {
-      return move.type === TurnType.MOVE && this.isTurnLegal(piece.color, move);
+      return move.type === TurnType.MOVE && this.validateTurn(piece.color, move);
     }) as Move[];
     const legalMove = legalMoves.find((move) =>
       equals(move.end, {row: drow, col: dcol})
     );
     if (!legalMove) {
-      console.log('invalid move', piece.name, drow, dcol);
-      console.log('legal moves are', legalMoves);
       return; // invalid move
     }
     return legalMove;
   }
 
   drop(color: Color, piece: Piece, row: number, col: number): Drop | undefined {
-    if (!this.canDrop || !this.checkTurn(color, piece)) return;
+    if (!this.canDrop || !this.isWhoseTurn(color, piece)) return;
 
     console.log('dropping');
     const {state} = this;
@@ -302,7 +300,7 @@ export class Game {
       piece,
       type: TurnType.DROP,
     } as Drop;
-    if (!this.isTurnLegal(piece.color, drop)) {
+    if (!this.validateTurn(piece.color, drop)) {
       console.log('illegal drop');
       return;
     }
@@ -310,7 +308,7 @@ export class Game {
   }
 
   castle(color: Color, kingside: boolean): Castle | undefined {
-    if (!this.checkTurn(color)) return;
+    if (!this.isWhoseTurn(color)) return;
 
     let target: Pair;
     const cols: number[] = [];
@@ -428,7 +426,7 @@ export class Game {
     drow: number,
     dcol: number
   ): Promote | undefined {
-    if (!this.checkTurn(color, promoter)) return;
+    if (!this.isWhoseTurn(color, promoter)) return;
 
     // Using the piece's own legal moves is intentional because most
     // variants don't allow special moves to result in promotion.
@@ -436,7 +434,7 @@ export class Game {
       .legalMoves(srow, scol, this.state, this.turnHistory)
       .filter((move) => {
         return (
-          this.isTurnLegal(promoter.color, move) &&
+          this.validateTurn(promoter.color, move) &&
           move.end.col === dcol &&
           move.end.row === drow
         );
@@ -511,7 +509,7 @@ export class Game {
     );
   }
 
-  checkTurn(color: Color, piece?: Piece): boolean {
+  isWhoseTurn(color: Color, piece?: Piece): boolean {
     if (process.env.NODE_ENV === 'development') return true;
 
     let result = color === this.state.whoseTurn;

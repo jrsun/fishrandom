@@ -20,9 +20,9 @@ export class Pieceeater extends Game {
     if (!elephant) return;
     return elephant.move(square.row, square.col, this.state, this.turnHistory);
   }
-  isTurnLegal(color: Color, turn: Turn): boolean {
+  validateTurn(color: Color, turn: Turn): boolean {
     if (turn.captured instanceof Elephant) return false;
-    return super.isTurnLegal(color, turn);
+    return super.validateTurn(color, turn);
   }
 }
 

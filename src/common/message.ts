@@ -183,7 +183,7 @@ export function addMessageHandler(
     let msg: Message;
     const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
     msg = JSON.parse(s, reviver) as Message;
-    console.log('Received message of type %s', msg.type);
+    // console.log('Received message of type %s', msg.type);
     handler(msg as Message);
   });
 }

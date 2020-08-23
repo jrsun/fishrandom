@@ -71,7 +71,7 @@ export class Royalpawn extends Game {
     return legalMoves.length === 0;
   }
 
-  isTurnLegal(color: Color, turn: Turn): boolean {
+  validateTurn(color: Color, turn: Turn): boolean {
     if (
       turn.end.row < 0 ||
       turn.end.row >= this.state.ranks ||

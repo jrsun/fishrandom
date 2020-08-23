@@ -464,7 +464,7 @@ export class MyElement extends LitElement {
     if (game.knowsInCheck(this.color, game.state) || moves.length < 10) {
       // If in check, or few moves, compute immediately
       this.possibleTargets = moves
-      .filter(move => this.game.isTurnLegal(piece.color, move))
+      .filter(move => this.game.validateTurn(piece.color, move))
       .map((move) => toEndSquare(game.state, move))
       .filter((square) => !!square) as Square[];
     } else {
@@ -475,7 +475,7 @@ export class MyElement extends LitElement {
       setTimeout(() => {
         this.possibleTargets = moves
           .filter((move) => {
-            return this.game.isTurnLegal(piece.color, move);
+            return this.game.validateTurn(piece.color, move);
           })
           .map((move) => toEndSquare(this.game.state, move))
           .filter((square) => !!square) as Square[];

@@ -37,19 +37,18 @@ export class Secretbomber extends Game {
 
   visibleTurn(turn: Turn, color: Color): Turn {
     if (color === turn.piece.color) return turn;
-    if (turn.type === TurnType.ACTIVATE && turn.piece instanceof Pawn) {
+    if (turn.piece instanceof BomberPawn) {
+      return {
+        ...turn,
+        piece: new Pawn(turn.piece.color),
+      };
+    } else if (turn.type === TurnType.ACTIVATE) {
       return {
         type: TurnType.UNKNOWN,
         before: turn.before,
         after: turn.after,
         end: {row: -1, col: -1},
         captured: turn.captured,
-        piece: new Pawn(turn.piece.color),
-      };
-    }
-    if (turn.piece instanceof BomberPawn) {
-      return {
-        ...turn,
         piece: new Pawn(turn.piece.color),
       };
     }
@@ -62,8 +61,7 @@ export class Secretbomber extends Game {
     row: number,
     col: number
   ): Turn | undefined {
-    if (!this.checkTurn(color, piece)) return;
-    if (piece.color !== color) return;
+    if (!this.isWhoseTurn(color, piece)) return;
 
     let after: BoardState|undefined;
     if (piece instanceof BomberPawn) {
@@ -81,7 +79,7 @@ export class Secretbomber extends Game {
     } else if (piece instanceof Pawn) {
       after = BoardState.copy(this.state)
       .setTurn(getOpponent(color))
-      .place(new BomberPawn(color), row, col);
+      .place(new BomberPawn(piece.color), row, col);
     } else {
       return;
     }
@@ -92,12 +90,12 @@ export class Secretbomber extends Game {
       end: {row, col},
       piece,
     };
-    if (!this.isTurnLegal(color, turn)) return;
+    if (!this.validateTurn(piece.color, turn)) return;
     return turn;
   }
 
-  isTurnLegal(color: Color, turn: Turn): boolean {
-    if (!super.isTurnLegal(color, turn)) return false;
+  validateTurn(color: Color, turn: Turn): boolean {
+    if (!super.validateTurn(color, turn)) return false;
 
     const isSelectBomber = turn.type === TurnType.ACTIVATE && turn.piece.name === 'Pawn';
     const isFirstMove = this.turnHistory.filter(turn => turn.piece.color === color).length === 0;
