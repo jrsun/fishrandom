@@ -23,16 +23,19 @@ import {Queen, Rook, Bishop, Knight} from '../chess/piece';
 
 import {drawArrow} from '../utils';
 import './my-square';
+import {classMap, ClassInfo} from 'lit-html/directives/class-map';
+
 import {VARIANTS} from '../chess/variants';
-import {Game} from '../chess/game';
+import {Game, GameEvent} from '../chess/game';
 import {Move, toFEN, Turn, TurnType, toEndSquare} from '../chess/turn';
 import {Color, ROULETTE_SECONDS} from '../chess/const';
 import {BoardState} from '../chess/state';
 import {Chess960} from '../chess/variants/960';
-import {equals} from '../chess/pair';
+import {equals, hash} from '../chess/pair';
 import './my-piece-picker';
 import '@polymer/paper-dialog/paper-dialog';
 import {PaperDialogElement} from '@polymer/paper-dialog/paper-dialog';
+import { MySquare } from './my-square';
 
 const SQUARE_SIZE = Math.min(window.innerWidth / 8, 50); // 50
 /**
@@ -115,6 +118,8 @@ export class MyElement extends LitElement {
 
   draggedSquare: Square | undefined;
   audio: {[name: string]: HTMLAudioElement|null|undefined} = {};
+  canvas: HTMLCanvasElement;
+  pairToClass: {[pair: string]: {}} = {};
 
   pickerPieceSelected: () => void;
   ods: () => void;
@@ -156,6 +161,13 @@ export class MyElement extends LitElement {
 
   firstUpdated() {
     this.audio.move = this.shadowRoot?.querySelector('#move-audio');
+    const canvas = this.shadowRoot?.querySelector('canvas');
+    if (!canvas) return;
+
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    this.canvas = canvas;
   }
 
   disconnectedCallback() {
@@ -208,6 +220,23 @@ export class MyElement extends LitElement {
       this.game.stateHistory.push(turn.after);
       this.game.state = turn.after;
       this.audio.move?.play();
+    } else if (message.type === 'gameEvent') {
+      const {pairs, type, temporary} = message.content;
+      for (const pair of pairs) {
+        if (!this.pairToClass[hash(pair)]) {
+          this.pairToClass[hash(pair)] = {};
+        }
+        this.pairToClass[hash(pair)][type] = true;
+      }
+      
+      if (temporary) {
+        setTimeout(() => {
+          for (const pair of pairs) {
+            this.pairToClass[hash(pair)][type] = false;
+          }
+          this.performUpdate();
+        }, 200);
+      }
     }
     // async?
     this.gameOver =
@@ -253,9 +282,10 @@ export class MyElement extends LitElement {
         >
           <canvas id="canvas"></canvas>
           ${uiState.squares.map(
-            (row) => html`<div class="row">
+            (row, i) => html`<div class="row">
               ${row.map(
-                (square) => html`<my-square
+                (square, j) => html`<my-square
+                  class=${classMap(this.pairToClass[hash({row:i,col:j})])}
                   .frozen=${this.viewMoveIndex != null || this.gameOver}
                   .square=${square}
                   .piece=${square.occupant}
@@ -485,13 +515,7 @@ export class MyElement extends LitElement {
   }
 
   private drawArrow(srow: number, scol: number, erow: number, ecol: number) {
-    const canvas = this.shadowRoot?.querySelector('canvas');
-    if (!canvas) return;
-
-    canvas.width = canvas.offsetWidth; // BUG this should only happen once
-    canvas.height = canvas.offsetHeight;
-
-    const ctx = canvas.getContext('2d');
+    const ctx = this.canvas.getContext('2d');
     if (!ctx) return;
     const toxy = (rc: number) => SQUARE_SIZE / 2 + SQUARE_SIZE * rc;
     drawArrow(ctx, toxy(scol), toxy(srow), toxy(ecol), toxy(erow));

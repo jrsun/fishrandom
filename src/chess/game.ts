@@ -12,11 +12,16 @@ export class Game {
   state: BoardState;
   turnHistory: Turn[];
   stateHistory: BoardState[];
+  eventHandler: ((ge: GameEvent) => void) | undefined;
 
   constructor(public isServer: boolean, initial?: BoardState) {
     this.state = initial ?? generateStartState();
     this.turnHistory = [];
     this.stateHistory = [this.state];
+  }
+
+  onEvent(handler: (ge: GameEvent) => void) {
+    this.eventHandler = handler;
   }
 
   place(piece: Piece, row: number, col: number) {
@@ -518,4 +523,10 @@ export class Game {
     }
     return result;
   }
+}
+
+export interface GameEvent {
+  pairs: Pair[];
+  type: 'explode' | 'highlight';
+  temporary: boolean;
 }

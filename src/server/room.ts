@@ -1,4 +1,4 @@
-import {Game} from '../chess/game';
+import {Game, GameEvent} from '../chess/game';
 import {randomChoice, uuidToName} from '../utils';
 import {Move, Turn, TurnType} from '../chess/turn';
 import {Color, getOpponent, ROULETTE_SECONDS} from '../chess/const';
@@ -82,6 +82,7 @@ export class Room {
     }
     this.setState(RoomState.PLAYING);
     this.game = game;
+    this.game.onEvent(this.handleGameEvent);
 
     const player1 = this.p1.player;
     const player2 = this.p2.player;
@@ -452,6 +453,15 @@ export class Room {
     this.sendTimers();
     delete this.p1.player.room;
     delete this.p2.player.room;
+  }
+
+  handleGameEvent = (event: GameEvent) => {
+    const gem = {
+      type: 'gameEvent' as const,
+      content: event,
+    };
+    sendMessage(this.p1.player.socket, gem);
+    sendMessage(this.p2.player.socket, gem);
   }
 }
 

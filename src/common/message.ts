@@ -3,7 +3,7 @@ import {BoardState} from '../chess/state';
 import Square from '../chess/square';
 import zlib from 'zlib';
 import {Turn} from '../chess/turn';
-import {Color} from '../chess/const';
+import {Color, Pair} from '../chess/const';
 import WS from 'ws';
 import {QueenPawn} from '../chess/variants/hiddenqueen';
 import {Hopper} from '../chess/variants/grasshopper';
@@ -12,6 +12,7 @@ import {Secretbomber} from '../chess/variants';
 import {BomberPawn} from '../chess/variants/secretbomber';
 import { KingPawn } from '../chess/variants/royalpawn';
 import { Elephant } from '../chess/variants/pieceeater';
+import { GameEvent } from '../chess/game';
 
 export type Message =
   | TurnMessage
@@ -23,7 +24,8 @@ export type Message =
   | InitGameMessage
   | GameOverMessage
   | TimerMessage
-  | ReconnectMessage;
+  | ReconnectMessage
+  | GameEventMessage;
 
 /*
  * Client-initiated
@@ -103,6 +105,11 @@ export interface GameOverMessage {
 
   player: PlayerInfo;
   opponent: PlayerInfo;
+}
+
+export interface GameEventMessage {
+  type: 'gameEvent';
+  content: GameEvent;
 }
 
 // Could use evals here instead
