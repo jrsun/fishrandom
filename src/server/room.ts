@@ -88,48 +88,51 @@ export class Room {
     const player2 = this.p2.player;
 
     // Send init game messages
-    sendMessage(player1.socket, {
-      type: 'initGame',
-      state: this.game.visibleState(this.game.state, this.p1.color),
-      variantName: this.game.name,
-      color: this.p1.color,
-      player: {
-        name: getName(player1.uuid),
-        streak: player1.streak,
-      },
-      opponent: {
-        name: getName(player2.uuid),
-        streak: player2.streak,
-      },
-    } as InitGameMessage);
-    sendMessage(player2.socket, {
-      type: 'initGame',
-      state: this.game.visibleState(this.game.state, this.p2.color),
-      variantName: this.game.name,
-      color: this.p2.color,
-      player: {
-        name: getName(player2.uuid),
-        streak: player2.streak,
-      },
-      opponent: {
-        name: getName(player1.uuid),
-        streak: player1.streak,
-      },
-    } as InitGameMessage);
-    this.game.onConnect();
-    this.timerInterval = setInterval(() => {
-      if (this.timerPaused) return;
-      const me =
-        this.game.state.whoseTurn === this.p1.color ? this.p1 : this.p2;
-      const opponent = me === this.p1 ? this.p2 : this.p1;
-      me.time -= 1000;
-      if (me.time <= 0) {
-        log.get(me.name).notice('ran out of time');
-        this.wins(opponent.player.uuid);
-      }
-    }, 1000);
-    this.timerPaused = false;
-    this.sendTimers();
+    Promise.all([
+      sendMessage(player1.socket, {
+        type: 'initGame',
+        state: this.game.visibleState(this.game.state, this.p1.color),
+        variantName: this.game.name,
+        color: this.p1.color,
+        player: {
+          name: getName(player1.uuid),
+          streak: player1.streak,
+        },
+        opponent: {
+          name: getName(player2.uuid),
+          streak: player2.streak,
+        },
+      } as InitGameMessage),
+      sendMessage(player2.socket, {
+        type: 'initGame',
+        state: this.game.visibleState(this.game.state, this.p2.color),
+        variantName: this.game.name,
+        color: this.p2.color,
+        player: {
+          name: getName(player2.uuid),
+          streak: player2.streak,
+        },
+        opponent: {
+          name: getName(player1.uuid),
+          streak: player1.streak,
+        },
+      } as InitGameMessage),
+    ]).then(() => {
+      this.game.onConnect();
+      this.timerInterval = setInterval(() => {
+        if (this.timerPaused) return;
+        const me =
+          this.game.state.whoseTurn === this.p1.color ? this.p1 : this.p2;
+        const opponent = me === this.p1 ? this.p2 : this.p1;
+        me.time -= 1000;
+        if (me.time <= 0) {
+          log.get(me.name).notice('ran out of time');
+          this.wins(opponent.player.uuid);
+        }
+      }, 1000);
+      this.timerPaused = false;
+      this.sendTimers();
+    });
   }
 
   setState(state: RoomState) {
@@ -319,9 +322,10 @@ export class Room {
         this.game.visibleState(state, me.color)
       ),
     };
-    sendMessage(socket, rec);
-    this.sendTimers();
-    this.game.onConnect();
+    sendMessage(socket, rec).then(() => {
+      this.sendTimers();
+      this.game.onConnect();
+    });
   }
 
   checkIfOver(): boolean {

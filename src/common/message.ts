@@ -160,25 +160,23 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
   return v;
 }
 
-export function sendMessage(ws: WS.WebSocket, m: Message) {
+export function sendMessage(ws: WS.WebSocket, m: Message): Promise<void> {
   const input = JSON.stringify(m, replacer);
-  if (['exit', 'reconnect', 'initGame'].includes(m.type)) {
-    // Send message synchronously to avoid race.
-    const buffer = zlib.gzipSync(input);
-    ws.send(buffer.toString('base64'));
-    return;
-  }
-  zlib.gzip(input, (err, buffer) => {
-    if (err) {
-      console.log('Failed to compress and send message %s', input);
-      return;
-    }
-    console.log(
-      'Sending message of type %s with size %s',
-      m.type,
-      buffer.length
-    );
-    ws.send(buffer.toString('base64'));
+  return new Promise(resolve => {
+      zlib.gzip(input, (err, buffer) => {
+      if (err) {
+        console.log('Failed to compress and send message %s', input);
+        return;
+      }
+      console.log(
+        'Sending message of type %s with size %s',
+        m.type,
+        buffer.length
+      );
+      ws.send(buffer.toString('base64'));
+
+      resolve();
+    });
   });
 }
 
@@ -186,7 +184,7 @@ export function addMessageHandler(
   ws: WebSocket,
   handler: (message: Message) => void
 ) {
-  ws.addEventListener('message', async (e: MessageEvent) => {
+  ws.addEventListener('message', (e: MessageEvent) => {
     let msg: Message;
     const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
     msg = JSON.parse(s, reviver) as Message;

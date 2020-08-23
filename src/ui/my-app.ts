@@ -297,7 +297,12 @@ export class MyApp extends LitElement {
     this.addEventListener('view-move-changed', this.handleViewMoveChanged.bind(this));
 
     // Unload
-    const onUnload = () => {sendMessage(this.socket, {type: 'exit' as const})};
+    const onUnload = (e) => {
+      // Hack: if onUnload itself is async, it triggers the confirmation dialog.
+      (async () => {
+        await sendMessage(this.socket, {type: 'exit' as const});
+      })();
+    };
     window.onbeforeunload = onUnload;
     window.onunload = onUnload;
 
