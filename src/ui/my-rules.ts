@@ -54,27 +54,19 @@ export class MyRules extends LitElement {
     ul {
       padding-left: 20px;
     }
+    #rules {
+      transition: none;
+      opacity: 0;
+    }
+    :host([started]) #rules {
+      opacity: 1;
+      transition: all ${ROULETTE_SECONDS}s cubic-bezier(1,.01,1,.01);
+    }
   `;
   @property({type: Object}) game: Game;
-  @property({type: Boolean}) started = false;
-
-  @property({type: Boolean}) realStarted = false;
-
-  updated(changedProperties) {
-    // TODO reconnect
-    if (changedProperties.has('started')) {
-      if (this.started) {
-        setTimeout(() => {
-          this.realStarted = true;
-        }, ROULETTE_SECONDS * 1000);
-      } else {
-        this.realStarted = false;
-      }
-    }
-  }
+  @property({type: Boolean, reflect: true}) started = false;
 
   render() {
-    if (!this.game) return html`Loading...`; // TODO Loading spinner
     return html`
       <div id="rules">
         <span id="title"><h3>Rules</h3></span>
@@ -86,7 +78,6 @@ export class MyRules extends LitElement {
   }
 
   private getVariantRules() {
-    if (!this.realStarted) return html``;
     return VARIANT_INFO[this.game.name] ?? `${this.game.name} rules not found.`;
   }
 }
