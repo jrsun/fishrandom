@@ -118,11 +118,6 @@ export class MyElement extends LitElement {
   audio: {[name: string]: HTMLAudioElement|null|undefined} = {};
   canvas: HTMLCanvasElement;
   pairToClass: {[pair: string]: {[name: string]: boolean}} = {};
-  onNextTurn: (() => void)|undefined;
-
-  pickerPieceSelected: () => void;
-  ods: () => void;
-  od: () => void;
 
   connectedCallback() {
     super.connectedCallback();
@@ -133,17 +128,10 @@ export class MyElement extends LitElement {
       this.onSquareMousedown.bind(this)
     );
     this.addEventListener('square-mouseup', this.onSquareMouseup.bind(this));
-    // Swallow right-click events
     // this.addEventListener('contextmenu', e => {e.preventDefault()});
-    this.pickerPieceSelected = this.onPiecePicker.bind(this);
-    this.addEventListener('promotion-picked', this.pickerPieceSelected);
-
-    this.ods = this.onSquareDragStart.bind(this);
-    this.addEventListener('square-dragstart', this.ods);
-
-    this.od = this.onDrop.bind(this);
-    this.addEventListener('square-drop', this.od);
-
+    this.addEventListener('promotion-picked', this.onPiecePicker);
+    this.addEventListener('square-dragstart', this.onSquareDragStart);
+    this.addEventListener('square-drop', this.onDrop);
     this.addEventListener('square-double', this.onDoubleClick);
 
     document.body.addEventListener('dragend', (e) => {
@@ -182,10 +170,9 @@ export class MyElement extends LitElement {
       'message',
       this.handleSocketMessage.bind(this)
     );
-    this.removeEventListener('promotion-picked', this.pickerPieceSelected);
-
-    this.removeEventListener('square-dragstart', this.ods);
-    this.removeEventListener('square-drop', this.od);
+    this.removeEventListener('promotion-picked', this.onPiecePicker);
+    this.removeEventListener('square-dragstart', this.onSquareDragStart);
+    this.removeEventListener('square-drop', this.onDrop);
     this.removeEventListener('square-double', this.onDoubleClick);
   }
 
@@ -202,24 +189,14 @@ export class MyElement extends LitElement {
   }
 
   handleSocketMessage(message: Message) {
-    // const message: Message = JSON.parse(e.data, reviver);
     if (message.type === 'replaceState') {
-      if (this.onNextTurn) {
-        this.onNextTurn();
-        this.onNextTurn = undefined;
-      }
       const rm = message as ReplaceMessage;
       const {turn} = rm;
       const {turnHistory: turnHistory, stateHistory} = this.game;
-      // this._validateLastMove(move, turnHistory, state, stateHistory);
       turnHistory[turnHistory.length - 1] = turn;
       stateHistory[stateHistory.length - 1] = turn.after;
       this.game.state = turn.after;
     } else if (message.type === 'appendState') {
-      if (this.onNextTurn) {
-        this.onNextTurn();
-        this.onNextTurn = undefined;
-      }
       const am = message as AppendMessage;
       const {turn} = am;
       this.game.turnHistory = [...this.game.turnHistory, turn];
@@ -234,7 +211,6 @@ export class MyElement extends LitElement {
         }
         this.pairToClass[hash(pair)][name] = !(type === GameEventType.Off);
       }
-      
       if (type === GameEventType.Temporary) {
         setTimeout(() => {
           for (const pair of pairs) {
@@ -317,7 +293,7 @@ export class MyElement extends LitElement {
     `;
   }
 
-  // Regular move and castle and drop
+  // Regular move and castle and promotion trigger
   private onSquareClicked(e: CustomEvent) {
     this.dispatchEvent(
       new CustomEvent('board-clicked', {bubbles: true, composed: true})
@@ -397,13 +373,14 @@ export class MyElement extends LitElement {
     this.performUpdate();
   }
 
-  private onSquareDragStart(e: CustomEvent) {
+  onSquareDragStart = (e: CustomEvent) => {
     const square = e.detail as Square;
     this.selectedSquare = square;
     this.selectedPiece = square.occupant;
   }
 
-  private onDrop(e: CustomEvent) {
+  // Drop
+  onDrop = (e: CustomEvent) => {
     const {square, piece, start, type} = e.detail;
 
     if (type === 'drop') {
@@ -424,6 +401,7 @@ export class MyElement extends LitElement {
     this.onSquareClicked(e);
   }
 
+  // Activate
   private onDoubleClick = (e: CustomEvent) => {
     const square = e.detail as Square;
     if (square.occupant) {
@@ -447,7 +425,7 @@ export class MyElement extends LitElement {
   }
 
   // Promotion
-  private onPiecePicker(e: CustomEvent) {
+  onPiecePicker = (e: CustomEvent) => {
     const piece = e.detail as Piece;
     if (!this.promotionSquare || !this.selectedSquare || !this.selectedPiece)
       return;
@@ -491,6 +469,7 @@ export class MyElement extends LitElement {
     this.drawArrow(row, col, square.row, square.col);
   }
 
+  // Highlight squares to move to
   computeTargets(piece?: Piece, square?: Square) {
     const {game} = this;
     if (!piece || !square || !game) {
@@ -536,26 +515,6 @@ export class MyElement extends LitElement {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
-
-  // private _validateLastMove(
-  //   smove: Move,
-  //   turnHistory: Turn[],
-  //   sstate: BoardState,
-  //   stateHistory: BoardState[]
-  // ) {
-  //   const cmove = turnHistory?.[turnHistory.length - 1];
-  //   if (JSON.stringify(cmove, replacer) !== JSON.stringify(smove, replacer)) {
-  //     throw new Error(`last client move does not match server,
-  //     client: ${JSON.stringify(cmove, replacer)},\n
-  //     server:${JSON.stringify(smove, replacer)}`);
-  //   }
-  //   const cstate = stateHistory?.[stateHistory.length - 1];
-  //   if (JSON.stringify(sstate, replacer) !== JSON.stringify(sstate, replacer)) {
-  //     throw new Error(`last client state does not match server,
-  //     client: ${JSON.stringify(cstate, replacer)},\n
-  //     server:${JSON.stringify(sstate, replacer)}`);
-  //   }
-  // }
 }
 
 declare global {
