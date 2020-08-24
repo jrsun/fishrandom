@@ -1,10 +1,10 @@
-import {Game} from '../game';
+import {Game, GameEventType, GameEventName} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
 import {Color, getOpponent} from '../const';
-import {BoardState, generateStartState} from '../state';
+import {BoardState, generateStartState, Phase} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
-import {Move, Castle} from '../turn';
+import {Move, Castle, Turn, TurnType} from '../turn';
 
 export class Hiddenqueen extends Game {
   name = 'Hiddenqueen';
@@ -13,7 +13,20 @@ export class Hiddenqueen extends Game {
     [Color.BLACK]: false,
   };
   constructor(isServer: boolean) {
-    super(isServer, genInitial());
+    super(isServer, generateStartState().setPhase(Phase.PRE));
+  }
+  onConnect() {
+    if (this.eventHandler) {
+      if (this.state.extra.phase === Phase.PRE) {
+        this.eventHandler({
+          type: GameEventType.On,
+          name: GameEventName.Highlight,
+          pairs: [0,1,2,3,4,5,6,7].map(col => ([
+            {row: 1, col}, {row: 6, col}
+          ])).flat(),
+        });
+      }
+    }
   }
   visibleState(state: BoardState, color: Color): BoardState {
     const vis = BoardState.copy(state);
@@ -49,6 +62,67 @@ export class Hiddenqueen extends Game {
     })
   );
   return vis;
+  }
+  modifyTurn(turn: Turn): Turn {
+    if (!this.isServer) return turn;
+
+    if (this.turnHistory.length + 1 === 2) {
+      if (this.eventHandler) {
+        this.eventHandler({
+          type: GameEventType.Off,
+          name: GameEventName.Highlight,
+          pairs: [0,1,2,3,4,5,6,7].map(col => ([
+            {row: 1, col}, {row: 6, col}
+          ])).flat(),
+        });
+      } 
+      return {
+        ...turn,
+        after: BoardState.copy(turn.after).setPhase(Phase.NORMAL),
+      }
+    }
+    return turn;
+  }
+
+  visibleTurn(turn: Turn, color: Color): Turn {
+    if (color === turn.piece.color) return turn;
+    if (turn.type === TurnType.ACTIVATE) {
+      return {
+        type: TurnType.UNKNOWN,
+        before: turn.before,
+        after: turn.after,
+        end: {row: -1, col: -1},
+        captured: turn.captured,
+        piece: new Pawn(turn.piece.color),
+      };
+    }
+    return turn;
+  }
+  activate(
+    color: Color,
+    piece: Piece,
+    row: number,
+    col: number
+  ): Turn | undefined {
+    if (!this.isWhoseTurn(color, piece)) return;
+
+    let after: BoardState|undefined;
+    if (piece.name === 'Pawn') {
+      after = BoardState.copy(this.state)
+      .setTurn(getOpponent(color))
+      .place(new QueenPawn(piece.color), row, col);
+    } else {
+      return;
+    }
+    const turn = {
+      type: TurnType.ACTIVATE as const,
+      before: this.state,
+      after,
+      end: {row, col},
+      piece,
+    };
+    if (!this.validateTurn(piece.color, turn)) return;
+    return turn;
   }
 
   move(
@@ -93,6 +167,12 @@ export class Hiddenqueen extends Game {
       piece: piece instanceof QueenPawn ? new Pawn(color) : piece,
     };
   }
+  validateTurn(color: Color, turn: Turn): boolean {
+    if (!super.validateTurn(color, turn)) return false;
+    const isSelectQueen = turn.type === TurnType.ACTIVATE;
+    const isPre = this.state.extra.phase === Phase.PRE;
+    return (isSelectQueen && isPre) || (!isSelectQueen && !isPre);
+  }
 }
 
 export class QueenPawn extends Queen {
@@ -117,15 +197,4 @@ export class QueenPawn extends Queen {
   static thaw(o): QueenPawn {
     return new QueenPawn(o.c);
   }
-}
-
-function genInitial(): BoardState {
-  const state = generateStartState();
-  const files = [0, 1, 2, 3, 4, 5, 6, 7];
-  const bhqf = randomChoice(files);
-  state.squares[1][bhqf].place(new QueenPawn(Color.BLACK));
-  const whqf = randomChoice(files);
-  state.squares[6][whqf].place(new QueenPawn(Color.WHITE));
-
-  return state;
 }
