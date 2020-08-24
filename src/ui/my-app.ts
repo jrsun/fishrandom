@@ -268,7 +268,6 @@ export class MyApp extends LitElement {
   @property({type: Object}) playerInfo?: PlayerInfo;
   @property({type: Object}) opponentInfo?: PlayerInfo;
   @property({type: Number}) opponentTimer?: number;
-  @property({type: Object}) bankSelectedPiece: Piece | undefined;
   @property({type: Boolean, reflect: true}) started = false;
 
   private gameResult: string | undefined;
@@ -305,14 +304,6 @@ export class MyApp extends LitElement {
     };
     window.onbeforeunload = onUnload;
     window.onunload = onUnload;
-
-    // Bank-related
-    this.addEventListener('bank-picked', (e: CustomEvent) => {
-      this.bankSelectedPiece = e.detail as Piece;
-    });
-    this.addEventListener('board-clicked', () => {
-      this.bankSelectedPiece = undefined;
-    });
   }
 
   firstUpdated() {
@@ -496,14 +487,15 @@ export class MyApp extends LitElement {
 
     return html`<div class="bank-wrapper">
       <div class="card bank">
-        <my-piece-picker .pieces=${this.game.state.banks[opponent]}>
+        <my-piece-picker
+          .pieces=${this.game.state.banks[opponent]}
+          .needsTarget=${true}
+        >
         </my-piece-picker>
       </div>
       <div class="card bank">
         <my-piece-picker
           .pieces=${this.game.state.banks[player]}
-          .selected=${this.bankSelectedPiece}
-          .eventName=${'bank-picked'}
           .needsTarget=${true}
         >
         </my-piece-picker>
@@ -553,7 +545,6 @@ export class MyApp extends LitElement {
               .color=${this.color}
               .socket=${this.socket}
               .game=${this.game}
-              .bankSelectedPiece=${this.bankSelectedPiece}
               .viewMoveIndex=${this.viewMoveIndex}
               .started=${this.started}
             ></my-element>

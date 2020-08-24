@@ -27,7 +27,7 @@ export class MyPiecePicker extends LitElement {
 
   @property({type: Array}) pieces: Piece[] = [];
   @property({type: Boolean}) needsTarget = false;
-  @property({type: String}) eventName?;
+  @property({type: String}) eventName?: string;
 
   pickedPiece(piece: Piece) {
     if (this.eventName) {

@@ -283,7 +283,7 @@ export class Game {
     if (!square || square.occupant) {
       return;
     }
-    let after = BoardState.copy(state).removeFromBank(color, piece);
+    let after = BoardState.copy(state).removeFromBank(piece.color, piece);
     if (!after) {
       return;
     }
@@ -291,7 +291,7 @@ export class Game {
     if (piece instanceof Pawn && (row === 0 || row === this.state.ranks-1)) {
       return;
     }
-    after.place(piece, row, col).setTurn(getOpponent(color));
+    after.place(piece, row, col).setTurn(getOpponent(piece.color));
 
     const drop = {
       before: state,

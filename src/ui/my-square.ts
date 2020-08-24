@@ -38,6 +38,9 @@ export class MySquare extends LitElement {
     :host([checked]) .square {
       background-color: rgba(255, 0, 0, 0.6);
     }
+    :host([selected]) .square {
+      background-color: rgba(0, 0, 255, 0.3);
+    }
     :host(.explode) .square {
       background-color: #fa0;
     }
@@ -63,6 +66,7 @@ export class MySquare extends LitElement {
   @property({type: Boolean, reflect: true}) lastMove = false;
   @property({type: Boolean}) frozen = false;
   @property({type: Boolean, reflect: true}) checked = false;
+  @property({type: Boolean, reflect: true}) selected = false;
 
   render() {
     // this.style.setProperty('transform', this.color === Color.BLACK ? 'rotate(180deg)' : '');

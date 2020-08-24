@@ -270,6 +270,7 @@ export class MyElement extends LitElement {
                   class=${classMap(this.pairToClass[hash({row:i,col:j})])}
                   .frozen=${this.viewMoveIndex != null || this.gameOver}
                   .square=${square}
+                  .selected=${square === this.selectedSquare}
                   .piece=${square.occupant}
                   .possible=${this.possibleTargets.includes(square)}
                   .lastMove=${lastTurn &&
