@@ -31,7 +31,8 @@ export class Dark extends Game {
         legalTargets.add({row: ep.end.row - yDir, col: ep.end.col});
       }
     }
-    return new BoardState(
+    const vis = BoardState.copy(state);
+    vis.squares = 
       state.squares.map((row, i) =>
         row.map((square, j) => {
           if (
@@ -46,10 +47,8 @@ export class Dark extends Game {
             return hidden;
           }
         })
-      ),
-      state.whoseTurn,
-      state.banks
-    );
+      );
+    return vis;
   }
 
   visibleTurn(turn: Turn, color: Color): Turn {

@@ -16,7 +16,8 @@ export class Royalpawn extends Game {
     return super.promotions(turn);
   }
   visibleState(state: BoardState, color: Color): BoardState {
-    return new BoardState(
+    const vis = BoardState.copy(state);
+    vis.squares = 
       state.squares.map((row) =>
         row.map((square) => {
           const occupant = square.occupant;
@@ -31,10 +32,8 @@ export class Royalpawn extends Game {
           }
           return square;
         })
-      ),
-      state.whoseTurn,
-      state.banks
-    );
+      );
+    return vis;
   }
 
   winCondition(color: Color): boolean {

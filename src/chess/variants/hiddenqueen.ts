@@ -16,41 +16,39 @@ export class Hiddenqueen extends Game {
     super(isServer, genInitial());
   }
   visibleState(state: BoardState, color: Color): BoardState {
-    return new BoardState(
-      state.squares.map((row) =>
-        row.map((square) => {
-          const occupant = square.occupant;
-          if (
-            occupant &&
-            occupant instanceof QueenPawn &&
-            occupant.color !== color
-          ) {
-            if (this.revealed[occupant.color]) {
-              return new Square(square.row, square.col).place(
-                new Queen(occupant.color)
-              );
-            } else {
-              return new Square(square.row, square.col).place(
-                new Pawn(occupant.color)
-              );
-            }
-          }
-          if (
-            occupant &&
-            occupant instanceof QueenPawn &&
-            occupant.color === color &&
-            this.revealed[color]
-          ) {
-            return new Square(square.row, square.col).place(
-              new Queen(occupant.color)
-            );
-          }
-          return square;
-        })
-      ),
-      state.whoseTurn,
-      state.banks
-    );
+    const vis = BoardState.copy(state);
+    vis.squares = state.squares.map((row) =>
+    row.map((square) => {
+      const occupant = square.occupant;
+      if (
+        occupant &&
+        occupant instanceof QueenPawn &&
+        occupant.color !== color
+      ) {
+        if (this.revealed[occupant.color]) {
+          return new Square(square.row, square.col).place(
+            new Queen(occupant.color)
+          );
+        } else {
+          return new Square(square.row, square.col).place(
+            new Pawn(occupant.color)
+          );
+        }
+      }
+      if (
+        occupant &&
+        occupant instanceof QueenPawn &&
+        occupant.color === color &&
+        this.revealed[color]
+      ) {
+        return new Square(square.row, square.col).place(
+          new Queen(occupant.color)
+        );
+      }
+      return square;
+    })
+  );
+  return vis;
   }
 
   move(
