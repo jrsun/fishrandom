@@ -184,9 +184,8 @@ export class Room {
       case TurnType.DROP:
         const {
           piece: droppedPiece,
-          end: {row, col},
         } = turnAttempt;
-        turn = game.drop(me.color, droppedPiece, row, col);
+        turn = game.drop(me.color, droppedPiece, drow, dcol);
         break;
       case TurnType.PROMOTE:
         const {
@@ -219,7 +218,7 @@ export class Room {
     }
     turn = game.modifyTurn(turn);
     if (!turn) {
-      log.get(me.name).error('bad move after modify!');
+      log.get(me.name).error('submitted an invalid move!');
       return;
     }
 

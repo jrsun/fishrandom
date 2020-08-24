@@ -12,9 +12,6 @@ export class Dark extends Game {
     super(isServer, initial);
   }
   visibleState(state: BoardState, color: Color): BoardState {
-    // Speed this up
-    if (!this.isServer) return state;
-
     const legalTargets: Set<Pair> = new Set();
     for (const square of state.squares.flat()) {
       if (!square.occupant || square.occupant.color !== color) {

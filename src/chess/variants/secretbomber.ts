@@ -1,7 +1,7 @@
 import {Game, GameEventType, GameEventName} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
 import {Color, getOpponent, Pair} from '../const';
-import {BoardState, generateStartState} from '../state';
+import {BoardState, generateStartState, Phase} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
 import {Move, Turn, Activate, TurnType, Castle, Unknown} from '../turn';
@@ -9,41 +9,59 @@ import {Move, Turn, Activate, TurnType, Castle, Unknown} from '../turn';
 export class Secretbomber extends Game {
   name = 'Secretbomber';
   constructor(isServer: boolean) {
-    super(isServer, generateStartState());
+    super(isServer, generateStartState().setPhase(Phase.PRE));
   }
-  // onConnect() {
-  //   if (this.eventHandler) {
-  //     this.eventHandler({
-  //       type: GameEventType.Turn,
-  //       name: GameEventName.Highlight,
-  //       pairs: [0,1,2,3,4,5,6,7].map(col => ([
-  //         {row: 1, col}, {row: 6, col}
-  //       ])).flat(),
-  //     });
-  //   }
-  // }
+  onConnect() {
+    if (this.eventHandler) {
+      if (this.state.extra.phase === Phase.PRE) {
+        this.eventHandler({
+          type: GameEventType.On,
+          name: GameEventName.Highlight,
+          pairs: [0,1,2,3,4,5,6,7].map(col => ([
+            {row: 1, col}, {row: 6, col}
+          ])).flat(),
+        });
+      }
+    }
+  }
   visibleState(state: BoardState, color: Color): BoardState {
-    if (!this.isServer) return state;
-
-    return new BoardState(
-      state.squares.map((row) =>
-        row.map((square) => {
-          const occupant = square.occupant;
-          if (
-            occupant &&
-            occupant instanceof BomberPawn &&
-            occupant.color !== color
-          ) {
-            return new Square(square.row, square.col).place(
-              new Pawn(occupant.color)
-            );
-          }
-          return square;
-        })
-      ),
-      state.whoseTurn,
-      state.banks
+    const vis = BoardState.copy(state);
+    vis.squares = state.squares.map((row) =>
+      row.map((square) => {
+        const occupant = square.occupant;
+        if (
+          occupant &&
+          occupant instanceof BomberPawn &&
+          occupant.color !== color
+        ) {
+          return new Square(square.row, square.col).place(
+            new Pawn(occupant.color)
+          );
+        }
+        return square;
+      })
     );
+    return vis;
+  }
+  modifyTurn(turn: Turn): Turn {
+    if (!this.isServer) return turn;
+
+    if (this.turnHistory.length + 1 === 2) {
+      if (this.eventHandler) {
+        this.eventHandler({
+          type: GameEventType.Off,
+          name: GameEventName.Highlight,
+          pairs: [0,1,2,3,4,5,6,7].map(col => ([
+            {row: 1, col}, {row: 6, col}
+          ])).flat(),
+        });
+      } 
+      return {
+        ...turn,
+        after: BoardState.copy(turn.after).setPhase(Phase.NORMAL),
+      }
+    }
+    return turn;
   }
 
   visibleTurn(turn: Turn, color: Color): Turn {
@@ -112,10 +130,9 @@ export class Secretbomber extends Game {
 
   validateTurn(color: Color, turn: Turn): boolean {
     if (!super.validateTurn(color, turn)) return false;
-
     const isSelectBomber = turn.type === TurnType.ACTIVATE && turn.piece.name === 'Pawn';
-    const isFirstMove = this.turnHistory.filter(turn => turn.piece.color === color).length === 0;
-    return (isSelectBomber && isFirstMove) || (!isSelectBomber && !isFirstMove);
+    const isPre = this.state.extra.phase === Phase.PRE;
+    return (isSelectBomber && isPre) || (!isSelectBomber && !isPre);
   }
 }
 

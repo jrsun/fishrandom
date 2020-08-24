@@ -16,8 +16,6 @@ export class Hiddenqueen extends Game {
     super(isServer, genInitial());
   }
   visibleState(state: BoardState, color: Color): BoardState {
-    if (!this.isServer) return state;
-
     return new BoardState(
       state.squares.map((row) =>
         row.map((square) => {

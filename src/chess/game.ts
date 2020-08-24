@@ -472,13 +472,13 @@ export class Game {
 
   // Private
 
-  knowsInCheck(color: Color, state: BoardState): boolean {
-    const visibleState = this.visibleState(state, color);
-    const squaresWithEnemy = visibleState.squares
+  knowsInCheck(color: Color, s: BoardState): boolean {
+    const state = this.isServer ? this.visibleState(s, color) : s;
+    const squaresWithEnemy = state.squares
       .flat()
       .filter((square) => !!square.occupant && square.occupant.color !== color);
     const enemyMoves = squaresWithEnemy.flatMap((square) =>
-      this.legalMovesFrom(visibleState, square.row, square.col)
+      this.legalMovesFrom(state, square.row, square.col)
     );
 
     return enemyMoves.some(
@@ -488,18 +488,17 @@ export class Game {
 
   knowsAttackedSquare(
     color: Color,
-    state: BoardState,
+    s: BoardState,
     row: number,
     col: number
   ): boolean {
-    const visibleState = this.visibleState(state, color);
+    const state = this.isServer ? this.visibleState(s, color) : s;
     // put a dummy on the square (mostly for pawns)
     const dummy = new Piece(color);
-    const stateWithDummy = new BoardState(
-      visibleState.squares,
-      getOpponent(color),
-      visibleState.banks
-    ).place(dummy, row, col);
+    const stateWithDummy = BoardState.copy(state)
+      .setTurn(getOpponent(color))
+      .place(dummy, row, col);
+
     const squaresWithEnemy = state.squares
       .flat()
       .filter(
@@ -532,9 +531,9 @@ export enum GameEventName {
   Highlight = 'highlight',
 }
 export enum GameEventType {
-  Static = 'static',
+  On = 'on',
+  Off = 'off',
   Temporary = 'temporary',
-  Turn = 'turn',
 }
 export interface GameEvent {
   pairs: Pair[];

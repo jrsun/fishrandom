@@ -235,7 +235,7 @@ export class MyElement extends LitElement {
         if (!this.pairToClass[hash(pair)]) {
           this.pairToClass[hash(pair)] = {};
         }
-        this.pairToClass[hash(pair)][name] = true;
+        this.pairToClass[hash(pair)][name] = !(type === GameEventType.Off);
       }
       
       if (type === GameEventType.Temporary) {
@@ -245,16 +245,7 @@ export class MyElement extends LitElement {
           }
           this.performUpdate();
         }, 200);
-      } else if (type === GameEventType.Turn) {
-        // Hack to avoid race conditions
-        setTimeout(() => {
-          this.onNextTurn = () => {
-            for (const pair of pairs) {
-              this.pairToClass[hash(pair)][name] = false;
-            }
-          };
-        }, 100);
-      } 
+      }
     }
     // async?
     this.gameOver =

@@ -14,11 +14,17 @@ import {randomChoice} from '../utils';
 
 type BoardJson = (string | null)[][];
 
+export enum Phase {
+  PRE = 'pre',
+  NORMAL = 'normal',
+}
+
 interface Extra {
   bario?: {
     whiteOptions: Piece[],
     blackOptions: Piece[],
   }
+  phase?: Phase,
 }
 
 export class BoardState {
@@ -27,7 +33,7 @@ export class BoardState {
   squares: Square[][];
   whoseTurn: Color;
   banks: {[color: string]: Piece[]} = {};
-  extra?: Extra;
+  extra: Extra;
 
   constructor(
     squares: Square[][],
@@ -67,6 +73,11 @@ export class BoardState {
 
   setTurn(color: Color): BoardState {
     this.whoseTurn = color;
+    return this;
+  }
+
+  setPhase(phase: Phase): BoardState {
+    this.extra.phase = phase;
     return this;
   }
 

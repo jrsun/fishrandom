@@ -16,8 +16,6 @@ export class Royalpawn extends Game {
     return super.promotions(turn);
   }
   visibleState(state: BoardState, color: Color): BoardState {
-    if (!this.isServer) return state;
-
     return new BoardState(
       state.squares.map((row) =>
         row.map((square) => {
