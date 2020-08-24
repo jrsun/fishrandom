@@ -41,14 +41,16 @@ export class Bario extends Game {
     return moves;
   }
 
-  modifyTurn(turn: Turn): Turn {
-    const {piece, after, end} = turn;
+  move(color, piece, srow, scol, drow, dcol): Move | undefined {
+    const turn = super.move(color, piece, srow, scol, drow, dcol);
+    if (!turn) return;
+    const {after, end} = turn;
     // Note: piece is Zero, afterPiece is the piece the Zero moved as.
     if (piece instanceof Zero) {
       const afterPiece = after.getSquare(end.row, end.col)?.occupant;
       if (!afterPiece) return turn;
 
-      const extra = this.state.extra.bario;
+      const extra = after.extra.bario;
       if (!extra) return turn;
 
       const options = piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
