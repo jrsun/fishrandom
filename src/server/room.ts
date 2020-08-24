@@ -251,18 +251,18 @@ export class Room {
     sendMessage(me.player.socket, rm);
     sendMessage(opponent.player.socket, am);
     this.sendTimers();
-    // Pause timer because we're now handling afterTurn
+    // Pause timer because we're now handling cpuTurn
     this.timerPaused = true;
 
     if (this.checkIfOver()) return;
 
-    // BUG: Don't let people move before afterTurn
-    this.handleAfterTurn(game.afterTurn());
+    // BUG: Don't let people move before cpuTurn
+    this.modifyCpuTurn(game.cpuTurn());
     this.checkIfOver();
     this.timerPaused = false;
   }
 
-  handleAfterTurn(turn?: Turn) {
+  modifyCpuTurn(turn?: Turn) {
     if (!turn) return;
 
     const {game, p1, p2} = this;

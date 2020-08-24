@@ -13,7 +13,7 @@ export class Pieceeater extends Game {
   constructor(isServer: boolean) {
     super(isServer, generateInitial());
   }
-  afterTurn(): Turn|undefined {
+  cpuTurn(): Turn|undefined {
     const square = this.state.squares.flat().filter(square => square.occupant instanceof Elephant)[0];
     if (!square) return;
     const elephant = square.occupant as Elephant;

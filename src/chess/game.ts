@@ -31,15 +31,10 @@ export class Game {
   /***********************
    *  Override in variants
    *************************/
+  /** Shared */
   pawnHomeRanks: number[] = [1]; // 0 indexed from player's side
   castler: typeof Piece = King;
   canDrop = false;
-  modifyTurn(turn: Turn): Turn {
-    // in atomic chess, explode, etc.
-    return turn;
-  }
-  onConnect() {}
-  afterTurn(): Turn|undefined { return }
   activate(
     color: Color,
     piece: Piece,
@@ -48,12 +43,7 @@ export class Game {
   ): Turn | undefined {
     return;
   }
-  visibleState(state: BoardState, color: Color) {
-    return state;
-  } // dark chess
-  visibleTurn(turn: Turn, color: Color): Turn {
-    return turn;
-  }
+  modifyTurn(turn: Turn): Turn {return turn}
   promotions(turn: Turn): (typeof Piece)[] | undefined {
     if (turn.piece instanceof Pawn && turn.type === TurnType.MOVE) {
       const pawn = turn.piece;
@@ -149,7 +139,6 @@ export class Game {
     }
     return moves;
   }
-
   winCondition(color: Color, state: BoardState): boolean {
     const opponent = getOpponent(color);
     // fallback if king gets taken
@@ -195,6 +184,33 @@ export class Game {
     // Opponent is in check and cannot escape it.
     return opponentLegalMoves.length === 0;
   }
+  validateTurn(color: Color, turn: Turn): boolean {
+    if (
+      turn.end.row < 0 ||
+      turn.end.row >= this.state.ranks ||
+      turn.end.col < 0 ||
+      turn.end.col >= this.state.files
+    ) {
+      return false;
+    }
+    // This check is for the client
+    const modifiedTurn = this.modifyTurn(turn);
+    if (this.winCondition(color, modifiedTurn.after)) {
+      return true;
+    }
+    // TODO: This call repeats work done in winCondition
+    if (this.knowsInCheck(color, modifiedTurn.after)) {
+      return false;
+    }
+    return true;
+  }
+
+  /** Server */
+  onConnect() {}
+  cpuTurn(): Turn|undefined { return }
+  visibleState(state: BoardState, color: Color) {return state}
+  visibleTurn(turn: Turn, color: Color): Turn {return turn}
+
   drawCondition(color: Color, state: BoardState): boolean {
     const legalMoves = state.squares
       .flat()
@@ -225,27 +241,6 @@ export class Game {
       }
     }
     return legalMoves.length === 0;
-  }
-
-  validateTurn(color: Color, turn: Turn): boolean {
-    if (
-      turn.end.row < 0 ||
-      turn.end.row >= this.state.ranks ||
-      turn.end.col < 0 ||
-      turn.end.col >= this.state.files
-    ) {
-      return false;
-    }
-    // This check is for the client
-    const modifiedTurn = this.modifyTurn(turn);
-    if (this.winCondition(color, modifiedTurn.after)) {
-      return true;
-    }
-    // TODO: This call repeats work done in winCondition
-    if (this.knowsInCheck(color, modifiedTurn.after)) {
-      return false;
-    }
-    return true;
   }
 
   /***********************
@@ -470,8 +465,7 @@ export class Game {
     return promote;
   }
 
-  // Private
-
+  // Shared
   knowsInCheck(color: Color, s: BoardState): boolean {
     const state = this.isServer ? this.visibleState(s, color) : s;
     const squaresWithEnemy = state.squares
@@ -486,6 +480,7 @@ export class Game {
     );
   }
 
+  // Shared
   knowsAttackedSquare(
     color: Color,
     s: BoardState,
@@ -514,6 +509,7 @@ export class Game {
     );
   }
 
+  // Server
   isWhoseTurn(color: Color, piece?: Piece): boolean {
     if (process.env.NODE_ENV === 'development') return true;
 
