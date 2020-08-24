@@ -1,5 +1,6 @@
 import {LitElement, html, customElement, property, css} from 'lit-element';
 import {Piece} from '../chess/piece';
+import { replacer } from '../common/message';
 
 const SQUARE_SIZE = Math.min(window.innerWidth / 8, 50); // 50
 
@@ -11,6 +12,7 @@ export class MyPiecePicker extends LitElement {
       flex-direction: column;
       justify-content: center;
       min-height: ${SQUARE_SIZE}px;
+      min-width: ${SQUARE_SIZE}px;
     }
     .picker-piece {
       height: ${SQUARE_SIZE}px;
@@ -18,6 +20,8 @@ export class MyPiecePicker extends LitElement {
       cursor: pointer;
       background-size: cover;
       display: block;
+      z-index: 1;
+      position: relative;
     }
   `;
 
@@ -25,26 +29,13 @@ export class MyPiecePicker extends LitElement {
   @property({type: Boolean}) needsTarget = false;
   @property({type: String}) eventName?;
 
-  @property({type: Object}) selected?: Piece;
-
-  pickedPiece(piece: Piece, e: CustomEvent) {
-    let newSelected: Piece | undefined;
-    if (this.needsTarget) {
-      if (this.selected === piece) {
-        newSelected = undefined;
-      } else {
-        newSelected = piece;
-      }
-    } else {
-      newSelected = piece;
-    }
-
+  pickedPiece(piece: Piece) {
     if (this.eventName) {
       this.dispatchEvent(
         new CustomEvent(this.eventName, {
           bubbles: true,
           composed: true,
-          detail: newSelected,
+          detail: piece,
         })
       );
     }
@@ -56,14 +47,18 @@ export class MyPiecePicker extends LitElement {
         (piece) => html`<div
           class="picker-piece ${piece.name}"
           draggable=${this.needsTarget}
-          style="
-              background-image:url(/img/${piece.img});
-              ${this.selected === piece
-            ? 'background-color: rgb(0, 255, 0, 0.3);'
-            : ''}
-            "
+          style="background-image:url(/img/${piece.img});"
           @click=${(e) => {
-            this.pickedPiece(piece, e);
+            if (!this.needsTarget) this.pickedPiece(piece);
+          }}
+          @dragstart=${(e: DragEvent) => {
+            if (this.needsTarget) this.pickedPiece(piece);
+            if (e.dataTransfer) {
+              e.dataTransfer.setData('text/plain', JSON.stringify(
+                {piece, type: 'drop'},
+                replacer,
+              ))
+            }
           }}
         ></div>`
       )}

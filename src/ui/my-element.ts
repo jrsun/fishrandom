@@ -104,7 +104,6 @@ export class MyElement extends LitElement {
   @property({type: Object}) game: Game;
   @property({type: Object}) socket: WebSocket;
   @property({type: Number}) viewMoveIndex: number | undefined;
-  @property({type: Object}) bankSelectedPiece: Piece | undefined;
 
   // protected
   @property({type: Object}) selectedPiece: Piece | undefined;
@@ -116,7 +115,6 @@ export class MyElement extends LitElement {
   @property({type: Array}) possibleTargets: Square[] = [];
   @property({type: Array}) promotions: Piece[] | undefined;
 
-  draggedSquare: Square | undefined;
   audio: {[name: string]: HTMLAudioElement|null|undefined} = {};
   canvas: HTMLCanvasElement;
   pairToClass: {[pair: string]: {[name: string]: boolean}} = {};
@@ -149,8 +147,7 @@ export class MyElement extends LitElement {
     this.addEventListener('square-double', this.onDoubleClick);
 
     document.body.addEventListener('dragend', (e) => {
-      this.draggedSquare = undefined;
-      this.requestUpdate();
+      // this.requestUpdate();
       e.preventDefault();
     });
 
@@ -298,7 +295,6 @@ export class MyElement extends LitElement {
                   .frozen=${this.viewMoveIndex != null || this.gameOver}
                   .square=${square}
                   .piece=${square.occupant}
-                  .dragged=${square === this.draggedSquare}
                   .possible=${this.possibleTargets.includes(square)}
                   .lastMove=${lastTurn &&
                   ((lastTurn.type === TurnType.MOVE &&
@@ -330,22 +326,9 @@ export class MyElement extends LitElement {
 
     this.eraseCanvas();
     // There's a bug here where updating the game using move doesn't cause rerender.
-    const square = e.detail as Square;
+    const square = e.detail.square as Square;
     let turn: Turn | undefined;
-    if (this.bankSelectedPiece) {
-      turn = this.game.drop(
-        this.color,
-        this.bankSelectedPiece,
-        square.row,
-        square.col
-      );
-      if (!turn) {
-        console.log('bad drop', square.row, square.col);
-        return;
-      }
-      sendMessage(this.socket, {type: 'turn', turn});
-      this.audio.move?.play();
-    } else if (this.selectedPiece && this.selectedSquare) {
+    if (this.selectedPiece && this.selectedSquare) {
      if (
         this.selectedPiece instanceof this.game.castler &&
         this.selectedSquare.row === square.row &&
@@ -418,12 +401,27 @@ export class MyElement extends LitElement {
     const square = e.detail as Square;
     this.selectedSquare = square;
     this.selectedPiece = square.occupant;
-    this.draggedSquare = square;
   }
 
   private onDrop(e: CustomEvent) {
-    const square = e.detail as Square;
-    return this.onSquareClicked(e);
+    const {square, piece, start, type} = e.detail;
+
+    if (type === 'drop') {
+      const turn = this.game.drop(this.color, piece, square.row, square.col);
+      if (!turn) return;
+
+      this.game.turnHistory = [...this.game.turnHistory, turn];
+      this.game.stateHistory.push(turn.after);
+      this.game.state = turn.after;
+
+      sendMessage(this.socket, {type: 'turn', turn});
+      this.audio.move?.play();
+      this.performUpdate();
+      return;
+    }
+    this.selectedSquare = start;
+    this.selectedPiece = piece;
+    this.onSquareClicked(e);
   }
 
   private onDoubleClick = (e: CustomEvent) => {

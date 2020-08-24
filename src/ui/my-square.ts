@@ -5,6 +5,7 @@ import {BoardState} from '../chess/state';
 import {Color} from '../chess/const';
 import {styleMap} from 'lit-html/directives/style-map';
 import './my-piece';
+import { reviver, replacer } from '../common/message';
 
 const SQUARE_SIZE = Math.min(window.innerWidth / 8, 50); // 50
 
@@ -98,7 +99,7 @@ export class MySquare extends LitElement {
       new CustomEvent('square-clicked', {
         bubbles: true,
         composed: true,
-        detail: this.square,
+        detail: {square: this.square},
       })
     );
   }
@@ -135,14 +136,30 @@ export class MySquare extends LitElement {
         detail: this.square,
       })
     );
+    if (e.dataTransfer && this.square.occupant) {
+      e.dataTransfer.setData('text/plain', JSON.stringify(
+        {piece: this.square.occupant, square: this.square, type: 'move'},
+        replacer,
+      ))
+    }
   }
 
   private _onDrop(e: DragEvent) {
+    if (!e.dataTransfer) return;
+    const {piece, square, type} = JSON.parse(
+      e.dataTransfer.getData('text/plain'),
+      reviver,
+    );
     this.dispatchEvent(
       new CustomEvent('square-drop', {
         bubbles: true,
         composed: true,
-        detail: this.square,
+        detail: {
+          square: this.square,
+          piece,
+          type,
+          start: square,
+        },
       })
     );
     e.preventDefault();
