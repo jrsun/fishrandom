@@ -105,7 +105,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Black wins by capturing every pawn.</li>
       <li>White pawns can promote.</li>
     </ul> `,
-  Hiddenqueen: html`Both sides have a pawn designated as a hidden queen. This
+  Hiddenqueen: html`As their <b>first move</b>, both sides select a pawn as a hidden queen. This
     queen will remain hidden to the opponent unless it makes a move that would
     be impossible as a pawn. While hidden, the queen does not explicitly give
     check.
@@ -140,6 +140,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li><b>Double click a bomb</b> to destroy it and the pieces on the neighboring eight
     squares.</li>
       <li>Checkmate or <b>explode</b> the king to win.</li>
+      <li>Bomb promotes as a normal pawn.</li>
     </ul>`,
   Maharaja: html`White's sole piece is the powerful <b>Amazon</b>, which moves
     like a Knight + Queen.
@@ -176,7 +177,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   <ul>
     <li>Checkmate or <b>explode</b> the king to win.</li>
   </ul>`,
-  Royalpawn: html`Both sides have a <b>secret</b>, randomly chosen, pawn which they must protect.
+  Royalpawn: html`As their first move, both sides select a <b>secret</b> pawn which they must protect.
   <ul>
     <li>King is replaced by a Mann which is a regular piece that moves like a King.</li>
     <li>Capture the opponent's royal pawn to win.</li>
