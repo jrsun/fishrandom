@@ -360,8 +360,8 @@ export class MyApp extends LitElement {
   }
 
   handleSocketMessage(message: Message) {
-    console.log('Received message of type %s', message.type);
-    console.log(message);
+    // console.log('Received message of type %s', message.type);
+    // console.log(message);
     if (message.type === 'initGame' || message.type === 'reconnect') {
       const {variantName, state, color, player, opponent} = message;
       this.game = new VARIANTS[variantName](/* isServer=*/ false);
@@ -444,7 +444,6 @@ export class MyApp extends LitElement {
 
   handleViewMoveChanged(e: CustomEvent) {
     this.viewMoveIndex = e.detail;
-    console.log('caught view move changed');
   }
 
   requestNewGame() {

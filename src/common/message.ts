@@ -168,11 +168,11 @@ export function sendMessage(ws: WS.WebSocket, m: Message): Promise<void> {
         console.log('Failed to compress and send message %s', input);
         return;
       }
-      console.log(
-        'Sending message of type %s with size %s',
-        m.type,
-        buffer.length
-      );
+      // console.log(
+      //   'Sending message of type %s with size %s',
+      //   m.type,
+      //   buffer.length
+      // );
       ws.send(buffer.toString('base64'));
 
       resolve();

@@ -119,7 +119,6 @@ export class MyControls extends LitElement {
       addMessageHandler(this.socket, this.hsm);
     }
     if (changedProperties.has('viewMoveIndex')) {
-      console.log('fired view move changed');
       this.dispatchEvent(
         new CustomEvent('view-move-changed', {
           detail: this.viewMoveIndex,
