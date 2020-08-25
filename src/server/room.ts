@@ -257,14 +257,15 @@ export class Room {
     if (this.checkIfOver()) return;
 
     // BUG: Don't let people move before cpuTurn
-    this.modifyCpuTurn(game.cpuTurn());
+    this.takeCpuTurn();
     this.timerPaused = false;
   }
 
-  modifyCpuTurn(turn?: Turn) {
-    if (!turn) return;
-
+  takeCpuTurn() {
     const {game, p1, p2} = this;
+
+    let turn = game.cpuTurn()
+    if (!turn) return;
     turn = game.modifyTurn(turn);
     if (!turn) return;
 
