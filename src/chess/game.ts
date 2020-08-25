@@ -318,7 +318,9 @@ export class Game {
     if (
       this.turnHistory.some(
         (move) =>
-          move.piece instanceof this.castler && move.piece.color === color
+          move.piece instanceof this.castler &&
+          (move.type === TurnType.MOVE || move.type === TurnType.CASTLE) &&
+          move.piece.color === color
       )
     ) {
       console.log('king moved');
@@ -346,7 +348,9 @@ export class Game {
           square.occupant instanceof Rook &&
           square.occupant.color === color &&
           !this.turnHistory.some(
-            (turn) => turn.piece instanceof Rook && equals(turn.end, square)
+            (turn) => turn.piece instanceof Rook
+            && turn.type === TurnType.MOVE
+            && equals(turn.end, square)
           )
       );
     const {row, col} = kingSquare;

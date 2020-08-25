@@ -204,6 +204,12 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <li><b>Chancellor</b> moves as Rook + Knight.</li>
     <li>Orthodox rules, checkmate to win.</li>
   </ul>`,
+  Prechess: html`Set up your own starting position.
+  <ul>
+    <li>White and black alternate placing pieces until all pieces are placed.</li>
+    <li>Then, play continues as a normal chess game.</li>
+  </ul>
+  `
 };
 
 declare global {

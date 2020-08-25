@@ -29,10 +29,10 @@ export class Prechess extends Game {
         [Color.BLACK]: [
           new Knight(Color.BLACK),
           new Knight(Color.BLACK),
-          new Rook(Color.BLACK),
+          new Bishop(Color.BLACK),
           new Bishop(Color.BLACK),
           new Rook(Color.BLACK),
-          new Bishop(Color.BLACK),
+          new Rook(Color.BLACK),
           new Queen(Color.BLACK),
           new King(Color.BLACK),
         ],
