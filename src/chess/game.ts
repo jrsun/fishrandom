@@ -271,15 +271,14 @@ export class Game {
       scol,
       /* allowCastles */ false
     ).filter((move) => {
-      return move.type === TurnType.MOVE && this.validateTurn(piece.color, move);
+      return move.type === TurnType.MOVE &&
+        equals(move.end, {row: drow, col: dcol}) &&
+        this.validateTurn(piece.color, move);
     }) as Move[];
-    const legalMove = legalMoves.find((move) =>
-      equals(move.end, {row: drow, col: dcol})
-    );
-    if (!legalMove) {
+    if (legalMoves.length === 0) {
       return; // invalid move
     }
-    return legalMove;
+    return legalMoves[0];
   }
 
   drop(color: Color, piece: Piece, row: number, col: number): Drop | undefined {
