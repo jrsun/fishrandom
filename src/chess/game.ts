@@ -154,13 +154,17 @@ export class Game {
     // Can't get out of check by checkmating
     if (this.knowsInCheck(color, state)) return false;
 
-    const opponentLegalMoves = state.squares
+    const opponentMoves = state.squares
       .flat()
       .filter((square) => square.occupant?.color === opponent)
       .flatMap((square) =>
-        this.legalMovesFrom(state, square.row, square.col, true)
-      )
-      .filter((move) => move && !this.knowsInCheck(opponent, move.after));
+        this.legalMovesFrom(state, square.row, square.col)
+      );
+    for (const move of opponentMoves) {
+      if (move && !this.knowsInCheck(opponent, move.after)) {
+        return false;
+      }
+    }
     if (this.canDrop && state.banks[opponent]) {
       const bank = state.banks[opponent];
       if (bank.length > 0) {
@@ -182,7 +186,7 @@ export class Game {
       }
     }
     // Opponent is in check and cannot escape it.
-    return opponentLegalMoves.length === 0;
+    return true;
   }
   validateTurn(color: Color, turn: Turn): boolean {
     if (
@@ -212,13 +216,17 @@ export class Game {
   visibleTurn(turn: Turn, color: Color): Turn {return turn}
 
   drawCondition(color: Color, state: BoardState): boolean {
-    const legalMoves = state.squares
+    const moves = state.squares
       .flat()
       .filter((square) => square.occupant?.color === color)
       .flatMap((square) =>
-        this.legalMovesFrom(state, square.row, square.col, true)
-      )
-      .filter((move) => move && !this.knowsInCheck(color, move.after));
+        this.legalMovesFrom(state, square.row, square.col)
+      );
+    for (const move of moves) {
+      if (move && !this.knowsInCheck(color, move.after)) {
+        return false;
+      }
+    }
 
     if (this.canDrop && state.banks[color]) {
       const bank = state.banks[color];
@@ -240,7 +248,7 @@ export class Game {
         }
       }
     }
-    return legalMoves.length === 0;
+    return true;
   }
 
   /***********************
