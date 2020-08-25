@@ -258,7 +258,6 @@ export class Room {
 
     // BUG: Don't let people move before cpuTurn
     this.modifyCpuTurn(game.cpuTurn());
-    this.checkIfOver();
     this.timerPaused = false;
   }
 
@@ -292,6 +291,7 @@ export class Room {
 
     sendMessage(p1.player.socket, am1);
     sendMessage(p2.player.socket, am2);
+    this.checkIfOver();
   }
 
   reconnect(uuid: string, socket: WebSocket) {

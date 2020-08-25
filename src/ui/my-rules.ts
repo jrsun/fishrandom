@@ -89,7 +89,8 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <ul>
       <li>Orthodox rules.</li>
       <li>Checkmate to win.</li>
-    </ul>`,
+    </ul>
+    Bobby Fischer (1993)`,
   Classic: html`The classic game.`,
   Knightmate: html`The role of the King and Knight are switched. The King is
     replaced by a <b>Royal Knight</b>, and the Knights are replaced by
@@ -98,13 +99,14 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Castling allowed.</li>
       <li>Pawn can promote to <b>Mann</b> instead of Knight.</li>
       <li>Checkmate the <b>Royal Knight</b> to win.</li>
-    </ul>`,
+    </ul>
+    Bruce Zimov (1972)`,
   Horde: html`White has 36 pawns. Black has a regular chess setup.
     <ul>
       <li>White wins by checkmating the black king.</li>
       <li>Black wins by capturing every pawn.</li>
       <li>White pawns can promote.</li>
-    </ul> `,
+    </ul>`,
   Hiddenqueen: html`One of your pawns is secretly a queen. Choose the moment to reveal wisely.
     <ul>
       <li>As your <b>first move</b>, you <b>must</b> double click a pawn to be a secret queen.</li>
@@ -116,7 +118,8 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
         an otherwise eligible pawn en passant, it <b>must</b> be the opponent's
         hidden queen.
       </li>
-    </ul> `,
+    </ul>
+    Etienne Orieux (2019)`,
   Grasshopper: html`Both sides have a full rank of <b>Grasshoppers</b>. A
     grasshopper moves like a queen, but it MUST hop over another piece to move.
     To be specific, it can only land immediately on the far side of the closest
@@ -127,11 +130,14 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Orthodox rules.</li>
       <li>Checkmate to win.</li>
       <li>No pawn double move from start.</li>
-    </ul> `,
+    </ul>
+    Joseph Boyer (1950s)`,
   Dark: html`Each player can only see the squares they can move to.
     <ul>
       <li>Checkmate or <b>capture</b> the king to win.</li>
-    </ul> `,
+    </ul>
+  Jens Baek Nielsen (1997)
+  `,
   Pocketknight: html`Each player has a knight in pocket. It can be dropped on an
   empty square anywhere on the board instead of moving a piece.`,
   Stealthbomber: html`<ul>
@@ -140,7 +146,8 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     squares.</li>
       <li>Checkmate or <b>explode</b> the king to win.</li>
       <li>Bomb promotes as a normal pawn.</li>
-    </ul>`,
+    </ul>
+    Jim Winslow (1991)`,
   Maharaja: html`White's sole piece is the powerful <b>Amazon</b>, which moves
     like a Knight + Queen.
     <ul>
@@ -153,13 +160,17 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <ul>
       <li>Orthodox rules.</li>
       <li>Checkmate to win.</li>
-    </ul>`,
+    </ul>
+  Bobby Fischer (1993)
+  `,
   Dark2r: html`Each player can only see the squares they can move to. In
     addition, each player's piece starting positions are independently
     randomized.
     <ul>
       <li>Checkmate or <b>capture</b> the king to win.</li>
-    </ul> `,
+    </ul>
+  Jens Baek Nielsen (1997)
+  `,
   Bario: html`<b>Crescents</b> can be moved
     as any standard piece, and then become that piece. For instance, if you move a Crescent
     as a Knight, it will become a Knight. <b>However</b>, you are limited
@@ -171,7 +182,9 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Checkmate or <b>capture</b> the king to win.</li>
       <li>No castling.</li>
       <li>When possible, a Bishop or Rook will be made before a Queen.</li>
-    </ul> `,
+    </ul>
+  Panos Louridas (1998)
+  `,
   Atomic: html`Captures explode the captured piece and all neighboring pieces except pawns.
   <ul>
     <li>Checkmate or <b>explode</b> the king to win.</li>
@@ -184,7 +197,9 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <li>Or promote your royal pawn to win.</li>
     <li>There is no check or checkmate.</li>
     <li>King is replaced by a Mann which is a regular piece that moves like a King.</li>
-  </ul>`,
+  </ul>
+  Chessclub Promotie (1997?)
+  `,
   Pieceeater: html`An uncapturable <b>Elephant</b> wanders the board gobbling pieces.
   <ul>
     <li>Elephant moves after every turn.</li>
@@ -192,23 +207,30 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <li>Elephant will not capture or move adjacent to a <b>King</b>.</li>
     <li>Each player has an extra <b>pawn</b> drop, anywhere except the first or last rank.</li>
     <li>Checkmate or capture the opponent's king to win.</li>
-  </ul>`,
+  </ul>
+  Peter Aronson (2001)
+  `,
   Football: html`Get a piece on your opponent's King or Queen starting squares to win.
   <ul>
     <li>Get to d8 or e8 to win as white, d1 or e1 as black.</li>
     <li>King can be captured without ending game.</li>
-  </ul>`,
+  </ul>
+  <a href="http://abrobecker.free.fr/chess/fairyblitz.htm#football" target="_blank">Source</a>
+  `,
   Chigorin: html`The knight army vs the bishop army.
   <ul>
     <li>Pawns only promote to pieces in same color's starting army.</li>
     <li><b>Chancellor</b> moves as Rook + Knight.</li>
     <li>Orthodox rules, checkmate to win.</li>
-  </ul>`,
+  </ul>
+  Ralph Betza (2002)
+  `,
   Prechess: html`Set up your own starting position.
   <ul>
     <li>White and black alternate placing pieces until all pieces are placed.</li>
     <li>Then, play continues as a normal chess game.</li>
   </ul>
+  Pal Benko (1978)
   `
 };
 
