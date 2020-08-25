@@ -8,8 +8,8 @@ import {Move, Turn, Activate, TurnType, Castle, Unknown} from '../turn';
 
 export class SecretPawnGame extends Game {
   secret: typeof Piece
-  constructor(isServer: boolean, piece: typeof Piece) {
-    super(isServer, generateStartState().setPhase(Phase.PRE));
+  constructor(isServer: boolean, state: BoardState, piece: typeof Piece) {
+    super(isServer, state.setPhase(Phase.PRE));
     this.secret = piece;
   }
   onConnect() {

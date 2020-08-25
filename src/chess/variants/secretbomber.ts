@@ -10,7 +10,7 @@ import { SecretPawnGame } from './pawngame';
 export class Secretbomber extends SecretPawnGame {
   name = 'Secretbomber';
   constructor(isServer: boolean) {
-    super(isServer, BomberPawn);
+    super(isServer, generateStartState(), BomberPawn);
   }
 
   activate(
