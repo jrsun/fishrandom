@@ -11,7 +11,8 @@ import {Chigorin} from './chigorin';
 import {Bario} from './bario';
 import {Grasshopper} from './grasshopper';
 import {Pocketknight} from './pocketknight';
-import {Secretbomber} from './secretbomber';
+import {Prechess} from './prechess';
+import {Stealthbomber} from './stealthbomber';
 import {Maharaja} from './maharaja';
 import {Football} from './football';
 import {Test} from './test';
@@ -35,9 +36,10 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Dark2r,
   Pocketknight,
   Test,
-  Secretbomber,
+  Stealthbomber,
   Maharaja,
   Chess921600,
+  Prechess,
 };
 
 export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
@@ -52,14 +54,14 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Dark,
   Dark2r,
   Pocketknight,
-  Secretbomber,
+  Stealthbomber,
   Maharaja,
   Chess921600,
   Chess960,
   Pieceeater,
   Football,
   // Dice Chess,
-  // Prechess
+  Prechess,
   // Loser's Chess
   // Intrigue
   // Synchrone
@@ -87,11 +89,12 @@ export {
   Grasshopper,
   Dark,
   Dark2r,
-  Secretbomber,
+  Stealthbomber,
   Test,
   Maharaja,
   Chess921600,
   Atomic,
   Football,
   Chigorin,
+  Prechess,
 };

@@ -7,8 +7,8 @@ import {randomChoice} from '../../utils';
 import {Move, Turn, Activate, TurnType, Castle, Unknown} from '../turn';
 import { SecretPawnGame } from './pawngame';
 
-export class Secretbomber extends SecretPawnGame {
-  name = 'Secretbomber';
+export class Stealthbomber extends SecretPawnGame {
+  name = 'Stealthbomber';
   constructor(isServer: boolean) {
     super(isServer, generateStartState(), BomberPawn);
   }

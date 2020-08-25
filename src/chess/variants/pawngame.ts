@@ -6,6 +6,10 @@ import Square from '../square';
 import {randomChoice} from '../../utils';
 import {Move, Turn, Activate, TurnType, Castle, Unknown} from '../turn';
 
+const secondRank: Pair[] = [0,1,2,3,4,5,6,7].map(col => ([
+  {row: 1, col}, {row: 6, col}
+])).flat();
+
 export class SecretPawnGame extends Game {
   secret: typeof Piece
   constructor(isServer: boolean, state: BoardState, piece: typeof Piece) {
@@ -18,9 +22,7 @@ export class SecretPawnGame extends Game {
         this.eventHandler({
           type: GameEventType.On,
           name: GameEventName.Highlight,
-          pairs: [0,1,2,3,4,5,6,7].map(col => ([
-            {row: 1, col}, {row: 6, col}
-          ])).flat(),
+          pairs: secondRank,
         });
       }
     }
@@ -52,9 +54,7 @@ export class SecretPawnGame extends Game {
         this.eventHandler({
           type: GameEventType.Off,
           name: GameEventName.Highlight,
-          pairs: [0,1,2,3,4,5,6,7].map(col => ([
-            {row: 1, col}, {row: 6, col}
-          ])).flat(),
+          pairs: secondRank,
         });
       } 
       return {

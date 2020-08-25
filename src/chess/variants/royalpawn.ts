@@ -17,11 +17,11 @@ export class Royalpawn extends SecretPawnGame {
     if (turn.piece instanceof KingPawn) return;
     return super.promotions(turn);
   }
-  winCondition(color: Color): boolean {
-    if (this.state.extra.phase === Phase.PRE) return false;
+  winCondition(color: Color, state: BoardState): boolean {
+    if (state.extra.phase === Phase.PRE) return false;
     // Win by capturing the king pawn
     if (
-      !this.state.pieces
+      !state.pieces
         .filter((piece) => piece.color === getOpponent(color))
         .some((piece) => piece.isRoyal)
     ) {

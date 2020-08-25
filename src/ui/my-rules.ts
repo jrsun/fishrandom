@@ -134,7 +134,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     </ul> `,
   Pocketknight: html`Each player has a knight in pocket. It can be dropped on an
   empty square anywhere on the board instead of moving a piece.`,
-  Secretbomber: html`<ul>
+  Stealthbomber: html`<ul>
       <li>As your <b>first move</b>, you <b>must</b> double click a pawn to be a secret bomber.</li>
       <li><b>Double click a bomb</b> to destroy it and the pieces on the neighboring eight
     squares.</li>

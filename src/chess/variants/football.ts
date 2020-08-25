@@ -24,8 +24,7 @@ export class Football extends Game {
     }
   }
 
-  winCondition(color: Color): boolean {
-    const {state} = this;
+  winCondition(color: Color, state: BoardState): boolean {
     const goals: Square[] = (
       color === Color.WHITE ?
       [state.getSquare(0, 3), state.getSquare(0, 4)] :
