@@ -105,12 +105,11 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Black wins by capturing every pawn.</li>
       <li>White pawns can promote.</li>
     </ul> `,
-  Hiddenqueen: html`As their <b>first move</b>, both sides select a pawn as a hidden queen. This
-    queen will remain hidden to the opponent unless it makes a move that would
-    be impossible as a pawn. While hidden, the queen does not explicitly give
-    check.
+  Hiddenqueen: html`One of your pawns is secretly a queen. Choose the moment to reveal wisely.
     <ul>
+      <li>As your <b>first move</b>, you <b>must</b> double click a pawn to be a secret queen.</li>
       <li>Checkmate or <b>capture</b> the king to win.</li>
+      <li>Hidden Queen is <b>revealed</b> when it makes a non-pawn move.</li>
       <li>Hidden Queen cannot capture en passant.</li>
       <li>
         Hidden Queen cannot be captured en passant. If you are unable to capture
@@ -177,12 +176,14 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   <ul>
     <li>Checkmate or <b>explode</b> the king to win.</li>
   </ul>`,
-  Royalpawn: html`As their first move, both sides select a <b>secret</b> pawn which they must protect.
+  Royalpawn: html`Protect the royal pawn.
   <ul>
-    <li>King is replaced by a Mann which is a regular piece that moves like a King.</li>
+    <li>As your <b>first move</b>, you <b>must</b> double click a pawn to be secretly royal.</li>
+    <li>Your opponent does not know which pawn is royal.</li>
     <li>Capture the opponent's royal pawn to win.</li>
     <li>Or promote your royal pawn to win.</li>
     <li>There is no check or checkmate.</li>
+    <li>King is replaced by a Mann which is a regular piece that moves like a King.</li>
   </ul>`,
   Pieceeater: html`An uncapturable <b>Elephant</b> wanders the board gobbling pieces.
   <ul>
