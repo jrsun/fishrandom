@@ -189,22 +189,17 @@ export function addMessageHandler(
 ) {
   ws.addEventListener('message', (e: MessageEvent) => {
     let msg: Message;
-    zlib.gunzip(Buffer.from(e.data, 'base64'), (err, buffer) => {
-      if (err) {
-        console.error('Failed to unzip message %s', e.data);
-        return;
-      }
-      const s = buffer.toString();
-
-      msg = JSON.parse(s, reviver) as Message;
-      if (typeof window === 'undefined') {
-        console.error(
-          '%s: Received message of type %s',
-          new Date().toUTCString(),
-          msg.type
-        );
-      }
-      handler(msg as Message);
-    });
+    const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
+ 
+    msg = JSON.parse(s, reviver) as Message;
+    console.log(msg);
+    if (typeof window === 'undefined') {
+      console.error(
+        '%s: Received message of type %s',
+        new Date().toUTCString(),
+        msg.type
+      );
+    }
+    handler(msg as Message);
   });
 }
