@@ -29,7 +29,7 @@ export interface Player {
   uuid: string;
   room?: Room;
   socket: WS.Websocket;
-  lastVariant?: string;
+  lastVariants: string[];
   streak: number;
 }
 
@@ -129,6 +129,8 @@ export class Room {
       this.timerPaused = false;
       this.sendTimers();
     });
+    log.get(this.p1.name).notice('playing variant', this.game.name);
+    log.get(this.p2.name).notice('playing variant', this.game.name);
   }
 
   setState(state: RoomState) {

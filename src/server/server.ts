@@ -116,7 +116,7 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
     // Close existing websocket, if exists
     players[uuid].socket = ws;
   } else {
-    players[uuid] = {uuid, socket: ws, streak: 0};
+    players[uuid] = {uuid, socket: ws, streak: 0, lastVariants: []};
   }
 
   addMessageHandler(ws, (message) => {
@@ -203,8 +203,8 @@ const newGame = (uuid: string, ws: WebSocket) => {
     } else {
       newGame = Variants.Random(
         /**except*/
-        p1info.lastVariant ?? '',
-        players[uuid].lastVariant ?? ''
+        ...p1info.lastVariants,
+        ...players[uuid].lastVariants
       );
     }
     const room = new Room(p1info, players[uuid], newGame);
@@ -212,10 +212,17 @@ const newGame = (uuid: string, ws: WebSocket) => {
     players[uuid].room = room;
 
     // Set the last variant
-    p1info.lastVariant = room.game.name;
-    players[uuid].lastVariant = room.game.name;
+    addLastVariant(p1info, room.game.name);
+    addLastVariant(players[uuid], room.game.name);
 
     playerLog.notice('found a game');
     log.get(uuidToName(p1info.uuid)).notice('after waiting, found a game');
   }
 };
+
+const EXCLUDE_LAST_N_VARIANTS = 5;
+
+const addLastVariant = (player: Player, variant: string) => {
+  player.lastVariants.unshift(variant);
+  player.lastVariants = player.lastVariants.slice(0, EXCLUDE_LAST_N_VARIANTS);
+}
