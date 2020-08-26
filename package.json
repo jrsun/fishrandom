@@ -34,7 +34,6 @@
   "author": "Jeffrey Sun",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@pm2/io": "^4.3.5",
     "@polymer/paper-button": "^3.0.1",
     "@polymer/paper-dialog": "^3.0.1",
     "body-parser": "^1.19.0",
