@@ -27,7 +27,8 @@ var app = express();
 var wsCounter = 0;
 
 setInterval(() => {
-  log.info('Active websockets:', wsCounter);
+  log.notice('Active websockets:', wsCounter);
+  log.notice('Players:', Object.keys(players));
 }, 60 * 1000);
 
 const argv = yargs
@@ -117,11 +118,9 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
   addMessageHandler(ws, (message) => {
     handleMessage(uuid, message);
   });
-});
-
-wss.on('close', (ws, request) => {
-  wsCounter--;
-  log.notice('Client disconnected:', request.headers['user-agent']);
+  ws.addEventListener('close', () => {
+    wsCounter--;
+  });
 });
 
 /** Handle websocket messages and delegate to room */
