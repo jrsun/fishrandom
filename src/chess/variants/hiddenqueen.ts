@@ -21,9 +21,12 @@ export class Hiddenqueen extends Game {
         this.eventHandler({
           type: GameEventType.On,
           name: GameEventName.Highlight,
-          pairs: [0,1,2,3,4,5,6,7].map(col => ([
-            {row: 1, col}, {row: 6, col}
-          ])).flat(),
+          pairs: [0, 1, 2, 3, 4, 5, 6, 7]
+            .map((col) => [
+              {row: 1, col},
+              {row: 6, col},
+            ])
+            .flat(),
         });
       }
     }
@@ -31,37 +34,37 @@ export class Hiddenqueen extends Game {
   visibleState(state: BoardState, color: Color): BoardState {
     const vis = BoardState.copy(state);
     vis.squares = state.squares.map((row) =>
-    row.map((square) => {
-      const occupant = square.occupant;
-      if (
-        occupant &&
-        occupant instanceof QueenPawn &&
-        occupant.color !== color
-      ) {
-        if (this.revealed[occupant.color]) {
+      row.map((square) => {
+        const occupant = square.occupant;
+        if (
+          occupant &&
+          occupant instanceof QueenPawn &&
+          occupant.color !== color
+        ) {
+          if (this.revealed[occupant.color]) {
+            return new Square(square.row, square.col).place(
+              new Queen(occupant.color)
+            );
+          } else {
+            return new Square(square.row, square.col).place(
+              new Pawn(occupant.color)
+            );
+          }
+        }
+        if (
+          occupant &&
+          occupant instanceof QueenPawn &&
+          occupant.color === color &&
+          this.revealed[color]
+        ) {
           return new Square(square.row, square.col).place(
             new Queen(occupant.color)
           );
-        } else {
-          return new Square(square.row, square.col).place(
-            new Pawn(occupant.color)
-          );
         }
-      }
-      if (
-        occupant &&
-        occupant instanceof QueenPawn &&
-        occupant.color === color &&
-        this.revealed[color]
-      ) {
-        return new Square(square.row, square.col).place(
-          new Queen(occupant.color)
-        );
-      }
-      return square;
-    })
-  );
-  return vis;
+        return square;
+      })
+    );
+    return vis;
   }
   modifyTurn(turn: Turn): Turn {
     if (!this.isServer) return turn;
@@ -71,15 +74,18 @@ export class Hiddenqueen extends Game {
         this.eventHandler({
           type: GameEventType.Off,
           name: GameEventName.Highlight,
-          pairs: [0,1,2,3,4,5,6,7].map(col => ([
-            {row: 1, col}, {row: 6, col}
-          ])).flat(),
+          pairs: [0, 1, 2, 3, 4, 5, 6, 7]
+            .map((col) => [
+              {row: 1, col},
+              {row: 6, col},
+            ])
+            .flat(),
         });
-      } 
+      }
       return {
         ...turn,
         after: BoardState.copy(turn.after).setPhase(Phase.NORMAL),
-      }
+      };
     }
     return turn;
   }
@@ -106,11 +112,11 @@ export class Hiddenqueen extends Game {
   ): Turn | undefined {
     if (!this.isWhoseTurn(color, piece)) return;
 
-    let after: BoardState|undefined;
+    let after: BoardState | undefined;
     if (piece.name === 'Pawn') {
       after = BoardState.copy(this.state)
-      .setTurn(getOpponent(color))
-      .place(new QueenPawn(piece.color), row, col);
+        .setTurn(getOpponent(color))
+        .place(new QueenPawn(piece.color), row, col);
     } else {
       return;
     }

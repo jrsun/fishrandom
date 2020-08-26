@@ -58,11 +58,7 @@ export class Room {
   timerInterval: any; // timer
   timerPaused: boolean;
 
-  constructor(
-    p1: Player,
-    p2: Player,
-    gc: typeof Game
-  ) {
+  constructor(p1: Player, p2: Player, gc: typeof Game) {
     this.p1 = {
       player: p1,
       color: randomChoice([Color.WHITE, Color.BLACK]),
@@ -142,7 +138,9 @@ export class Room {
   handleResign(uuid: string) {
     if (this.state !== RoomState.PLAYING) return;
 
-    return this.wins(uuid === this.p1.player.uuid ? this.p2.player.uuid : this.p1.player.uuid);
+    return this.wins(
+      uuid === this.p1.player.uuid ? this.p2.player.uuid : this.p1.player.uuid
+    );
   }
 
   handleTurn(uuid: string, turnAttempt: Turn) {
@@ -167,14 +165,16 @@ export class Room {
           log.get(me.name).warn('no piece at ', srow, scol);
           return;
         }
-        log.get(me.name).notice(
-          '%s: (%s, %s) -> (%s, %s)',
-          piece.name,
-          srow,
-          scol,
-          drow,
-          dcol
-        );
+        log
+          .get(me.name)
+          .notice(
+            '%s: (%s, %s) -> (%s, %s)',
+            piece.name,
+            srow,
+            scol,
+            drow,
+            dcol
+          );
 
         turn = game.move(me.color, piece, srow, scol, drow, dcol);
         break;
@@ -182,9 +182,7 @@ export class Room {
         turn = game.castle(me.color, turnAttempt.kingside);
         break;
       case TurnType.DROP:
-        const {
-          piece: droppedPiece,
-        } = turnAttempt;
+        const {piece: droppedPiece} = turnAttempt;
         turn = game.drop(me.color, droppedPiece, drow, dcol);
         break;
       case TurnType.PROMOTE:
@@ -264,7 +262,7 @@ export class Room {
   takeCpuTurn() {
     const {game, p1, p2} = this;
 
-    let turn = game.cpuTurn()
+    let turn = game.cpuTurn();
     if (!turn) return;
     turn = game.modifyTurn(turn);
     if (!turn) return;
@@ -312,7 +310,7 @@ export class Room {
       opponent: {
         name: getName(opponent.player.uuid),
         streak: opponent.player.streak,
-      },  
+      },
       turnHistory: this.game.turnHistory.map((turn) => ({
         ...this.game.visibleTurn(turn, me.color),
         before: this.game.visibleState(turn.before, me.color),
@@ -379,7 +377,7 @@ export class Room {
       opponent: {
         name: getName(opponent.player.uuid),
         streak: opponent.player.streak,
-      },  
+      },
     });
     sendMessage(opponent.player.socket, {
       ...gom,
@@ -416,7 +414,7 @@ export class Room {
       opponent: {
         name: getName(this.p2.player.uuid),
         streak: this.p2.player.streak,
-      },  
+      },
     });
     sendMessage(this.p2.player.socket, {
       ...gom,
@@ -428,7 +426,7 @@ export class Room {
       opponent: {
         name: getName(this.p1.player.uuid),
         streak: this.p1.player.streak,
-      },  
+      },
     });
     this.end();
 
@@ -468,7 +466,7 @@ export class Room {
     };
     sendMessage(this.p1.player.socket, gem);
     sendMessage(this.p2.player.socket, gem);
-  }
+  };
 }
 
 function getName(uuid?: string): string {

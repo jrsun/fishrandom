@@ -8,9 +8,14 @@ import {
 } from 'lit-element';
 import {Game} from '../chess/game';
 import {ROULETTE_SECONDS, Color, getOpponent} from '../chess/const';
-import { addMessageHandler, Message, AppendMessage, ReplaceMessage } from '../common/message';
-import { Piece } from '../chess/piece';
-import { Turn } from '../chess/turn';
+import {
+  addMessageHandler,
+  Message,
+  AppendMessage,
+  ReplaceMessage,
+} from '../common/message';
+import {Piece} from '../chess/piece';
+import {Turn} from '../chess/turn';
 
 type PieceImg = string;
 
@@ -24,13 +29,13 @@ export class MyCaptures extends LitElement {
       width: 300px; */
       display: flex;
       height: ${IMG_WIDTH}px;
-      margin-left: -${IMG_WIDTH/4}px;
+      margin-left: -${IMG_WIDTH / 4}px;
     }
     .captured-group {
       display: flex;
       position: relative;
       height: ${IMG_WIDTH}px;
-      margin-right: -${IMG_WIDTH/4}px;
+      margin-right: -${IMG_WIDTH / 4}px;
     }
     .captured-piece {
       height: ${IMG_WIDTH}px;
@@ -38,7 +43,7 @@ export class MyCaptures extends LitElement {
       background-size: cover;
     }
   `;
-  
+
   // Protected
   @property({type: String}) color: Color;
   @property({type: Array}) turnHistory: Turn[];
@@ -63,20 +68,22 @@ export class MyCaptures extends LitElement {
   }
 
   render() {
-    return html`${
-      Array.from(
-        this.capturedFromHistory(this.turnHistory)
-      ).map(([img, count]) => html`
-      <div class="captured-group" style="width: ${IMG_WIDTH + (count-1) * IMG_WIDTH/4}px;">
-        ${new Array(count).fill(0).map((_, i) => html`<div
-          class="captured-piece"
-          style="
+    return html`${Array.from(this.capturedFromHistory(this.turnHistory)).map(
+      ([img, count]) => html` <div
+        class="captured-group"
+        style="width: ${IMG_WIDTH + ((count - 1) * IMG_WIDTH) / 4}px;"
+      >
+        ${new Array(count).fill(0).map(
+          (_, i) => html`<div
+            class="captured-piece"
+            style="
             background-image:url(../img/${img});
-            z-index:${i+1};
+            z-index:${i + 1};
             position: absolute;
-            left: ${i * IMG_WIDTH/4}px;
+            left: ${(i * IMG_WIDTH) / 4}px;
           "
-        ></div>`)}
+          ></div>`
+        )}
       </div>`
     )}`;
   }

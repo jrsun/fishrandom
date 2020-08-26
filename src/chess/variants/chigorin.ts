@@ -1,5 +1,15 @@
 import {Game} from '../game';
-import {RoyalKnight, Mann, Rook, Bishop, Queen, Pawn, Piece, Knight, Chancellor} from '../piece';
+import {
+  RoyalKnight,
+  Mann,
+  Rook,
+  Bishop,
+  Queen,
+  Pawn,
+  Piece,
+  Knight,
+  Chancellor,
+} from '../piece';
 import {Color} from '../const';
 import {BoardState, squaresFromPos, generateStartState} from '../state';
 import Square from '../square';

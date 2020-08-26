@@ -15,28 +15,40 @@ export class Bario extends Game {
     super(isServer, generateInitial());
   }
 
-  legalMovesFrom(state: BoardState, row, col, allowCastles = false): (Castle|Move)[] {
+  legalMovesFrom(
+    state: BoardState,
+    row,
+    col,
+    allowCastles = false
+  ): (Castle | Move)[] {
     const square = state.getSquare(row, col);
     const piece = square?.occupant;
     if (!piece) return [];
-    if (!(piece instanceof Zero)) return super.legalMovesFrom(state, row, col, allowCastles);
-    
+    if (!(piece instanceof Zero))
+      return super.legalMovesFrom(state, row, col, allowCastles);
+
     const moves: Move[] = [];
     const extra = state.extra.bario;
     if (!extra) return [];
-    const options = piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
-    
-    const dedupOptions = options.reduce((acc: {[name: string]: Piece}, p: Piece) => {
-      if (!acc[p.name]) {
-        acc[p.name] = p;
-      }
-      return acc;
-    }, {});
+    const options =
+      piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
+
+    const dedupOptions = options.reduce(
+      (acc: {[name: string]: Piece}, p: Piece) => {
+        if (!acc[p.name]) {
+          acc[p.name] = p;
+        }
+        return acc;
+      },
+      {}
+    );
     for (const opt of Object.values(dedupOptions)) {
-      moves.push(...opt.legalMoves(row, col, state, this.turnHistory).map(move => ({
-        ...move,
-        piece,
-      })));
+      moves.push(
+        ...opt.legalMoves(row, col, state, this.turnHistory).map((move) => ({
+          ...move,
+          piece,
+        }))
+      );
     }
     return moves;
   }
@@ -53,24 +65,33 @@ export class Bario extends Game {
       const extra = after.extra.bario;
       if (!extra) return turn;
 
-      const options = piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
-      const index = options.findIndex(opt => opt.name === afterPiece.name);
+      const options =
+        piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
+      const index = options.findIndex((opt) => opt.name === afterPiece.name);
       if (index !== -1) {
         options.splice(index, 1);
       }
     }
 
     // If no zeroes of the player's color are left, replace all their pieces with zeroes.
-    if (after.squares.flat().filter(square =>
-      square?.occupant instanceof Zero &&
-      square.occupant.color === piece.color
-    ).length === 0) {
+    if (
+      after.squares
+        .flat()
+        .filter(
+          (square) =>
+            square?.occupant instanceof Zero &&
+            square.occupant.color === piece.color
+        ).length === 0
+    ) {
       const newState = BoardState.copy(after);
-      for (let i=0; i < after.squares.length; i++) {
-        for (let j=0; j < after.squares[i].length; j++) {
+      for (let i = 0; i < after.squares.length; i++) {
+        for (let j = 0; j < after.squares[i].length; j++) {
           const occupant = after.getSquare(i, j)?.occupant;
           if (!occupant) continue;
-          if (occupant.color === piece.color && [Bishop, Knight, Rook, Queen].some(t => occupant instanceof t)) {
+          if (
+            occupant.color === piece.color &&
+            [Bishop, Knight, Rook, Queen].some((t) => occupant instanceof t)
+          ) {
             newState.place(new Zero(occupant.color), i, j);
           }
         }
@@ -81,17 +102,16 @@ export class Bario extends Game {
         after: newState,
       };
     }
-    return turn;   
+    return turn;
   }
 
   private resetOptions() {
     const extra = this.state.extra.bario;
     if (!extra) return;
-    extra.whiteOptions = OPTIONS.map(c => new c(Color.WHITE));
-    extra.blackOptions = OPTIONS.map(c => new c(Color.BLACK));
+    extra.whiteOptions = OPTIONS.map((c) => new c(Color.WHITE));
+    extra.blackOptions = OPTIONS.map((c) => new c(Color.BLACK));
   }
 }
-
 
 export function generateInitial(): BoardState {
   const piecePositions = {
@@ -116,8 +136,8 @@ export function generateInitial(): BoardState {
     {},
     {
       bario: {
-        whiteOptions: OPTIONS.map(c => new c(Color.WHITE)),
-        blackOptions: OPTIONS.map(c => new c(Color.BLACK)),
+        whiteOptions: OPTIONS.map((c) => new c(Color.WHITE)),
+        blackOptions: OPTIONS.map((c) => new c(Color.BLACK)),
       },
     }
   );

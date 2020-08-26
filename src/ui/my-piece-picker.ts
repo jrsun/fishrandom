@@ -1,6 +1,6 @@
 import {LitElement, html, customElement, property, css} from 'lit-element';
 import {Piece} from '../chess/piece';
-import { replacer } from '../common/message';
+import {replacer} from '../common/message';
 
 const SQUARE_SIZE = Math.min(window.innerWidth / 8, 50); // 50
 
@@ -54,10 +54,10 @@ export class MyPiecePicker extends LitElement {
           @dragstart=${(e: DragEvent) => {
             if (this.needsTarget) this.pickedPiece(piece);
             if (e.dataTransfer) {
-              e.dataTransfer.setData('text/plain', JSON.stringify(
-                {piece, type: 'drop'},
-                replacer,
-              ))
+              e.dataTransfer.setData(
+                'text/plain',
+                JSON.stringify({piece, type: 'drop'}, replacer)
+              );
             }
           }}
         ></div>`

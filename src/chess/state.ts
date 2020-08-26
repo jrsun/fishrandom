@@ -21,10 +21,10 @@ export enum Phase {
 
 interface Extra {
   bario?: {
-    whiteOptions: Piece[],
-    blackOptions: Piece[],
-  }
-  phase?: Phase,
+    whiteOptions: Piece[];
+    blackOptions: Piece[];
+  };
+  phase?: Phase;
 }
 
 export class BoardState {
@@ -39,7 +39,7 @@ export class BoardState {
     squares: Square[][],
     whoseTurn: Color,
     banks: {[color: string]: Piece[]},
-    extra?: {[variant: string]: any},
+    extra?: {[variant: string]: any}
   ) {
     this.ranks = squares.length;
     this.files = squares[0].length;
@@ -68,7 +68,12 @@ export class BoardState {
   }
 
   static copy(other: BoardState): BoardState {
-    return new BoardState(other.squares, other.whoseTurn, other.banks, other.extra);
+    return new BoardState(
+      other.squares,
+      other.whoseTurn,
+      other.banks,
+      other.extra
+    );
   }
 
   setTurn(color: Color): BoardState {

@@ -10,9 +10,9 @@ import {Hopper} from '../chess/variants/grasshopper';
 import {Obscurant} from '../chess/variants/dark';
 import {Stealthbomber} from '../chess/variants';
 import {BomberPawn} from '../chess/variants/stealthbomber';
-import { KingPawn } from '../chess/variants/royalpawn';
-import { Elephant } from '../chess/variants/pieceeater';
-import { GameEvent } from '../chess/game';
+import {KingPawn} from '../chess/variants/royalpawn';
+import {Elephant} from '../chess/variants/pieceeater';
+import {GameEvent} from '../chess/game';
 
 export type Message =
   | TurnMessage
@@ -162,8 +162,8 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
 
 export function sendMessage(ws: WS.WebSocket, m: Message): Promise<void> {
   const input = JSON.stringify(m, replacer);
-  return new Promise(resolve => {
-      zlib.gzip(input, (err, buffer) => {
+  return new Promise((resolve) => {
+    zlib.gzip(input, (err, buffer) => {
       if (err) {
         console.error('Failed to compress and send message %s', input);
         return;
@@ -198,9 +198,10 @@ export function addMessageHandler(
 
       msg = JSON.parse(s, reviver) as Message;
       if (typeof window === 'undefined') {
-        console.error('%s: Received message of type %s',
+        console.error(
+          '%s: Received message of type %s',
           new Date().toUTCString(),
-          msg.type,
+          msg.type
         );
       }
       handler(msg as Message);

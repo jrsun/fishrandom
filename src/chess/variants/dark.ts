@@ -18,36 +18,35 @@ export class Dark extends Game {
         continue;
       }
       legalTargets.add(square);
-      const moves = this.legalMovesFrom(
-        state, square.row, square.col, false,
-      );
+      const moves = this.legalMovesFrom(state, square.row, square.col, false);
       for (const move of moves) {
         legalTargets.add(move.end);
       }
       // En passant
-      const ep = moves.find(move => move.type === TurnType.MOVE && move.enpassant);
+      const ep = moves.find(
+        (move) => move.type === TurnType.MOVE && move.enpassant
+      );
       if (ep) {
         const yDir = color === Color.WHITE ? -1 : 1;
         legalTargets.add({row: ep.end.row - yDir, col: ep.end.col});
       }
     }
     const vis = BoardState.copy(state);
-    vis.squares = 
-      state.squares.map((row, i) =>
-        row.map((square, j) => {
-          if (
-            Array.from(legalTargets).some((pair) =>
-              equals(pair, {row: i, col: j})
-            )
-          ) {
-            return square;
-          } else {
-            const hidden = new Square(i, j);
-            hidden.place(new Obscurant(Color.OTHER));
-            return hidden;
-          }
-        })
-      );
+    vis.squares = state.squares.map((row, i) =>
+      row.map((square, j) => {
+        if (
+          Array.from(legalTargets).some((pair) =>
+            equals(pair, {row: i, col: j})
+          )
+        ) {
+          return square;
+        } else {
+          const hidden = new Square(i, j);
+          hidden.place(new Obscurant(Color.OTHER));
+          return hidden;
+        }
+      })
+    );
     return vis;
   }
 
@@ -58,9 +57,12 @@ export class Dark extends Game {
       turn.piece instanceof Pawn &&
       turn.type === TurnType.MOVE &&
       Math.abs(turn.end.row - turn.start.row) === 2 &&
-      !(this.visibleState(this.state, color).getSquare(
-        turn.end.row, turn.end.col
-      )?.occupant instanceof Obscurant)
+      !(
+        this.visibleState(this.state, color).getSquare(
+          turn.end.row,
+          turn.end.col
+        )?.occupant instanceof Obscurant
+      )
     ) {
       return turn;
     }

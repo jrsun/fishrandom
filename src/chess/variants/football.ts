@@ -17,20 +17,20 @@ export class Football extends Game {
         name: GameEventName.Finish,
         type: GameEventType.On,
         pairs: [
-          {row: 0, col: 3}, {row: 0, col: 4},
-          {row: 7, col: 3}, {row: 7, col: 4}
+          {row: 0, col: 3},
+          {row: 0, col: 4},
+          {row: 7, col: 3},
+          {row: 7, col: 4},
         ],
       });
     }
   }
 
   winCondition(color: Color, state: BoardState): boolean {
-    const goals: Square[] = (
-      color === Color.WHITE ?
-      [state.getSquare(0, 3), state.getSquare(0, 4)] :
-      [state.getSquare(7, 3), state.getSquare(7, 4)]
-    ) as Square[];
-    return goals.some(goal => goal.occupant?.color === color);
+    const goals: Square[] = (color === Color.WHITE
+      ? [state.getSquare(0, 3), state.getSquare(0, 4)]
+      : [state.getSquare(7, 3), state.getSquare(7, 4)]) as Square[];
+    return goals.some((goal) => goal.occupant?.color === color);
   }
 
   promotesTo(): typeof Piece[] {

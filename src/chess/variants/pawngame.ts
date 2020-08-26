@@ -6,12 +6,15 @@ import Square from '../square';
 import {randomChoice} from '../../utils';
 import {Move, Turn, Activate, TurnType, Castle, Unknown} from '../turn';
 
-const secondRank: Pair[] = [0,1,2,3,4,5,6,7].map(col => ([
-  {row: 1, col}, {row: 6, col}
-])).flat();
+const secondRank: Pair[] = [0, 1, 2, 3, 4, 5, 6, 7]
+  .map((col) => [
+    {row: 1, col},
+    {row: 6, col},
+  ])
+  .flat();
 
 export class SecretPawnGame extends Game {
-  secret: typeof Piece
+  secret: typeof Piece;
   constructor(isServer: boolean, state: BoardState, piece: typeof Piece) {
     super(isServer, state.setPhase(Phase.PRE));
     this.secret = piece;
@@ -56,11 +59,11 @@ export class SecretPawnGame extends Game {
           name: GameEventName.Highlight,
           pairs: secondRank,
         });
-      } 
+      }
       return {
         ...turn,
         after: BoardState.copy(turn.after).setPhase(Phase.NORMAL),
-      }
+      };
     }
     return turn;
   }
@@ -97,7 +100,7 @@ export class SecretPawnGame extends Game {
     const after = BoardState.copy(this.state)
       .setTurn(getOpponent(color))
       .place(new this.secret(piece.color), row, col);
-    
+
     const turn = {
       type: TurnType.ACTIVATE as const,
       before: this.state,
@@ -111,7 +114,8 @@ export class SecretPawnGame extends Game {
 
   validateTurn(color: Color, turn: Turn): boolean {
     if (!super.validateTurn(color, turn)) return false;
-    const isSelect = turn.type === TurnType.ACTIVATE && turn.piece.name === 'Pawn';
+    const isSelect =
+      turn.type === TurnType.ACTIVATE && turn.piece.name === 'Pawn';
     const isPre = this.state.extra.phase === Phase.PRE;
     return (isSelect && isPre) || (!isSelect && !isPre);
   }

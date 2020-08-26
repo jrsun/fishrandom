@@ -35,7 +35,7 @@ import {equals, hash, Pair} from '../chess/pair';
 import './my-piece-picker';
 import '@polymer/paper-dialog/paper-dialog';
 import {PaperDialogElement} from '@polymer/paper-dialog/paper-dialog';
-import { MySquare } from './my-square';
+import {MySquare} from './my-square';
 
 const SQUARE_SIZE = Math.min(window.innerWidth / 8, 50); // 50
 /**
@@ -115,7 +115,7 @@ export class MyElement extends LitElement {
   @property({type: Array}) possibleTargets: Square[] = [];
   @property({type: Array}) promotions: Piece[] | undefined;
 
-  audio: {[name: string]: HTMLAudioElement|null|undefined} = {};
+  audio: {[name: string]: HTMLAudioElement | null | undefined} = {};
   canvas: HTMLCanvasElement;
   pairToClass: {[pair: string]: {[name: string]: boolean}} = {};
 
@@ -142,7 +142,6 @@ export class MyElement extends LitElement {
     this.gameOver =
       this.game.winCondition(Color.BLACK, this.game.state) ||
       this.game.winCondition(Color.WHITE, this.game.state);
-    
   }
 
   firstUpdated() {
@@ -247,7 +246,11 @@ export class MyElement extends LitElement {
 
     // BUG: Promo event keeps firing
     return html`
-      <audio id="move-audio" src="../../snd/move-piece.mp3" preload="auto"></audio>
+      <audio
+        id="move-audio"
+        src="../../snd/move-piece.mp3"
+        preload="auto"
+      ></audio>
       <paper-dialog
         id="promotion-modal"
         horizontal-align="left"
@@ -267,7 +270,7 @@ export class MyElement extends LitElement {
             (row, i) => html`<div class="row">
               ${row.map(
                 (square, j) => html`<my-square
-                  class=${classMap(this.pairToClass[hash({row:i,col:j})])}
+                  class=${classMap(this.pairToClass[hash({row: i, col: j})])}
                   .frozen=${this.viewMoveIndex != null || this.gameOver}
                   .square=${square}
                   .selected=${square === this.selectedSquare}
@@ -278,13 +281,15 @@ export class MyElement extends LitElement {
                     equals(lastTurn.start, square)) ||
                     equals(lastTurn.end, square))}
                   .color=${this.color}
-                  .checked=${!!(square.occupant?.isRoyal &&
-                  this.game.knowsAttackedSquare(
-                    square.occupant?.color,
-                    uiState,
-                    square.row,
-                    square.col
-                  ))}
+                  .checked=${!!(
+                    square.occupant?.isRoyal &&
+                    this.game.knowsAttackedSquare(
+                      square.occupant?.color,
+                      uiState,
+                      square.row,
+                      square.col
+                    )
+                  )}
                 ></my-square>`
               )}
             </div>`
@@ -306,7 +311,7 @@ export class MyElement extends LitElement {
     const square = e.detail.square as Square;
     let turn: Turn | undefined;
     if (this.selectedPiece && this.selectedSquare) {
-     if (
+      if (
         this.selectedPiece instanceof this.game.castler &&
         this.selectedSquare.row === square.row &&
         (Math.abs(this.selectedSquare.col - square.col) === 2 ||
@@ -341,13 +346,15 @@ export class MyElement extends LitElement {
             this.color,
             this.selectedPiece,
             new promotions[0](this.color),
-            turn.start.row, turn.start.col,
-            turn.end.row, turn.end.col,
+            turn.start.row,
+            turn.start.col,
+            turn.end.row,
+            turn.end.col
           );
           turn = pturn ?? turn;
         } else {
           // Else, popup the modal
-          this.promotions = promotions.map(c => new c(this.color));
+          this.promotions = promotions.map((c) => new c(this.color));
           const promotionModal = this.shadowRoot!.querySelector(
             '#promotion-modal'
           ) as PaperDialogElement;
@@ -378,7 +385,7 @@ export class MyElement extends LitElement {
     const square = e.detail as Square;
     this.selectedSquare = square;
     this.selectedPiece = square.occupant;
-  }
+  };
 
   // Drop
   onDrop = (e: CustomEvent) => {
@@ -400,7 +407,7 @@ export class MyElement extends LitElement {
     this.selectedSquare = start;
     this.selectedPiece = piece;
     this.onSquareClicked(e);
-  }
+  };
 
   // Activate
   private onDoubleClick = (e: CustomEvent) => {
@@ -423,7 +430,7 @@ export class MyElement extends LitElement {
       this.audio.move?.play();
       this.performUpdate();
     }
-  }
+  };
 
   // Promotion
   onPiecePicker = (e: CustomEvent) => {
@@ -453,7 +460,7 @@ export class MyElement extends LitElement {
     const promotionModal = this.shadowRoot!.querySelector('#promotion-modal');
     (promotionModal as PaperDialogElement).close();
     this.performUpdate();
-  }
+  };
 
   // Drawing arrows
   private onSquareMousedown(e: CustomEvent) {
@@ -481,9 +488,9 @@ export class MyElement extends LitElement {
     if (game.knowsInCheck(this.color, game.state) || moves.length < 10) {
       // If in check, or few moves, compute immediately
       this.possibleTargets = moves
-      .filter(move => this.game.validateTurn(piece.color, move))
-      .map((move) => toEndSquare(game.state, move))
-      .filter((square) => !!square) as Square[];
+        .filter((move) => this.game.validateTurn(piece.color, move))
+        .map((move) => toEndSquare(game.state, move))
+        .filter((square) => !!square) as Square[];
     } else {
       // Else, do it async
       this.possibleTargets = moves

@@ -3,7 +3,7 @@ import {RoyalKnight, Mann, Rook, Bishop, Queen, Pawn, Piece} from '../piece';
 import {Color} from '../const';
 import {BoardState, squaresFromPos, generateStartState} from '../state';
 import Square from '../square';
-import { Royalpawn } from './royalpawn';
+import {Royalpawn} from './royalpawn';
 
 export class Knightmate extends Game {
   // TODO: Implement castling

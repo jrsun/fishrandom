@@ -163,12 +163,14 @@ export class MyControls extends LitElement {
             .map((fen: string, i: number) => this.renderMove(fen, i))}
         </div>
         <div class="controls">
-          <paper-button raised
+          <paper-button
+            raised
             .onclick=${this.onClickPrev.bind(this)}
             ?disabled=${this.viewMoveIndex === 0}
             ><</paper-button
           >
-          <paper-button raised
+          <paper-button
+            raised
             .onclick=${this.onClickNext.bind(this)}
             ?disabled=${this.viewMoveIndex === undefined}
             >></paper-button

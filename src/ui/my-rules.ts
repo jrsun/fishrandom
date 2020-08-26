@@ -60,7 +60,7 @@ export class MyRules extends LitElement {
     }
     :host([started]) #rules {
       opacity: 1;
-      transition: all ${ROULETTE_SECONDS}s cubic-bezier(1,.01,1,.01);
+      transition: all ${ROULETTE_SECONDS}s cubic-bezier(1, 0.01, 1, 0.01);
     }
   `;
   @property({type: Object}) game: Game;
@@ -107,9 +107,13 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Black wins by capturing every pawn.</li>
       <li>White pawns can promote.</li>
     </ul>`,
-  Hiddenqueen: html`One of your pawns is secretly a queen. Choose the moment to reveal wisely.
+  Hiddenqueen: html`One of your pawns is secretly a queen. Choose the moment to
+    reveal wisely.
     <ul>
-      <li>As your <b>first move</b>, you <b>must</b> double click a pawn to be a secret queen.</li>
+      <li>
+        As your <b>first move</b>, you <b>must</b> double click a pawn to be a
+        secret queen.
+      </li>
       <li>Checkmate or <b>capture</b> the king to win.</li>
       <li>Hidden Queen is <b>revealed</b> when it makes a non-pawn move.</li>
       <li>Hidden Queen cannot capture en passant.</li>
@@ -136,14 +140,18 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <ul>
       <li>Checkmate or <b>capture</b> the king to win.</li>
     </ul>
-  Jens Baek Nielsen (1997)
-  `,
+    Jens Baek Nielsen (1997) `,
   Pocketknight: html`Each player has a knight in pocket. It can be dropped on an
   empty square anywhere on the board instead of moving a piece.`,
   Stealthbomber: html`<ul>
-      <li>As your <b>first move</b>, you <b>must</b> double click a pawn to be a secret bomber.</li>
-      <li><b>Double click a bomb</b> to destroy it and the pieces on the neighboring eight
-    squares.</li>
+      <li>
+        As your <b>first move</b>, you <b>must</b> double click a pawn to be a
+        secret bomber.
+      </li>
+      <li>
+        <b>Double click a bomb</b> to destroy it and the pieces on the
+        neighboring eight squares.
+      </li>
       <li>Checkmate or <b>explode</b> the king to win.</li>
       <li>Bomb promotes as a normal pawn.</li>
     </ul>
@@ -161,77 +169,93 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Orthodox rules.</li>
       <li>Checkmate to win.</li>
     </ul>
-  Bobby Fischer (1993)
-  `,
+    Bobby Fischer (1993) `,
   Dark2r: html`Each player can only see the squares they can move to. In
     addition, each player's piece starting positions are independently
     randomized.
     <ul>
       <li>Checkmate or <b>capture</b> the king to win.</li>
     </ul>
-  Jens Baek Nielsen (1997)
-  `,
-  Bario: html`<b>Crescents</b> can be moved
-    as any standard piece, and then become that piece. For instance, if you move a Crescent
-    as a Knight, it will become a Knight. <b>However</b>, you are limited
-    to the number of pieces of a regular chess set (i.e., 2 Knights, 2 Bishops, 2
-    Rooks, 1 Queen.) So if you have made two Knights, you <b>cannot</b> move
-    any more Crescents as Knights.
+    Jens Baek Nielsen (1997) `,
+  Bario: html`<b>Crescents</b> can be moved as any standard piece, and then
+    become that piece. For instance, if you move a Crescent as a Knight, it will
+    become a Knight. <b>However</b>, you are limited to the number of pieces of
+    a regular chess set (i.e., 2 Knights, 2 Bishops, 2 Rooks, 1 Queen.) So if
+    you have made two Knights, you <b>cannot</b> move any more Crescents as
+    Knights.
     <ul>
-      <li>When no Crescents of a color remain, <b>that color's pieces all revert to Crescents.</b></li>
+      <li>
+        When no Crescents of a color remain,
+        <b>that color's pieces all revert to Crescents.</b>
+      </li>
       <li>Checkmate or <b>capture</b> the king to win.</li>
       <li>No castling.</li>
       <li>When possible, a Bishop or Rook will be made before a Queen.</li>
     </ul>
-  Panos Louridas (1998)
-  `,
-  Atomic: html`Captures explode the captured piece and all neighboring pieces except pawns.
-  <ul>
-    <li>Checkmate or <b>explode</b> the king to win.</li>
-  </ul>`,
+    Panos Louridas (1998) `,
+  Atomic: html`Captures explode the captured piece and all neighboring pieces
+    except pawns.
+    <ul>
+      <li>Checkmate or <b>explode</b> the king to win.</li>
+    </ul>`,
   Royalpawn: html`Protect the royal pawn.
-  <ul>
-    <li>As your <b>first move</b>, you <b>must</b> double click a pawn to be secretly royal.</li>
-    <li>Your opponent does not know which pawn is royal.</li>
-    <li>Capture the opponent's royal pawn to win.</li>
-    <li>Or promote your royal pawn to win.</li>
-    <li>There is no check or checkmate.</li>
-    <li>King is replaced by a Mann which is a regular piece that moves like a King.</li>
-  </ul>
-  Chessclub Promotie (1997?)
-  `,
-  Pieceeater: html`An uncapturable <b>Elephant</b> wanders the board gobbling pieces.
-  <ul>
-    <li>Elephant moves after every turn.</li>
-    <li>If you move/drop a piece next to the Elephant, it will <b>capture</b> it, except...</li>
-    <li>Elephant will not capture or move adjacent to a <b>King</b>.</li>
-    <li>Each player has an extra <b>pawn</b> drop, anywhere except the first or last rank.</li>
-    <li>Checkmate or capture the opponent's king to win.</li>
-  </ul>
-  Peter Aronson (2001)
-  `,
-  Football: html`Get a piece on your opponent's King or Queen starting squares to win.
-  <ul>
-    <li>Get to d8 or e8 to win as white, d1 or e1 as black.</li>
-    <li>King can be captured without ending game.</li>
-  </ul>
-  <a href="http://abrobecker.free.fr/chess/fairyblitz.htm#football" target="_blank">Source</a>
-  `,
+    <ul>
+      <li>
+        As your <b>first move</b>, you <b>must</b> double click a pawn to be
+        secretly royal.
+      </li>
+      <li>Your opponent does not know which pawn is royal.</li>
+      <li>Capture the opponent's royal pawn to win.</li>
+      <li>Or promote your royal pawn to win.</li>
+      <li>There is no check or checkmate.</li>
+      <li>
+        King is replaced by a Mann which is a regular piece that moves like a
+        King.
+      </li>
+    </ul>
+    Chessclub Promotie (1997?) `,
+  Pieceeater: html`An uncapturable <b>Elephant</b> wanders the board gobbling
+    pieces.
+    <ul>
+      <li>Elephant moves after every turn.</li>
+      <li>
+        If you move/drop a piece next to the Elephant, it will
+        <b>capture</b> it, except...
+      </li>
+      <li>Elephant will not capture or move adjacent to a <b>King</b>.</li>
+      <li>
+        Each player has an extra <b>pawn</b> drop, anywhere except the first or
+        last rank.
+      </li>
+      <li>Checkmate or capture the opponent's king to win.</li>
+    </ul>
+    Peter Aronson (2001) `,
+  Football: html`Get a piece on your opponent's King or Queen starting squares
+    to win.
+    <ul>
+      <li>Get to d8 or e8 to win as white, d1 or e1 as black.</li>
+      <li>King can be captured without ending game.</li>
+    </ul>
+    <a
+      href="http://abrobecker.free.fr/chess/fairyblitz.htm#football"
+      target="_blank"
+      >Source</a
+    > `,
   Chigorin: html`The knight army vs the bishop army.
-  <ul>
-    <li>Pawns only promote to pieces in same color's starting army.</li>
-    <li><b>Chancellor</b> moves as Rook + Knight.</li>
-    <li>Orthodox rules, checkmate to win.</li>
-  </ul>
-  Ralph Betza (2002)
-  `,
+    <ul>
+      <li>Pawns only promote to pieces in same color's starting army.</li>
+      <li><b>Chancellor</b> moves as Rook + Knight.</li>
+      <li>Orthodox rules, checkmate to win.</li>
+    </ul>
+    Ralph Betza (2002) `,
   Prechess: html`Set up your own starting position.
-  <ul>
-    <li>White and black alternate placing pieces until all pieces are placed.</li>
-    <li>Then, play continues as a normal chess game.</li>
-  </ul>
-  Pal Benko (1978)
-  `
+    <ul>
+      <li>
+        White and black alternate placing pieces until all pieces are placed.
+      </li>
+      <li>Then, play continues as a normal chess game.</li>
+    </ul>
+    Pal Benko (1978) `,
 };
 
 declare global {

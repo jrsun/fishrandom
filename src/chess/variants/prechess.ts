@@ -6,9 +6,12 @@ import Square from '../square';
 import {randomChoice} from '../../utils';
 import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from '../piece';
 
-const backRank = [0,1,2,3,4,5,6,7].map(col => ([
-  {row: 0, col}, {row: 7, col}
-])).flat();
+const backRank = [0, 1, 2, 3, 4, 5, 6, 7]
+  .map((col) => [
+    {row: 0, col},
+    {row: 7, col},
+  ])
+  .flat();
 
 export class Prechess extends Game {
   name = 'Prechess';
@@ -66,11 +69,11 @@ export class Prechess extends Game {
           name: GameEventName.Highlight,
           pairs: backRank,
         });
-      } 
+      }
       return {
         ...turn,
         after: BoardState.copy(turn.after).setPhase(Phase.NORMAL),
-      }
+      };
     }
     return turn;
   }
@@ -79,10 +82,11 @@ export class Prechess extends Game {
     const isDrop = turn.type === TurnType.DROP;
     const isPre = this.state.extra.phase === Phase.PRE;
     const validDropRow = color === Color.WHITE ? 7 : 0;
-    return (isDrop && isPre && turn.end.row === validDropRow) || (!isDrop && !isPre);
+    return (
+      (isDrop && isPre && turn.end.row === validDropRow) || (!isDrop && !isPre)
+    );
   }
 }
-
 
 function genInitial(): BoardState {
   const piecePositions = {

@@ -274,17 +274,20 @@ export class MyApp extends LitElement {
   private color?: Color;
   private timerInterval;
   private audio: {
-    lowTime: HTMLAudioElement|null|undefined;
-    win: HTMLAudioElement|null|undefined;
-    lose: HTMLAudioElement|null|undefined;
-    init: HTMLAudioElement|null|undefined;
-  }
+    lowTime: HTMLAudioElement | null | undefined;
+    win: HTMLAudioElement | null | undefined;
+    lose: HTMLAudioElement | null | undefined;
+    init: HTMLAudioElement | null | undefined;
+  };
 
   connectedCallback() {
     super.connectedCallback();
 
     this.wsConnect();
-    this.addEventListener('view-move-changed', this.handleViewMoveChanged.bind(this));
+    this.addEventListener(
+      'view-move-changed',
+      this.handleViewMoveChanged.bind(this)
+    );
 
     // Unload
     const onUnload = (e) => {
@@ -309,12 +312,15 @@ export class MyApp extends LitElement {
     };
 
     this.socket.onclose = (e) => {
-      console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+      console.log(
+        'Socket is closed. Reconnect will be attempted in 1 second.',
+        e.reason
+      );
       setTimeout(() => {
         this.wsConnect();
       }, 1000);
     };
-  
+
     this.socket.onerror = (e) => {
       console.error('Socket encountered error: ', e, 'Closing socket');
       this.socket.close();
@@ -472,7 +478,11 @@ export class MyApp extends LitElement {
 
   renderWaiting() {
     return html`<div class="app waiting">
-      <audio id="low-time-audio" src="../../snd/low-time.mp3" preload="auto"></audio>
+      <audio
+        id="low-time-audio"
+        src="../../snd/low-time.mp3"
+        preload="auto"
+      ></audio>
       <audio id="win-audio" src="../../snd/win.mp3" preload="auto"></audio>
       <audio id="lose-audio" src="../../snd/lose.mp3" preload="auto"></audio>
       <audio id="init-audio" src="../../snd/init.mp3" preload="auto"></audio>
@@ -540,17 +550,23 @@ export class MyApp extends LitElement {
               ></div>
               <div class="user-capture">
                 <div class="username">${this.opponentInfo?.name}</div>
-                <div class="opponent win-streak">streak: ${this.opponentInfo?.streak}</div>
+                <div class="opponent win-streak">
+                  streak: ${this.opponentInfo?.streak}
+                </div>
                 <div class="captures">
                   <my-captures
                     .turnHistory=${this.game?.turnHistory ?? []}
-                    .color=${this.color ? getOpponent(this.color) : Color.BLACK}></my-captures>
+                    .color=${this.color ? getOpponent(this.color) : Color.BLACK}
+                  ></my-captures>
                 </div>
               </div>
             </div>
-            <div class="timer opponent ${
-              this.game.state.whoseTurn === getOpponent(this.color) ? '' : 'paused'
-            }">
+            <div
+              class="timer opponent ${this.game.state.whoseTurn ===
+              getOpponent(this.color)
+                ? ''
+                : 'paused'}"
+            >
               ${this.renderTimer(this.opponentTimer)}
             </div>
           </div>
@@ -572,17 +588,22 @@ export class MyApp extends LitElement {
               ></div>
               <div class="user-capture">
                 <div class="username">${this.playerInfo?.name}</div>
-                <div class="player win-streak">streak: ${this.playerInfo?.streak}</div>
+                <div class="player win-streak">
+                  streak: ${this.playerInfo?.streak}
+                </div>
                 <div class="captures">
                   <my-captures
-                  .turnHistory=${this.game?.turnHistory ?? []}
-                  .color=${this.color}></my-captures>
+                    .turnHistory=${this.game?.turnHistory ?? []}
+                    .color=${this.color}
+                  ></my-captures>
                 </div>
               </div>
             </div>
-            <div class="timer player ${
-              this.game.state.whoseTurn === this.color ? '' : 'paused'
-            }">
+            <div
+              class="timer player ${this.game.state.whoseTurn === this.color
+                ? ''
+                : 'paused'}"
+            >
               ${this.renderTimer(this.playerTimer)}
             </div>
           </div>
@@ -619,8 +640,7 @@ export class MyApp extends LitElement {
           </paper-button>
         </div>
       </paper-dialog>
-    </div>
-    `;
+    </div> `;
   }
 }
 

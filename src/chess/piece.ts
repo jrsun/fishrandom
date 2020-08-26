@@ -473,7 +473,6 @@ export class Zero extends Piece {
   }
 }
 
-
 export const ALL_PIECES: {[name: string]: typeof Piece} = {
   Pawn,
   Bishop,

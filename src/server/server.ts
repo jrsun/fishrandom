@@ -20,7 +20,7 @@ import escape from 'validator/lib/escape';
 
 import log from 'log';
 import logNode from 'log-node';
-import { Game } from '../chess/game';
+import {Game} from '../chess/game';
 logNode();
 
 var app = express();
@@ -87,8 +87,8 @@ app.use('/snd', express.static(path.join(path.resolve() + '/snd')));
 log.notice('serving on 8080');
 app.listen(8080);
 
-const wss = new WS.Server({port: 
-  process.env.NODE_ENV === 'development' ? 8081 : 8082
+const wss = new WS.Server({
+  port: process.env.NODE_ENV === 'development' ? 8081 : 8082,
 });
 
 /** Game server state */
@@ -97,7 +97,11 @@ const players: {[uuid: string]: Player} = {};
 const waitingUsers: Player[] = [];
 
 wss.on('connection', function connection(ws: WS.WebSocket, request) {
-  log.notice('Client connected:', request.socket.remoteAddress, request.headers['user-agent']);
+  log.notice(
+    'Client connected:',
+    request.socket.remoteAddress,
+    request.headers['user-agent']
+  );
   wsCounter++;
   let uuid = '';
 
@@ -119,7 +123,11 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
     handleMessage(uuid, message);
   });
   ws.addEventListener('close', () => {
-    log.notice('Client disconnected:', request.socket.remoteAddress, request.headers['user-agent']);
+    log.notice(
+      'Client disconnected:',
+      request.socket.remoteAddress,
+      request.headers['user-agent']
+    );
     wsCounter--;
   });
 });
@@ -134,14 +142,14 @@ const handleMessage = function (uuid, message: Message) {
   }
   if (
     message.type === 'exit' &&
-    waitingUsers.map(player => player.uuid).includes(uuid)
+    waitingUsers.map((player) => player.uuid).includes(uuid)
   ) {
     // Clean up references if a player left while waiting
     playerLog.notice('left the game');
-    const i = waitingUsers.findIndex(wu => wu === players[uuid]);
+    const i = waitingUsers.findIndex((wu) => wu === players[uuid]);
     if (i !== -1) {
       waitingUsers.splice(i, 1);
-    } 
+    }
     return;
   }
   if (!room) {
@@ -190,13 +198,13 @@ const newGame = (uuid: string, ws: WebSocket) => {
     const p1info = waitingUsers.pop()!;
     let newGame: typeof Game;
     if (argv.game) {
-      const uppercase =
-        argv.game.charAt(0).toUpperCase() + argv.game.slice(1);
+      const uppercase = argv.game.charAt(0).toUpperCase() + argv.game.slice(1);
       newGame = Variants[uppercase];
     } else {
-      newGame = Variants.Random(/**except*/
+      newGame = Variants.Random(
+        /**except*/
         p1info.lastVariant ?? '',
-        players[uuid].lastVariant ?? '',
+        players[uuid].lastVariant ?? ''
       );
     }
     const room = new Room(p1info, players[uuid], newGame);

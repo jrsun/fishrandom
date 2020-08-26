@@ -5,14 +5,14 @@ import {BoardState, generateStartState, Phase} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
 import {Move, Castle, Turn, TurnType} from '../turn';
-import { SecretPawnGame } from './pawngame';
+import {SecretPawnGame} from './pawngame';
 
 export class Royalpawn extends SecretPawnGame {
   name = 'Royalpawn';
   constructor(isServer: boolean) {
     super(isServer, genInitial(), KingPawn);
   }
-  promotions(turn: Turn): (typeof Piece)[] | undefined {
+  promotions(turn: Turn): typeof Piece[] | undefined {
     // No need to promote, you win
     if (turn.piece instanceof KingPawn) return;
     return super.promotions(turn);
@@ -28,10 +28,12 @@ export class Royalpawn extends SecretPawnGame {
       return true;
     }
 
-    const myKingSquare = this.state.squares.flat().find(square =>
-      square.occupant instanceof KingPawn &&
-      square.occupant.color === color
-    );
+    const myKingSquare = this.state.squares
+      .flat()
+      .find(
+        (square) =>
+          square.occupant instanceof KingPawn && square.occupant.color === color
+      );
 
     // King pawn reaching the end wins
     return (
@@ -46,7 +48,7 @@ export class Royalpawn extends SecretPawnGame {
       .filter((square) => square.occupant?.color === color)
       .flatMap((square) =>
         this.legalMovesFrom(this.state, square.row, square.col, true)
-      )
+      );
     return legalMoves.length === 0;
   }
 
@@ -59,7 +61,8 @@ export class Royalpawn extends SecretPawnGame {
     ) {
       return false;
     }
-    const isSelectRoyal = turn.type === TurnType.ACTIVATE && turn.piece.name === 'Pawn';
+    const isSelectRoyal =
+      turn.type === TurnType.ACTIVATE && turn.piece.name === 'Pawn';
     const isPre = this.state.extra.phase === Phase.PRE;
     return (isSelectRoyal && isPre) || (!isSelectRoyal && !isPre);
   }

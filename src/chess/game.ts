@@ -43,19 +43,21 @@ export class Game {
   ): Turn | undefined {
     return;
   }
-  modifyTurn(turn: Turn): Turn {return turn}
-  promotions(turn: Turn): (typeof Piece)[] | undefined {
+  modifyTurn(turn: Turn): Turn {
+    return turn;
+  }
+  promotions(turn: Turn): typeof Piece[] | undefined {
     if (turn.piece instanceof Pawn && turn.type === TurnType.MOVE) {
       const pawn = turn.piece;
       if (
-        (turn.end.row === 0 && pawn.color === Color.WHITE) || 
-        (turn.end.row === this.state.files - 1 && pawn.color === Color.BLACK))
-      {
+        (turn.end.row === 0 && pawn.color === Color.WHITE) ||
+        (turn.end.row === this.state.files - 1 && pawn.color === Color.BLACK)
+      ) {
         return this.promotesTo(pawn);
       }
     }
   }
-  promotesTo(piece?: Piece): (typeof Piece)[] {
+  promotesTo(piece?: Piece): typeof Piece[] {
     return [Queen, Rook, Bishop, Knight];
   }
   legalMovesFrom(
@@ -157,9 +159,7 @@ export class Game {
     const opponentMoves = state.squares
       .flat()
       .filter((square) => square.occupant?.color === opponent)
-      .flatMap((square) =>
-        this.legalMovesFrom(state, square.row, square.col)
-      );
+      .flatMap((square) => this.legalMovesFrom(state, square.row, square.col));
     for (const move of opponentMoves) {
       if (move && !this.knowsInCheck(opponent, move.after)) {
         return false;
@@ -211,17 +211,21 @@ export class Game {
 
   /** Server */
   onConnect() {}
-  cpuTurn(): Turn|undefined { return }
-  visibleState(state: BoardState, color: Color) {return state}
-  visibleTurn(turn: Turn, color: Color): Turn {return turn}
+  cpuTurn(): Turn | undefined {
+    return;
+  }
+  visibleState(state: BoardState, color: Color) {
+    return state;
+  }
+  visibleTurn(turn: Turn, color: Color): Turn {
+    return turn;
+  }
 
   drawCondition(color: Color, state: BoardState): boolean {
     const moves = state.squares
       .flat()
       .filter((square) => square.occupant?.color === color)
-      .flatMap((square) =>
-        this.legalMovesFrom(state, square.row, square.col)
-      );
+      .flatMap((square) => this.legalMovesFrom(state, square.row, square.col));
     for (const move of moves) {
       if (move && !this.knowsInCheck(color, move.after)) {
         return false;
@@ -271,9 +275,11 @@ export class Game {
       scol,
       /* allowCastles */ false
     ).filter((move) => {
-      return move.type === TurnType.MOVE &&
+      return (
+        move.type === TurnType.MOVE &&
         equals(move.end, {row: drow, col: dcol}) &&
-        this.validateTurn(piece.color, move);
+        this.validateTurn(piece.color, move)
+      );
     }) as Move[];
     if (legalMoves.length === 0) {
       return; // invalid move
@@ -295,7 +301,7 @@ export class Game {
       return;
     }
 
-    if (piece instanceof Pawn && (row === 0 || row === this.state.ranks-1)) {
+    if (piece instanceof Pawn && (row === 0 || row === this.state.ranks - 1)) {
       return;
     }
     after.place(piece, row, col).setTurn(getOpponent(piece.color));
@@ -355,9 +361,10 @@ export class Game {
           square.occupant instanceof Rook &&
           square.occupant.color === color &&
           !this.turnHistory.some(
-            (turn) => turn.piece instanceof Rook
-            && turn.type === TurnType.MOVE
-            && equals(turn.end, square)
+            (turn) =>
+              turn.piece instanceof Rook &&
+              turn.type === TurnType.MOVE &&
+              equals(turn.end, square)
           )
       );
     const {row, col} = kingSquare;

@@ -5,7 +5,7 @@ import {BoardState, generateStartState, Phase} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
 import {Move, Turn, Activate, TurnType, Castle, Unknown} from '../turn';
-import { SecretPawnGame } from './pawngame';
+import {SecretPawnGame} from './pawngame';
 
 export class Stealthbomber extends SecretPawnGame {
   name = 'Stealthbomber';
@@ -26,10 +26,9 @@ export class Stealthbomber extends SecretPawnGame {
     }
 
     if (!(piece instanceof BomberPawn)) {
-      return
+      return;
     }
-    const after = BoardState.copy(this.state)
-      .setTurn(getOpponent(color));
+    const after = BoardState.copy(this.state).setTurn(getOpponent(color));
     const pairs: Pair[] = [];
     for (let i = row - 1; i < row + 2; i++) {
       for (let j = col - 1; j < col + 2; j++) {
