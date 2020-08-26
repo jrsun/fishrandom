@@ -165,12 +165,13 @@ export function sendMessage(ws: WS.WebSocket, m: Message): Promise<void> {
   return new Promise(resolve => {
       zlib.gzip(input, (err, buffer) => {
       if (err) {
-        console.log('Failed to compress and send message %s', input);
+        console.error('Failed to compress and send message %s', input);
         return;
       }
       if (typeof window === 'undefined') {
-        console.log(
-          'Sending message of type %s with size %s',
+        console.error(
+          '%s: Sending message of type %s with size %s',
+          new Date().toUTCString(),
           m.type,
           buffer.length
         );
@@ -190,14 +191,17 @@ export function addMessageHandler(
     let msg: Message;
     zlib.gunzip(Buffer.from(e.data, 'base64'), (err, buffer) => {
       if (err) {
-        console.log('Failed to unzip message %s', e.data);
+        console.error('Failed to unzip message %s', e.data);
         return;
       }
       const s = buffer.toString();
 
       msg = JSON.parse(s, reviver) as Message;
       if (typeof window === 'undefined') {
-        console.log('Received message of type %s', msg.type);
+        console.error('%s: Received message of type %s',
+          new Date().toUTCString(),
+          msg.type,
+        );
       }
       handler(msg as Message);
     });
