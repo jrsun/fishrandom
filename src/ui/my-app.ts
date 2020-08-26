@@ -283,16 +283,7 @@ export class MyApp extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    if (process.env.NODE_ENV === 'development') {
-      this.socket = new WebSocket('ws://localhost:8081');
-    } else {
-      this.socket = new WebSocket(`wss://${location.hostname}:8081`);
-    }
-    this.socket.onopen = () => {
-      addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
-      this.requestNewGame();
-    };
-
+    this.wsConnect();
     this.addEventListener('view-move-changed', this.handleViewMoveChanged.bind(this));
 
     // Unload
@@ -304,6 +295,30 @@ export class MyApp extends LitElement {
     };
     window.onbeforeunload = onUnload;
     window.onunload = onUnload;
+  }
+
+  wsConnect() {
+    if (process.env.NODE_ENV === 'development') {
+      this.socket = new WebSocket('ws://localhost:8081');
+    } else {
+      this.socket = new WebSocket(`wss://${location.hostname}:8081`);
+    }
+    this.socket.onopen = () => {
+      addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
+      this.requestNewGame();
+    };
+
+    this.socket.onclose = (e) => {
+      console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+      setTimeout(() => {
+        this.wsConnect();
+      }, 1000);
+    };
+  
+    this.socket.onerror = (e) => {
+      console.error('Socket encountered error: ', e, 'Closing socket');
+      this.socket.close();
+    };
   }
 
   firstUpdated() {
