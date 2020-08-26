@@ -17,11 +17,16 @@ import {randomChoice, randomInt, uuidToName} from '../utils';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import escape from 'validator/lib/escape';
+import io from '@pm2/io';
 
 import log from 'log';
 import logNode from 'log-node';
 import { Game } from '../chess/game';
 logNode();
+
+const wsConnectCounter = io.counter({
+  name: 'WS Connections',
+});
 
 var app = express();
 
@@ -92,6 +97,7 @@ const waitingUsers: Player[] = [];
 
 wss.on('connection', function connection(ws: WS.WebSocket, request) {
   log.notice('Client connected:', request.headers['user-agent']);
+  wsConnectCounter.inc();
   let uuid = '';
 
   const cookies = request.headers.cookie?.split(';');
@@ -112,6 +118,8 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
     handleMessage(uuid, message);
   });
 });
+
+wss.on('close', () => {wsConnectCounter.dec()});
 
 /** Handle websocket messages and delegate to room */
 const handleMessage = function (uuid, message: Message) {
