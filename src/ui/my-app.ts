@@ -58,7 +58,10 @@ export class MyApp extends LitElement {
     }
     .title {
       color: #EEEEEE;
-      font-family: "JelleeBold"
+      font-family: "JelleeBold";
+      text-overflow: clip;
+      overflow: hidden;
+      white-space: nowrap;
     }
     .card {
       display: block;
@@ -226,8 +229,7 @@ export class MyApp extends LitElement {
     }
     .game-over-button:hover {
       transition: 0.2s;
-      background-color: #82d7ba;
-      font-weight: bold;
+      background-color: #bde6c0;
     }
     @keyframes swim {
       from {transform: rotate(90deg)}
@@ -283,11 +285,12 @@ export class MyApp extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    this.wsConnect();
+    this.wsConnect(true);
     this.addEventListener(
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
     );
+    this.addEventListener('request-new-game', this.requestNewGame);
 
     // Unload
     const onUnload = (e) => {
@@ -300,7 +303,7 @@ export class MyApp extends LitElement {
     window.onunload = onUnload;
   }
 
-  wsConnect() {
+  wsConnect(start: boolean) {
     if (process.env.NODE_ENV === 'development') {
       this.socket = new WebSocket('ws://localhost:8081');
     } else {
@@ -308,7 +311,9 @@ export class MyApp extends LitElement {
     }
     this.socket.onopen = () => {
       addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
-      this.requestNewGame();
+      if (start) {
+        this.requestNewGame();
+      }
     };
 
     this.socket.onclose = (e) => {
@@ -317,7 +322,8 @@ export class MyApp extends LitElement {
         e.reason
       );
       setTimeout(() => {
-        this.wsConnect();
+        // if game isn't over, start
+        this.wsConnect(!this.gameResult);
       }, 1000);
     };
 
@@ -350,6 +356,7 @@ export class MyApp extends LitElement {
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
     );
+    this.removeEventListener('request-new-game', this.requestNewGame);
     this.socket.close();
   }
 
@@ -389,6 +396,7 @@ export class MyApp extends LitElement {
       this.game.turnHistory = [];
       this.game.stateHistory = [state];
 
+      clearInterval(this.timerInterval);
       this.timerInterval = setInterval(() => {
         if (this.game?.state.whoseTurn === this.color) {
           if (this.playerTimer) {
@@ -467,7 +475,7 @@ export class MyApp extends LitElement {
     this.viewMoveIndex = e.detail;
   }
 
-  requestNewGame() {
+  requestNewGame = () => {
     const goDialog = this.shadowRoot?.querySelector('paper-dialog');
     goDialog?.close();
 
@@ -563,7 +571,7 @@ export class MyApp extends LitElement {
             </div>
             <div
               class="timer opponent ${this.game.state.whoseTurn ===
-              getOpponent(this.color)
+              getOpponent(this.color) && !this.gameResult
                 ? ''
                 : 'paused'}"
             >
@@ -600,7 +608,7 @@ export class MyApp extends LitElement {
               </div>
             </div>
             <div
-              class="timer player ${this.game.state.whoseTurn === this.color
+              class="timer player ${this.game.state.whoseTurn === this.color && !this.gameResult
                 ? ''
                 : 'paused'}"
             >
@@ -613,7 +621,7 @@ export class MyApp extends LitElement {
             <my-controls
               .socket=${this.socket}
               .turnHistory=${this.game?.turnHistory ?? []}
-              .playing=${!!this.gameResult}
+              .playing=${!this.gameResult}
             ></my-controls>
           </div>
           <div class="card rules">

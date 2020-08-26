@@ -63,11 +63,15 @@ export class MyControls extends LitElement {
     paper-button {
       background-color: #fefdfa;
     }
+    .resign-button:hover {
+      transition: 0.2s;
+      background-color: #e2a18b;
+    }
   `;
   // public
   @property({type: Object}) socket: WebSocket;
   @property({type: Array}) turnHistory: Turn[] = [];
-  @property({type: Boolean}) playing = true;
+  @property({type: Boolean}) playing = false;
 
   // protected
   @property({type: Number}) viewMoveIndex: number | undefined;
@@ -112,6 +116,13 @@ export class MyControls extends LitElement {
 
   onClickResign() {
     sendMessage(this.socket, {type: 'resign'});
+  }
+
+  onClickNew() {
+    this.dispatchEvent(new CustomEvent('request-new-game', {
+      bubbles: true,
+      composed: true,
+    }));
   }
 
   updated(changedProperties) {
@@ -175,12 +186,24 @@ export class MyControls extends LitElement {
             ?disabled=${this.viewMoveIndex === undefined}
             >></paper-button
           >
-          <paper-button
+          ${this.playing ? 
+            html` <paper-button
+            class="resign-button"
             raised
-            ?disabled=${this.playing}
+            ?disabled=${!this.playing}
             .onclick=${this.onClickResign.bind(this)}
             >Resign</paper-button
-          >
+          >` : 
+            html`
+            <paper-button
+              raised
+              style="background-color: #bde6c0;"
+              ?disabled=${this.playing}
+              .onclick=${this.onClickNew.bind(this)}
+              >New</paper-button
+            >`
+        }
+         
         </div>
       </div>
     `;
