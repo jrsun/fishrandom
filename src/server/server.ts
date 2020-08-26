@@ -97,7 +97,7 @@ const players: {[uuid: string]: Player} = {};
 const waitingUsers: Player[] = [];
 
 wss.on('connection', function connection(ws: WS.WebSocket, request) {
-  log.notice('Client connected:', request.headers['user-agent']);
+  log.notice('Client connected:', request.socket.remoteAddress, request.headers['user-agent']);
   wsCounter++;
   let uuid = '';
 
@@ -119,6 +119,7 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
     handleMessage(uuid, message);
   });
   ws.addEventListener('close', () => {
+    log.notice('Client disconnected:', request.socket.remoteAddress, request.headers['user-agent']);
     wsCounter--;
   });
 });
@@ -168,47 +169,45 @@ const handleMessage = function (uuid, message: Message) {
 };
 
 /** Handle new game message */
-const newGame = (() => {
-  return (uuid: string, ws: WebSocket) => {
-    const playerLog = log.get(uuidToName(uuid));
-    playerLog.notice(`${uuid} requested new game.`);
-    // Handle existing room
-    const activeRoom = players[uuid].room;
-    if (!!activeRoom) {
-      playerLog.notice('already in a room');
-      activeRoom.reconnect(uuid, ws);
-      return;
+const newGame = (uuid: string, ws: WebSocket) => {
+  const playerLog = log.get(uuidToName(uuid));
+  playerLog.notice(`${uuid} requested new game.`);
+  // Handle existing room
+  const activeRoom = players[uuid].room;
+  if (!!activeRoom) {
+    playerLog.notice('already in a room');
+    activeRoom.reconnect(uuid, ws);
+    return;
+  }
+  if (!waitingUsers.filter((user) => user.uuid !== uuid).length) {
+    // If no users are queuing
+    if (!waitingUsers.some((user) => user.uuid === uuid)) {
+      waitingUsers.unshift(players[uuid]);
     }
-    if (!waitingUsers.filter((user) => user.uuid !== uuid).length) {
-      // If no users are queuing
-      if (!waitingUsers.some((user) => user.uuid === uuid)) {
-        waitingUsers.unshift(players[uuid]);
-      }
-      playerLog.notice('waiting', uuid);
+    playerLog.notice('waiting', uuid);
+  } else {
+    // If a user is queuing
+    const p1info = waitingUsers.pop()!;
+    let newGame: typeof Game;
+    if (argv.game) {
+      const uppercase =
+        argv.game.charAt(0).toUpperCase() + argv.game.slice(1);
+      newGame = Variants[uppercase];
     } else {
-      // If a user is queuing
-      const p1info = waitingUsers.pop()!;
-      let newGame: typeof Game;
-      if (argv.game) {
-        const uppercase =
-          argv.game.charAt(0).toUpperCase() + argv.game.slice(1);
-        newGame = Variants[uppercase];
-      } else {
-        newGame = Variants.Random(/**except*/
-          p1info.lastVariant ?? '',
-          players[uuid].lastVariant ?? '',
-        );
-      }
-      const room = new Room(p1info, players[uuid], newGame);
-      p1info.room = room;
-      players[uuid].room = room;
-
-      // Set the last variant
-      p1info.lastVariant = room.game.name;
-      players[uuid].lastVariant = room.game.name;
-
-      playerLog.notice('found a game');
-      log.get(uuidToName(p1info.uuid)).notice('after waiting, found a game');
+      newGame = Variants.Random(/**except*/
+        p1info.lastVariant ?? '',
+        players[uuid].lastVariant ?? '',
+      );
     }
-  };
-})();
+    const room = new Room(p1info, players[uuid], newGame);
+    p1info.room = room;
+    players[uuid].room = room;
+
+    // Set the last variant
+    p1info.lastVariant = room.game.name;
+    players[uuid].lastVariant = room.game.name;
+
+    playerLog.notice('found a game');
+    log.get(uuidToName(p1info.uuid)).notice('after waiting, found a game');
+  }
+};

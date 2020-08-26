@@ -289,8 +289,8 @@ export class MyApp extends LitElement {
       this.socket = new WebSocket(`wss://${location.hostname}:8081`);
     }
     this.socket.onopen = () => {
-      this.requestNewGame();
       addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
+      this.requestNewGame();
     };
 
     this.addEventListener('view-move-changed', this.handleViewMoveChanged.bind(this));
