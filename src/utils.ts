@@ -24,14 +24,6 @@ export function cartesian<T>(...allEntries: T[][]): T[][] {
     [[]]
   );
 }
-export function uuidToName(s: string): string {
-  return (
-    s
-      .split('|')?.[1]
-      ?.replace(/[^0-9A-Z]+/gi, '')
-      .toLocaleLowerCase() ?? 'fish'
-  );
-}
 
 export function drawArrow(
   ctx: CanvasRenderingContext2D,

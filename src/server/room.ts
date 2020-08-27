@@ -1,5 +1,5 @@
 import {Game, GameEvent} from '../chess/game';
-import {randomChoice, uuidToName} from '../utils';
+import {randomChoice} from '../utils';
 import {Move, Turn, TurnType} from '../chess/turn';
 import {Color, getOpponent, ROULETTE_SECONDS} from '../chess/const';
 import {
@@ -27,8 +27,9 @@ export enum RoomState {
 // Player outside room
 export interface Player {
   uuid: string;
+  username: string;
   room?: Room;
-  socket: WS.Websocket;
+  socket: WebSocket;
   lastVariants: string[];
   streak: number;
 }
@@ -63,13 +64,13 @@ export class Room {
       player: p1,
       color: randomChoice([Color.WHITE, Color.BLACK]),
       time: PLAYER_TIME_MS,
-      name: uuidToName(p1.uuid),
+      name: p1.username,
     };
     this.p2 = {
       player: p2,
       color: getOpponent(this.p1.color),
       time: PLAYER_TIME_MS,
-      name: uuidToName(p2.uuid),
+      name: p2.username,
     };
     if (this.p1.color === Color.WHITE) {
       this.p1.time += ROULETTE_SECONDS * 1000;
@@ -91,11 +92,11 @@ export class Room {
         variantName: this.game.name,
         color: this.p1.color,
         player: {
-          name: getName(player1.uuid),
+          name: player1.username,
           streak: player1.streak,
         },
         opponent: {
-          name: getName(player2.uuid),
+          name: player2.username,
           streak: player2.streak,
         },
       } as InitGameMessage),
@@ -105,11 +106,11 @@ export class Room {
         variantName: this.game.name,
         color: this.p2.color,
         player: {
-          name: getName(player2.uuid),
+          name: player2.username,
           streak: player2.streak,
         },
         opponent: {
-          name: getName(player1.uuid),
+          name: player1.username,
           streak: player1.streak,
         },
       } as InitGameMessage),
@@ -306,11 +307,11 @@ export class Room {
       variantName: this.game.name,
       color: me.color,
       player: {
-        name: getName(me.player.uuid),
+        name: me.player.username,
         streak: me.player.streak,
       },
       opponent: {
-        name: getName(opponent.player.uuid),
+        name: opponent.player.username,
         streak: opponent.player.streak,
       },
       turnHistory: this.game.turnHistory.map((turn) => ({
@@ -373,11 +374,11 @@ export class Room {
       ...gom,
       result: GameResult.WIN,
       player: {
-        name: getName(me.player.uuid),
+        name: me.player.username,
         streak: me.player.streak,
       },
       opponent: {
-        name: getName(opponent.player.uuid),
+        name: opponent.player.username,
         streak: opponent.player.streak,
       },
     });
@@ -385,11 +386,11 @@ export class Room {
       ...gom,
       result: GameResult.LOSS,
       player: {
-        name: getName(opponent.player.uuid),
+        name: opponent.player.username,
         streak: opponent.player.streak,
       },
       opponent: {
-        name: getName(me.player.uuid),
+        name: me.player.username,
         streak: me.player.streak,
       },
     });
@@ -410,11 +411,11 @@ export class Room {
       ...gom,
       result: GameResult.DRAW,
       player: {
-        name: getName(this.p1.player.uuid),
+        name: this.p1.player.username,
         streak: this.p1.player.streak,
       },
       opponent: {
-        name: getName(this.p2.player.uuid),
+        name: this.p2.player.username,
         streak: this.p2.player.streak,
       },
     });
@@ -422,11 +423,11 @@ export class Room {
       ...gom,
       result: GameResult.DRAW,
       player: {
-        name: getName(this.p2.player.uuid),
+        name: this.p2.player.username,
         streak: this.p2.player.streak,
       },
       opponent: {
-        name: getName(this.p1.player.uuid),
+        name: this.p1.player.username,
         streak: this.p1.player.streak,
       },
     });
@@ -469,8 +470,4 @@ export class Room {
     sendMessage(this.p1.player.socket, gem);
     sendMessage(this.p2.player.socket, gem);
   };
-}
-
-function getName(uuid?: string): string {
-  return uuidToName(uuid ?? '');
 }

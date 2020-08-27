@@ -8,6 +8,8 @@ import {
 } from 'lit-element';
 import '@polymer/paper-button';
 import './my-release-notes';
+import '@polymer/paper-toggle-button';
+import { PaperToggleButtonElement } from '@polymer/paper-toggle-button';
 
 @customElement('my-login')
 export class MyLogin extends LitElement {
@@ -36,20 +38,28 @@ export class MyLogin extends LitElement {
       width: 100%;
       align-items: center;
     }
-    #username {
+    input[type="text"] {
       border-radius: 4px;
       font-size: 25px;
       text-align: center;
-      width: 50vw;
       font-family: Verdana, sans-serif;
       border: #888;
       outline: none;
-      margin-bottom: 10px;
     }
-    #username::placeholder {
+    input[type="text"]::placeholder {
       /* Chrome, Firefox, Opera, Safari 10.1+ */
       color: #aaa;
       opacity: 1; /* Firefox */
+    }
+    #username {
+      margin-bottom: 10px;
+      width: 50vw;
+    }
+    #password {
+      width: 40vw;
+    }
+    #password[disabled] {
+      opacity: 0.5;
     }
     #button {
       background-color: #82d7ba;
@@ -58,14 +68,22 @@ export class MyLogin extends LitElement {
       color: #223322;
       margin-bottom: 4vw;
     }
+    .room-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
   `;
 
   login(e) {
     e.preventDefault();
-    const input = this.shadowRoot?.querySelector(
+    const username = this.shadowRoot?.querySelector(
       '#username'
     ) as HTMLInputElement;
-    if (!input?.value) return;
+    const password = this.shadowRoot?.querySelector(
+      '#password'
+    ) as HTMLInputElement;
+    if (!username?.value) return;
 
     fetch('/login', {
       method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -78,10 +96,19 @@ export class MyLogin extends LitElement {
       },
       redirect: 'follow', // manual, *follow, error,
       referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      body: JSON.stringify({username: input.value}),
+      body: JSON.stringify({username: username.value, password: password.value}),
     }).then((data) => {
       location.reload();
     });
+  }
+
+  onToggle(e) {
+    const roomInput = this.shadowRoot?.querySelector('#password')!;
+    if (e.target.checked) {
+      roomInput.removeAttribute('disabled');
+    } else {
+      roomInput.setAttribute('disabled', 'true');
+    }
   }
 
   render() {
@@ -94,6 +121,16 @@ export class MyLogin extends LitElement {
           autocomplete="off"
           placeholder="Username"
         />
+        <div class="room-container">
+          <paper-toggle-button class="room-toggle" @change=${(e) => this.onToggle(e)}></paper-toggle-button>
+          <input
+            id="password"
+            type="text"
+            autocomplete="off"
+            placeholder="Room code"
+            disabled
+          />
+        </div>
         <paper-button id="button" raised .onclick=${this.login.bind(this)}
           >Play</paper-button
         >

@@ -41,6 +41,7 @@ export interface ResignMessage {
 
 export interface NewGameMessage {
   type: 'newGame';
+  password?: string;
 }
 
 export interface ExitMessage {
@@ -160,7 +161,7 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
   return v;
 }
 
-export function sendMessage(ws: WS.WebSocket, m: Message): Promise<void> {
+export function sendMessage(ws: WebSocket, m: Message): Promise<void> {
   const input = JSON.stringify(m, replacer);
   return new Promise((resolve) => {
     zlib.gzip(input, (err, buffer) => {

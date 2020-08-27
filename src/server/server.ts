@@ -13,7 +13,7 @@ import WS from 'ws';
 import * as Variants from '../chess/variants/index';
 import {Color} from '../chess/const';
 import yargs from 'yargs';
-import {randomChoice, randomInt, uuidToName} from '../utils';
+import {randomChoice, randomInt} from '../utils';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import escape from 'validator/lib/escape';
@@ -21,6 +21,7 @@ import escape from 'validator/lib/escape';
 import log from 'log';
 import logNode from 'log-node';
 import {Game} from '../chess/game';
+import { WAITING } from './waiting';
 logNode();
 
 var app = express();
@@ -45,12 +46,21 @@ app.use(bodyParser.json());
 
 /** HTTP entry point */
 app.get('/', function (req, res) {
-  if (req.cookies.uuid) {
+  if (gameSettings[req.cookies.uuid]) {
     res.sendFile(path.join(path.resolve() + '/dist/index.html'));
   } else {
     res.sendFile(path.join(path.resolve() + '/dist/login.html'));
   }
 });
+
+interface GameSettings {
+  username: string;
+  password?: string;
+}
+
+const gameSettings: {
+  [uuid: string]: GameSettings
+} = {};
 
 /** Login page */
 app.post('/login', function (req, res) {
@@ -58,15 +68,18 @@ app.post('/login', function (req, res) {
     return;
   }
 
-  const username = req.body.username;
+  const {username, password} = req.body;
   log.notice('logged in', username);
-  if (!req.cookies.uuid) {
+  let uuid = req.cookies.uuid;
+  if (!uuid) {
     var randomNumber = Math.random().toString();
-    randomNumber = randomNumber.substring(2, randomNumber.length);
-    res.cookie('uuid', randomNumber + '|' + username, {
+    uuid = randomNumber.substring(2, randomNumber.length);
+    res.cookie('uuid', uuid, {
       encode: String,
     });
   }
+  const escapedUser = username.replace(/[^0-9A-Za-z]+/gi, '').toLocaleLowerCase() ?? "fish";
+  gameSettings[uuid] = {username: escapedUser, password};
   res.end();
 });
 
@@ -94,29 +107,36 @@ const wss = new WS.Server({
 /** Game server state */
 
 const players: {[uuid: string]: Player} = {};
-const waitingUsers: Player[] = [];
 
-wss.on('connection', function connection(ws: WS.WebSocket, request) {
+wss.on('connection', function connection(ws: WebSocket, request) {
   log.notice(
-    'Client connected:',
-    request.socket.remoteAddress,
-    request.headers['user-agent']
+    'Socket connected',
   );
   wsCounter++;
   let uuid = '';
 
   const cookies = request.headers.cookie?.split(';');
   uuid = cookies?.find((cookie) => cookie.startsWith('uuid='))?.split('=')?.[1];
-  if (!uuid) {
+  if (!uuid || !gameSettings[uuid]) {
     ws.close();
     return;
   }
+  log.notice(
+    'User connected:',
+    gameSettings[uuid].username,
+  );
 
   if (players[uuid]) {
-    // Close existing websocket, if exists
+    players[uuid].username = gameSettings[uuid].username;
     players[uuid].socket = ws;
   } else {
-    players[uuid] = {uuid, socket: ws, streak: 0, lastVariants: []};
+    players[uuid] = {
+      uuid,
+      username: gameSettings[uuid].username,
+      streak: 0,
+      lastVariants: [],
+      socket: ws,
+    };
   }
 
   addMessageHandler(ws, (message) => {
@@ -125,8 +145,7 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
   ws.addEventListener('close', () => {
     log.notice(
       'Client disconnected:',
-      request.socket.remoteAddress,
-      request.headers['user-agent']
+      players[uuid]?.username,
     );
     wsCounter--;
   });
@@ -134,22 +153,27 @@ wss.on('connection', function connection(ws: WS.WebSocket, request) {
 
 /** Handle websocket messages and delegate to room */
 const handleMessage = function (uuid, message: Message) {
-  const playerLog = log.get(uuidToName(uuid));
+  const playerLog = log.get(players[uuid].username);
   const room = players[uuid].room;
   if (message.type === 'newGame') {
-    newGame(uuid, players[uuid].socket);
+    const activeRoom = players[uuid].room;
+    if (!!activeRoom) {
+      // Handle existing room
+      playerLog.notice('already in a room, reconnecting');
+      activeRoom.reconnect(uuid, players[uuid].socket);
+      return;
+    }
+    newGame(players[uuid], gameSettings[uuid].password);
     return;
   }
   if (
     message.type === 'exit' &&
-    waitingUsers.map((player) => player.uuid).includes(uuid)
+    WAITING.hasPlayer(players[uuid])
   ) {
     // Clean up references if a player left while waiting
     playerLog.notice('left the game');
-    const i = waitingUsers.findIndex((wu) => wu === players[uuid]);
-    if (i !== -1) {
-      waitingUsers.splice(i, 1);
-    }
+    WAITING.deletePlayer(players[uuid]);
+    delete gameSettings[uuid];
     return;
   }
   if (!room) {
@@ -177,51 +201,40 @@ const handleMessage = function (uuid, message: Message) {
 };
 
 /** Handle new game message */
-const newGame = (uuid: string, ws: WebSocket) => {
-  const playerLog = log.get(uuidToName(uuid));
-  playerLog.notice(`${uuid} requested new game.`);
-  // Handle existing room
-  const activeRoom = players[uuid].room;
-  if (!!activeRoom) {
-    playerLog.notice('already in a room');
-    activeRoom.reconnect(uuid, ws);
+const newGame = (player: Player, password?: string) => {
+  const playerLog = log.get(player.username);
+  playerLog.notice(`${player.uuid} requested new ${!password ? 'open' : 'private'} game.`);
+
+  const opponent = WAITING.pop(password);
+  if (!opponent) {
+    WAITING.add(player, password);
+    playerLog.notice('waiting', player.uuid);
     return;
   }
-  if (!waitingUsers.filter((user) => user.uuid !== uuid).length) {
-    // If no users are queuing
-    if (!waitingUsers.some((user) => user.uuid === uuid)) {
-      waitingUsers.unshift(players[uuid]);
-    }
-    playerLog.notice('waiting', uuid);
+  let NG: typeof Game;
+  if (argv.game) {
+    const uppercase = argv.game.charAt(0).toUpperCase() + argv.game.slice(1);
+    NG = Variants[uppercase];
   } else {
-    // If a user is queuing
-    const p1info = waitingUsers.pop()!;
-    let newGame: typeof Game;
-    if (argv.game) {
-      const uppercase = argv.game.charAt(0).toUpperCase() + argv.game.slice(1);
-      newGame = Variants[uppercase];
-    } else {
-      newGame = Variants.Random(
-        /**except*/
-        ...p1info.lastVariants,
-        ...players[uuid].lastVariants
-      );
-    }
-    const room = new Room(p1info, players[uuid], newGame);
-    p1info.room = room;
-    players[uuid].room = room;
-
-    // Set the last variant
-    addLastVariant(p1info, room.game.name);
-    addLastVariant(players[uuid], room.game.name);
-
-    playerLog.notice('found a game');
-    log.get(uuidToName(p1info.uuid)).notice('after waiting, found a game');
+    NG = Variants.Random(
+      /**except*/
+      ...opponent.lastVariants,
+      ...player.lastVariants
+    );
   }
+  const room = new Room(opponent, player, NG);
+  opponent.room = room;
+  player.room = room;
+
+  // Set the last variant
+  addLastVariant(opponent, room.game.name);
+  addLastVariant(player, room.game.name);
+
+  playerLog.notice('found a game');
+  log.get(opponent.username).notice('after waiting, found a game');
 };
 
 const EXCLUDE_LAST_N_VARIANTS = 5;
-
 const addLastVariant = (player: Player, variant: string) => {
   player.lastVariants.unshift(variant);
   player.lastVariants = player.lastVariants.slice(0, EXCLUDE_LAST_N_VARIANTS);
