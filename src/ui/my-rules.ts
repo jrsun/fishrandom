@@ -256,6 +256,11 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Then, play continues as a normal chess game.</li>
     </ul>
     Pal Benko (1978) `,
+  Riflechess: html`Pieces remain where they are when capturing. Defense is difficult.
+    <ul>
+      <li>Checkmate to win.</li>
+    </ul>
+    W. B. Seabrook (1921)`
 };
 
 declare global {

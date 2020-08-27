@@ -17,6 +17,7 @@ import {Maharaja} from './maharaja';
 import {Football} from './football';
 import {Test} from './test';
 import {Pieceeater} from './pieceeater';
+import {Riflechess} from './rifle';
 import {randomChoice} from '../../utils';
 
 export const VARIANTS: {[name: string]: typeof Game} = {
@@ -40,6 +41,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Maharaja,
   Chess921600,
   Prechess,
+  Riflechess,
 };
 
 export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
@@ -60,6 +62,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Chess960,
   Pieceeater,
   Football,
+  Riflechess,
   // Dice Chess,
   Prechess,
   // Loser's Chess
@@ -99,4 +102,5 @@ export {
   Football,
   Chigorin,
   Prechess,
+  Riflechess,
 };
