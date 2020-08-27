@@ -14,7 +14,9 @@ export class Riflechess extends Game {
       return {
         ...turn,
         end: turn.start,
-        after: BoardState.copy(turn.before).empty(turn.end.row, turn.end.col),
+        after: BoardState.copy(turn.before).empty(turn.end.row, turn.end.col)
+          .setTurn(turn.after.whoseTurn),
+        // set other turn
       };
     }
     return turn;
