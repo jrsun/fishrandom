@@ -30,12 +30,13 @@ export class MyReleaseNotes extends LitElement {
 
   render() {
     return html`
-      <div class="subtitle">8.27 - rifle chess</div>
-      <div class="subtitle">8.26 - private rooms / elo</div>
-      <div class="subtitle">8.24 - prechess</div>
-      <div class="subtitle">8.22 - football / chigorin</div>
-      <div class="subtitle">8.21 - piece eater</div>
-      <div class="subtitle">8.17 - bario / atomic / royal pawn</div>
+      <div class="subtitle">Release Notes:</div>
+      <div class="subtitle">8/27 - rifle chess</div>
+      <div class="subtitle">8/26 - private rooms / elo</div>
+      <div class="subtitle">8/24 - prechess</div>
+      <div class="subtitle">8/22 - football / chigorin</div>
+      <div class="subtitle">8/21 - piece eater</div>
+      <div class="subtitle">8/17 - bario / atomic / royal pawn</div>
       <div class="subtitle tagline">theoria incognita</div>`;
   }
 }

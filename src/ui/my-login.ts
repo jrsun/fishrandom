@@ -127,7 +127,7 @@ export class MyLogin extends LitElement {
             id="password"
             type="text"
             autocomplete="off"
-            placeholder="Room code"
+            placeholder="Private room password"
             disabled
           />
         </div>
