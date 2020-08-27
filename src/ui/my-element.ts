@@ -314,12 +314,12 @@ export class MyElement extends LitElement {
     if (this.selectedPiece && !this.selectedSquare) {
       // Drop
       const turn = this.game.drop(this.color, this.selectedPiece, square.row, square.col);
+      this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
+        composed: true,
+        bubbles: true,
+        detail: selectPieceEvent(),
+      }));
       if (!turn) {
-        this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
-          composed: true,
-          bubbles: true,
-          detail: selectPieceEvent(),
-        }));
         return;
       }
 
