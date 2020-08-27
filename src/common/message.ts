@@ -63,7 +63,8 @@ export interface AppendMessage {
 
 export interface PlayerInfo {
   name: string;
-  streak: number;
+  streak: number; // not used
+  elo: number;
 }
 
 export interface InitGameMessage {
@@ -193,7 +194,7 @@ export function addMessageHandler(
     const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
  
     msg = JSON.parse(s, reviver) as Message;
-    console.log(msg);
+    // console.log(msg);
     if (typeof window === 'undefined') {
       console.error(
         '%s: Received message of type %s',

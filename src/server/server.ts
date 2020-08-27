@@ -140,6 +140,7 @@ wss.on('connection', function connection(ws: WebSocket, request) {
       streak: 0,
       lastVariants: [],
       socket: ws,
+      elo: 1500,
     };
   }
 

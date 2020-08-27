@@ -141,6 +141,7 @@ export class MyApp extends LitElement {
     .user-capture {
       display: flex;
       flex-direction: column;
+      align-items: flex-start;
     }
     .avatar {
       height: 60px;
@@ -148,6 +149,14 @@ export class MyApp extends LitElement {
       background-size: cover;
       margin-right: 10px;
       border-radius: 4px;
+    }
+    .win-streak {
+      margin-left: 3px;
+      background-color: #eee;
+      border-radius: 2px;
+      color: #040404;
+      font-size: 12px;
+      padding: 1px 3px;
     }
     .board-wrapper {
       margin: 20px 0;
@@ -557,9 +566,11 @@ export class MyApp extends LitElement {
                 style="background-image:url(../img/swoledoge.jpg)"
               ></div>
               <div class="user-capture">
-                <div class="username">${this.opponentInfo?.name}</div>
-                <div class="opponent win-streak">
-                  streak: ${this.opponentInfo?.streak}
+                <div>
+                  <span class="username">${this.opponentInfo?.name}</span>
+                  <span class="opponent win-streak">
+                    ${this.opponentInfo?.elo}
+                  </span>
                 </div>
                 <div class="captures">
                   <my-captures
@@ -595,9 +606,11 @@ export class MyApp extends LitElement {
                 style="background-image:url(../img/cheems.jpeg)"
               ></div>
               <div class="user-capture">
-                <div class="username">${this.playerInfo?.name}</div>
-                <div class="player win-streak">
-                  streak: ${this.playerInfo?.streak}
+                <div>
+                  <span class="username">${this.playerInfo?.name}</span>
+                  <span class="player win-streak">
+                    ${this.playerInfo?.elo}
+                  </span>
                 </div>
                 <div class="captures">
                   <my-captures

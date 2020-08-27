@@ -12,6 +12,7 @@ import {
   InitGameMessage,
   TimerMessage,
   ReconnectMessage,
+  PlayerInfo,
 } from '../common/message';
 import WS from 'ws';
 import log from 'log';
@@ -32,6 +33,7 @@ export interface Player {
   socket: WebSocket;
   lastVariants: string[];
   streak: number;
+  elo: number;
 }
 
 // Player inside room
@@ -45,6 +47,8 @@ interface RoomPlayer {
 const PLAYER_TIME_MS = 3 * 60 * 1000;
 // const PLAYER_TIME_MS = 15 * 1000;
 const INCREMENT_MS = 5 * 1000;
+
+const ELO_K = 100;
 
 export class Room {
   // public
@@ -91,29 +95,17 @@ export class Room {
         state: this.game.visibleState(this.game.state, this.p1.color),
         variantName: this.game.name,
         color: this.p1.color,
-        player: {
-          name: player1.username,
-          streak: player1.streak,
-        },
-        opponent: {
-          name: player2.username,
-          streak: player2.streak,
-        },
-      } as InitGameMessage),
+        player: toPlayerInfo(player1),
+        opponent: toPlayerInfo(player2),
+      }),
       sendMessage(player2.socket, {
         type: 'initGame',
         state: this.game.visibleState(this.game.state, this.p2.color),
         variantName: this.game.name,
         color: this.p2.color,
-        player: {
-          name: player2.username,
-          streak: player2.streak,
-        },
-        opponent: {
-          name: player1.username,
-          streak: player1.streak,
-        },
-      } as InitGameMessage),
+        player: toPlayerInfo(player2),
+        opponent: toPlayerInfo(player1),
+      }),
     ]).then(() => {
       this.game.onConnect();
       this.timerInterval = setInterval(() => {
@@ -306,14 +298,8 @@ export class Room {
       state: this.game.visibleState(this.game.state, me.color),
       variantName: this.game.name,
       color: me.color,
-      player: {
-        name: me.player.username,
-        streak: me.player.streak,
-      },
-      opponent: {
-        name: opponent.player.username,
-        streak: opponent.player.streak,
-      },
+      player: toPlayerInfo(me.player),
+      opponent: toPlayerInfo(opponent.player),
       turnHistory: this.game.turnHistory.map((turn) => ({
         ...this.game.visibleTurn(turn, me.color),
         before: this.game.visibleState(turn.before, me.color),
@@ -369,30 +355,28 @@ export class Room {
     // Set streak
     me.player.streak += 1;
     opponent.player.streak = 0;
+    // Set ELO
+    const ra = me.player.elo;
+    const rb = opponent.player.elo;
+    const ea = 1 / (1 + 10 ** ((rb - ra)/400));
+    const eb = 1 / (1 + 10 ** ((ra - rb)/400));
+
+    const ran = Math.ceil(ra + ELO_K * (1 - ea));
+    const rbn = Math.ceil(rb + ELO_K * (0 - eb));
+    me.player.elo = ran;
+    opponent.player.elo = rbn;
 
     sendMessage(me.player.socket, {
       ...gom,
       result: GameResult.WIN,
-      player: {
-        name: me.player.username,
-        streak: me.player.streak,
-      },
-      opponent: {
-        name: opponent.player.username,
-        streak: opponent.player.streak,
-      },
+      player: toPlayerInfo(me.player),
+      opponent: toPlayerInfo(opponent.player),
     });
     sendMessage(opponent.player.socket, {
       ...gom,
       result: GameResult.LOSS,
-      player: {
-        name: opponent.player.username,
-        streak: opponent.player.streak,
-      },
-      opponent: {
-        name: me.player.username,
-        streak: me.player.streak,
-      },
+      player: toPlayerInfo(opponent.player),
+      opponent: toPlayerInfo(me.player),
     });
     this.end();
 
@@ -407,29 +391,30 @@ export class Room {
       turnHistory: this.game.turnHistory,
     };
 
+    const me = this.p1;
+    const opponent = this.p2;
+
+    const ra = me.player.elo;
+    const rb = opponent.player.elo;
+    const ea = 1 / (1 + 10 ^ ((rb - ra)/400));
+    const eb = 1 / (1 + 10 ^ ((ra - rb)/400));
+
+    const ran = Math.ceil(ra + ELO_K * (0.5 - ea));
+    const rbn = Math.ceil(rb + ELO_K * (0.5 - eb));
+    me.player.elo = ran;
+    opponent.player.elo = rbn;
+
     sendMessage(this.p1.player.socket, {
       ...gom,
       result: GameResult.DRAW,
-      player: {
-        name: this.p1.player.username,
-        streak: this.p1.player.streak,
-      },
-      opponent: {
-        name: this.p2.player.username,
-        streak: this.p2.player.streak,
-      },
+      player: toPlayerInfo(this.p1.player),
+      opponent: toPlayerInfo(this.p2.player),
     });
     sendMessage(this.p2.player.socket, {
       ...gom,
       result: GameResult.DRAW,
-      player: {
-        name: this.p2.player.username,
-        streak: this.p2.player.streak,
-      },
-      opponent: {
-        name: this.p1.player.username,
-        streak: this.p1.player.streak,
-      },
+      player: toPlayerInfo(this.p2.player),
+      opponent: toPlayerInfo(this.p1.player),
     });
     this.end();
 
@@ -469,5 +454,14 @@ export class Room {
     };
     sendMessage(this.p1.player.socket, gem);
     sendMessage(this.p2.player.socket, gem);
+  };
+}
+
+const toPlayerInfo = (p: Player): PlayerInfo => {
+  const {username, streak, elo} = p;
+  return {
+    name: username,
+    streak,
+    elo,
   };
 }

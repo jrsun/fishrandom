@@ -1,6 +1,6 @@
 import {Game, GameEventType, GameEventName} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
-import {Color, getOpponent} from '../const';
+import {Color, getOpponent, equals} from '../const';
 import {BoardState, generateStartState, Phase} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
@@ -148,26 +148,15 @@ export class Hiddenqueen extends Game {
       return move;
     }
     // If queenpawn moved in a way that was impossible for a pawn, reveal it.
-    if (
-      piece instanceof QueenPawn &&
-      !new Pawn(color)
-        .legalMoves(
-          srow,
-          scol,
-          move.before,
-          this.turnHistory.slice(0, this.turnHistory.length - 1)
-        )
-        .some((pmove) => {
-          const matches =
-            pmove.end.col === move.end.col &&
-            pmove.end.row === move.end.row &&
-            pmove.captured === move.captured;
-          return matches;
-        })
-    ) {
-      this.revealed[color] = true;
-      return move;
-    }
+    if (piece instanceof QueenPawn) {
+      const dummyState = BoardState.copy(move.before).place(new Pawn(color), srow, scol);
+      if (!this.legalMovesFrom(dummyState, srow, scol, false).some(pmove => 
+        equals(pmove.end, move.end) && pmove.captured === move.captured
+      )) {
+        this.revealed[color] = true;
+        return move;
+      }
+    } 
     return {
       ...move,
       piece: piece instanceof QueenPawn ? new Pawn(color) : piece,

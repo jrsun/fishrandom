@@ -30,7 +30,7 @@ export class MyReleaseNotes extends LitElement {
 
   render() {
     return html`
-      <div class="subtitle">8.26 - <i>private rooms</i></div>
+      <div class="subtitle">8.26 - private rooms / elo</div>
       <div class="subtitle">8.24 - prechess</div>
       <div class="subtitle">8.22 - football / chigorin</div>
       <div class="subtitle">8.21 - piece eater</div>
