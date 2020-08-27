@@ -118,9 +118,12 @@ wss.on('connection', function connection(ws: WebSocket, request) {
 
   const cookies = request.headers.cookie?.split(';');
   uuid = cookies?.find((cookie) => cookie.startsWith('uuid='))?.split('=')?.[1];
-  if (!uuid || !gameSettings[uuid]) {
-    ws.close();
+  if (!uuid) {
+    log.notice('connected without uuid');
     return;
+  }
+  if (!gameSettings[uuid]) {
+    gameSettings[uuid] = {username: "fish"};
   }
   log.notice(
     'User connected:',
