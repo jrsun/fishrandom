@@ -123,7 +123,7 @@ wss.on('connection', function connection(ws: WebSocket, request) {
     return;
   }
   if (!gameSettings[uuid]) {
-    gameSettings[uuid] = {username: "fish"};
+    return;
   }
   log.notice(
     'User connected:',
@@ -210,7 +210,7 @@ const newGame = (player: Player, password?: string) => {
   playerLog.notice(`${player.uuid} requested new ${!password ? 'open' : 'private'} game.`);
 
   const opponent = WAITING.pop(password);
-  if (!opponent) {
+  if (!opponent || opponent === player) {
     WAITING.add(player, password);
     playerLog.notice('waiting', player.uuid);
     return;
