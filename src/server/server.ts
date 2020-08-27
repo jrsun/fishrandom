@@ -111,6 +111,7 @@ const players: {[uuid: string]: Player} = {};
 wss.on('connection', function connection(ws: WebSocket, request) {
   log.notice(
     'Socket connected',
+    request.headers['x-forwarded-for'] || request.connection.remoteAddress
   );
   wsCounter++;
   let uuid = '';
