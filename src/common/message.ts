@@ -191,17 +191,21 @@ export function addMessageHandler(
 ) {
   ws.addEventListener('message', (e: MessageEvent) => {
     let msg: Message;
-    const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
+    try {
+      const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
  
-    msg = JSON.parse(s, reviver) as Message;
-    // console.log(msg);
-    if (typeof window === 'undefined') {
-      console.error(
-        '%s: Received message of type %s',
-        new Date().toUTCString(),
-        msg.type
-      );
+      msg = JSON.parse(s, reviver) as Message;
+      // console.log(msg);
+      if (typeof window === 'undefined') {
+        console.error(
+          '%s: Received message of type %s',
+          new Date().toUTCString(),
+          msg.type
+        );
+      }
+      handler(msg as Message);
+    } catch (err) {
+      console.warn("error parsing message", err, e.data);
     }
-    handler(msg as Message);
   });
 }

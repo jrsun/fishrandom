@@ -290,7 +290,6 @@ export class Game {
   drop(color: Color, piece: Piece, row: number, col: number): Drop | undefined {
     if (!this.canDrop || !this.isWhoseTurn(color, piece)) return;
 
-    console.log('dropping');
     const {state} = this;
     const square = state.getSquare(row, col);
     if (!square || square.occupant) {
