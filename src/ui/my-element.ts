@@ -36,6 +36,7 @@ import './my-piece-picker';
 import '@polymer/paper-dialog/paper-dialog';
 import {PaperDialogElement} from '@polymer/paper-dialog/paper-dialog';
 import {MySquare} from './my-square';
+import { selectPieceEvent, SelectEventType, SelectEventDetail } from './utils';
 
 const SQUARE_SIZE = Math.min(window.innerWidth / 8, 50); // 50
 /**
@@ -129,7 +130,7 @@ export class MyElement extends LitElement {
     );
     this.addEventListener('square-mouseup', this.onSquareMouseup.bind(this));
     // this.addEventListener('contextmenu', e => {e.preventDefault()});
-    this.addEventListener('promotion-picked', this.onPiecePicker);
+    this.addEventListener(SelectEventType.PROMOTION, this.onPiecePicker);
     this.addEventListener('square-dragstart', this.onSquareDragStart);
     this.addEventListener('square-drop', this.onDrop);
     this.addEventListener('square-double', this.onDoubleClick);
@@ -257,7 +258,7 @@ export class MyElement extends LitElement {
         vertical-align="top"
         ><my-piece-picker
           .pieces=${this.promotions ?? []}
-          .eventName=${'promotion-picked'}
+          .eventName=${SelectEventType.PROMOTION}
         ></my-piece-picker
       ></paper-dialog>
       <div class="board-bg">
@@ -310,6 +311,25 @@ export class MyElement extends LitElement {
     // There's a bug here where updating the game using move doesn't cause rerender.
     const square = e.detail.square as Square;
     let turn: Turn | undefined;
+    if (this.selectedPiece && !this.selectedSquare) {
+      // Drop
+      const turn = this.game.drop(this.color, this.selectedPiece, square.row, square.col);
+      if (!turn) {
+        this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
+          composed: true,
+          bubbles: true,
+          detail: selectPieceEvent(),
+        }));
+        return;
+      }
+
+      this.game.turnHistory = [...this.game.turnHistory, turn];
+      this.game.stateHistory.push(turn.after);
+      this.game.state = turn.after;
+
+      sendMessage(this.socket, {type: 'turn', turn});
+      this.audio.move?.play();
+    }
     if (this.selectedPiece && this.selectedSquare) {
       if (
         this.selectedPiece instanceof this.game.castler &&
@@ -333,8 +353,11 @@ export class MyElement extends LitElement {
         );
       }
       if (!turn) {
-        this.selectedSquare = undefined;
-        this.selectedPiece = undefined;
+        this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
+          composed: true,
+          bubbles: true,
+          detail: selectPieceEvent(),
+        }));
         return;
       }
 
@@ -366,8 +389,11 @@ export class MyElement extends LitElement {
         }
       }
 
-      this.selectedSquare = undefined;
-      this.selectedPiece = undefined;
+      this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
+        composed: true,
+        bubbles: true,
+        detail: selectPieceEvent(),
+      }));
       this.game.state = turn.after;
       this.game.turnHistory = [...this.game.turnHistory, turn];
       this.game.stateHistory.push(turn.after);
@@ -375,16 +401,24 @@ export class MyElement extends LitElement {
       sendMessage(this.socket, {type: 'turn', turn});
       this.audio.move?.play();
     } else {
-      this.selectedSquare = square;
-      this.selectedPiece = square.occupant;
+      if (square.occupant) {
+        this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
+          composed: true,
+          bubbles: true,
+          detail: selectPieceEvent(square.occupant, square),
+        }));
+      }
     }
     this.performUpdate();
   }
 
   onSquareDragStart = (e: CustomEvent) => {
     const square = e.detail as Square;
-    this.selectedSquare = square;
-    this.selectedPiece = square.occupant;
+    this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
+      composed: true,
+      bubbles: true,
+      detail: selectPieceEvent(square.occupant, square),
+    }));
   };
 
   // Drop
@@ -404,8 +438,11 @@ export class MyElement extends LitElement {
       this.performUpdate();
       return;
     }
-    this.selectedSquare = start;
-    this.selectedPiece = piece;
+    this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
+      composed: true,
+      bubbles: true,
+      detail: selectPieceEvent(piece, start),
+    }));
     this.onSquareClicked(e);
   };
 
@@ -434,8 +471,8 @@ export class MyElement extends LitElement {
 
   // Promotion
   onPiecePicker = (e: CustomEvent) => {
-    const piece = e.detail as Piece;
-    if (!this.promotionSquare || !this.selectedSquare || !this.selectedPiece)
+    const {piece} = e.detail as SelectEventDetail;
+    if (!this.promotionSquare || !this.selectedSquare || !this.selectedPiece || !piece)
       return;
 
     const turn = this.game.promote(
@@ -455,8 +492,11 @@ export class MyElement extends LitElement {
     sendMessage(this.socket, {type: 'turn', turn});
     this.audio.move?.play();
 
-    this.selectedSquare = undefined;
-    this.selectedPiece = undefined;
+    this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
+      composed: true,
+      bubbles: true,
+      detail: selectPieceEvent(),
+    }));
     const promotionModal = this.shadowRoot!.querySelector('#promotion-modal');
     (promotionModal as PaperDialogElement).close();
     this.performUpdate();

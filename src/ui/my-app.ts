@@ -32,6 +32,8 @@ import {BoardState} from '../chess/state';
 import {Color, getOpponent, ROULETTE_SECONDS} from '../chess/const';
 import {Knight, Piece} from '../chess/piece';
 import {randomChoice, memecase} from '../utils';
+import Square from '../chess/square';
+import { SelectEventType, SelectEventDetail } from './utils';
 
 @customElement('my-app')
 export class MyApp extends LitElement {
@@ -280,6 +282,8 @@ export class MyApp extends LitElement {
   @property({type: Object}) opponentInfo?: PlayerInfo;
   @property({type: Number}) opponentTimer?: number;
   @property({type: Boolean, reflect: true}) started = false;
+  @property({type: Object}) selectedPiece?: Piece;
+  @property({type: Object}) selectedSquare?: Square;
 
   private gameResult: string | undefined;
   private color?: Color;
@@ -300,6 +304,12 @@ export class MyApp extends LitElement {
       this.handleViewMoveChanged.bind(this)
     );
     this.addEventListener('request-new-game', this.requestNewGame);
+    // TODO Unify all these events
+    this.addEventListener(SelectEventType.PIECE, (e: CustomEvent) => {
+      const {piece, square} = e.detail;
+      this.selectedPiece = piece;
+      this.selectedSquare = square;;
+    });
 
     // Unload
     const onUnload = (e) => {
@@ -529,15 +539,19 @@ export class MyApp extends LitElement {
     return html`<div class="bank-wrapper">
       <div class="card bank">
         <my-piece-picker
+          .eventName=${SelectEventType.PIECE}
           .pieces=${this.game.state.banks[opponent]}
           .needsTarget=${true}
+          .selectedPiece=${this.selectedPiece}
         >
         </my-piece-picker>
       </div>
       <div class="card bank">
         <my-piece-picker
+          .eventName=${SelectEventType.PIECE}
           .pieces=${this.game.state.banks[player]}
           .needsTarget=${true}
+          .selectedPiece=${this.selectedPiece}
         >
         </my-piece-picker>
       </div>
@@ -596,6 +610,8 @@ export class MyApp extends LitElement {
               .game=${this.game}
               .viewMoveIndex=${this.viewMoveIndex}
               .started=${this.started}
+              .selectedPiece=${this.selectedPiece}
+              .selectedSquare=${this.selectedSquare}
             ></my-element>
           </div>
           <div class="active-game-info player">
@@ -641,9 +657,6 @@ export class MyApp extends LitElement {
             <my-rules .game=${this.game} .started=${this.started}></my-rules>
           </div>
         </div>
-      </div>
-      <div class="footer">
-        <a target="_blank" href="https://discord.gg/DpWUJYt">Discord</a>
       </div>
       <paper-dialog
         class="game-over-dialog"

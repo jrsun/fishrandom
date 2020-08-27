@@ -195,7 +195,11 @@ const handleMessage = function (uuid, message: Message) {
       log.warn('message is not valid turn message', message);
       return;
     }
-    room.handleTurn(uuid, message.turn);
+    try {
+      room.handleTurn(uuid, message.turn);
+    } catch (e) {
+      log.error('ERR: fatal turn error', e);
+    }
   }
   if (message.type === 'resign') {
     room.handleResign(uuid);
