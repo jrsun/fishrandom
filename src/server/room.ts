@@ -44,7 +44,7 @@ interface RoomPlayer {
   name: string; // for logging namespace
 }
 
-const PLAYER_TIME_MS = 3 * 60 * 1000;
+const PLAYER_TIME_MS = 1000 * 60 * 1000;
 // const PLAYER_TIME_MS = 15 * 1000;
 const INCREMENT_MS = 5 * 1000;
 
