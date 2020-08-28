@@ -337,14 +337,18 @@ export class MyApp extends LitElement {
     };
 
     this.socket.onclose = (e) => {
-      console.log(
-        'Socket is closed. Reconnect will be attempted in 1 second.',
-        e.reason
-      );
-      setTimeout(() => {
-        // if game isn't over, start
-        this.wsConnect(!this.gameResult);
-      }, 1000);
+      if (!this.gameResult) {
+        console.log(
+          'Socket closed during game. Reconnect will be attempted in 1 second.',
+          e.reason
+        );
+        setTimeout(() => {
+          // if game isn't over, start
+          this.wsConnect(!this.gameResult);
+        }, 1000);
+      } else {
+        console.warn('Socket closed. Reload to play');
+      }
     };
 
     this.socket.onerror = (e) => {
