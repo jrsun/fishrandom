@@ -28,9 +28,9 @@ var app = express();
 var wsCounter = 0;
 
 setInterval(() => {
-  log.notice('Active websockets:', wsCounter);
-  log.notice('Players:', Object.keys(players));
-}, 60 * 1000);
+  // log.notice('Active websockets:', wsCounter);
+  // log.notice('Players:', Object.keys(players));
+}, 1 * 1000);
 
 const argv = yargs
   .option('game', {
@@ -46,30 +46,19 @@ app.use(bodyParser.json());
 
 /** HTTP entry point */
 app.get('/', function (req, res) {
-  if (gameSettings[req.cookies.uuid]) {
-    res.sendFile(path.join(path.resolve() + '/dist/index.html'));
-  } else {
-    res.sendFile(path.join(path.resolve() + '/dist/login.html'));
-  }
+  res.sendFile(path.join(path.resolve() + '/dist/login.html'));
 });
 
-interface GameSettings {
-  username: string;
-  password?: string;
-}
-
-const gameSettings: {
-  [uuid: string]: GameSettings
-} = {};
+app.get('/game', function (req, res) {
+  if (!req.cookies.uuid || !req.query.user) {
+    res.redirect('/');
+    return;
+  }
+  res.sendFile(path.join(path.resolve() + '/dist/index.html'));
+})
 
 /** Login page */
 app.post('/login', function (req, res) {
-  if (!req.body.username || req.body.username !== escape(req.body.username)) {
-    return;
-  }
-
-  const {username, password} = req.body;
-  log.notice('logged in', username);
   let uuid = req.cookies.uuid;
   if (!uuid) {
     var randomNumber = Math.random().toString();
@@ -78,8 +67,7 @@ app.post('/login', function (req, res) {
       encode: String,
     });
   }
-  const escapedUser = username.replace(/[^0-9A-Za-z]+/gi, '').toLocaleLowerCase() ?? "fish";
-  gameSettings[uuid] = {username: escapedUser, password};
+  // const escapedUser = username.replace(/[^0-9A-Za-z]+/gi, '').toLocaleLowerCase() ?? "fish";
   res.end();
 });
 
@@ -129,39 +117,30 @@ wss.on('connection', function connection(ws: WebSocket, request) {
     log.notice('connected without uuid');
     return;
   }
-  if (!gameSettings[uuid]) {
-    return;
-  }
-  log.notice(
-    'User connected:',
-    gameSettings[uuid].username,
-  );
-
-  if (players[uuid]) {
-    // maybe need to close the old socket here
-    players[uuid].username = gameSettings[uuid].username;
-    players[uuid].socket = ws;
-  } else {
-    players[uuid] = {
-      uuid,
-      username: gameSettings[uuid].username,
-      streak: 0,
-      lastVariants: [],
-      socket: ws,
-      elo: 1500,
-    };
-  }
-
   addMessageHandler(ws, (message) => {
-    handleMessage(uuid, message);
+    handleMessage(ws, uuid, message);
   });
 });
 
 /** Handle websocket messages and delegate to room */
-const handleMessage = function (uuid, message: Message) {
-  const playerLog = log.get(players[uuid].username);
+const handleMessage = function (ws: WebSocket, uuid: string, message: Message) {
+  const playerLog = log.get(message.username);
   const room = players[uuid].room;
   if (message.type === 'newGame') {
+    if (players[uuid]) {
+      // maybe need to close the old socket here
+      players[uuid].socket = ws;
+      players[uuid].username = message.username;
+    } else {
+      players[uuid] = {
+        uuid,
+        username: message.username,
+        streak: 0,
+        lastVariants: [],
+        socket: ws,
+        elo: 1500,
+      };
+    }
     const activeRoom = players[uuid].room;
     if (!!activeRoom) {
       // Handle existing room
@@ -169,7 +148,7 @@ const handleMessage = function (uuid, message: Message) {
       activeRoom.reconnect(uuid, players[uuid].socket);
       return;
     }
-    newGame(players[uuid], gameSettings[uuid].password);
+    newGame(players[uuid], message.password);
     return;
   }
   if (
@@ -179,7 +158,6 @@ const handleMessage = function (uuid, message: Message) {
     // Clean up references if a player left while waiting
     playerLog.notice('left the game');
     WAITING.deletePlayer(players[uuid]);
-    delete gameSettings[uuid];
     return;
   }
   if (!room) {

@@ -96,9 +96,15 @@ export class MyLogin extends LitElement {
       },
       redirect: 'follow', // manual, *follow, error,
       referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      body: JSON.stringify({username: username.value, password: password.value}),
     }).then((data) => {
-      location.reload();
+      const user = encodeURIComponent(username.value);
+      const pass = password?.value ? encodeURIComponent(password.value) : undefined;
+      const gameUrl = new URL('/game', location.href);
+      gameUrl.searchParams.append('user', user);
+      if (pass) {
+        gameUrl.searchParams.append('room', pass);
+      }
+      location.href = gameUrl.toString();
     });
   }
 

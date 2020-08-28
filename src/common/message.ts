@@ -41,7 +41,9 @@ export interface ResignMessage {
 
 export interface NewGameMessage {
   type: 'newGame';
+  username: string;
   password?: string;
+  // time, variant
 }
 
 export interface ExitMessage {
@@ -162,22 +164,27 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
   return v;
 }
 
-export function sendMessage(ws: WebSocket, m: Message): Promise<void> {
+export function sendMessage(ws: WebSocket, m: Message, sync=false): Promise<void> {
   const input = JSON.stringify(m, replacer);
+  if (sync) {
+    const buffer = zlib.gzipSync(input);
+    ws.send(buffer.toString('base64'));
+    return Promise.resolve();
+  }
   return new Promise((resolve) => {
     zlib.gzip(input, (err, buffer) => {
       if (err) {
         console.error('Failed to compress and send message %s', input);
         return;
       }
-      if (typeof window === 'undefined') {
+      // if (typeof window === 'undefined') {
         console.error(
           '%s: Sending message of type %s with size %s',
           new Date().toUTCString(),
           m.type,
           buffer.length
         );
-      }
+      // }
       ws.send(buffer.toString('base64'));
 
       resolve();
@@ -187,7 +194,7 @@ export function sendMessage(ws: WebSocket, m: Message): Promise<void> {
 
 export function addMessageHandler(
   ws: WebSocket,
-  handler: (message: Message) => void
+  handler: (message: Message) => void,
 ) {
   ws.addEventListener('message', (e: MessageEvent) => {
     let msg: Message;

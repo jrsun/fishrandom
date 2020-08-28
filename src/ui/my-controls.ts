@@ -59,6 +59,7 @@ export class MyControls extends LitElement {
     }
     .controls > * {
       flex: 1;
+      min-width: 10px;
     }
     paper-button {
       background-color: #fefdfa;
@@ -112,7 +113,7 @@ export class MyControls extends LitElement {
   }
 
   onClickNew() {
-    this.dispatchEvent(new CustomEvent('request-new-game', {
+    this.dispatchEvent(new CustomEvent('init-game', {
       bubbles: true,
       composed: true,
     }));
@@ -194,6 +195,12 @@ export class MyControls extends LitElement {
               ?disabled=${this.playing}
               .onclick=${this.onClickNew.bind(this)}
               >New</paper-button
+            >
+            <paper-button
+              raised
+              ?disabled=${this.playing}
+              .onclick=${() => {location.href="/"}}
+              >Exit</paper-button
             >`
         }
          
