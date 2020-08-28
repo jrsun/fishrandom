@@ -166,7 +166,7 @@ wss.on('connection', function connection(ws: WebSocket, request) {
 /** Handle websocket messages and delegate to room */
 const handleMessage = function (ws: WebSocket, uuid: string, message: Message) {
   const playerLog = log.get(players[uuid].username);
-  const room = players[uuid].room;
+  const room = players[uuid]?.room;
   if (message.type === 'newGame') {
     const activeRoom = players[uuid].room;
     if (!!activeRoom) {

@@ -26,7 +26,8 @@ export type Message =
   | TimerMessage
   | ReconnectMessage
   | GameEventMessage
-  | KickMessage;
+  | KickMessage
+  | UndoMessage;
 
 /*
  * Client-initiated
@@ -117,6 +118,10 @@ export interface GameEventMessage {
 
 export interface KickMessage {
   type: 'kick';
+}
+
+export interface UndoMessage {
+  type: 'undo';
 }
 
 // Could use evals here instead

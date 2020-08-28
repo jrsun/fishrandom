@@ -206,12 +206,14 @@ export class Room {
     }
 
     if (!turn) {
-      log.get(me.name).warn('submitted an invalid move!');
+      sendMessage(me.player.socket, {type: 'undo'});
+      log.get(me.name).warn('submitted an invalid move, undoing!');
       return;
     }
     turn = game.modifyTurn(turn);
     if (!turn) {
-      log.get(me.name).error('submitted an invalid move!');
+      sendMessage(me.player.socket, {type: 'undo'});
+      log.get(me.name).error('submitted an invalid move, undoing!');
       return;
     }
 

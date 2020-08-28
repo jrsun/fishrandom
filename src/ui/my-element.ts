@@ -189,17 +189,17 @@ export class MyElement extends LitElement {
   }
 
   handleSocketMessage(message: Message) {
+    const {turnHistory, stateHistory} = this.game;
     if (message.type === 'replaceState') {
       const rm = message as ReplaceMessage;
       const {turn} = rm;
-      const {turnHistory: turnHistory, stateHistory} = this.game;
       turnHistory[turnHistory.length - 1] = turn;
       stateHistory[stateHistory.length - 1] = turn.after;
       this.game.state = turn.after;
     } else if (message.type === 'appendState') {
       const am = message as AppendMessage;
       const {turn} = am;
-      this.game.turnHistory = [...this.game.turnHistory, turn];
+      this.game.turnHistory = [...turnHistory, turn];
       this.game.stateHistory.push(turn.after);
       this.game.state = turn.after;
       this.audio.move?.play();
@@ -219,6 +219,10 @@ export class MyElement extends LitElement {
           this.performUpdate();
         }, 200);
       }
+    } else if (message.type === 'undo') {
+      this.game.turnHistory = turnHistory.slice(0, turnHistory.length - 1);
+      this.game.stateHistory = stateHistory.slice(0, stateHistory.length - 1);
+      this.game.state = stateHistory[this.game.stateHistory.length - 1];
     }
     // async?
     this.gameOver =
