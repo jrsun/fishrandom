@@ -339,7 +339,7 @@ export class MyApp extends LitElement {
     this.socket.onclose = (e) => {
       if (!this.gameResult) {
         console.log(
-          'Socket closed during game. Reconnect will be attempted in 1 second.',
+          'Socket closed during game or loading. Reconnect will be attempted in 1 second.',
           e.reason
         );
         setTimeout(() => {
@@ -503,9 +503,14 @@ export class MyApp extends LitElement {
     const goDialog = this.shadowRoot?.querySelector('paper-dialog');
     goDialog?.close();
 
+    this.gameResult = undefined;
     this.game = undefined;
     this.color = undefined;
-    sendMessage(this.socket, {type: 'newGame'});
+    if (!(this.socket.readyState === 1)) {
+      this.wsConnect(true);
+    } else {
+      sendMessage(this.socket, {type: 'newGame'});
+    }
   }
 
   renderWaiting() {
