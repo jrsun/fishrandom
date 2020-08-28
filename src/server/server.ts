@@ -129,10 +129,13 @@ wss.on('connection', function connection(ws: WebSocket, request) {
   const cookies = request.headers.cookie?.split(';');
   uuid = cookies?.find((cookie) => cookie.startsWith('uuid='))?.split('=')?.[1];
   if (!uuid) {
-    log.notice('connected without uuid');
+    log.notice('connected without uuid, kicking');
+    kick(ws);
     return;
   }
   if (!gameSettings[uuid]) {
+    log.notice('connected without gamesettings, kicking');
+    kick(ws, uuid);
     return;
   }
   log.notice(
@@ -156,12 +159,12 @@ wss.on('connection', function connection(ws: WebSocket, request) {
   }
 
   addMessageHandler(ws, (message) => {
-    handleMessage(uuid, message);
+    handleMessage(ws, uuid, message);
   });
 });
 
 /** Handle websocket messages and delegate to room */
-const handleMessage = function (uuid, message: Message) {
+const handleMessage = function (ws: WebSocket, uuid: string, message: Message) {
   const playerLog = log.get(players[uuid].username);
   const room = players[uuid].room;
   if (message.type === 'newGame') {
@@ -181,12 +184,11 @@ const handleMessage = function (uuid, message: Message) {
   ) {
     // Clean up references if a player left while waiting
     playerLog.notice('left the game');
-    WAITING.deletePlayer(players[uuid]);
-    delete gameSettings[uuid];
+    kick(ws, uuid);
     return;
   }
   if (!room) {
-    playerLog.notice('not in a room! exiting');
+    playerLog.notice('not in a room, ignoring');
     return;
   }
 
@@ -251,4 +253,13 @@ const EXCLUDE_LAST_N_VARIANTS = 5;
 const addLastVariant = (player: Player, variant: string) => {
   player.lastVariants.unshift(variant);
   player.lastVariants = player.lastVariants.slice(0, EXCLUDE_LAST_N_VARIANTS);
+}
+
+const kick = (ws: WebSocket, uuid?: string) => {
+  if (uuid) {
+    WAITING.deletePlayer(players[uuid]);
+    delete gameSettings[uuid];
+  }
+  sendMessage(ws, {type: 'kick'});
+  ws.close();
 }

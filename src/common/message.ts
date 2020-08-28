@@ -25,7 +25,8 @@ export type Message =
   | GameOverMessage
   | TimerMessage
   | ReconnectMessage
-  | GameEventMessage;
+  | GameEventMessage
+  | KickMessage;
 
 /*
  * Client-initiated
@@ -112,6 +113,10 @@ export interface GameOverMessage {
 export interface GameEventMessage {
   type: 'gameEvent';
   content: GameEvent;
+}
+
+export interface KickMessage {
+  type: 'kick';
 }
 
 // Could use evals here instead
