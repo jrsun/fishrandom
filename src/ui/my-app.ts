@@ -297,14 +297,11 @@ export class MyApp extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-
-    this.wsConnect(true);
     this.addEventListener(
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
     );
     this.addEventListener('request-new-game', this.requestNewGame);
-    // TODO Unify all these events
     this.addEventListener(SelectEventType.PIECE, (e: CustomEvent) => {
       const {piece, square} = e.detail;
       this.selectedPiece = piece;
@@ -320,6 +317,8 @@ export class MyApp extends LitElement {
     };
     window.onbeforeunload = onUnload;
     window.onunload = onUnload;
+
+    this.wsConnect(true);
   }
 
   wsConnect(start: boolean) {
@@ -331,7 +330,9 @@ export class MyApp extends LitElement {
     this.socket.onopen = () => {
       addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
       if (start) {
-        this.requestNewGame();
+        this.requestUpdate().then(() => { // set up child event listeners
+          this.requestNewGame();
+        })
       }
     };
 
@@ -414,6 +415,7 @@ export class MyApp extends LitElement {
       this.game = new VARIANTS[variantName](/* isServer=*/ false);
       this.game.turnHistory = [];
       this.game.stateHistory = [state];
+      this.gameResult = '';
 
       clearInterval(this.timerInterval);
       this.timerInterval = setInterval(() => {
@@ -453,7 +455,6 @@ export class MyApp extends LitElement {
       this.opponentInfo = opponent;
       this.color = color;
 
-      this.gameResult = '';
       if (message.type === 'initGame') this.onInitGame();
     } else if (message.type === 'gameOver') {
       const gom = message as GameOverMessage;

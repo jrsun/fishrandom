@@ -109,6 +109,13 @@ const wss = new WS.Server({
 const players: {[uuid: string]: Player} = {};
 
 wss.on('connection', function connection(ws: WebSocket, request) {
+  ws.addEventListener('close', () => {
+    log.notice(
+      'Client disconnected:',
+      players[uuid]?.username,
+    );
+    wsCounter--;
+  });
   log.notice(
     'Socket connected',
     request.headers['x-forwarded-for'] || request.connection.remoteAddress
@@ -131,6 +138,7 @@ wss.on('connection', function connection(ws: WebSocket, request) {
   );
 
   if (players[uuid]) {
+    // maybe need to close the old socket here
     players[uuid].username = gameSettings[uuid].username;
     players[uuid].socket = ws;
   } else {
@@ -146,13 +154,6 @@ wss.on('connection', function connection(ws: WebSocket, request) {
 
   addMessageHandler(ws, (message) => {
     handleMessage(uuid, message);
-  });
-  ws.addEventListener('close', () => {
-    log.notice(
-      'Client disconnected:',
-      players[uuid]?.username,
-    );
-    wsCounter--;
   });
 });
 

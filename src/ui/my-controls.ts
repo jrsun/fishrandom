@@ -76,22 +76,15 @@ export class MyControls extends LitElement {
   // protected
   @property({type: Number}) viewMoveIndex: number | undefined;
 
-  private hsm;
-
   connectedCallback() {
     super.connectedCallback();
-
-    this.hsm = this.handleSocketMessage.bind(this);
-    // addMessageHandler(this.socket, this.hsm);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-
-    // this.socket.removeEventListener('message', this.hsm);
   }
 
-  handleSocketMessage(message: Message) {
+  handleSocketMessage = (message: Message) => {
     if (message.type !== 'replaceState') {
       this.viewMoveIndex = undefined;
     }
@@ -127,7 +120,7 @@ export class MyControls extends LitElement {
 
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
-      addMessageHandler(this.socket, this.hsm);
+      addMessageHandler(this.socket, this.handleSocketMessage);
     }
     if (changedProperties.has('viewMoveIndex')) {
       this.dispatchEvent(

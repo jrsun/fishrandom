@@ -138,7 +138,7 @@ export class Room {
     );
   }
 
-  handleTurn(uuid: string, turnAttempt: Turn) {
+  async handleTurn(uuid: string, turnAttempt: Turn) {
     if (this.state !== RoomState.PLAYING) return;
 
     const game = this.game;
@@ -241,8 +241,8 @@ export class Room {
       },
     };
 
-    sendMessage(me.player.socket, rm);
-    sendMessage(opponent.player.socket, am);
+    await sendMessage(me.player.socket, rm);
+    await sendMessage(opponent.player.socket, am);
     this.sendTimers();
     // Pause timer because we're now handling cpuTurn
     this.timerPaused = true;
