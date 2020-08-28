@@ -52,6 +52,7 @@ app.get('/', function (req, res) {
 app.get('/game', function (req, res) {
   if (!req.cookies.uuid || !gameSettings[req.cookies.uuid]) {
     res.redirect('/');
+    return;
   }
   res.sendFile(path.join(path.resolve() + '/dist/index.html'));
 });
