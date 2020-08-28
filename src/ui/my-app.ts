@@ -294,6 +294,7 @@ export class MyApp extends LitElement {
     lose: HTMLAudioElement | null | undefined;
     init: HTMLAudioElement | null | undefined;
   };
+  private unloaded?: boolean;
 
   connectedCallback() {
     super.connectedCallback();
@@ -301,7 +302,7 @@ export class MyApp extends LitElement {
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
     );
-    this.addEventListener('request-new-game', this.requestNewGame);
+    this.addEventListener('init-game', this.initGame);
     this.addEventListener(SelectEventType.PIECE, (e: CustomEvent) => {
       const {piece, square} = e.detail;
       this.selectedPiece = piece;
@@ -318,10 +319,18 @@ export class MyApp extends LitElement {
     window.onbeforeunload = onUnload;
     window.onunload = onUnload;
 
-    this.wsConnect(true);
+    this.wsConnect();
   }
 
-  wsConnect(start: boolean) {
+  onUnload = () => {
+    if (this.unloaded) return;
+    this.unloaded = true;
+    sendMessage(this.socket, {type: 'exit'}, true);
+    this.socket.onclose = () => {};
+    this.socket.close();
+  }
+
+  wsConnect() {
     if (process.env.NODE_ENV === 'development') {
       this.socket = new WebSocket('ws://localhost:8081');
     } else {
@@ -329,25 +338,24 @@ export class MyApp extends LitElement {
     }
     this.socket.onopen = () => {
       addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
-      if (start) {
-        this.requestUpdate().then(() => { // set up child event listeners
-          this.requestNewGame();
-        })
-      }
+      this.requestUpdate().then(() => { // set up child event listeners
+        this.initGame();
+      })
     };
 
     this.socket.onclose = (e) => {
-      if (!this.gameResult) {
+      if (this.game && !this.gameResult) {
         console.log(
-          'Socket closed during game or loading. Reconnect will be attempted in 1 second.',
+          'Socket closed during game. Reconnect will be attempted in 1 second.',
           e.reason
         );
         setTimeout(() => {
           // if game isn't over, start
-          this.wsConnect(!this.gameResult);
+          this.wsConnect();
         }, 1000);
       } else {
-        console.warn('Socket closed. Reload to play');
+        console.warn('Socket closed.');
+        location.href = '/';
       }
     };
 
@@ -380,7 +388,7 @@ export class MyApp extends LitElement {
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
     );
-    this.removeEventListener('request-new-game', this.requestNewGame);
+    this.removeEventListener('init-game', this.initGame);
     this.socket.close();
   }
 
@@ -499,7 +507,7 @@ export class MyApp extends LitElement {
     this.viewMoveIndex = e.detail;
   }
 
-  requestNewGame = () => {
+  initGame = () => {
     const goDialog = this.shadowRoot?.querySelector('paper-dialog');
     goDialog?.close();
 
@@ -507,7 +515,7 @@ export class MyApp extends LitElement {
     this.game = undefined;
     this.color = undefined;
     if (!(this.socket.readyState === 1)) {
-      this.wsConnect(true);
+      this.wsConnect();
     } else {
       sendMessage(this.socket, {type: 'newGame'});
     }
@@ -678,7 +686,7 @@ export class MyApp extends LitElement {
           <paper-button
             class="game-over-button"
             raised
-            .onclick=${this.requestNewGame.bind(this)}
+            .onclick=${this.initGame.bind(this)}
           >
             New Game
           </paper-button>

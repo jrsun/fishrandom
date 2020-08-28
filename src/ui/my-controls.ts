@@ -112,7 +112,7 @@ export class MyControls extends LitElement {
   }
 
   onClickNew() {
-    this.dispatchEvent(new CustomEvent('request-new-game', {
+    this.dispatchEvent(new CustomEvent('init-game', {
       bubbles: true,
       composed: true,
     }));

@@ -162,8 +162,13 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
   return v;
 }
 
-export function sendMessage(ws: WebSocket, m: Message): Promise<void> {
+export function sendMessage(ws: WebSocket, m: Message, sync=false): Promise<void> {
   const input = JSON.stringify(m, replacer);
+  if (sync) {
+    const buffer = zlib.gzipSync(input);
+    ws.send(buffer.toString('base64'));
+    return Promise.resolve();
+  } 
   return new Promise((resolve) => {
     zlib.gzip(input, (err, buffer) => {
       if (err) {

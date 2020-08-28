@@ -46,11 +46,14 @@ app.use(bodyParser.json());
 
 /** HTTP entry point */
 app.get('/', function (req, res) {
-  if (gameSettings[req.cookies.uuid]) {
-    res.sendFile(path.join(path.resolve() + '/dist/index.html'));
-  } else {
-    res.sendFile(path.join(path.resolve() + '/dist/login.html'));
+  res.sendFile(path.join(path.resolve() + '/dist/login.html'));
+});
+
+app.get('/game', function (req, res) {
+  if (!req.cookies.uuid || !gameSettings[req.cookies.uuid]) {
+    res.redirect('/');
   }
+  res.sendFile(path.join(path.resolve() + '/dist/index.html'));
 });
 
 interface GameSettings {
