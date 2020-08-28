@@ -260,6 +260,13 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <ul>
       <li>Checkmate to win.</li>
     </ul>
+    W. B. Seabrook (1921)`,
+  Amazonarmy: html`White has an amazon but worse rooks.
+    <ul>
+      <li>Amazon moves as Knight + Queen</li>
+      <li>White's rooks are <b>short</b>. They only move up to 4 squares.</li>
+      <li>Checkmate to win.</li>
+    </ul>
     W. B. Seabrook (1921)`
 };
 

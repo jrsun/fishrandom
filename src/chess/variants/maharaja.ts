@@ -1,5 +1,5 @@
 import {Game} from '../game';
-import {Knight, Pawn, Amazon} from '../piece';
+import {Knight, Pawn, AmazonRoyal} from '../piece';
 import {Color, getOpponent} from '../const';
 import {BoardState, backRank} from '../state';
 import Square from '../square';
@@ -17,7 +17,7 @@ function generateStartState(): BoardState {
     1: {},
     6: {},
     7: {
-      4: new Amazon(Color.WHITE),
+      4: new AmazonRoyal(Color.WHITE),
     },
   };
 

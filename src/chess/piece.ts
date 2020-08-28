@@ -115,6 +115,7 @@ class Leaper extends Piece {
 
 class Rider extends Piece {
   moves: Pair[];
+  max?: number;
   legalMoves(row: number, col: number, state: BoardState): Move[] {
     return dedup(
       this.moves.flatMap((move) =>
@@ -141,13 +142,15 @@ class Rider extends Piece {
     col: number,
     rowDir: number,
     colDir: number,
-    state: BoardState
+    state: BoardState,
   ): Move[] {
     // ride in one direction until we hit the edge of board or another piece
     const moves: Move[] = [];
     let square = state.getSquare(row + rowDir, col + colDir);
 
-    while (square) {
+    let count = 0;
+    while (square && (this.max ? count < this.max : true)) {
+      count += 1;
       if (!square.occupant || square.occupant.color !== this.color) {
         moves.push({
           before: state,
@@ -198,6 +201,22 @@ export class Rook extends Rider {
       return 'rdt.svg';
     } else if (this.color === Color.WHITE) {
       return 'rlt.svg';
+    }
+    throw new Error(
+      'no image for color: ' + this.color + 'for piece ' + this.name
+    );
+  }
+}
+
+export class Rook4 extends Rook {
+  name = 'Rook4';
+  max = 4;
+
+  get img(): string {
+    if (this.color === Color.BLACK) {
+      return 'r4dt.svg';
+    } else if (this.color === Color.WHITE) {
+      return 'r4lt.svg';
     }
     throw new Error(
       'no image for color: ' + this.color + 'for piece ' + this.name
@@ -398,9 +417,9 @@ export class RoyalKnight extends Knight {
   }
 }
 
+
 export class Amazon extends Piece {
   name = 'Amazon';
-  isRoyal = true;
 
   toFEN() {
     return 'A';
@@ -423,6 +442,11 @@ export class Amazon extends Piece {
   get img(): string {
     return this.color === Color.BLACK ? '_dt.svg' : 'svg/alt.svg';
   }
+}
+
+export class AmazonRoyal extends Amazon {
+  name = 'AmazonRoyal';
+  isRoyal = true;
 }
 
 export class Chancellor extends Piece {
@@ -483,6 +507,8 @@ export const ALL_PIECES: {[name: string]: typeof Piece} = {
   King,
   RoyalKnight,
   Mann,
+  AmazonRoyal,
   Amazon,
   Zero,
+  Rook4,
 };
