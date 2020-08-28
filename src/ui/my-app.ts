@@ -230,6 +230,14 @@ export class MyApp extends LitElement {
       -moz-animation-fill-mode:forwards;
       animation-fill-mode:forwards;
     }
+    .exit-while-waiting {
+      margin-top: 10px;
+      background-color: #eee;
+    }
+    .exit-while-waiting:hover {
+      transition: 0.2s;
+      background-color: #e2a18b;
+    }
     .game-over-dialog {
       display: flex;
       flex-direction:column;
@@ -538,6 +546,12 @@ export class MyApp extends LitElement {
       </div>
       <div class="fish-con"><div class="fish"></div></div>
       <my-release-notes></my-release-notes>
+      <paper-button
+        class="exit-while-waiting"
+        raised
+        .onclick=${() => {location.href = '/'}}
+        >Back</paper-button
+      >
     </div>`;
   }
 
