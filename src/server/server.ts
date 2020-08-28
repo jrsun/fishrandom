@@ -82,7 +82,8 @@ app.post('/login', function (req, res) {
       encode: String,
     });
   }
-  const escapedUser = username.replace(/[^0-9A-Za-z]+/gi, '').toLocaleLowerCase() ?? "fish";
+  const escapedUser = username.replace(/[^0-9A-Za-z]+/gi, '').toLocaleLowerCase()
+    .slice(0, 15) ?? "fish";
   gameSettings[uuid] = {username: escapedUser, password};
   res.end();
 });
