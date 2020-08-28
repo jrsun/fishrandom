@@ -165,14 +165,16 @@ wss.on('connection', function connection(ws: WebSocket, request) {
 
 /** Handle websocket messages and delegate to room */
 const handleMessage = function (ws: WebSocket, uuid: string, message: Message) {
+  if (!players[uuid]) {
+    kick(ws, uuid);
+  } // guarantee a player exists
   const playerLog = log.get(players[uuid].username);
-  const room = players[uuid]?.room;
+  const room = players[uuid].room;
   if (message.type === 'newGame') {
-    const activeRoom = players[uuid].room;
-    if (!!activeRoom) {
+    if (!!room) {
       // Handle existing room
       playerLog.notice('already in a room, reconnecting');
-      activeRoom.reconnect(uuid, players[uuid].socket);
+      room.reconnect(uuid, players[uuid].socket);
       return;
     }
     newGame(players[uuid], gameSettings[uuid].password);
