@@ -41,6 +41,18 @@ export class Antichess extends Game {
     return state.pieces.filter(piece => piece.color === color).length === 0
     || super.drawCondition(color, state);
   }
+
+  validateTurn(color: Color, turn: Turn): boolean {
+    if (
+      turn.end.row < 0 ||
+      turn.end.row >= this.state.ranks ||
+      turn.end.col < 0 ||
+      turn.end.col >= this.state.files
+    ) {
+      return false;
+    }
+    return true;
+  }
 }
 
 function genInitial(): BoardState {
