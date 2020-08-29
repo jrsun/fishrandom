@@ -7,7 +7,6 @@ import {Royalpawn} from './royalpawn';
 
 export class Amazonarmy extends Game {
   name = 'Amazonarmy';
-  castler = RoyalKnight;
   constructor(isServer) {
     super(isServer, genInitial());
   }

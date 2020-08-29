@@ -422,7 +422,7 @@ export class Game {
       .empty(rookSquare.row, rookSquare.col)
       .empty(row, col)
       .place(king, target.row, target.col)
-      .place(new Rook(color), target.row, target.col + (kingside ? -1 : 1));
+      .place(rookSquare.occupant!, target.row, target.col + (kingside ? -1 : 1));
     const type = TurnType.CASTLE as const;
     return {
       before,
