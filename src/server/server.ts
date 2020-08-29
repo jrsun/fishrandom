@@ -261,13 +261,15 @@ const addLastVariant = (player: Player, variant: string) => {
 
 const kick = (ws: WebSocket, uuid?: string) => {
   if (uuid) {
-    WAITING.deletePlayer(players[uuid]);
-    delete gameSettings[uuid];
-    const room = players[uuid].room;
-    if (room) {
-      // This shouldn't happen, but end the room just in case.
-      room.wins(room.p1.player.uuid === uuid ? room.p2.player.uuid : room.p1.player.uuid);
+    if (players[uuid]) {
+      WAITING.deletePlayer(players[uuid]);
+      const room = players[uuid].room;
+      if (room) {
+        // This shouldn't happen, but end the room just in case.
+        room.wins(room.p1.player.uuid === uuid ? room.p2.player.uuid : room.p1.player.uuid);
+      }
     }
+    delete gameSettings[uuid];
   }
   sendMessage(ws, {type: 'kick'});
   ws.close();

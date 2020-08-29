@@ -147,6 +147,7 @@ export class MyElement extends LitElement {
 
   firstUpdated() {
     this.audio.move = this.shadowRoot?.querySelector('#move-audio');
+    this.audio.capture = this.shadowRoot?.querySelector('#capture-audio');
     const canvas = this.shadowRoot?.querySelector('canvas');
     if (!canvas) return;
 
@@ -202,7 +203,11 @@ export class MyElement extends LitElement {
       this.game.turnHistory = [...turnHistory, turn];
       this.game.stateHistory.push(turn.after);
       this.game.state = turn.after;
-      this.audio.move?.play();
+      if (turn.captured) {
+        this.audio.capture?.play();
+      } else {
+        this.audio.move?.play();
+      }
     } else if (message.type === 'gameEvent') {
       const {pairs, type, name} = message.content;
       for (const pair of pairs) {
@@ -254,6 +259,11 @@ export class MyElement extends LitElement {
       <audio
         id="move-audio"
         src="../../snd/move-piece.mp3"
+        preload="auto"
+      ></audio>
+      <audio
+        id="capture-audio"
+        src="../../snd/chess-capture.mp3"
         preload="auto"
       ></audio>
       <paper-dialog
@@ -332,7 +342,11 @@ export class MyElement extends LitElement {
       this.game.state = turn.after;
 
       sendMessage(this.socket, {type: 'turn', turn});
-      this.audio.move?.play();
+      if (turn.captured) {
+        this.audio.capture?.play();
+      } else {
+        this.audio.move?.play();
+      }
     }
     if (this.selectedPiece && this.selectedSquare) {
       if (
@@ -403,7 +417,11 @@ export class MyElement extends LitElement {
       this.game.stateHistory.push(turn.after);
 
       sendMessage(this.socket, {type: 'turn', turn});
-      this.audio.move?.play();
+      if (turn.captured) {
+        this.audio.capture?.play();
+      } else {
+        this.audio.move?.play();
+      }
     } else {
       if (square.occupant) {
         this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
@@ -438,7 +456,11 @@ export class MyElement extends LitElement {
       this.game.state = turn.after;
 
       sendMessage(this.socket, {type: 'turn', turn});
-      this.audio.move?.play();
+      if (turn.captured) {
+        this.audio.capture?.play();
+      } else {
+        this.audio.move?.play();
+      }
       this.performUpdate();
       return;
     }
