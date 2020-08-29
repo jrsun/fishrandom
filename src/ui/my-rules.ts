@@ -256,7 +256,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Then, play continues as a normal chess game.</li>
     </ul>
     Pal Benko (1978) `,
-  Riflechess: html`Pieces remain where they are when capturing. Defense is difficult.
+  Riflechess: html`Pieces do not move when capturing. Defense is difficult.
     <ul>
       <li>Checkmate to win.</li>
     </ul>
@@ -275,7 +275,17 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>No castling. King is not royal.</li>
       <li>Pawn also promotes to King</li>
     </ul>
-  `
+  `,
+  Golemchess: html`So nice it gets captured twice.
+    <ul>
+      <li>Each side has a <b>Golem</b> (rhino)</li>
+      <li>The first time it gets captured, the capturer is removed from
+        the board and the Golem becomes a <b>Half-Golem</b> (small rhino).</li>
+      <li>If a Golem captures a Golem, the captured Golem is destroyed,
+        but the capturer becomes a Half-Golem.</b></li>
+    </ul>
+    Peter Aronson and Ben Good
+  `,
 };
 
 declare global {

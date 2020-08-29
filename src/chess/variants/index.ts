@@ -20,6 +20,7 @@ import {Pieceeater} from './pieceeater';
 import {Riflechess} from './rifle';
 import {Amazonarmy} from './amazonarmy';
 import {Antichess} from './antichess';
+import {Golemchess} from './golem';
 import {randomChoice} from '../../utils';
 
 export const VARIANTS: {[name: string]: typeof Game} = {
@@ -46,6 +47,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Riflechess,
   Amazonarmy,
   Antichess,
+  Golemchess,
 };
 
 export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
@@ -74,6 +76,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   // Synchrone
   Amazonarmy,
   Antichess,
+  Golemchess,
 };
 
 export function Random(...except: string[]): typeof Game {
@@ -111,4 +114,5 @@ export {
   Prechess,
   Riflechess,
   Amazonarmy,
+  Golemchess,
 };
