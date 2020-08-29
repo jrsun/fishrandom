@@ -222,13 +222,12 @@ export class Game {
   }
 
   drawCondition(color: Color, state: BoardState): boolean {
-    const moves = state.squares
-      .flat()
-      .filter((square) => square.occupant?.color === color)
-      .flatMap((square) => this.legalMovesFrom(state, square.row, square.col));
-    for (const move of moves) {
-      if (move && !this.knowsInCheck(color, move.after)) {
-        return false;
+    for (const square of state.squares.flat().filter(square => square.occupant?.color === color)) {
+      const moves = this.legalMovesFrom(state, square.row, square.col);
+      for (const move of moves) {
+        if (move && !this.knowsInCheck(color, move.after)) {
+          return false;
+        }
       }
     }
 

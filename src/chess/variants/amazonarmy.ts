@@ -10,10 +10,6 @@ export class Amazonarmy extends Game {
   constructor(isServer) {
     super(isServer, genInitial());
   }
-
-  promotesTo(): typeof Piece[] {
-    return [Queen, Rook, Bishop, Knight];
-  }
 }
 
 function genInitial(): BoardState {
