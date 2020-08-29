@@ -261,13 +261,21 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Checkmate to win.</li>
     </ul>
     W. B. Seabrook (1921)`,
-  Amazonarmy: html`White has an amazon but worse rooks.
+  Amazonarmy: html`White has an Amazon but worse rooks.
     <ul>
       <li>Amazon moves as Knight + Queen</li>
       <li>White's rooks are <b>short</b>. They only move up to 4 squares.</li>
       <li>Checkmate to win.</li>
     </ul>
-    W. B. Seabrook (1921)`
+    W. B. Seabrook (1921)`,
+  Antichess: html`Losing chess. Try to lose all your pieces.
+    <ul>
+      <li>Lose all your pieces or have no legal moves to win.</li>
+      <li>You <b>must</b> make a capture if you can.</li>
+      <li>No castling. King is not royal.</li>
+      <li>Pawn also promotes to King</li>
+    </ul>
+  `
 };
 
 declare global {
