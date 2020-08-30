@@ -256,7 +256,7 @@ export class Room {
     // Pause timer because we're now handling cpuTurn
     this.timerPaused = true;
 
-    if (this.checkIfOver()) return;
+    if (this.checkIfOver(me)) return;
 
     // BUG: Don't let people move before cpuTurn
     this.takeCpuTurn();
@@ -294,7 +294,7 @@ export class Room {
 
     sendMessage(p1.player.socket, am1);
     sendMessage(p2.player.socket, am2);
-    this.checkIfOver();
+    this.checkIfOver(p1);
   }
 
   reconnect(uuid: string, socket: WebSocket) {
@@ -324,8 +324,10 @@ export class Room {
     });
   }
 
-  checkIfOver(): boolean {
-    const {game, p1: me, p2: opponent} = this;
+  checkIfOver(me: RoomPlayer): boolean {
+    // player is who just moved
+    const {game} = this;
+    const opponent = me === this.p1 ? this.p2 : this.p1;
     const playerWins = game.winCondition(me.color, game.state);
     const opponentWins = game.winCondition(opponent.color, game.state);
     if (playerWins) {
@@ -340,7 +342,8 @@ export class Room {
       this.wins(opponent.player.uuid);
       return true;
     }
-    if (game.drawCondition(me.color, game.state)) {
+    // This move put the opponent into stalemate
+    if (game.drawCondition(opponent.color, game.state)) {
       this.draws();
       return true;
     }
