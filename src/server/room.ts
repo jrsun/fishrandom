@@ -44,8 +44,6 @@ interface RoomPlayer {
   name: string; // for logging namespace
 }
 
-const PLAYER_TIME_MS = process.env.NODE_ENV === 'development' ? 10000000 : 3 * 60 * 1000;
-// const PLAYER_TIME_MS = 15 * 1000;
 const INCREMENT_MS = 5 * 1000;
 
 const ELO_K = 100;
@@ -63,17 +61,20 @@ export class Room {
   timerInterval: any; // timer
   timerPaused: boolean;
 
-  constructor(p1: Player, p2: Player, gc: typeof Game) {
+  constructor(p1: Player, p2: Player, gc: typeof Game,
+    timeMs = 3 * 60 * 1000,
+    incrementMs = 5 * 1000,
+  ) {
     this.p1 = {
       player: p1,
       color: randomChoice([Color.WHITE, Color.BLACK]),
-      time: PLAYER_TIME_MS,
+      time: timeMs,
       name: p1.username,
     };
     this.p2 = {
       player: p2,
       color: getOpponent(this.p1.color),
-      time: PLAYER_TIME_MS,
+      time: timeMs,
       name: p2.username,
     };
     if (this.p1.color === Color.WHITE) {

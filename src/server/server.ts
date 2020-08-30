@@ -241,7 +241,12 @@ const newGame = (player: Player, password?: string) => {
       ...player.lastVariants
     );
   }
-  const room = new Room(opponent, player, NG);
+  let room: Room;
+  if (password || process.env.NODE_ENV === 'development') {
+    room = new Room(opponent, player, NG, 99 * 60 * 1000);
+  } else {
+    room = new Room(opponent, player, NG);
+  }
   opponent.room = room;
   player.room = room;
 
