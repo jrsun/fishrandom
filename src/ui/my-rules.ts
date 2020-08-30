@@ -234,7 +234,8 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   Football: html`Get a piece on your opponent's King or Queen starting squares
     to win.
     <ul>
-      <li>Get to d8 or e8 to win as white, d1 or e1 as black.</li>
+    <li>Get to d8 or e8 to win as white, d1 or e1 as black.</li>
+    <li>Capturing all opponent pieces also wins.</li>
       <li>King can be captured without ending game.</li>
     </ul>
     <a

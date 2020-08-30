@@ -1,6 +1,6 @@
 import {Game, GameEventName, GameEventType} from '../game';
 import {Knight, Rook, Bishop, Queen, Pawn, Piece, Mann} from '../piece';
-import {Color} from '../const';
+import {Color, getOpponent} from '../const';
 import {BoardState, squaresFromPos} from '../state';
 import Square from '../square';
 
@@ -30,7 +30,10 @@ export class Football extends Game {
     const goals: Square[] = (color === Color.WHITE
       ? [state.getSquare(0, 3), state.getSquare(0, 4)]
       : [state.getSquare(7, 3), state.getSquare(7, 4)]) as Square[];
-    return goals.some((goal) => goal.occupant?.color === color);
+    if (goals.some((goal) => goal.occupant?.color === color)) {
+      return true;
+    }
+    return state.pieces.filter(piece => piece.color === getOpponent(color)).length === 0;
   }
 
   promotesTo(): typeof Piece[] {

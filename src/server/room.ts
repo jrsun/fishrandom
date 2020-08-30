@@ -259,11 +259,11 @@ export class Room {
     if (this.checkIfOver(me)) return;
 
     // BUG: Don't let people move before cpuTurn
-    this.takeCpuTurn();
+    this.takeCpuTurn(me);
     this.timerPaused = false;
   }
 
-  takeCpuTurn() {
+  takeCpuTurn(justMovedPlayer: RoomPlayer) {
     const {game, p1, p2} = this;
 
     let turn = game.cpuTurn();
@@ -294,7 +294,7 @@ export class Room {
 
     sendMessage(p1.player.socket, am1);
     sendMessage(p2.player.socket, am2);
-    this.checkIfOver(p1);
+    this.checkIfOver(justMovedPlayer);
   }
 
   reconnect(uuid: string, socket: WebSocket) {
