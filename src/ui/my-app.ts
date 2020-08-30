@@ -64,6 +64,7 @@ export class MyApp extends LitElement {
       text-overflow: clip;
       overflow: hidden;
       white-space: nowrap;
+      font-size: 4vw;
     }
     .card {
       display: block;
@@ -300,7 +301,7 @@ export class MyApp extends LitElement {
     lowTime: HTMLAudioElement | null | undefined;
     win: HTMLAudioElement | null | undefined;
     lose: HTMLAudioElement | null | undefined;
-    init: HTMLAudioElement | null | undefined;
+    roulette: HTMLAudioElement | null | undefined;
   };
   private unloaded?: boolean;
 
@@ -376,10 +377,10 @@ export class MyApp extends LitElement {
 
   firstUpdated() {
     this.audio = {
-      lowTime: this.shadowRoot?.querySelector('#low-time-audio'),
-      win: this.shadowRoot?.querySelector('#win-audio'),
-      lose: this.shadowRoot?.querySelector('#lose-audio'),
-      init: this.shadowRoot?.querySelector('#init-audio'),
+      lowTime: document.querySelector('#low-time-audio') as HTMLAudioElement,
+      win: document.querySelector('#win-audio') as HTMLAudioElement,
+      lose: document.querySelector('#lose-audio') as HTMLAudioElement,
+      roulette: document.querySelector('#roulette-audio') as HTMLAudioElement,
     };
   }
 
@@ -426,6 +427,10 @@ export class MyApp extends LitElement {
           this.game?.name.toUpperCase().split('').join(' ') ?? '';
       }
     }, ROULETTE_SECONDS * 1000);
+    if (this.audio.roulette) {
+      this.audio.roulette.volume = 0.5;
+      this.audio.roulette?.play();
+    }
   }
 
   handleSocketMessage(message: Message) {
@@ -535,14 +540,6 @@ export class MyApp extends LitElement {
 
   renderWaiting() {
     return html`<div class="app waiting">
-      <audio
-        id="low-time-audio"
-        src="../../snd/low-time.mp3"
-        preload="auto"
-      ></audio>
-      <audio id="win-audio" src="../../snd/win.mp3" preload="auto"></audio>
-      <audio id="lose-audio" src="../../snd/lose.mp3" preload="auto"></audio>
-      <audio id="init-audio" src="../../snd/init.mp3" preload="auto"></audio>
       <div>
         <h1 class="title">
           Waiting for players...
