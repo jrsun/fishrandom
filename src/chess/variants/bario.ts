@@ -4,7 +4,7 @@ import {Color, getOpponent} from '../const';
 import {BoardState, squaresFromPos} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
-import {Move, TurnType, Castle, Turn} from '../turn';
+import {Move, TurnType, Castle, Turn, Promote} from '../turn';
 import {dedup, Pair} from '../pair';
 
 const OPTIONS = [Bishop, Bishop, Knight, Knight, Rook, Rook, Queen];
@@ -13,6 +13,74 @@ export class Bario extends Game {
   name = 'Bario';
   constructor(isServer: boolean) {
     super(isServer, generateInitial());
+  }
+
+  promotions(turn: Turn): Piece[] | undefined {
+    if (turn.piece instanceof Pawn) return super.promotions(turn);
+    if (turn.piece instanceof Zero) {
+      const {after, piece, end} = turn; 
+      const afterPiece = after.getSquare(end.row, end.col)?.occupant;
+      if (!afterPiece) return [];
+
+      const extra = after.extra.bario;
+      if (!extra) return [];
+
+      const options =
+        piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
+      const index = options.findIndex((opt) => opt.name === afterPiece.name);
+      if (afterPiece instanceof Bishop || afterPiece instanceof Rook) {
+        const qindex = options.findIndex(opt => opt instanceof Queen);
+        if (qindex !== -1) {
+          return [afterPiece, options[qindex]];
+        }
+      }
+      return [afterPiece];
+    }
+  }
+
+  promote(color, promoter, to, srow, scol, drow, dcol): Promote | undefined {
+    const turn = super.promote(color, promoter, to, srow, scol, drow, dcol);
+    if (!turn) return;
+    const {after} = turn;
+    const extra = this.state.extra.bario;
+    if (!extra) return;
+
+    const options =
+      promoter.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
+    const index = options.findIndex((opt) => opt.name === to.name);
+    if (index !== -1) {
+      options.splice(index, 1);
+    }
+    // If no zeroes of the player's color are left, replace all their pieces with zeroes.
+    if (
+      after.squares
+        .flat()
+        .filter(
+          (square) =>
+            square?.occupant instanceof Zero &&
+            square.occupant.color === promoter.color
+        ).length === 0
+    ) {
+      const newState = BoardState.copy(after);
+      for (let i = 0; i < after.squares.length; i++) {
+        for (let j = 0; j < after.squares[i].length; j++) {
+          const occupant = after.getSquare(i, j)?.occupant;
+          if (!occupant) continue;
+          if (
+            occupant.color === promoter.color &&
+            [Bishop, Knight, Rook, Queen].some((t) => occupant instanceof t)
+          ) {
+            newState.place(new Zero(occupant.color), i, j);
+          }
+        }
+      }
+      this.resetOptions();
+      return {
+        ...turn,
+        after: newState,
+      };
+    }
+    return turn;
   }
 
   legalMovesFrom(
@@ -51,58 +119,6 @@ export class Bario extends Game {
       );
     }
     return moves;
-  }
-
-  move(color, piece, srow, scol, drow, dcol): Move | undefined {
-    const turn = super.move(color, piece, srow, scol, drow, dcol);
-    if (!turn) return;
-    const {after, end} = turn;
-    // Note: piece is Zero, afterPiece is the piece the Zero moved as.
-    if (piece instanceof Zero) {
-      const afterPiece = after.getSquare(end.row, end.col)?.occupant;
-      if (!afterPiece) return turn;
-
-      const extra = after.extra.bario;
-      if (!extra) return turn;
-
-      const options =
-        piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
-      const index = options.findIndex((opt) => opt.name === afterPiece.name);
-      if (index !== -1) {
-        options.splice(index, 1);
-      }
-    }
-
-    // If no zeroes of the player's color are left, replace all their pieces with zeroes.
-    if (
-      after.squares
-        .flat()
-        .filter(
-          (square) =>
-            square?.occupant instanceof Zero &&
-            square.occupant.color === piece.color
-        ).length === 0
-    ) {
-      const newState = BoardState.copy(after);
-      for (let i = 0; i < after.squares.length; i++) {
-        for (let j = 0; j < after.squares[i].length; j++) {
-          const occupant = after.getSquare(i, j)?.occupant;
-          if (!occupant) continue;
-          if (
-            occupant.color === piece.color &&
-            [Bishop, Knight, Rook, Queen].some((t) => occupant instanceof t)
-          ) {
-            newState.place(new Zero(occupant.color), i, j);
-          }
-        }
-      }
-      this.resetOptions();
-      return {
-        ...turn,
-        after: newState,
-      };
-    }
-    return turn;
   }
 
   private resetOptions() {

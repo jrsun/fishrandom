@@ -190,7 +190,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       </li>
       <li>Checkmate or <b>capture</b> the king to win.</li>
       <li>No castling.</li>
-      <li>When possible, a Bishop or Rook will be made before a Queen.</li>
+      <li>You may choose which piece to change to if ambiguous.</li>
     </ul>
     Panos Louridas (1998) `,
   Atomic: html`Captures explode the captured piece and all neighboring pieces

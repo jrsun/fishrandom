@@ -491,6 +491,21 @@ export class Zero extends Piece {
   name = 'Zero';
   isRoyal = false;
 
+  // TODO Fix
+  legalMoves(row, col, state): Move[] {
+    return [
+      ...new Knight(this.color).legalMoves(row, col, state),
+      ...new Queen(this.color).legalMoves(row, col, state),
+    ].map((move: Move) => {
+      const {end, after} = move;
+      return {
+        ...move,
+        after: after.place(this, end.row, end.col),
+        piece: this,
+      };
+    });
+  }
+
   get img(): string {
     return this.color === Color.BLACK ? 'moondt.svg' : 'moonlt.svg'; // TEMP
   }
