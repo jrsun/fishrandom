@@ -156,12 +156,12 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Bomb promotes as a normal pawn.</li>
     </ul>
     Jim Winslow (1991)`,
-  Maharaja: html`White's sole piece is the powerful <b>Amazon</b>, which moves
-    like a Knight + Queen.
-    <ul>
-      <li>White wins by checkmate.</li>
-      <li>Black wins by checkmating the Amazon.</li>
-    </ul>`,
+  // Maharaja: html`White's sole piece is the powerful <b>Amazon</b>, which moves
+  //   like a Knight + Queen.
+  //   <ul>
+  //     <li>White wins by checkmate.</li>
+  //     <li>Black wins by checkmating the Amazon.</li>
+  //   </ul>`,
   Chess921600: html`Starting position of the pieces on the players' home ranks
     is independently randomized.
     <!-- <div class="examples"><img src="../img/variants/960.png"/></div> -->
@@ -219,10 +219,11 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <ul>
       <li>Elephant moves after every turn.</li>
       <li>
-        If you move/drop a piece next to the Elephant, it will
-        <b>capture</b> it, except...
+        If you move a piece to a square adjacent to the Elephant, it will
+        <b>capture</b> it on that turn, except...
       </li>
       <li>Elephant will not capture or move adjacent to a <b>King</b>.</li>
+      <li>Otherwise, the Elephant moves randomly.</li>
       <li>
         Each player has an extra <b>pawn</b> drop, anywhere except the first or
         last rank.
@@ -278,9 +279,11 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   `,
   Golemchess: html`So nice it gets captured twice.
     <ul>
-      <li>Each side has a <b>Golem</b> (rhino)</li>
+      <li>Each side has a <b>Golem</b> (rhino) which moves as a Queen, but
+      only a maximum of <b>two</b> squares in any direction.</li>
       <li>The first time it gets captured, the capturer is removed from
-        the board and the Golem becomes a <b>Half-Golem</b> (small rhino).</li>
+        the board and the Golem becomes a <b>Half-Golem</b> (small rhino)
+        with the same movement.</li>
       <li>If a Golem captures a Golem, the captured Golem is destroyed,
         but the capturer becomes a Half-Golem.</b></li>
     </ul>

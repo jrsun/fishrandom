@@ -13,7 +13,7 @@ import {Grasshopper} from './grasshopper';
 import {Pocketknight} from './pocketknight';
 import {Prechess} from './prechess';
 import {Stealthbomber} from './stealthbomber';
-import {Maharaja} from './maharaja';
+// import {Maharaja} from './maharaja';
 import {Football} from './football';
 import {Test} from './test';
 import {Pieceeater} from './pieceeater';
@@ -41,7 +41,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Pocketknight,
   Test,
   Stealthbomber,
-  Maharaja,
+  // Maharaja,
   Chess921600,
   Prechess,
   Riflechess,
@@ -63,7 +63,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Dark2r,
   Pocketknight,
   Stealthbomber,
-  Maharaja,
+  // Maharaja,
   Chess921600,
   Chess960,
   Pieceeater,
@@ -106,7 +106,7 @@ export {
   Dark2r,
   Stealthbomber,
   Test,
-  Maharaja,
+  // Maharaja,
   Chess921600,
   Atomic,
   Football,
