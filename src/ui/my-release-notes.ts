@@ -32,6 +32,7 @@ export class MyReleaseNotes extends LitElement {
 
   render() {
     return html` <div class="subtitle">Release Notes:</div>
+      <div class="subtitle">8/30 - kungfu / bario improvements</div>
       <div class="subtitle">8/29 - stalemate fix / extended timer for private games / abort game without resigning</div>
       <div class="subtitle">8/28 - golem / antichess / amazon army</div>
       <div class="subtitle">8/27 - rifle chess</div>

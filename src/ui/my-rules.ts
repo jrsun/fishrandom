@@ -289,6 +289,11 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     </ul>
     Peter Aronson and Ben Good
   `,
+  Kungfu: html`After the first move by each player, the game plays in <b>real time</b>.
+  Move as fast as you can.
+  <ul><li>Checkmate to win.</li></ul>
+  Shizmoo Games, 2000s
+  `,
 };
 
 declare global {
