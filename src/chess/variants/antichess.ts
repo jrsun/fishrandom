@@ -12,8 +12,8 @@ export class Antichess extends Game {
     super(isServer, genInitial());
   }
 
-  promotesTo(): typeof Piece[] {
-    return [Queen, Rook, Bishop, Knight, Mann];
+  promotesTo(piece: Piece): Piece[] {
+    return [Queen, Rook, Bishop, Knight, Mann].map(t => new t(piece.color));
   }
 
   legalMovesFrom(state: BoardState, row, col, allowCastles): (Move | Castle)[] {

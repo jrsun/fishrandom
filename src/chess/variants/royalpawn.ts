@@ -12,7 +12,7 @@ export class Royalpawn extends SecretPawnGame {
   constructor(isServer: boolean) {
     super(isServer, genInitial(), KingPawn);
   }
-  promotions(turn: Turn): typeof Piece[] | undefined {
+  promotions(turn: Turn): Piece[] | undefined {
     // No need to promote, you win
     if (turn.piece instanceof KingPawn) return;
     return super.promotions(turn);

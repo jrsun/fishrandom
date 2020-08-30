@@ -21,8 +21,9 @@ export class Golemchess extends Game {
     super(isServer, genInitial());
   }
 
-  promotesTo(): typeof Piece[] {
-    return [Queen, Rook, Bishop, Knight, Golem];
+  promotesTo(piece: Piece): Piece[] {
+    return [Queen, Rook, Bishop, Knight, Golem]
+      .map(t => new t(piece.color));
   }
 
   modifyTurn(turn: Turn): Turn {

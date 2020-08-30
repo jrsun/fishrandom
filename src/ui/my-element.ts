@@ -395,7 +395,7 @@ export class MyElement extends LitElement {
           const pturn = this.game.promote(
             this.color,
             this.selectedPiece,
-            new promotions[0](this.color),
+            promotions[0],
             turn.start.row,
             turn.start.col,
             turn.end.row,
@@ -404,7 +404,7 @@ export class MyElement extends LitElement {
           turn = pturn ?? turn;
         } else {
           // Else, popup the modal
-          this.promotions = promotions.map((c) => new c(this.color));
+          this.promotions = promotions;
           const promotionModal = this.shadowRoot!.querySelector(
             '#promotion-modal'
           ) as PaperDialogElement;

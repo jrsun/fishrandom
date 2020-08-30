@@ -36,8 +36,8 @@ export class Football extends Game {
     return state.pieces.filter(piece => piece.color === getOpponent(color)).length === 0;
   }
 
-  promotesTo(): typeof Piece[] {
-    return [Queen, Rook, Bishop, Knight, Mann];
+  promotesTo(piece: Piece): Piece[] {
+    return [Queen, Rook, Bishop, Knight, Mann].map(t => new t(piece.color));
   }
 }
 

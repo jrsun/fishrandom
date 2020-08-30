@@ -20,11 +20,11 @@ export class Chigorin extends Game {
     super(isServer, genInitial());
   }
 
-  promotesTo(piece: Piece): typeof Piece[] {
+  promotesTo(piece: Piece): Piece[] {
     if (piece.color === Color.WHITE) {
-      return [Rook, Knight, Chancellor];
+      return [Rook, Knight, Chancellor].map(t => new t(piece.color));
     } else {
-      return [Rook, Bishop, Queen];
+      return [Rook, Bishop, Queen].map(t => new t(piece.color));
     }
   }
 }

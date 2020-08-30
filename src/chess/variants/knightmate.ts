@@ -13,8 +13,8 @@ export class Knightmate extends Game {
     super(isServer, genInitial());
   }
 
-  promotesTo(): typeof Piece[] {
-    return [Queen, Rook, Bishop, Mann];
+  promotesTo(piece: Piece): Piece[] {
+    return [Queen, Rook, Bishop, Mann].map(t => new t(piece.color));
   }
 }
 

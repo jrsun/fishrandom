@@ -46,7 +46,7 @@ export class Game {
   modifyTurn(turn: Turn): Turn {
     return turn;
   }
-  promotions(turn: Turn): typeof Piece[] | undefined {
+  promotions(turn: Turn): Piece[] | undefined {
     if (turn.piece instanceof Pawn && turn.type === TurnType.MOVE) {
       const pawn = turn.piece;
       if (
@@ -57,8 +57,9 @@ export class Game {
       }
     }
   }
-  promotesTo(piece?: Piece): typeof Piece[] {
-    return [Queen, Rook, Bishop, Knight];
+  promotesTo(piece: Piece): Piece[] {
+    const types = [Queen, Rook, Bishop, Knight];
+    return types.map(t => new t(piece.color));
   }
   legalMovesFrom(
     state: BoardState,
