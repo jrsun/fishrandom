@@ -90,7 +90,7 @@ export class MyControls extends LitElement {
       this.viewMoveIndex = undefined;
     }
     this.requestUpdate();
-  }
+  };
 
   onClickPrev() {
     if (this.viewMoveIndex === undefined) {
@@ -113,10 +113,12 @@ export class MyControls extends LitElement {
   }
 
   onClickNew() {
-    this.dispatchEvent(new CustomEvent('init-game', {
-      bubbles: true,
-      composed: true,
-    }));
+    this.dispatchEvent(
+      new CustomEvent('init-game', {
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   updated(changedProperties) {
@@ -159,6 +161,17 @@ export class MyControls extends LitElement {
     >`;
   }
 
+  renderStopGame() {
+    const isAbort = this.turnHistory.length <= 1;
+    return html`<paper-button
+      class="resign-button"
+      raised
+      ?disabled=${!this.playing}
+      .onclick=${this.onClickResign.bind(this)}
+      >${isAbort ? 'Abort' : 'Resign'}</paper-button
+    >`;
+  }
+
   render() {
     return html`
       <div class="container">
@@ -180,31 +193,25 @@ export class MyControls extends LitElement {
             ?disabled=${this.viewMoveIndex === undefined}
             >></paper-button
           >
-          ${this.playing ? 
-            html` <paper-button
-            class="resign-button"
-            raised
-            ?disabled=${!this.playing}
-            .onclick=${this.onClickResign.bind(this)}
-            >Resign</paper-button
-          >` : 
-            html`
-            <paper-button
-              raised
-              style="background-color: #bde6c0;"
-              ?disabled=${this.playing}
-              .onclick=${this.onClickNew.bind(this)}
-              >New</paper-button
-            >
-            <paper-button
-              raised
-              ?disabled=${this.playing}
-              .onclick=${() => {location.href="/"}}
-              >Exit</paper-button
-            >
-            `
-        }
-         
+          ${this.playing
+            ? this.renderStopGame()
+            : html`
+                <paper-button
+                  raised
+                  style="background-color: #bde6c0;"
+                  ?disabled=${this.playing}
+                  .onclick=${this.onClickNew.bind(this)}
+                  >New</paper-button
+                >
+                <paper-button
+                  raised
+                  ?disabled=${this.playing}
+                  .onclick=${() => {
+                    location.href = '/';
+                  }}
+                  >Exit</paper-button
+                >
+              `}
         </div>
       </div>
     `;

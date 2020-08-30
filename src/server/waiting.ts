@@ -1,4 +1,4 @@
-import { Player } from "./room";
+import {Player} from './room';
 
 class Waiting {
   open: Set<Player> = new Set<Player>();
@@ -12,7 +12,7 @@ class Waiting {
     return !!this.open.size;
   }
 
-  popOpen(): Player|undefined {
+  popOpen(): Player | undefined {
     const first = Array.from(this.open)[0];
     if (!first) return;
     this.open.delete(first);
@@ -23,7 +23,7 @@ class Waiting {
     this.private.set(password, player);
   }
 
-  popPrivate(password: string): Player|undefined {
+  popPrivate(password: string): Player | undefined {
     const player = this.private.get(password);
     if (!player) return;
     this.private.delete(password);
@@ -49,7 +49,7 @@ class Waiting {
     }
   }
 
-  pop(password?: string): Player|undefined {
+  pop(password?: string): Player | undefined {
     if (password) {
       return this.popPrivate(password);
     } else {

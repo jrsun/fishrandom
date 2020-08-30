@@ -142,7 +142,7 @@ class Rider extends Piece {
     col: number,
     rowDir: number,
     colDir: number,
-    state: BoardState,
+    state: BoardState
   ): Move[] {
     // ride in one direction until we hit the edge of board or another piece
     const moves: Move[] = [];
@@ -416,7 +416,6 @@ export class RoyalKnight extends Knight {
     return this.color === Color.BLACK ? 'kkdt.svg' : 'kklt.svg';
   }
 }
-
 
 export class Amazon extends Piece {
   name = 'Amazon';

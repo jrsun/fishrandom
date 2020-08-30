@@ -15,6 +15,8 @@ export class MyReleaseNotes extends LitElement {
       display: flex;
       flex-direction: column;
       align-items: center;
+      overflow-y: auto;
+      max-height: 25vh;
     }
     .subtitle {
       color: #eeeeee;
@@ -29,8 +31,8 @@ export class MyReleaseNotes extends LitElement {
   `;
 
   render() {
-    return html`
-      <div class="subtitle">Release Notes:</div>
+    return html` <div class="subtitle">Release Notes:</div>
+      <div class="subtitle">8/29 - extended timer for private games / abort game without resigning</div>
       <div class="subtitle">8/28 - golem / antichess / amazon army</div>
       <div class="subtitle">8/27 - rifle chess</div>
       <div class="subtitle">8/26 - private rooms / elo</div>

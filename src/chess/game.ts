@@ -222,7 +222,9 @@ export class Game {
   }
 
   drawCondition(color: Color, state: BoardState): boolean {
-    for (const square of state.squares.flat().filter(square => square.occupant?.color === color)) {
+    for (const square of state.squares
+      .flat()
+      .filter((square) => square.occupant?.color === color)) {
       const moves = this.legalMovesFrom(state, square.row, square.col);
       for (const move of moves) {
         if (move && !this.knowsInCheck(color, move.after)) {
@@ -421,7 +423,11 @@ export class Game {
       .empty(rookSquare.row, rookSquare.col)
       .empty(row, col)
       .place(king, target.row, target.col)
-      .place(rookSquare.occupant!, target.row, target.col + (kingside ? -1 : 1));
+      .place(
+        rookSquare.occupant!,
+        target.row,
+        target.col + (kingside ? -1 : 1)
+      );
     const type = TurnType.CASTLE as const;
     return {
       before,

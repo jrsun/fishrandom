@@ -21,7 +21,7 @@ import escape from 'validator/lib/escape';
 import log from 'log';
 import logNode from 'log-node';
 import {Game} from '../chess/game';
-import { WAITING } from './waiting';
+import {WAITING} from './waiting';
 logNode();
 
 var app = express();
@@ -63,7 +63,7 @@ interface GameSettings {
 }
 
 const gameSettings: {
-  [uuid: string]: GameSettings
+  [uuid: string]: GameSettings;
 } = {};
 
 /** Login page */
@@ -82,8 +82,11 @@ app.post('/login', function (req, res) {
       encode: String,
     });
   }
-  const escapedUser = username.replace(/[^0-9A-Za-z]+/gi, '').toLocaleLowerCase()
-    .slice(0, 15) ?? "fish";
+  const escapedUser =
+    username
+      .replace(/[^0-9A-Za-z]+/gi, '')
+      .toLocaleLowerCase()
+      .slice(0, 15) ?? 'fish';
   gameSettings[uuid] = {username: escapedUser, password};
   res.end();
 });
@@ -115,10 +118,7 @@ const players: {[uuid: string]: Player} = {};
 
 wss.on('connection', function connection(ws: WebSocket, request) {
   ws.addEventListener('close', () => {
-    log.notice(
-      'Client disconnected:',
-      players[uuid]?.username,
-    );
+    log.notice('Client disconnected:', players[uuid]?.username);
     wsCounter--;
   });
   log.notice(
@@ -140,10 +140,7 @@ wss.on('connection', function connection(ws: WebSocket, request) {
     kick(ws, uuid);
     return;
   }
-  log.notice(
-    'User connected:',
-    gameSettings[uuid].username,
-  );
+  log.notice('User connected:', gameSettings[uuid].username);
 
   if (players[uuid]) {
     // maybe need to close the old socket here
@@ -182,10 +179,7 @@ const handleMessage = function (ws: WebSocket, uuid: string, message: Message) {
     newGame(players[uuid], gameSettings[uuid].password);
     return;
   }
-  if (
-    message.type === 'exit' &&
-    WAITING.hasPlayer(players[uuid])
-  ) {
+  if (message.type === 'exit' && WAITING.hasPlayer(players[uuid])) {
     // Clean up references if a player left while waiting
     playerLog.notice('left the game');
     kick(ws, uuid);
@@ -222,7 +216,9 @@ const handleMessage = function (ws: WebSocket, uuid: string, message: Message) {
 /** Handle new game message */
 const newGame = (player: Player, password?: string) => {
   const playerLog = log.get(player.username);
-  playerLog.notice(`${player.uuid} requested new ${!password ? 'open' : 'private'} game.`);
+  playerLog.notice(
+    `${player.uuid} requested new ${!password ? 'open' : 'private'} game.`
+  );
 
   const opponent = WAITING.pop(password);
   if (!opponent || opponent === player) {
@@ -262,7 +258,7 @@ const EXCLUDE_LAST_N_VARIANTS = 5;
 const addLastVariant = (player: Player, variant: string) => {
   player.lastVariants.unshift(variant);
   player.lastVariants = player.lastVariants.slice(0, EXCLUDE_LAST_N_VARIANTS);
-}
+};
 
 const kick = (ws: WebSocket, uuid?: string) => {
   if (uuid) {
@@ -271,11 +267,15 @@ const kick = (ws: WebSocket, uuid?: string) => {
       const room = players[uuid].room;
       if (room) {
         // This shouldn't happen, but end the room just in case.
-        room.wins(room.p1.player.uuid === uuid ? room.p2.player.uuid : room.p1.player.uuid);
+        room.wins(
+          room.p1.player.uuid === uuid
+            ? room.p2.player.uuid
+            : room.p1.player.uuid
+        );
       }
     }
     delete gameSettings[uuid];
   }
   sendMessage(ws, {type: 'kick'});
   ws.close();
-}
+};

@@ -275,8 +275,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>You <b>must</b> make a capture if you can.</li>
       <li>No castling. King is not royal.</li>
       <li>Pawn also promotes to King</li>
-    </ul>
-  `,
+    </ul> `,
   Golemchess: html`So nice it gets captured twice.
     <ul>
       <li>Each side has a <b>Golem</b> (rhino) which moves as a Queen, but

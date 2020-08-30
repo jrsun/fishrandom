@@ -36,7 +36,7 @@ import './my-piece-picker';
 import '@polymer/paper-dialog/paper-dialog';
 import {PaperDialogElement} from '@polymer/paper-dialog/paper-dialog';
 import {MySquare} from './my-square';
-import { selectPieceEvent, SelectEventType, SelectEventDetail } from './utils';
+import {selectPieceEvent, SelectEventType, SelectEventDetail} from './utils';
 
 const SQUARE_SIZE = Math.min(window.innerWidth / 8, 50); // 50
 /**
@@ -327,12 +327,19 @@ export class MyElement extends LitElement {
     let turn: Turn | undefined;
     if (this.selectedPiece && !this.selectedSquare) {
       // Drop
-      const turn = this.game.drop(this.color, this.selectedPiece, square.row, square.col);
-      this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
-        composed: true,
-        bubbles: true,
-        detail: selectPieceEvent(),
-      }));
+      const turn = this.game.drop(
+        this.color,
+        this.selectedPiece,
+        square.row,
+        square.col
+      );
+      this.dispatchEvent(
+        new CustomEvent(SelectEventType.PIECE, {
+          composed: true,
+          bubbles: true,
+          detail: selectPieceEvent(),
+        })
+      );
       if (!turn) {
         return;
       }
@@ -371,11 +378,13 @@ export class MyElement extends LitElement {
         );
       }
       if (!turn) {
-        this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
-          composed: true,
-          bubbles: true,
-          detail: selectPieceEvent(),
-        }));
+        this.dispatchEvent(
+          new CustomEvent(SelectEventType.PIECE, {
+            composed: true,
+            bubbles: true,
+            detail: selectPieceEvent(),
+          })
+        );
         return;
       }
 
@@ -407,11 +416,13 @@ export class MyElement extends LitElement {
         }
       }
 
-      this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
-        composed: true,
-        bubbles: true,
-        detail: selectPieceEvent(),
-      }));
+      this.dispatchEvent(
+        new CustomEvent(SelectEventType.PIECE, {
+          composed: true,
+          bubbles: true,
+          detail: selectPieceEvent(),
+        })
+      );
       this.game.state = turn.after;
       this.game.turnHistory = [...this.game.turnHistory, turn];
       this.game.stateHistory.push(turn.after);
@@ -424,11 +435,13 @@ export class MyElement extends LitElement {
       }
     } else {
       if (square.occupant) {
-        this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
-          composed: true,
-          bubbles: true,
-          detail: selectPieceEvent(square.occupant, square),
-        }));
+        this.dispatchEvent(
+          new CustomEvent(SelectEventType.PIECE, {
+            composed: true,
+            bubbles: true,
+            detail: selectPieceEvent(square.occupant, square),
+          })
+        );
       }
     }
     this.performUpdate();
@@ -436,11 +449,13 @@ export class MyElement extends LitElement {
 
   onSquareDragStart = (e: CustomEvent) => {
     const square = e.detail as Square;
-    this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
-      composed: true,
-      bubbles: true,
-      detail: selectPieceEvent(square.occupant, square),
-    }));
+    this.dispatchEvent(
+      new CustomEvent(SelectEventType.PIECE, {
+        composed: true,
+        bubbles: true,
+        detail: selectPieceEvent(square.occupant, square),
+      })
+    );
   };
 
   // Drop
@@ -464,11 +479,13 @@ export class MyElement extends LitElement {
       this.performUpdate();
       return;
     }
-    this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
-      composed: true,
-      bubbles: true,
-      detail: selectPieceEvent(piece, start),
-    }));
+    this.dispatchEvent(
+      new CustomEvent(SelectEventType.PIECE, {
+        composed: true,
+        bubbles: true,
+        detail: selectPieceEvent(piece, start),
+      })
+    );
     this.onSquareClicked(e);
   };
 
@@ -498,7 +515,12 @@ export class MyElement extends LitElement {
   // Promotion
   onPiecePicker = (e: CustomEvent) => {
     const {piece} = e.detail as SelectEventDetail;
-    if (!this.promotionSquare || !this.selectedSquare || !this.selectedPiece || !piece)
+    if (
+      !this.promotionSquare ||
+      !this.selectedSquare ||
+      !this.selectedPiece ||
+      !piece
+    )
       return;
 
     const turn = this.game.promote(
@@ -518,11 +540,13 @@ export class MyElement extends LitElement {
     sendMessage(this.socket, {type: 'turn', turn});
     this.audio.move?.play();
 
-    this.dispatchEvent(new CustomEvent(SelectEventType.PIECE, {
-      composed: true,
-      bubbles: true,
-      detail: selectPieceEvent(),
-    }));
+    this.dispatchEvent(
+      new CustomEvent(SelectEventType.PIECE, {
+        composed: true,
+        bubbles: true,
+        detail: selectPieceEvent(),
+      })
+    );
     const promotionModal = this.shadowRoot!.querySelector('#promotion-modal');
     (promotionModal as PaperDialogElement).close();
     this.performUpdate();

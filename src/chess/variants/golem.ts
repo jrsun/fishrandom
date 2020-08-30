@@ -1,10 +1,19 @@
 import {Game} from '../game';
-import {RoyalKnight, Mann, Rook, Bishop, Queen, Pawn, Piece, Knight} from '../piece';
+import {
+  RoyalKnight,
+  Mann,
+  Rook,
+  Bishop,
+  Queen,
+  Pawn,
+  Piece,
+  Knight,
+} from '../piece';
 import {Color} from '../const';
 import {BoardState, squaresFromPos, generateStartState} from '../state';
 import Square from '../square';
 import {Royalpawn} from './royalpawn';
-import { Turn } from '../turn';
+import {Turn} from '../turn';
 
 export class Golemchess extends Game {
   name = 'Golemchess';
@@ -25,12 +34,12 @@ export class Golemchess extends Game {
       return {
         ...turn,
         after: turn.after.place(new Halfgolem(turn.piece.color), row, col),
-      }
+      };
     } else {
       return {
         ...turn,
         after: turn.after.place(new Halfgolem(turn.captured.color), row, col),
-      }
+      };
     }
   }
 }

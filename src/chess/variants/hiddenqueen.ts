@@ -149,14 +149,21 @@ export class Hiddenqueen extends Game {
     }
     // If queenpawn moved in a way that was impossible for a pawn, reveal it.
     if (piece instanceof QueenPawn) {
-      const dummyState = BoardState.copy(move.before).place(new Pawn(color), srow, scol);
-      if (!this.legalMovesFrom(dummyState, srow, scol, false).some(pmove => 
-        equals(pmove.end, move.end) && pmove.captured === move.captured
-      )) {
+      const dummyState = BoardState.copy(move.before).place(
+        new Pawn(color),
+        srow,
+        scol
+      );
+      if (
+        !this.legalMovesFrom(dummyState, srow, scol, false).some(
+          (pmove) =>
+            equals(pmove.end, move.end) && pmove.captured === move.captured
+        )
+      ) {
         this.revealed[color] = true;
         return move;
       }
-    } 
+    }
     return {
       ...move,
       piece: piece instanceof QueenPawn ? new Pawn(color) : piece,

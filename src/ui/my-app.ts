@@ -33,7 +33,7 @@ import {Color, getOpponent, ROULETTE_SECONDS} from '../chess/const';
 import {Knight, Piece} from '../chess/piece';
 import {randomChoice, memecase} from '../utils';
 import Square from '../chess/square';
-import { SelectEventType, SelectEventDetail } from './utils';
+import {SelectEventType, SelectEventDetail} from './utils';
 
 @customElement('my-app')
 export class MyApp extends LitElement {
@@ -314,7 +314,7 @@ export class MyApp extends LitElement {
     this.addEventListener(SelectEventType.PIECE, (e: CustomEvent) => {
       const {piece, square} = e.detail;
       this.selectedPiece = piece;
-      this.selectedSquare = square;;
+      this.selectedSquare = square;
     });
 
     // Unload
@@ -336,7 +336,7 @@ export class MyApp extends LitElement {
     sendMessage(this.socket, {type: 'exit'}, true);
     this.socket.onclose = () => {};
     this.socket.close();
-  }
+  };
 
   wsConnect() {
     if (process.env.NODE_ENV === 'development') {
@@ -346,9 +346,10 @@ export class MyApp extends LitElement {
     }
     this.socket.onopen = () => {
       addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
-      this.requestUpdate().then(() => { // set up child event listeners
+      this.requestUpdate().then(() => {
+        // set up child event listeners
         this.initGame();
-      })
+      });
     };
 
     this.socket.onclose = (e) => {
@@ -530,7 +531,7 @@ export class MyApp extends LitElement {
     } else {
       sendMessage(this.socket, {type: 'newGame'});
     }
-  }
+  };
 
   renderWaiting() {
     return html`<div class="app waiting">
@@ -552,7 +553,9 @@ export class MyApp extends LitElement {
       <paper-button
         class="exit-while-waiting"
         raised
-        .onclick=${() => {location.href = '/'}}
+        .onclick=${() => {
+          location.href = '/';
+        }}
         >Back</paper-button
       >
     </div>`;
@@ -631,7 +634,7 @@ export class MyApp extends LitElement {
             </div>
             <div
               class="timer opponent ${this.game.state.whoseTurn ===
-              getOpponent(this.color) && !this.gameResult
+                getOpponent(this.color) && !this.gameResult
                 ? ''
                 : 'paused'}"
             >
@@ -672,7 +675,8 @@ export class MyApp extends LitElement {
               </div>
             </div>
             <div
-              class="timer player ${this.game.state.whoseTurn === this.color && !this.gameResult
+              class="timer player ${this.game.state.whoseTurn === this.color &&
+              !this.gameResult
                 ? ''
                 : 'paused'}"
             >

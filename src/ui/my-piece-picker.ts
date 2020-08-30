@@ -1,7 +1,7 @@
 import {LitElement, html, customElement, property, css} from 'lit-element';
 import {Piece} from '../chess/piece';
 import {replacer} from '../common/message';
-import { selectPieceEvent } from './utils';
+import {selectPieceEvent} from './utils';
 
 const SQUARE_SIZE = Math.min(window.innerWidth / 8, 50); // 50
 
@@ -39,7 +39,9 @@ export class MyPiecePicker extends LitElement {
       new CustomEvent(this.eventName, {
         bubbles: true,
         composed: true,
-        detail: selectPieceEvent(piece === this.selectedPiece ? undefined : piece),
+        detail: selectPieceEvent(
+          piece === this.selectedPiece ? undefined : piece
+        ),
       })
     );
   }
@@ -48,7 +50,9 @@ export class MyPiecePicker extends LitElement {
     return html`
       ${this.pieces.map(
         (piece) => html`<div
-          class="picker-piece ${piece.name} ${piece === this.selectedPiece ? 'selected' : ''}"
+          class="picker-piece ${piece.name} ${piece === this.selectedPiece
+            ? 'selected'
+            : ''}"
           draggable=${this.needsTarget}
           style="background-image:url(/img/${piece.img});"
           @click=${(e) => {

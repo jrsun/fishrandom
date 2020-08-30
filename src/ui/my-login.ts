@@ -9,7 +9,7 @@ import {
 import '@polymer/paper-button';
 import './my-release-notes';
 import '@polymer/paper-toggle-button';
-import { PaperToggleButtonElement } from '@polymer/paper-toggle-button';
+import {PaperToggleButtonElement} from '@polymer/paper-toggle-button';
 
 @customElement('my-login')
 export class MyLogin extends LitElement {
@@ -38,7 +38,7 @@ export class MyLogin extends LitElement {
       width: 100%;
       align-items: center;
     }
-    input[type="text"] {
+    input[type='text'] {
       border-radius: 4px;
       font-size: 25px;
       text-align: center;
@@ -46,7 +46,7 @@ export class MyLogin extends LitElement {
       border: #888;
       outline: none;
     }
-    input[type="text"]::placeholder {
+    input[type='text']::placeholder {
       /* Chrome, Firefox, Opera, Safari 10.1+ */
       color: #aaa;
       opacity: 1; /* Firefox */
@@ -96,7 +96,10 @@ export class MyLogin extends LitElement {
       },
       redirect: 'follow', // manual, *follow, error,
       referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      body: JSON.stringify({username: username.value, password: password.value}),
+      body: JSON.stringify({
+        username: username.value,
+        password: password.value,
+      }),
     }).then((data) => {
       location.href = '/game';
     });
@@ -122,7 +125,10 @@ export class MyLogin extends LitElement {
           placeholder="Username"
         />
         <div class="room-container">
-          <paper-toggle-button class="room-toggle" @change=${(e) => this.onToggle(e)}></paper-toggle-button>
+          <paper-toggle-button
+            class="room-toggle"
+            @change=${(e) => this.onToggle(e)}
+          ></paper-toggle-button>
           <input
             id="password"
             type="text"

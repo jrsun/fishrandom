@@ -23,8 +23,13 @@ export class Antichess extends Game {
     if (!occupant) return [];
     for (const square of state.squares.flat()) {
       if (square.occupant?.color === occupant.color) {
-        const allMoves = super.legalMovesFrom(state, square.row, square.col, false);
-        if (allMoves.some(move => move.captured)) {
+        const allMoves = super.legalMovesFrom(
+          state,
+          square.row,
+          square.col,
+          false
+        );
+        if (allMoves.some((move) => move.captured)) {
           atLeastOneCapture = true;
           break;
         }
@@ -32,14 +37,16 @@ export class Antichess extends Game {
     }
     const moves = super.legalMovesFrom(state, row, col, false);
     if (atLeastOneCapture) {
-      return moves.filter(move => move.captured);
+      return moves.filter((move) => move.captured);
     }
     return moves;
   }
 
   winCondition(color: Color, state: BoardState): boolean {
-    return state.pieces.filter(piece => piece.color === color).length === 0
-    || super.drawCondition(color, state);
+    return (
+      state.pieces.filter((piece) => piece.color === color).length === 0 ||
+      super.drawCondition(color, state)
+    );
   }
 
   validateTurn(color: Color, turn: Turn): boolean {

@@ -61,9 +61,12 @@ export class Room {
   timerInterval: any; // timer
   timerPaused: boolean;
 
-  constructor(p1: Player, p2: Player, gc: typeof Game,
+  constructor(
+    p1: Player,
+    p2: Player,
+    gc: typeof Game,
     timeMs = 3 * 60 * 1000,
-    incrementMs = 5 * 1000,
+    incrementMs = 5 * 1000
   ) {
     this.p1 = {
       player: p1,
@@ -134,6 +137,9 @@ export class Room {
   handleResign(uuid: string) {
     if (this.state !== RoomState.PLAYING) return;
 
+    if (this.game.turnHistory.length <= 1) {
+      return this.aborts();
+    }
     return this.wins(
       uuid === this.p1.player.uuid ? this.p2.player.uuid : this.p1.player.uuid
     );
@@ -361,8 +367,8 @@ export class Room {
     // Set ELO
     const ra = me.player.elo;
     const rb = opponent.player.elo;
-    const ea = 1 / (1 + 10 ** ((rb - ra)/400));
-    const eb = 1 / (1 + 10 ** ((ra - rb)/400));
+    const ea = 1 / (1 + 10 ** ((rb - ra) / 400));
+    const eb = 1 / (1 + 10 ** ((ra - rb) / 400));
 
     const ran = Math.ceil(ra + ELO_K * (1 - ea));
     const rbn = Math.ceil(rb + ELO_K * (0 - eb));
@@ -392,6 +398,7 @@ export class Room {
       type: 'gameOver' as const,
       stateHistory: this.game.stateHistory,
       turnHistory: this.game.turnHistory,
+      result: GameResult.DRAW,
     };
 
     const me = this.p1;
@@ -399,8 +406,8 @@ export class Room {
 
     const ra = me.player.elo;
     const rb = opponent.player.elo;
-    const ea = 1 / (1 + 10 ^ ((rb - ra)/400));
-    const eb = 1 / (1 + 10 ^ ((ra - rb)/400));
+    const ea = 1 / ((1 + 10) ^ ((rb - ra) / 400));
+    const eb = 1 / ((1 + 10) ^ ((ra - rb) / 400));
 
     const ran = Math.ceil(ra + ELO_K * (0.5 - ea));
     const rbn = Math.ceil(rb + ELO_K * (0.5 - eb));
@@ -409,13 +416,11 @@ export class Room {
 
     sendMessage(this.p1.player.socket, {
       ...gom,
-      result: GameResult.DRAW,
       player: toPlayerInfo(this.p1.player),
       opponent: toPlayerInfo(this.p2.player),
     });
     sendMessage(this.p2.player.socket, {
       ...gom,
-      result: GameResult.DRAW,
       player: toPlayerInfo(this.p2.player),
       opponent: toPlayerInfo(this.p1.player),
     });
@@ -423,6 +428,29 @@ export class Room {
 
     log.get(this.p1.name).notice('draw');
     log.get(this.p2.name).notice('draw');
+  }
+
+  aborts() {
+    const gom = {
+      type: 'gameOver' as const,
+      stateHistory: this.game.stateHistory,
+      turnHistory: this.game.turnHistory,
+      result: GameResult.ABORTED,
+    };
+    sendMessage(this.p1.player.socket, {
+      ...gom,
+      player: toPlayerInfo(this.p1.player),
+      opponent: toPlayerInfo(this.p2.player),
+    });
+    sendMessage(this.p2.player.socket, {
+      ...gom,
+      player: toPlayerInfo(this.p2.player),
+      opponent: toPlayerInfo(this.p1.player),
+    });
+    this.end();
+
+    log.get(this.p1.name).notice('aborted');
+    log.get(this.p2.name).notice('aborted');
   }
 
   sendTimers() {
@@ -467,4 +495,4 @@ const toPlayerInfo = (p: Player): PlayerInfo => {
     streak,
     elo,
   };
-}
+};

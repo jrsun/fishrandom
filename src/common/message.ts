@@ -13,7 +13,7 @@ import {BomberPawn} from '../chess/variants/stealthbomber';
 import {KingPawn} from '../chess/variants/royalpawn';
 import {Elephant} from '../chess/variants/pieceeater';
 import {GameEvent} from '../chess/game';
-import { Golem, Halfgolem } from '../chess/variants/golem';
+import {Golem, Halfgolem} from '../chess/variants/golem';
 
 export type Message =
   | TurnMessage
@@ -100,6 +100,7 @@ export enum GameResult {
   WIN = 'win',
   DRAW = 'draw',
   LOSS = 'loss',
+  ABORTED = 'aborted',
 }
 
 export interface GameOverMessage {
@@ -181,13 +182,17 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
   return v;
 }
 
-export function sendMessage(ws: WebSocket, m: Message, sync=false): Promise<void> {
+export function sendMessage(
+  ws: WebSocket,
+  m: Message,
+  sync = false
+): Promise<void> {
   const input = JSON.stringify(m, replacer);
   if (sync) {
     const buffer = zlib.gzipSync(input);
     ws.send(buffer.toString('base64'));
     return Promise.resolve();
-  } 
+  }
   return new Promise((resolve) => {
     zlib.gzip(input, (err, buffer) => {
       if (err) {
@@ -217,7 +222,7 @@ export function addMessageHandler(
     let msg: Message;
     try {
       const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
- 
+
       msg = JSON.parse(s, reviver) as Message;
       console.log(msg);
       if (typeof window === 'undefined') {
@@ -229,7 +234,7 @@ export function addMessageHandler(
       }
       handler(msg as Message);
     } catch (err) {
-      console.warn("error parsing message", err, e.data);
+      console.warn('error parsing message', err, e.data);
     }
   });
 }
