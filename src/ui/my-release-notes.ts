@@ -18,9 +18,16 @@ export class MyReleaseNotes extends LitElement {
       overflow-y: auto;
       max-height: 25vh;
     }
-    .subtitle {
-      color: #eeeeee;
+    .relnotes {
+      color: #eee;
       font-size: 2vw;
+    }
+    .subtitle {
+      color: #eee;
+      font-size: 2vw;
+    }
+    .subtitle:nth-of-type(2) {
+      color: #f9ff93;
     }
     .tagline {
       font-family: Georgia, 'Times New Roman', Times, serif;
@@ -31,7 +38,8 @@ export class MyReleaseNotes extends LitElement {
   `;
 
   render() {
-    return html` <div class="subtitle">Release Notes:</div>
+    return html`
+      <div class="relnotes">Release Notes:</div>
       <div class="subtitle">8/30 - kungfu / bario improvements</div>
       <div class="subtitle">8/29 - stalemate fix / extended timer for private games / abort game without resigning</div>
       <div class="subtitle">8/28 - golem / antichess / amazon army</div>
