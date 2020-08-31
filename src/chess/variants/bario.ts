@@ -15,6 +15,41 @@ export class Bario extends Game {
     super(isServer, generateInitial());
   }
 
+  modifyTurn(turn: Turn): Turn {
+    if (!this.isServer) return turn;
+
+    const {after, piece, captured} = turn;
+    if (!(piece instanceof Zero) && !captured) {
+      return turn;
+    }
+    let newState: BoardState = BoardState.copy(after);
+    for (const color of [Color.WHITE, Color.BLACK]) {
+      // If no zeroes of the player's color are left, replace all their pieces with zeroes.
+      if (
+        newState.pieces
+          .filter(
+            piece => piece instanceof Zero &&
+            piece.color === color
+          ).length === 0
+      ) {
+        for (let i = 0; i < newState.squares.length; i++) {
+          for (let j = 0; j < newState.squares[i].length; j++) {
+            const occupant = newState.getSquare(i, j)?.occupant;
+            if (!occupant) continue;
+            if (
+              occupant.color === color &&
+              [Bishop, Knight, Rook, Queen].some((t) => occupant instanceof t)
+            ) {
+              newState.place(new Zero(color), i, j);
+            }
+          }
+        }
+        this.resetOptions(newState, piece.color);
+      }
+    }
+    return {...turn, after: newState};
+  }
+
   promotions(turn: Turn): Piece[] | undefined {
     if (turn.piece instanceof Pawn) return super.promotions(turn);
     if (turn.piece instanceof Zero) {
@@ -50,35 +85,6 @@ export class Bario extends Game {
     const index = options.findIndex((opt) => opt.name === to.name);
     if (index !== -1) {
       options.splice(index, 1);
-    }
-    // If no zeroes of the player's color are left, replace all their pieces with zeroes.
-    if (
-      after.squares
-        .flat()
-        .filter(
-          (square) =>
-            square?.occupant instanceof Zero &&
-            square.occupant.color === promoter.color
-        ).length === 0
-    ) {
-      const newState = BoardState.copy(after);
-      for (let i = 0; i < after.squares.length; i++) {
-        for (let j = 0; j < after.squares[i].length; j++) {
-          const occupant = after.getSquare(i, j)?.occupant;
-          if (!occupant) continue;
-          if (
-            occupant.color === promoter.color &&
-            [Bishop, Knight, Rook, Queen].some((t) => occupant instanceof t)
-          ) {
-            newState.place(new Zero(occupant.color), i, j);
-          }
-        }
-      }
-      this.resetOptions();
-      return {
-        ...turn,
-        after: newState,
-      };
     }
     return turn;
   }
@@ -121,11 +127,14 @@ export class Bario extends Game {
     return moves;
   }
 
-  private resetOptions() {
-    const extra = this.state.extra.bario;
+  private resetOptions(state: BoardState, color: Color) {
+    const extra = state.extra.bario;
     if (!extra) return;
-    extra.whiteOptions = OPTIONS.map((c) => new c(Color.WHITE));
-    extra.blackOptions = OPTIONS.map((c) => new c(Color.BLACK));
+    if (color === Color.WHITE) {
+      extra.whiteOptions = OPTIONS.map((c) => new c(Color.WHITE));
+    } else {
+      extra.blackOptions = OPTIONS.map((c) => new c(Color.BLACK));
+    }
   }
 }
 

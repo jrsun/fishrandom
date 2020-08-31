@@ -16,6 +16,7 @@ import {Royalpawn} from './royalpawn';
 import {Turn} from '../turn';
 
 export class Golemchess extends Game {
+  // TODO: bug where checkmate with the rhino itself is not mate
   name = 'Golemchess';
   constructor(isServer) {
     super(isServer, genInitial());
