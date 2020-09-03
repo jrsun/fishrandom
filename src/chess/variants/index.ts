@@ -72,7 +72,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   // Chess921600,
   // Chess960,
   Pieceeater,
-  // Football,
+  Football,
   Riflechess,
   // Prechess,
   Amazonarmy,
