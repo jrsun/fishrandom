@@ -92,10 +92,10 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     </ul>
     Bobby Fischer (1993)`,
   Classic: html`The classic game.`,
-  Knightmate: html`The role of the King and Knight are switched. The King is
-    replaced by a <b>Royal Knight</b>, and the Knights are replaced by
-    <b>Manns</b>, which are regular pieces that move like Kings.
+  Knightmate: html`Whose Manns is this?
     <ul>
+      <li>The King is replaced by a <b>Royal Knight</b>, and the Knights are replaced by
+      <b>Manns</b>, which are regular pieces that move like Kings.</li>
       <li>Castling allowed.</li>
       <li>Pawn can promote to <b>Mann</b> instead of Knight.</li>
       <li>Checkmate the <b>Royal Knight</b> to win.</li>
@@ -258,19 +258,20 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Then, play continues as a normal chess game.</li>
     </ul>
     Pal Benko (1978) `,
-  Riflechess: html`Pieces do not move when capturing. Defense is difficult.
+  Riflechess: html`Brap brap brap brap brap
     <ul>
+      <li>Pieces do not move when capturing.</li>
       <li>Checkmate to win.</li>
     </ul>
     W. B. Seabrook (1921)`,
-  Amazonarmy: html`White has an Amazon but worse rooks.
+  Amazonarmy: html`White's army is top heavy.
     <ul>
-      <li>Amazon moves as Knight + Queen</li>
-      <li>White's rooks are <b>short</b>. They only move up to 4 squares.</li>
+      <li>White's Queen is an Amazon which moves as Knight + Queen</li>
+      <li>White's Rooks are <b>short</b>. They only move up to 4 squares.</li>
       <li>Checkmate to win.</li>
     </ul>
     W. B. Seabrook (1921)`,
-  Antichess: html`Losing chess. Try to lose all your pieces.
+  Antichess: html`Chess for losers.
     <ul>
       <li>Lose all your pieces or have no legal moves to win.</li>
       <li>You <b>must</b> make a capture if you can.</li>
@@ -289,11 +290,14 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     </ul>
     Peter Aronson and Ben Good
   `,
-  Kungfu: html`After the first move by each player, the game plays in <b>real time</b>.
-  Move as fast as you can.
-  <ul><li>Checkmate to win.</li></ul>
+  Kungfu: html`Gotta go fast.
+  <ul>
+    <li>After the first move by each player, the game plays in <b>real time</b>.</li>
+    <li>Checkmate to win.</li>
+  </ul>
   Shizmoo Games, 2000s
   `,
+  Instagram: html`The Instagram variation.`,
 };
 
 declare global {

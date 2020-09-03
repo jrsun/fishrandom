@@ -22,6 +22,7 @@ import {Amazonarmy} from './amazonarmy';
 import {Antichess} from './antichess';
 import {Golemchess} from './golem';
 import {Kungfu} from './kungfu';
+import {Instagram} from './instagram';
 import {randomChoice} from '../../utils';
 
 export const VARIANTS: {[name: string]: typeof Game} = {
@@ -50,12 +51,13 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Antichess,
   Golemchess,
   Kungfu,
+  Instagram,
 };
 
 export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Atomic,
   Bario,
-  Chigorin,
+  // Chigorin,
   Knightmate,
   Horde,
   Hiddenqueen,
@@ -63,23 +65,19 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Grasshopper,
   Dark,
   Dark2r,
-  Pocketknight,
+  // Pocketknight,
   Stealthbomber,
-  // Maharaja,
-  Chess921600,
-  Chess960,
+  // Chess921600,
+  // Chess960,
   Pieceeater,
-  Football,
+  // Football,
   Riflechess,
-  // Dice Chess,
-  Prechess,
-  // Loser's Chess
-  // Intrigue
-  // Synchrone
+  // Prechess,
   Amazonarmy,
   Antichess,
   Golemchess,
   Kungfu,
+  Instagram,
 };
 
 export function Random(...except: string[]): typeof Game {
@@ -119,4 +117,5 @@ export {
   Amazonarmy,
   Golemchess,
   Kungfu,
+  Instagram,
 };
