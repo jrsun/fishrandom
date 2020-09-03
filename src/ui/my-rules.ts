@@ -298,6 +298,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   Shizmoo Games, 2000s
   `,
   Instagram: html`The Instagram variation.`,
+  Gaychess: html`Two kings.`,
 };
 
 declare global {

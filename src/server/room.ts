@@ -181,7 +181,10 @@ export class Room {
         turn = game.move(me.color, piece, srow, scol, drow, dcol);
         break;
       case TurnType.CASTLE:
-        turn = game.castle(me.color, turnAttempt.kingside);
+        const {
+          start: {row: crow, col: ccol},
+        } = turnAttempt;
+        turn = game.castle(me.color, crow, ccol, turnAttempt.kingside);
         break;
       case TurnType.DROP:
         const {piece: droppedPiece} = turnAttempt;

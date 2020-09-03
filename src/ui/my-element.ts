@@ -365,6 +365,8 @@ export class MyElement extends LitElement {
       ) {
         turn = this.game.castle(
           this.color,
+          this.selectedSquare.row,
+          this.selectedSquare.col,
           square.col - this.selectedSquare.col > 0
         );
       } else {

@@ -114,7 +114,7 @@ export class Game {
     }
     if (allowCastles && piece instanceof this.castler) {
       for (const kingside of [true, false]) {
-        const move = this.castle(piece.color, kingside);
+        const move = this.castle(piece.color, row, col, kingside);
         if (!!move) {
           let targetCol = col + (kingside ? 2 : -2);
           // If the rook is right next to the king, target it
@@ -322,39 +322,13 @@ export class Game {
     return drop;
   }
 
-  castle(color: Color, kingside: boolean): Castle | undefined {
+  castle(color: Color, row: number, col: number, kingside: boolean): Castle | undefined {
     if (!this.isWhoseTurn(color)) return;
 
     let target: Pair;
     const cols: number[] = [];
     let rookSquare: Square;
-    // If castler of same color moved, return
-    if (
-      this.turnHistory.some(
-        (move) =>
-          move.piece instanceof this.castler &&
-          (move.type === TurnType.MOVE || move.type === TurnType.CASTLE) &&
-          move.piece.color === color
-      )
-    ) {
-      console.log('king moved');
-      return;
-    }
 
-    // If more than one castler, log and return
-    const kingSquares = this.state.squares
-      .flat()
-      .filter(
-        (square) =>
-          square?.occupant instanceof this.castler &&
-          square.occupant.color === color
-      );
-    if (kingSquares.length !== 1) {
-      console.log('error, expected 1 royal, got %s', kingSquares.length);
-      return;
-    }
-
-    const kingSquare = kingSquares[0];
     const unmovedRookSquares = this.state.squares
       .flat()
       .filter(
@@ -368,10 +342,14 @@ export class Game {
               equals(turn.end, square)
           )
       );
-    const {row, col} = kingSquare;
+    const castler = this.state.getSquare(row, col)?.occupant;
+    if (!(castler instanceof this.castler)) return;
+    if (this.turnHistory.some(move => 
+      equals(move.end, {row, col}
+    ))) { return }
     if (kingside) {
       rookSquare = unmovedRookSquares.filter(
-        (square) => square.col > kingSquare.col
+        (square) => square.col > col
       )?.[0];
       target = {
         row: color === Color.BLACK ? 0 : this.state.ranks - 1,
@@ -379,7 +357,7 @@ export class Game {
       };
     } else {
       rookSquare = unmovedRookSquares.filter(
-        (square) => square.col < kingSquare.col
+        (square) => square.col < col
       )?.[0];
       target = {
         row: color === Color.BLACK ? 0 : this.state.ranks - 1,
@@ -391,8 +369,8 @@ export class Game {
     if (!rookSquare) return;
 
     for (
-      let i = Math.min(kingSquare.col, rookSquare.col, target.col);
-      i <= Math.max(kingSquare.col, rookSquare.col, target.col);
+      let i = Math.min(col, rookSquare.col, target.col);
+      i <= Math.max(col, rookSquare.col, target.col);
       i++
     ) {
       cols.push(i);
@@ -411,14 +389,14 @@ export class Game {
         this.knowsAttackedSquare(color, this.state, row, travelCol) ||
         (square.occupant &&
           square.occupant !== rookSquare.occupant &&
-          square.occupant !== kingSquare.occupant)
+          square.occupant !== castler)
       );
     });
     if (isBlocked) {
       return;
     }
     const before = this.state;
-    const king = kingSquare.occupant!;
+    const king = castler!;
     const after = BoardState.copy(before)
       .setTurn(getOpponent(color))
       .empty(rookSquare.row, rookSquare.col)
