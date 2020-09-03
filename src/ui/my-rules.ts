@@ -260,7 +260,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     Pal Benko (1978) `,
   Riflechess: html`Brap brap brap brap brap
     <ul>
-      <li>Pieces do not move when capturing.</li>
+      <li>Pieces shoot each other to capture (they don't move when capturing.)</li>
       <li>Checkmate to win.</li>
     </ul>
     W. B. Seabrook (1921)`,
