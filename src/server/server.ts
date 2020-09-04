@@ -60,6 +60,7 @@ app.get('/game', function (req, res) {
 interface GameSettings {
   username: string;
   password?: string;
+  variant?: string;
 }
 
 const gameSettings: {
@@ -72,7 +73,7 @@ app.post('/login', function (req, res) {
     return;
   }
 
-  const {username, password} = req.body;
+  const {username, password, variant} = req.body;
   log.notice('logged in', username);
   let uuid = req.cookies.uuid;
   if (!uuid) {
@@ -87,7 +88,7 @@ app.post('/login', function (req, res) {
       .replace(/[^0-9A-Za-z]+/gi, '')
       .toLocaleLowerCase()
       .slice(0, 15) ?? 'fish';
-  gameSettings[uuid] = {username: escapedUser, password};
+  gameSettings[uuid] = {username: escapedUser, password, variant};
   res.end();
 });
 
@@ -176,7 +177,7 @@ const handleMessage = function (ws: WebSocket, uuid: string, message: Message) {
       room.reconnect(uuid, players[uuid].socket);
       return;
     }
-    newGame(players[uuid], gameSettings[uuid].password);
+    newGame(players[uuid], gameSettings[uuid].password, gameSettings[uuid].variant);
     return;
   }
   if (message.type === 'exit' && WAITING.hasPlayer(players[uuid])) {
@@ -214,22 +215,31 @@ const handleMessage = function (ws: WebSocket, uuid: string, message: Message) {
 };
 
 /** Handle new game message */
-const newGame = (player: Player, password?: string) => {
+const newGame = (player: Player, password?: string, variant?: string) => {
   const playerLog = log.get(player.username);
   playerLog.notice(
     `${player.uuid} requested new ${!password ? 'open' : 'private'} game.`
   );
 
-  const opponent = WAITING.pop(password);
-  if (!opponent || opponent === player) {
-    WAITING.add(player, password);
+  let selectedVariant = (variant || argv.game) ?? '';
+  selectedVariant = selectedVariant.charAt(0).toUpperCase() + selectedVariant.slice(1);
+  if (!(selectedVariant in Variants.VARIANTS)) {
+    selectedVariant = undefined;
+  }
+
+  const entry = WAITING.pop(password);
+  if (!entry || entry.player === player) {
+    WAITING.add(player, password, selectedVariant);
     playerLog.notice('waiting', player.uuid);
     return;
   }
+  const {player: opponent, variant: opVariant} = entry;
   let NG: typeof Game;
-  if (argv.game) {
-    const uppercase = argv.game.charAt(0).toUpperCase() + argv.game.slice(1);
-    NG = Variants[uppercase];
+
+  const v = randomChoice([selectedVariant, opVariant].filter(n => !!n));
+  
+  if (v && (v in Variants.VARIANTS)) {
+    NG = Variants.VARIANTS[v];
   } else {
     NG = Variants.Random(
       /**except*/

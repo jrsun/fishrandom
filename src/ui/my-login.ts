@@ -8,8 +8,14 @@ import {
 } from 'lit-element';
 import '@polymer/paper-button';
 import './my-release-notes';
+import '@polymer/paper-dialog';
 import '@polymer/paper-toggle-button';
-import {PaperToggleButtonElement} from '@polymer/paper-toggle-button';
+import '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
+import '@polymer/paper-item/paper-item.js';
+import '@polymer/paper-listbox/paper-listbox.js';
+import { PaperDialogElement } from '@polymer/paper-dialog';
+import { VARIANTS } from '../chess/variants';
+import { PaperDropdownMenuElement } from '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
 
 @customElement('my-login')
 export class MyLogin extends LitElement {
@@ -57,33 +63,63 @@ export class MyLogin extends LitElement {
     }
     #password {
       width: 40vw;
+      border: 1px solid #ccc;
     }
-    #password[disabled] {
-      opacity: 0.5;
-    }
-    #button {
-      background-color: #82d7ba;
+    .button {
       height: 50px;
       font-size: 20px;
       color: #223322;
       margin-bottom: 4vw;
+      font-family: 'JelleeBold';
+    }
+    .play.button {
+      background-color: #82d7ba;
+    }
+    .button.room {
+      background-color: #ccc;
     }
     .room-container {
       display: flex;
+      flex-direction: column;
       align-items: center;
+      font-family: 'JelleeBold';
+    }
+    .room-container > * {
       margin-bottom: 10px;
+    }
+    #variant-menu {
+      width: 40vw;
+    }
+    paper-dialog {
+      /* background-color: #fffeed; */
+      border-radius: 4px;
+      transform: translate(0, +50px);
+    }
+    #pet-select {
+      border: 1px solid #ccc;
     }
   `;
 
+  private modal?: PaperDialogElement;
+
+  firstUpdated() {
+    const modal = this.shadowRoot?.querySelector('#room-modal');
+    if (modal) this.modal = modal as PaperDialogElement;
+  }
+
   login(e) {
     e.preventDefault();
-    const username = this.shadowRoot?.querySelector(
+    const usernameElement = this.shadowRoot?.querySelector(
       '#username'
     ) as HTMLInputElement;
     const password = this.shadowRoot?.querySelector(
       '#password'
     ) as HTMLInputElement;
-    if (!username?.value) return;
+    let username = 'fish';
+    if (usernameElement?.value) username = usernameElement.value;
+
+    const variantMenu = this.shadowRoot?.querySelector('#variant-menu') as PaperDropdownMenuElement;
+    const variant = variantMenu.value;
 
     fetch('/login', {
       method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -97,21 +133,36 @@ export class MyLogin extends LitElement {
       redirect: 'follow', // manual, *follow, error,
       referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       body: JSON.stringify({
-        username: username.value,
+        username: username,
         password: password.value,
+        variant: variant,
       }),
     }).then((data) => {
       location.href = '/game';
     });
   }
+  
+  loginPrivate(e) {
+    e.preventDefault();
 
-  onToggle(e) {
-    const roomInput = this.shadowRoot?.querySelector('#password')!;
-    if (e.target.checked) {
-      roomInput.removeAttribute('disabled');
-    } else {
-      roomInput.setAttribute('disabled', 'true');
-    }
+    const password = this.shadowRoot?.querySelector(
+      '#password'
+    ) as HTMLInputElement;
+    if (!password?.value) return;
+    this.login(e);
+  }
+
+  // onToggle(e) {
+  //   const roomInput = this.shadowRoot?.querySelector('#password')!;
+  //   if (e.target.checked) {
+  //     roomInput.removeAttribute('disabled');
+  //   } else {
+  //     roomInput.setAttribute('disabled', 'true');
+  //   }
+  // }
+
+  openModal = () => {
+    this.modal?.open();
   }
 
   render() {
@@ -124,25 +175,40 @@ export class MyLogin extends LitElement {
           autocomplete="off"
           placeholder="Username"
         />
+        <div class="buttons">
+          <paper-button class="button play" raised .onclick=${this.login.bind(this)}
+            >Play</paper-button
+          >
+          <paper-button class="button room" raised .onclick=${this.openModal}
+            >Private...</paper-button
+          >
+        </div>
+        <input type="submit" style="display: none" />
+        <my-release-notes></my-release-notes>
+      </div>
+      <paper-dialog
+        id="room-modal"
+      >
         <div class="room-container">
-          <paper-toggle-button
-            class="room-toggle"
-            @change=${(e) => this.onToggle(e)}
-          ></paper-toggle-button>
           <input
             id="password"
             type="text"
             autocomplete="off"
-            placeholder="Private room password"
-            disabled
+            placeholder="Room password"
           />
+          <paper-dropdown-menu label="Vote for game (Opponent chooses too!)" id="variant-menu">
+            <paper-listbox slot="dropdown-content" selected="0">
+              <paper-item>random</paper-item>
+              ${Object.keys(VARIANTS).map((name: string) => {
+                return html`<paper-item>${name}</paper-item>`;
+              })}
+            </paper-listbox>
+          </paper-dropdown-menu>
+          <paper-button class="button play" raised .onclick=${this.loginPrivate.bind(this)}
+            >Play</paper-button
+          >
         </div>
-        <paper-button id="button" raised .onclick=${this.login.bind(this)}
-          >Play</paper-button
-        >
-        <input type="submit" style="display: none" />
-        <my-release-notes></my-release-notes>
-      </div>
+      </paper-dialog>
     </form>`;
   }
 }

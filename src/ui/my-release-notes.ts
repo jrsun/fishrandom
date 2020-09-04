@@ -43,6 +43,7 @@ export class MyReleaseNotes extends LitElement {
   render() {
     return html`
       <div class="relnotes">Release Notes:</div>
+      <div class="subtitle">9/4 - choose variant in private rooms</div>
       <div class="subtitle">9/3 - gay chess / right click for arrows / minor tweaks</div>
       <div class="subtitle">8/30 - kungfu / bario improvements</div>
       <div class="subtitle">8/29 - stalemate fix / extended timer for private games / abort game without resigning</div>

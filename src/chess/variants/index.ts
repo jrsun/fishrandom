@@ -42,7 +42,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Dark,
   Dark2r,
   Pocketknight,
-  Test,
+  // Test,
   Stealthbomber,
   // Maharaja,
   Chess921600,

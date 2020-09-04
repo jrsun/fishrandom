@@ -224,10 +224,6 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       </li>
       <li>Elephant will not capture or move adjacent to a <b>King</b>.</li>
       <li>Otherwise, the Elephant chooses randomly from the legal squares it can move to.</li>
-      <li>
-        Each player has an extra <b>pawn</b> drop, anywhere except the first or
-        last rank.
-      </li>
       <li>Checkmate or capture the opponent's king to win.</li>
     </ul>
     Piece Eater by Peter Aronson (2001) `,
