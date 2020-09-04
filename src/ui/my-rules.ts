@@ -278,7 +278,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>No castling. King is not royal.</li>
       <li>Pawn also promotes to King</li>
     </ul> `,
-  Golemchess: html`So nice it gets captured twice.
+  Golemchess: html`So nice, you gotta capture twice.
     <ul>
       <li>Each side has a <b>Golem</b> (rhino) which moves as a Queen, but
       only a maximum of <b>two</b> squares in any direction.</li>
