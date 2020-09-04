@@ -129,7 +129,9 @@ export class MyElement extends LitElement {
       this.onSquareMousedown.bind(this)
     );
     this.addEventListener('square-mouseup', this.onSquareMouseup.bind(this));
-    // this.addEventListener('contextmenu', e => {e.preventDefault()});
+    if (process.env.NODE_ENV !== 'development') {
+      this.addEventListener('contextmenu', e => {e.preventDefault()});
+    }
     this.addEventListener(SelectEventType.PROMOTION, this.onPiecePicker);
     this.addEventListener('square-dragstart', this.onSquareDragStart);
     this.addEventListener('square-drop', this.onDrop);

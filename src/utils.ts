@@ -41,7 +41,7 @@ export function drawArrow(
   ctx.moveTo(fromx, fromy);
   ctx.lineTo(tox, toy);
   ctx.strokeStyle = color;
-  ctx.lineWidth = 14;
+  ctx.lineWidth = 10;
   // ctx.lineCap = 'round';
   ctx.stroke();
 
@@ -69,7 +69,7 @@ export function drawArrow(
   //draws the paths created above
   ctx.strokeStyle = color;
 
-  ctx.lineWidth = 14;
+  ctx.lineWidth = 10;
   ctx.stroke();
   ctx.fillStyle = color;
   ctx.fill();
