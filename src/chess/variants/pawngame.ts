@@ -70,12 +70,8 @@ export class SecretPawnGame extends Game {
 
   visibleTurn(turn: Turn, color: Color): Turn {
     if (color === turn.piece.color) return turn;
-    if (turn.piece.name === new this.secret(Color.BLACK).name) {
-      return {
-        ...turn,
-        piece: new Pawn(turn.piece.color),
-      };
-    }
+    const {piece, captured} = turn;
+
     if (turn.type === TurnType.ACTIVATE && turn.piece.name === 'Pawn') {
       return {
         type: TurnType.UNKNOWN,
@@ -86,7 +82,11 @@ export class SecretPawnGame extends Game {
         piece: new Pawn(turn.piece.color),
       };
     }
-    return turn;
+    return {
+      ...turn,
+      piece: piece instanceof this.secret ? new Pawn(piece.color) : piece,
+      captured: captured instanceof this.secret ? new Pawn(captured.color): piece,
+    }
   }
 
   activate(
