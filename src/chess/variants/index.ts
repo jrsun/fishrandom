@@ -58,7 +58,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
 
 export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Atomic,
-  // Bario,
+  Bario,
   // Chigorin,
   Knightmate,
   Horde,
