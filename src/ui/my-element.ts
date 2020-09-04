@@ -167,10 +167,6 @@ export class MyElement extends LitElement {
     );
     this.removeEventListener('square-mouseup', this.onSquareMouseup.bind(this));
 
-    this.socket.removeEventListener(
-      'message',
-      this.handleSocketMessage.bind(this)
-    );
     this.removeEventListener('promotion-picked', this.onPiecePicker);
     this.removeEventListener('square-dragstart', this.onSquareDragStart);
     this.removeEventListener('square-drop', this.onDrop);
@@ -179,7 +175,7 @@ export class MyElement extends LitElement {
 
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
-      addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
+      addMessageHandler(this.socket, this.handleSocketMessage);
     }
     if (
       changedProperties.has('selectedSquare') ||
@@ -189,7 +185,9 @@ export class MyElement extends LitElement {
     }
   }
 
-  handleSocketMessage(message: Message) {
+  handleSocketMessage = (message: Message) => {
+    if (!this.isConnected) return;
+
     const {turnHistory, stateHistory} = this.game;
     if (message.type === 'replaceState') {
       const rm = message as ReplaceMessage;
@@ -200,14 +198,10 @@ export class MyElement extends LitElement {
     } else if (message.type === 'appendState') {
       const am = message as AppendMessage;
       const {turn} = am;
+      this.playSound(turn);
       this.game.turnHistory = [...turnHistory, turn];
       this.game.stateHistory.push(turn.after);
       this.game.state = turn.after;
-      if (turn.captured) {
-        this.audio.capture?.play();
-      } else {
-        this.audio.move?.play();
-      }
     } else if (message.type === 'gameEvent') {
       const {pairs, type, name} = message.content;
       for (const pair of pairs) {
@@ -614,6 +608,14 @@ export class MyElement extends LitElement {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  playSound = (turn: Turn) => {
+    if (turn.captured) {
+      this.audio.capture?.play();
+    } else {
+      this.audio.move?.play();
+    }
   }
 }
 
