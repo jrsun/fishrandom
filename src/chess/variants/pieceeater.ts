@@ -7,8 +7,8 @@ import {randomChoice, cartesian} from '../../utils';
 import {Move, TurnType, Turn} from '../turn';
 import {dedup, Pair} from '../pair';
 
-export class Pieceeater extends Game {
-  name = 'Pieceeater';
+export class Gobbler extends Game {
+  name = 'Gobbler';
   // canDrop = true;
   constructor(isServer: boolean) {
     super(isServer, generateInitial());

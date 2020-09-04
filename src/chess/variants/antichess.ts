@@ -6,8 +6,8 @@ import Square from '../square';
 import {randomChoice} from '../../utils';
 import {Move, Turn, Activate, TurnType, Castle} from '../turn';
 
-export class Antichess extends Game {
-  name = 'Antichess';
+export class Losers extends Game {
+  name = 'Losers';
   constructor(isServer: boolean) {
     super(isServer, genInitial());
   }

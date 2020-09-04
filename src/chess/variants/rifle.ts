@@ -2,8 +2,8 @@ import {generateStartState, BoardState} from '../state';
 import {Game} from '../game';
 import {Turn, TurnType} from '../turn';
 
-export class Riflechess extends Game {
-  name = 'Riflechess';
+export class Shooting extends Game {
+  name = 'Shooting';
   constructor(isServer: boolean) {
     super(isServer, generateStartState());
   }

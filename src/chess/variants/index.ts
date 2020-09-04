@@ -16,10 +16,10 @@ import {Stealthbomber} from './stealthbomber';
 // import {Maharaja} from './maharaja';
 import {Football} from './football';
 import {Test} from './test';
-import {Pieceeater} from './pieceeater';
-import {Riflechess} from './rifle';
+import {Gobbler} from './pieceeater';
+import {Shooting} from './rifle';
 import {Amazonarmy} from './amazonarmy';
-import {Antichess} from './antichess';
+import {Losers} from './antichess';
 import {Golemchess} from './golem';
 import {Kungfu} from './kungfu';
 import {Instagram} from './instagram';
@@ -33,7 +33,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Classic,
   Bario,
   Knightmate,
-  Pieceeater,
+  Gobbler,
   Football,
   Royalpawn,
   Horde,
@@ -47,9 +47,9 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   // Maharaja,
   Chess921600,
   Prechess,
-  Riflechess,
+  Shooting,
   Amazonarmy,
-  Antichess,
+  Losers,
   Golemchess,
   Kungfu,
   Instagram,
@@ -71,12 +71,12 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Stealthbomber,
   // Chess921600,
   // Chess960,
-  Pieceeater,
+  Gobbler,
   Football,
-  Riflechess,
+  Shooting,
   // Prechess,
   Amazonarmy,
-  Antichess,
+  Losers,
   Golemchess,
   Kungfu,
   // Instagram,
@@ -95,14 +95,14 @@ export function Random(...except: string[]): typeof Game {
 }
 
 export {
-  Antichess,
+  Losers,
   Chess960,
   Bario,
   Pocketknight,
   Royalpawn,
   Classic,
   Knightmate,
-  Pieceeater,
+  Gobbler,
   Horde,
   Hiddenqueen,
   Grasshopper,
@@ -116,7 +116,7 @@ export {
   Football,
   Chigorin,
   Prechess,
-  Riflechess,
+  Shooting,
   Amazonarmy,
   Golemchess,
   Kungfu,

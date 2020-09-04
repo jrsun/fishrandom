@@ -64,7 +64,7 @@ export class MyApp extends LitElement {
       text-overflow: clip;
       overflow: hidden;
       white-space: nowrap;
-      font-size: 4vw;
+      font-size: 32px;
     }
     .card {
       display: block;

@@ -214,7 +214,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       </li>
     </ul>
     Chessclub Promotie (1997?) `,
-  Pieceeater: html`An uncapturable <b>Elephant</b> wanders the board gobbling
+  Gobbler: html`An uncapturable <b>Elephant</b> wanders the board gobbling
     pieces.
     <ul>
       <li>Elephant moves one space after every turn in any direction.</li>
@@ -230,7 +230,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       </li>
       <li>Checkmate or capture the opponent's king to win.</li>
     </ul>
-    Peter Aronson (2001) `,
+    Piece Eater by Peter Aronson (2001) `,
   Football: html`Get a piece on your opponent's King or Queen starting squares
     to win.
     <ul>
@@ -258,7 +258,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Then, play continues as a normal chess game.</li>
     </ul>
     Pal Benko (1978) `,
-  Riflechess: html`Brap brap brap brap brap
+  Shooting: html`Brap brap brap brap brap
     <ul>
       <li>Pieces shoot each other to capture (they don't move when capturing.)</li>
       <li>Checkmate to win.</li>
@@ -271,7 +271,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Checkmate to win.</li>
     </ul>
     W. B. Seabrook (1921)`,
-  Antichess: html`Chess for losers.
+  Losers: html`Chess for losers.
     <ul>
       <li>Lose all your pieces or have no legal moves to win.</li>
       <li>You <b>must</b> make a capture if you can.</li>

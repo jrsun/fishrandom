@@ -17,6 +17,9 @@ export class MyReleaseNotes extends LitElement {
       align-items: center;
       overflow-y: auto;
       max-height: 25vh;
+      background-color: rgba(50, 50, 50, 0.3);
+      padding: 10px;
+      border-radius: 2px;
     }
     .relnotes {
       color: #eee;
