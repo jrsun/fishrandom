@@ -218,7 +218,7 @@ const handleMessage = function (ws: WebSocket, uuid: string, message: Message) {
 const newGame = (player: Player, password?: string, variant?: string) => {
   const playerLog = log.get(player.username);
   playerLog.notice(
-    `${player.uuid} requested new ${!password ? 'open' : 'private'} game.`
+    `${player.uuid} requested new ${!password ? 'open' : 'private'} game with variant ${variant ?? 'unspecified'}.`
   );
 
   let selectedVariant = (variant || argv.game) ?? '';
