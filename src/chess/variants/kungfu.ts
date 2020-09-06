@@ -1,8 +1,8 @@
 import {Game, GameEventType, GameEventName} from '../game';
-import { generateStartState, Phase, BoardState } from '../state';
-import { Color } from '../const';
-import { Piece } from '../piece';
-import { Turn } from '../turn';
+import {generateStartState, Phase, BoardState} from '../state';
+import {Color} from '../const';
+import {Piece} from '../piece';
+import {Turn} from '../turn';
 
 export class Kungfu extends Game {
   name = 'Kungfu';

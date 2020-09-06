@@ -165,8 +165,14 @@ export class Hiddenqueen extends Game {
       }
     }
     // TODO: see your own captured queenpawn
-    const visiblePiece = (piece.color !== color && piece instanceof QueenPawn) ? new Pawn(piece.color) : piece;
-    const visibleCapture = (move.captured?.color !== color && move.captured instanceof QueenPawn) ? new Pawn(move.captured.color) : move.captured;
+    const visiblePiece =
+      piece.color !== color && piece instanceof QueenPawn
+        ? new Pawn(piece.color)
+        : piece;
+    const visibleCapture =
+      move.captured?.color !== color && move.captured instanceof QueenPawn
+        ? new Pawn(move.captured.color)
+        : move.captured;
     return {
       ...move,
       piece: visiblePiece,

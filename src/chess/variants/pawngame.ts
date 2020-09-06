@@ -81,13 +81,19 @@ export class SecretPawnGame extends Game {
         piece: new Pawn(turn.piece.color),
       };
     }
-    const visiblePiece = (color !== piece.color && piece instanceof this.secret) ? new Pawn(piece.color) : piece;
-    const visibleCapture = (color !== captured?.color && captured instanceof this.secret) ? new Pawn(captured.color) : captured;
+    const visiblePiece =
+      color !== piece.color && piece instanceof this.secret
+        ? new Pawn(piece.color)
+        : piece;
+    const visibleCapture =
+      color !== captured?.color && captured instanceof this.secret
+        ? new Pawn(captured.color)
+        : captured;
     return {
       ...turn,
       piece: visiblePiece,
       captured: visibleCapture,
-    }
+    };
   }
 
   activate(

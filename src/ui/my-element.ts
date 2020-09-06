@@ -130,7 +130,9 @@ export class MyElement extends LitElement {
     );
     this.addEventListener('square-mouseup', this.onSquareMouseup.bind(this));
     if (process.env.NODE_ENV !== 'development') {
-      this.addEventListener('contextmenu', e => {e.preventDefault()});
+      this.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+      });
     }
     this.addEventListener(SelectEventType.PROMOTION, this.onPiecePicker);
     this.addEventListener('square-dragstart', this.onSquareDragStart);
@@ -230,7 +232,7 @@ export class MyElement extends LitElement {
       this.game.winCondition(Color.WHITE, this.game.state) ||
       this.game.winCondition(Color.BLACK, this.game.state);
     this.performUpdate();
-  }
+  };
 
   render() {
     const state = this.game.state;
@@ -618,7 +620,7 @@ export class MyElement extends LitElement {
     } else {
       this.audio.move?.play();
     }
-  }
+  };
 }
 
 declare global {

@@ -26,11 +26,9 @@ export class Bario extends Game {
     for (const color of [Color.WHITE, Color.BLACK]) {
       // If no zeroes of the player's color are left, replace all their pieces with zeroes.
       if (
-        newState.pieces
-          .filter(
-            piece => piece instanceof Zero &&
-            piece.color === color
-          ).length === 0
+        newState.pieces.filter(
+          (piece) => piece instanceof Zero && piece.color === color
+        ).length === 0
       ) {
         for (let i = 0; i < newState.squares.length; i++) {
           for (let j = 0; j < newState.squares[i].length; j++) {
@@ -53,7 +51,7 @@ export class Bario extends Game {
   promotions(turn: Turn): Piece[] | undefined {
     if (turn.piece instanceof Pawn) return super.promotions(turn);
     if (turn.piece instanceof Zero) {
-      const {after, piece, end} = turn; 
+      const {after, piece, end} = turn;
       const afterPiece = after.getSquare(end.row, end.col)?.occupant;
       if (!afterPiece) return [];
 
@@ -64,7 +62,7 @@ export class Bario extends Game {
         piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
       const index = options.findIndex((opt) => opt.name === afterPiece.name);
       if (afterPiece instanceof Bishop || afterPiece instanceof Rook) {
-        const qindex = options.findIndex(opt => opt instanceof Queen);
+        const qindex = options.findIndex((opt) => opt instanceof Queen);
         if (qindex !== -1) {
           return [afterPiece, options[qindex]];
         }

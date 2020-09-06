@@ -14,7 +14,7 @@ export class Knightmate extends Game {
   }
 
   promotesTo(piece: Piece): Piece[] {
-    return [Queen, Rook, Bishop, Mann].map(t => new t(piece.color));
+    return [Queen, Rook, Bishop, Mann].map((t) => new t(piece.color));
   }
 }
 

@@ -94,8 +94,10 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   Classic: html`The classic game.`,
   Knightmate: html`Whose Manns is this?
     <ul>
-      <li>The King is replaced by a <b>Royal Knight</b>, and the Knights are replaced by
-      <b>Manns</b>, which are regular pieces that move like Kings.</li>
+      <li>
+        The King is replaced by a <b>Royal Knight</b>, and the Knights are
+        replaced by <b>Manns</b>, which are regular pieces that move like Kings.
+      </li>
       <li>Castling allowed.</li>
       <li>Pawn can promote to <b>Mann</b> instead of Knight.</li>
       <li>Checkmate the <b>Royal Knight</b> to win.</li>
@@ -224,15 +226,18 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
         <b>capture</b> it on that turn, except...
       </li>
       <li>Elephant will not capture or move adjacent to a <b>King</b>.</li>
-      <li>Otherwise, the Elephant chooses randomly from the legal squares it can move to.</li>
+      <li>
+        Otherwise, the Elephant chooses randomly from the legal squares it can
+        move to.
+      </li>
       <li>Checkmate or capture the opponent's king to win.</li>
     </ul>
     Piece Eater by Peter Aronson (2001) `,
   Football: html`Get a piece on your opponent's King or Queen starting squares
     to win.
     <ul>
-    <li>Get to d8 or e8 to win as white, d1 or e1 as black.</li>
-    <li>Capturing all opponent pieces also wins.</li>
+      <li>Get to d8 or e8 to win as white, d1 or e1 as black.</li>
+      <li>Capturing all opponent pieces also wins.</li>
       <li>King can be captured without ending game.</li>
     </ul>
     <a
@@ -257,7 +262,9 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     Pal Benko (1978) `,
   Shooting: html`Brap brap brap brap brap
     <ul>
-      <li>Pieces shoot each other to capture (they don't move when capturing.)</li>
+      <li>
+        Pieces shoot each other to capture (they don't move when capturing.)
+      </li>
       <li>Checkmate to win.</li>
     </ul>
     W. B. Seabrook (1921)`,
@@ -288,21 +295,26 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     Peter Aronson and Ben Good
   `,
   Kungfu: html`Gotta go fast.
-  <ul>
-    <li>After the first move by each player, the game plays in <b>real time</b>.</li>
-    <li>Checkmate to win.</li>
-  </ul>
-  Shizmoo Games, 2000s
-  `,
+    <ul>
+      <li>
+        After the first move by each player, the game plays in <b>real time</b>.
+      </li>
+      <li>Checkmate to win.</li>
+    </ul>
+    Shizmoo Games, 2000s `,
   Instagram: html`The Instagram variation.`,
   Gaychess: html`Two kings.
-  <ul>
-    <li>Checkmate either king to win.</li>
-    <li>Forking both the kings wins, because there is no way to defend or move both.</li>
-    <li>Pinning the kings against each other wins if the opponent cannot block.</li>
-  </ul>
-  Two Kings by Rob McCarter (1997)
-  `,
+    <ul>
+      <li>Checkmate either king to win.</li>
+      <li>
+        Forking both the kings wins, because there is no way to defend or move
+        both.
+      </li>
+      <li>
+        Pinning the kings against each other wins if the opponent cannot block.
+      </li>
+    </ul>
+    Two Kings by Rob McCarter (1997) `,
 };
 
 declare global {

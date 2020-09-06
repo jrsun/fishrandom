@@ -23,8 +23,7 @@ export class Golemchess extends Game {
   }
 
   promotesTo(piece: Piece): Piece[] {
-    return [Queen, Rook, Bishop, Knight, Golem]
-      .map(t => new t(piece.color));
+    return [Queen, Rook, Bishop, Knight, Golem].map((t) => new t(piece.color));
   }
 
   modifyTurn(turn: Turn): Turn {

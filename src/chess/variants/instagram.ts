@@ -23,7 +23,16 @@ export function generateInitial(): BoardState {
     7: {},
   };
 
-  piecePositions[0] = [Queen, Queen, King, Knight, Rook, Bishop, Bishop, Pawn].map(p => new p(Color.BLACK));
+  piecePositions[0] = [
+    Queen,
+    Queen,
+    King,
+    Knight,
+    Rook,
+    Bishop,
+    Bishop,
+    Pawn,
+  ].map((p) => new p(Color.BLACK));
   for (let col = 0; col < 8; col++) {
     piecePositions[1][col] = new Pawn(Color.BLACK);
     piecePositions[6][col] = new Pawn(Color.WHITE);
@@ -32,11 +41,16 @@ export function generateInitial(): BoardState {
   piecePositions[2][0] = new Pawn(Color.BLACK);
 
   piecePositions[5][5] = new Queen(Color.WHITE);
-  piecePositions[7] = [King, Queen, Bishop, Bishop, Rook, Rook, Knight, Knight].map(p => new p(Color.WHITE));
+  piecePositions[7] = [
+    King,
+    Queen,
+    Bishop,
+    Bishop,
+    Rook,
+    Rook,
+    Knight,
+    Knight,
+  ].map((p) => new p(Color.WHITE));
 
-  return new BoardState(
-    squaresFromPos(piecePositions),
-    Color.WHITE,
-    {},
-  );
+  return new BoardState(squaresFromPos(piecePositions), Color.WHITE, {});
 }

@@ -2,8 +2,10 @@ import {Player} from './room';
 
 class Waiting {
   open: Set<Player> = new Set<Player>();
-  private: Map<string, {player: Player, variant?: string}> =
-    new Map<string, {player: Player, variant?: string}>();
+  private: Map<string, {player: Player; variant?: string}> = new Map<
+    string,
+    {player: Player; variant?: string}
+  >();
 
   addToOpen(player: Player) {
     this.open.add(player);
@@ -24,7 +26,7 @@ class Waiting {
     this.private.set(password, {player, variant});
   }
 
-  popPrivate(password: string): {player: Player, variant?: string} | undefined {
+  popPrivate(password: string): {player: Player; variant?: string} | undefined {
     const entry = this.private.get(password);
     if (!entry) return;
     this.private.delete(password);
@@ -50,7 +52,7 @@ class Waiting {
     }
   }
 
-  pop(password?: string): {player: Player, variant?: string} | undefined {
+  pop(password?: string): {player: Player; variant?: string} | undefined {
     if (password) {
       return this.popPrivate(password);
     } else {

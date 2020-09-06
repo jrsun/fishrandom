@@ -13,7 +13,7 @@ export class Losers extends Game {
   }
 
   promotesTo(piece: Piece): Piece[] {
-    return [Queen, Rook, Bishop, Knight, Mann].map(t => new t(piece.color));
+    return [Queen, Rook, Bishop, Knight, Mann].map((t) => new t(piece.color));
   }
 
   legalMovesFrom(state: BoardState, row, col, allowCastles): (Move | Castle)[] {

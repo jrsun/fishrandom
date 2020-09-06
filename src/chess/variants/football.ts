@@ -33,11 +33,14 @@ export class Football extends Game {
     if (goals.some((goal) => goal.occupant?.color === color)) {
       return true;
     }
-    return state.pieces.filter(piece => piece.color === getOpponent(color)).length === 0;
+    return (
+      state.pieces.filter((piece) => piece.color === getOpponent(color))
+        .length === 0
+    );
   }
 
   promotesTo(piece: Piece): Piece[] {
-    return [Queen, Rook, Bishop, Knight, Mann].map(t => new t(piece.color));
+    return [Queen, Rook, Bishop, Knight, Mann].map((t) => new t(piece.color));
   }
 }
 

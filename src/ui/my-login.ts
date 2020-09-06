@@ -13,9 +13,9 @@ import '@polymer/paper-toggle-button';
 import '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
 import '@polymer/paper-item/paper-item.js';
 import '@polymer/paper-listbox/paper-listbox.js';
-import { PaperDialogElement } from '@polymer/paper-dialog';
-import { VARIANTS } from '../chess/variants';
-import { PaperDropdownMenuElement } from '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
+import {PaperDialogElement} from '@polymer/paper-dialog';
+import {VARIANTS} from '../chess/variants';
+import {PaperDropdownMenuElement} from '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
 
 @customElement('my-login')
 export class MyLogin extends LitElement {
@@ -121,7 +121,9 @@ export class MyLogin extends LitElement {
     let username = 'fish';
     if (usernameElement?.value) username = usernameElement.value;
 
-    const variantMenu = this.shadowRoot?.querySelector('#variant-menu') as PaperDropdownMenuElement;
+    const variantMenu = this.shadowRoot?.querySelector(
+      '#variant-menu'
+    ) as PaperDropdownMenuElement;
     const variant = variantMenu.value;
 
     fetch('/login', {
@@ -144,7 +146,7 @@ export class MyLogin extends LitElement {
       location.href = '/game';
     });
   }
-  
+
   loginPrivate(e) {
     e.preventDefault();
 
@@ -166,7 +168,7 @@ export class MyLogin extends LitElement {
 
   openModal = () => {
     this.modal?.open();
-  }
+  };
 
   render() {
     return html`<form .onsubmit=${this.login.bind(this)}>
@@ -179,7 +181,10 @@ export class MyLogin extends LitElement {
           placeholder="Username"
         />
         <div class="buttons">
-          <paper-button class="button play" raised .onclick=${this.login.bind(this)}
+          <paper-button
+            class="button play"
+            raised
+            .onclick=${this.login.bind(this)}
             >Play</paper-button
           >
           <paper-button class="button room" raised .onclick=${this.openModal}
@@ -189,18 +194,22 @@ export class MyLogin extends LitElement {
         <input type="submit" style="display: none" />
         <my-release-notes></my-release-notes>
       </div>
-      <paper-dialog
-        id="room-modal"
-      >
+      <paper-dialog id="room-modal">
         <div class="room-container">
-          <div class="instructions">Share password with a friend, or use the password shared with you to join.</div>
+          <div class="instructions">
+            Share password with a friend, or use the password shared with you to
+            join.
+          </div>
           <input
             id="password"
             type="text"
             autocomplete="off"
             placeholder="Room password"
           />
-          <paper-dropdown-menu label="Vote for game (Opponent chooses too!)" id="variant-menu">
+          <paper-dropdown-menu
+            label="Vote for game (Opponent chooses too!)"
+            id="variant-menu"
+          >
             <paper-listbox slot="dropdown-content" selected="0">
               <paper-item>random</paper-item>
               ${Object.keys(VARIANTS).map((name: string) => {
@@ -208,7 +217,10 @@ export class MyLogin extends LitElement {
               })}
             </paper-listbox>
           </paper-dropdown-menu>
-          <paper-button class="button play" raised .onclick=${this.loginPrivate.bind(this)}
+          <paper-button
+            class="button play"
+            raised
+            .onclick=${this.loginPrivate.bind(this)}
             >Play</paper-button
           >
         </div>

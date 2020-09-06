@@ -22,9 +22,9 @@ export class Chigorin extends Game {
 
   promotesTo(piece: Piece): Piece[] {
     if (piece.color === Color.WHITE) {
-      return [Rook, Knight, Chancellor].map(t => new t(piece.color));
+      return [Rook, Knight, Chancellor].map((t) => new t(piece.color));
     } else {
-      return [Rook, Bishop, Queen].map(t => new t(piece.color));
+      return [Rook, Bishop, Queen].map((t) => new t(piece.color));
     }
   }
 }

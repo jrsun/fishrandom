@@ -59,7 +59,7 @@ export class Game {
   }
   promotesTo(piece: Piece): Piece[] {
     const types = [Queen, Rook, Bishop, Knight];
-    return types.map(t => new t(piece.color));
+    return types.map((t) => new t(piece.color));
   }
   legalMovesFrom(
     state: BoardState,
@@ -322,7 +322,12 @@ export class Game {
     return drop;
   }
 
-  castle(color: Color, row: number, col: number, kingside: boolean): Castle | undefined {
+  castle(
+    color: Color,
+    row: number,
+    col: number,
+    kingside: boolean
+  ): Castle | undefined {
     if (!this.isWhoseTurn(color)) return;
 
     let target: Pair;
@@ -344,21 +349,17 @@ export class Game {
       );
     const castler = this.state.getSquare(row, col)?.occupant;
     if (!(castler instanceof this.castler)) return;
-    if (this.turnHistory.some(move => 
-      equals(move.end, {row, col}
-    ))) { return }
+    if (this.turnHistory.some((move) => equals(move.end, {row, col}))) {
+      return;
+    }
     if (kingside) {
-      rookSquare = unmovedRookSquares.filter(
-        (square) => square.col > col
-      )?.[0];
+      rookSquare = unmovedRookSquares.filter((square) => square.col > col)?.[0];
       target = {
         row: color === Color.BLACK ? 0 : this.state.ranks - 1,
         col: this.state.files - 2,
       };
     } else {
-      rookSquare = unmovedRookSquares.filter(
-        (square) => square.col < col
-      )?.[0];
+      rookSquare = unmovedRookSquares.filter((square) => square.col < col)?.[0];
       target = {
         row: color === Color.BLACK ? 0 : this.state.ranks - 1,
         col: 2,
