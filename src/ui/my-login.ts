@@ -98,6 +98,9 @@ export class MyLogin extends LitElement {
     #pet-select {
       border: 1px solid #ccc;
     }
+    .instructions {
+      max-width: 40vw;
+    }
   `;
 
   private modal?: PaperDialogElement;
@@ -190,6 +193,7 @@ export class MyLogin extends LitElement {
         id="room-modal"
       >
         <div class="room-container">
+          <div class="instructions">Share password with a friend, or use the password shared with you to join.</div>
           <input
             id="password"
             type="text"
