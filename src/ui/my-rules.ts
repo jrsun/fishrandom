@@ -191,6 +191,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Checkmate or <b>capture</b> the king to win.</li>
       <li>No castling.</li>
       <li>You may choose which piece to change to if ambiguous.</li>
+      <li>You can have two bishops of the same color.</li>
     </ul>
     Panos Louridas (1998) `,
   Atomic: html`Captures explode the captured piece and all neighboring pieces
@@ -294,7 +295,14 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   Shizmoo Games, 2000s
   `,
   Instagram: html`The Instagram variation.`,
-  Gaychess: html`Two kings.`,
+  Gaychess: html`Two kings.
+  <ul>
+    <li>Checkmate either king to win.</li>
+    <li>Forking both the kings wins, because there is no way to defend or move both.</li>
+    <li>Pinning the kings against each other wins if the opponent cannot block.</li>
+  </ul>
+  Two Kings by Rob McCarter (1997)
+  `,
 };
 
 declare global {
