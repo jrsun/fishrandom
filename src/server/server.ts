@@ -88,6 +88,7 @@ app.post('/login', function (req, res) {
       .replace(/[^0-9A-Za-z]+/gi, '')
       .toLocaleLowerCase()
       .slice(0, 15) ?? 'fish';
+  // REDIS
   gameSettings[uuid] = {username: escapedUser, password, variant};
   res.end();
 });
@@ -136,6 +137,7 @@ wss.on('connection', function connection(ws: WebSocket, request) {
     kick(ws);
     return;
   }
+  // REDIS
   if (!gameSettings[uuid]) {
     log.notice('connected without gamesettings, kicking');
     kick(ws, uuid);
@@ -143,6 +145,7 @@ wss.on('connection', function connection(ws: WebSocket, request) {
   }
   log.notice('User connected:', gameSettings[uuid].username);
 
+  // load these from redis
   if (players[uuid]) {
     // maybe need to close the old socket here
     players[uuid].username = gameSettings[uuid].username;
@@ -153,8 +156,8 @@ wss.on('connection', function connection(ws: WebSocket, request) {
       username: gameSettings[uuid].username,
       streak: 0,
       lastVariants: [],
-      socket: ws,
       elo: 1500,
+      socket: ws,
     };
   }
 
@@ -169,15 +172,20 @@ const handleMessage = function (ws: WebSocket, uuid: string, message: Message) {
     kick(ws, uuid);
   } // guarantee a player exists
   const playerLog = log.get(players[uuid].username);
-  const room = players[uuid].room;
+  // REDIS get room id, then fetch room
+  let room = players[uuid].room; // CONST
   if (message.type === 'newGame') {
     if (!!room) {
       // Handle existing room
       playerLog.notice('already in a room, reconnecting');
-      room.reconnect(uuid, players[uuid].socket);
+      room.reconnect(uuid, ws);
       return;
     }
-    newGame(players[uuid], gameSettings[uuid].password, gameSettings[uuid].variant);
+    newGame(
+      players[uuid],
+      gameSettings[uuid].password,
+      gameSettings[uuid].variant
+    );
     return;
   }
   if (message.type === 'exit' && WAITING.hasPlayer(players[uuid])) {
@@ -218,11 +226,14 @@ const handleMessage = function (ws: WebSocket, uuid: string, message: Message) {
 const newGame = (player: Player, password?: string, variant?: string) => {
   const playerLog = log.get(player.username);
   playerLog.notice(
-    `${player.uuid} requested new ${!password ? 'open' : 'private'} game with variant ${variant ?? 'unspecified'}.`
+    `${player.uuid} requested new ${
+      !password ? 'open' : 'private'
+    } game with variant ${variant ?? 'unspecified'}.`
   );
 
   let selectedVariant = (variant || argv.game) ?? '';
-  selectedVariant = selectedVariant.charAt(0).toUpperCase() + selectedVariant.slice(1);
+  selectedVariant =
+    selectedVariant.charAt(0).toUpperCase() + selectedVariant.slice(1);
   if (!(selectedVariant in Variants.VARIANTS)) {
     selectedVariant = undefined;
   }
@@ -236,9 +247,9 @@ const newGame = (player: Player, password?: string, variant?: string) => {
   const {player: opponent, variant: opVariant} = entry;
   let NG: typeof Game;
 
-  const v = randomChoice([selectedVariant, opVariant].filter(n => !!n));
-  
-  if (v && (v in Variants.VARIANTS)) {
+  const v = randomChoice([selectedVariant, opVariant].filter((n) => !!n));
+
+  if (v && v in Variants.VARIANTS) {
     NG = Variants.VARIANTS[v];
   } else {
     NG = Variants.Random(
@@ -248,11 +259,20 @@ const newGame = (player: Player, password?: string, variant?: string) => {
     );
   }
   let room: Room;
+  const p1color = randomChoice([Color.WHITE, Color.BLACK]);
   if (password || process.env.NODE_ENV === 'development') {
-    room = new Room(opponent, player, NG, 99 * 60 * 1000);
+    room = new Room(
+      opponent,
+      player,
+      NG,
+      p1color,
+      99 * 60 * 1000,
+      99 * 60 * 1000
+    );
   } else {
-    room = new Room(opponent, player, NG);
+    room = new Room(opponent, player, NG, p1color);
   }
+  room.initGame();
   opponent.room = room;
   player.room = room;
 

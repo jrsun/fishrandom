@@ -16,6 +16,9 @@ import {
 } from '../common/message';
 import WS from 'ws';
 import log from 'log';
+import {RoomSchema} from '../db/schema';
+import {VARIANTS} from '../chess/variants';
+import {BoardState} from '../chess/state';
 
 // States progress from top to bottom within a room.
 export enum RoomState {
@@ -29,6 +32,7 @@ export enum RoomState {
 export interface Player {
   uuid: string;
   username: string;
+  // REDIS: room id
   room?: Room;
   socket: WebSocket;
   lastVariants: string[];
@@ -42,6 +46,7 @@ interface RoomPlayer {
   color: Color;
   time: number;
   name: string; // for logging namespace
+  socket: WebSocket;
 }
 
 const INCREMENT_MS = 5 * 1000;
@@ -65,20 +70,27 @@ export class Room {
     p1: Player,
     p2: Player,
     gc: typeof Game,
-    timeMs = 3 * 60 * 1000,
-    incrementMs = 5 * 1000
+    p1Color = Color.WHITE,
+    p1time = 3 * 60 * 1000,
+    p2time = 3 * 60 * 1000,
+    turnHistory?: Turn[],
+    stateHistory?: BoardState[]
   ) {
+    if (!p1.socket || !p2.socket) throw new Error('no socket!');
+
     this.p1 = {
       player: p1,
-      color: randomChoice([Color.WHITE, Color.BLACK]),
-      time: timeMs,
+      color: p1Color,
+      time: p1time,
       name: p1.username,
+      socket: p1.socket,
     };
     this.p2 = {
       player: p2,
-      color: getOpponent(this.p1.color),
-      time: timeMs,
+      color: getOpponent(p1Color),
+      time: p2time,
       name: p2.username,
+      socket: p2.socket,
     };
     if (this.p1.color === Color.WHITE) {
       this.p1.time += ROULETTE_SECONDS * 1000;
@@ -87,43 +99,50 @@ export class Room {
     }
     this.setState(RoomState.PLAYING);
     this.game = new gc(true);
+    if (turnHistory) this.game.turnHistory = turnHistory;
+    if (stateHistory) {
+      this.game.stateHistory = stateHistory;
+      this.game.state = stateHistory[
+        stateHistory.length - 1
+      ];
+    }
     this.game.onEvent(this.handleGameEvent);
+    this.timerInterval = setInterval(() => {
+      if (this.timerPaused) return;
+      const me =
+        this.game.state.whoseTurn === this.p1.color ? this.p1 : this.p2;
+      const opponent = me === this.p1 ? this.p2 : this.p1;
+      me.time -= 1000;
+      if (me.time <= 0) {
+        log.get(me.name).notice('ran out of time');
+        this.wins(opponent.player.uuid);
+      }
+    }, 1000);
+    this.timerPaused = false;
+  }
 
-    const player1 = this.p1.player;
-    const player2 = this.p2.player;
-
+  initGame() {
     // Send init game messages
+    const {p1, p2} = this;
     Promise.all([
-      sendMessage(player1.socket, {
+      sendMessage(p1.socket, {
         type: 'initGame',
         state: this.game.visibleState(this.game.state, this.p1.color),
         variantName: this.game.name,
         color: this.p1.color,
-        player: toPlayerInfo(player1),
-        opponent: toPlayerInfo(player2),
+        player: toPlayerInfo(p1.player),
+        opponent: toPlayerInfo(p2.player),
       }),
-      sendMessage(player2.socket, {
+      sendMessage(p2.socket, {
         type: 'initGame',
         state: this.game.visibleState(this.game.state, this.p2.color),
         variantName: this.game.name,
         color: this.p2.color,
-        player: toPlayerInfo(player2),
-        opponent: toPlayerInfo(player1),
+        player: toPlayerInfo(p2.player),
+        opponent: toPlayerInfo(p1.player),
       }),
     ]).then(() => {
       this.game.onConnect();
-      this.timerInterval = setInterval(() => {
-        if (this.timerPaused) return;
-        const me =
-          this.game.state.whoseTurn === this.p1.color ? this.p1 : this.p2;
-        const opponent = me === this.p1 ? this.p2 : this.p1;
-        me.time -= 1000;
-        if (me.time <= 0) {
-          log.get(me.name).notice('ran out of time');
-          this.wins(opponent.player.uuid);
-        }
-      }, 1000);
-      this.timerPaused = false;
       this.sendTimers();
     });
     log.get(this.p1.name).notice('playing variant', this.game.name);
@@ -216,13 +235,13 @@ export class Room {
     }
 
     if (!turn) {
-      sendMessage(me.player.socket, {type: 'undo'});
+      sendMessage(me.socket, {type: 'undo'});
       log.get(me.name).warn('submitted an invalid move, undoing!');
       return;
     }
     turn = game.modifyTurn(turn);
     if (!turn) {
-      sendMessage(me.player.socket, {type: 'undo'});
+      sendMessage(me.socket, {type: 'undo'});
       log.get(me.name).error('submitted an invalid move, undoing!');
       return;
     }
@@ -253,8 +272,8 @@ export class Room {
       },
     };
 
-    await sendMessage(me.player.socket, rm);
-    await sendMessage(opponent.player.socket, am);
+    await sendMessage(me.socket, rm);
+    await sendMessage(opponent.socket, am);
     this.sendTimers();
     // Pause timer because we're now handling cpuTurn
     this.timerPaused = true;
@@ -295,15 +314,15 @@ export class Room {
       },
     };
 
-    sendMessage(p1.player.socket, am1);
-    sendMessage(p2.player.socket, am2);
+    sendMessage(p1.socket, am1);
+    sendMessage(p2.socket, am2);
     this.checkIfOver(justMovedPlayer);
   }
 
   reconnect(uuid: string, socket: WebSocket) {
     const me = this.p1.player.uuid === uuid ? this.p1 : this.p2;
     const opponent = this.p1.player.uuid === uuid ? this.p2 : this.p1;
-    me.player.socket = socket;
+    me.socket = socket;
 
     const rec = {
       type: 'reconnect' as const,
@@ -381,13 +400,13 @@ export class Room {
     me.player.elo = ran;
     opponent.player.elo = rbn;
 
-    sendMessage(me.player.socket, {
+    sendMessage(me.socket, {
       ...gom,
       result: GameResult.WIN,
       player: toPlayerInfo(me.player),
       opponent: toPlayerInfo(opponent.player),
     });
-    sendMessage(opponent.player.socket, {
+    sendMessage(opponent.socket, {
       ...gom,
       result: GameResult.LOSS,
       player: toPlayerInfo(opponent.player),
@@ -420,12 +439,12 @@ export class Room {
     me.player.elo = ran;
     opponent.player.elo = rbn;
 
-    sendMessage(this.p1.player.socket, {
+    sendMessage(this.p1.socket, {
       ...gom,
       player: toPlayerInfo(this.p1.player),
       opponent: toPlayerInfo(this.p2.player),
     });
-    sendMessage(this.p2.player.socket, {
+    sendMessage(this.p2.socket, {
       ...gom,
       player: toPlayerInfo(this.p2.player),
       opponent: toPlayerInfo(this.p1.player),
@@ -443,12 +462,12 @@ export class Room {
       turnHistory: this.game.turnHistory,
       result: GameResult.ABORTED,
     };
-    sendMessage(this.p1.player.socket, {
+    sendMessage(this.p1.socket, {
       ...gom,
       player: toPlayerInfo(this.p1.player),
       opponent: toPlayerInfo(this.p2.player),
     });
-    sendMessage(this.p2.player.socket, {
+    sendMessage(this.p2.socket, {
       ...gom,
       player: toPlayerInfo(this.p2.player),
       opponent: toPlayerInfo(this.p1.player),
@@ -463,12 +482,12 @@ export class Room {
     const timerMessage = {
       type: 'timer',
     };
-    sendMessage(this.p1.player.socket, {
+    sendMessage(this.p1.socket, {
       ...timerMessage,
       player: this.p1.time,
       opponent: this.p2.time,
     } as TimerMessage);
-    sendMessage(this.p2.player.socket, {
+    sendMessage(this.p2.socket, {
       ...timerMessage,
       player: this.p2.time,
       opponent: this.p1.time,
@@ -489,9 +508,50 @@ export class Room {
       type: 'gameEvent' as const,
       content: event,
     };
-    sendMessage(this.p1.player.socket, gem);
-    sendMessage(this.p2.player.socket, gem);
+    sendMessage(this.p1.socket, gem);
+    sendMessage(this.p2.socket, gem);
   };
+
+  static freeze(r: Room): RoomSchema {
+    const {p1, p2, game} = r;
+    return {
+      players: {
+        [p1.player.uuid]: {
+          time: p1.time,
+          name: p1.name,
+          color: p1.color,
+        },
+        [p2.player.uuid]: {
+          time: p2.time,
+          name: p2.name,
+          color: p2.color,
+        },
+      },
+      turnHistory: game.turnHistory,
+      stateHistory: game.stateHistory,
+      variant: game.name,
+    };
+  }
+
+  static thaw(p1: Player, p2: Player, rs: RoomSchema): Room {
+    const {variant, turnHistory, stateHistory} = rs;
+    const p1info = rs.players[p1.uuid];
+    const p2info = rs.players[p2.uuid];
+    if (!p1info || !p2info) {
+      console.error('uuid didnt resolve', p1, p2, p1info, p2info);
+    }
+
+    return new Room(
+      p1,
+      p2,
+      VARIANTS[variant],
+      p1info.color,
+      p1info.time,
+      p2info.time,
+      turnHistory,
+      stateHistory
+    );
+  }
 }
 
 const toPlayerInfo = (p: Player): PlayerInfo => {
