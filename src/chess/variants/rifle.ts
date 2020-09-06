@@ -16,9 +16,9 @@ export class Shooting extends Game {
       return {
         ...turn,
         end: turn.start,
-        after: BoardState.copy(turn.before)
+        after: BoardState.copy(turn.after)
           .empty(turn.end.row, turn.end.col)
-          .setTurn(turn.after.whoseTurn),
+          .place(turn.piece, turn.start.row, turn.start.col)
         // set other turn
       };
     }
