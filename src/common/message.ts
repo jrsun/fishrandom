@@ -235,13 +235,13 @@ export function addMessageHandler(
       const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
 
       msg = JSON.parse(s, reviver) as Message;
-      // if (typeof window === 'undefined') {
+      if (typeof window === 'undefined') {
         console.error(
           '%s: Received message of type %s',
           new Date().toUTCString(),
           msg.type
         );
-      // }
+      }
       handler(msg as Message);
     } catch (err) {
       console.warn('error parsing message', err, e.data);
