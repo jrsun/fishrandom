@@ -183,10 +183,15 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
 }
 
 export function sendMessage(
-  ws: WebSocket,
+  ws: WebSocket|undefined,
   m: Message,
   sync = false
 ): Promise<void> {
+  if (!ws) return new Promise(resolve => resolve());
+
+  if (typeof window === 'undefined') {
+    console.error('Sending message', m.type, sync);
+  }
   const input = JSON.stringify(m, replacer);
   if (sync) {
     const buffer = zlib.gzipSync(input);

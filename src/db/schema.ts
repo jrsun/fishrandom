@@ -3,6 +3,7 @@ import {Turn} from '../chess/turn';
 import {BoardState} from '../chess/state';
 
 export interface RoomSchema {
+  id: string,
   players: {
     [uuid: string]: {
       time: number;

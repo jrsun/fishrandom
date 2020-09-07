@@ -13,12 +13,14 @@ import {
   TimerMessage,
   ReconnectMessage,
   PlayerInfo,
+  reviver,
 } from '../common/message';
 import WS from 'ws';
 import log from 'log';
 import {RoomSchema} from '../db/schema';
 import {VARIANTS} from '../chess/variants';
 import {BoardState} from '../chess/state';
+import { setRoom, getRoomSchema, setPlayer, deleteRoom } from '../db';
 
 // States progress from top to bottom within a room.
 export enum RoomState {
@@ -33,8 +35,8 @@ export interface Player {
   uuid: string;
   username: string;
   // REDIS: room id
-  room?: Room;
-  socket: WebSocket;
+  roomId?: string;
+  socket?: WebSocket;
   lastVariants: string[];
   streak: number;
   elo: number;
@@ -46,7 +48,6 @@ interface RoomPlayer {
   color: Color;
   time: number;
   name: string; // for logging namespace
-  socket: WebSocket;
 }
 
 const INCREMENT_MS = 5 * 1000;
@@ -55,6 +56,7 @@ const ELO_K = 100;
 
 export class Room {
   // public
+  id: string;
   game: Game;
 
   p1: RoomPlayer;
@@ -67,6 +69,7 @@ export class Room {
   timerPaused: boolean;
 
   constructor(
+    id: string,
     p1: Player,
     p2: Player,
     gc: typeof Game,
@@ -76,21 +79,19 @@ export class Room {
     turnHistory?: Turn[],
     stateHistory?: BoardState[]
   ) {
-    if (!p1.socket || !p2.socket) throw new Error('no socket!');
+    this.id = id;
 
     this.p1 = {
       player: p1,
       color: p1Color,
       time: p1time,
       name: p1.username,
-      socket: p1.socket,
     };
     this.p2 = {
       player: p2,
       color: getOpponent(p1Color),
       time: p2time,
       name: p2.username,
-      socket: p2.socket,
     };
     if (this.p1.color === Color.WHITE) {
       this.p1.time += ROULETTE_SECONDS * 1000;
@@ -119,13 +120,14 @@ export class Room {
       }
     }, 1000);
     this.timerPaused = false;
+    setRoom(this);
   }
 
   initGame() {
     // Send init game messages
     const {p1, p2} = this;
     Promise.all([
-      sendMessage(p1.socket, {
+      sendMessage(p1.player.socket, {
         type: 'initGame',
         state: this.game.visibleState(this.game.state, this.p1.color),
         variantName: this.game.name,
@@ -133,7 +135,7 @@ export class Room {
         player: toPlayerInfo(p1.player),
         opponent: toPlayerInfo(p2.player),
       }),
-      sendMessage(p2.socket, {
+      sendMessage(p2.player.socket, {
         type: 'initGame',
         state: this.game.visibleState(this.game.state, this.p2.color),
         variantName: this.game.name,
@@ -235,13 +237,13 @@ export class Room {
     }
 
     if (!turn) {
-      sendMessage(me.socket, {type: 'undo'});
+      sendMessage(me.player.socket, {type: 'undo'});
       log.get(me.name).warn('submitted an invalid move, undoing!');
       return;
     }
     turn = game.modifyTurn(turn);
     if (!turn) {
-      sendMessage(me.socket, {type: 'undo'});
+      sendMessage(me.player.socket, {type: 'undo'});
       log.get(me.name).error('submitted an invalid move, undoing!');
       return;
     }
@@ -249,6 +251,7 @@ export class Room {
     game.state = turn.after;
     game.turnHistory.push(turn);
     game.stateHistory.push(turn.after);
+    setRoom(this);
 
     me.time += INCREMENT_MS;
     // we should send the mover a `replaceState` and the opponent an
@@ -272,8 +275,8 @@ export class Room {
       },
     };
 
-    await sendMessage(me.socket, rm);
-    await sendMessage(opponent.socket, am);
+    await sendMessage(me.player.socket, rm);
+    await sendMessage(opponent.player.socket, am);
     this.sendTimers();
     // Pause timer because we're now handling cpuTurn
     this.timerPaused = true;
@@ -296,6 +299,7 @@ export class Room {
     game.state = turn.after;
     game.turnHistory.push(turn);
     game.stateHistory.push(turn.after);
+    setRoom(this);
 
     const am1 = {
       type: 'appendState' as const,
@@ -314,15 +318,15 @@ export class Room {
       },
     };
 
-    sendMessage(p1.socket, am1);
-    sendMessage(p2.socket, am2);
+    sendMessage(p1.player.socket, am1);
+    sendMessage(p2.player.socket, am2);
     this.checkIfOver(justMovedPlayer);
   }
 
   reconnect(uuid: string, socket: WebSocket) {
     const me = this.p1.player.uuid === uuid ? this.p1 : this.p2;
     const opponent = this.p1.player.uuid === uuid ? this.p2 : this.p1;
-    me.socket = socket;
+    me.player.socket = socket;
 
     const rec = {
       type: 'reconnect' as const,
@@ -400,13 +404,13 @@ export class Room {
     me.player.elo = ran;
     opponent.player.elo = rbn;
 
-    sendMessage(me.socket, {
+    sendMessage(me.player.socket, {
       ...gom,
       result: GameResult.WIN,
       player: toPlayerInfo(me.player),
       opponent: toPlayerInfo(opponent.player),
     });
-    sendMessage(opponent.socket, {
+    sendMessage(opponent.player.socket, {
       ...gom,
       result: GameResult.LOSS,
       player: toPlayerInfo(opponent.player),
@@ -439,12 +443,12 @@ export class Room {
     me.player.elo = ran;
     opponent.player.elo = rbn;
 
-    sendMessage(this.p1.socket, {
+    sendMessage(this.p1.player.socket, {
       ...gom,
       player: toPlayerInfo(this.p1.player),
       opponent: toPlayerInfo(this.p2.player),
     });
-    sendMessage(this.p2.socket, {
+    sendMessage(this.p2.player.socket, {
       ...gom,
       player: toPlayerInfo(this.p2.player),
       opponent: toPlayerInfo(this.p1.player),
@@ -462,12 +466,12 @@ export class Room {
       turnHistory: this.game.turnHistory,
       result: GameResult.ABORTED,
     };
-    sendMessage(this.p1.socket, {
+    sendMessage(this.p1.player.socket, {
       ...gom,
       player: toPlayerInfo(this.p1.player),
       opponent: toPlayerInfo(this.p2.player),
     });
-    sendMessage(this.p2.socket, {
+    sendMessage(this.p2.player.socket, {
       ...gom,
       player: toPlayerInfo(this.p2.player),
       opponent: toPlayerInfo(this.p1.player),
@@ -482,12 +486,12 @@ export class Room {
     const timerMessage = {
       type: 'timer',
     };
-    sendMessage(this.p1.socket, {
+    sendMessage(this.p1.player.socket, {
       ...timerMessage,
       player: this.p1.time,
       opponent: this.p2.time,
     } as TimerMessage);
-    sendMessage(this.p2.socket, {
+    sendMessage(this.p2.player.socket, {
       ...timerMessage,
       player: this.p2.time,
       opponent: this.p1.time,
@@ -499,8 +503,11 @@ export class Room {
     clearInterval(this.timerInterval);
 
     this.sendTimers();
-    delete this.p1.player.room;
-    delete this.p2.player.room;
+    delete this.p1.player.roomId;
+    delete this.p2.player.roomId;
+    setPlayer(this.p1.player);
+    setPlayer(this.p2.player);
+    deleteRoom(this.id); // Should delete
   }
 
   handleGameEvent = (event: GameEvent) => {
@@ -508,13 +515,14 @@ export class Room {
       type: 'gameEvent' as const,
       content: event,
     };
-    sendMessage(this.p1.socket, gem);
-    sendMessage(this.p2.socket, gem);
+    sendMessage(this.p1.player.socket, gem);
+    sendMessage(this.p2.player.socket, gem);
   };
 
   static freeze(r: Room): RoomSchema {
-    const {p1, p2, game} = r;
+    const {id, p1, p2, game} = r;
     return {
+      id,
       players: {
         [p1.player.uuid]: {
           time: p1.time,
@@ -534,7 +542,7 @@ export class Room {
   }
 
   static thaw(p1: Player, p2: Player, rs: RoomSchema): Room {
-    const {variant, turnHistory, stateHistory} = rs;
+    const {id, variant, turnHistory, stateHistory} = rs;
     const p1info = rs.players[p1.uuid];
     const p2info = rs.players[p2.uuid];
     if (!p1info || !p2info) {
@@ -542,6 +550,7 @@ export class Room {
     }
 
     return new Room(
+      id,
       p1,
       p2,
       VARIANTS[variant],
