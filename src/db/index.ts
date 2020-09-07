@@ -63,7 +63,9 @@ export async function getRoom(id?: string): Promise<Room|undefined> {
             resolve();
             return;
           }
-          resolve(Room.thaw(players[0], players[1], rs));
+          const room = Room.thaw(players[0], players[1], rs);
+          ROOMS[room.id] = room;
+          resolve(room);
         }
       )
     })
@@ -101,6 +103,7 @@ export async function getPlayer(id: string): Promise<Player|undefined> {
         resolve();
       }
       const player = JSON.parse(reply) as Player;
+      PLAYERS[id] = player;
       resolve({
         ...player,
         socket: undefined,

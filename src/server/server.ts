@@ -52,7 +52,6 @@ app.get('/', function (req, res) {
 
 app.get('/game', function (req, res) {
   if (!req.cookies.uuid) {
-    // if (!req.cookies.uuid || !gameSettings[req.cookies.uuid]) {
     res.redirect('/');
     return;
   }
@@ -65,7 +64,7 @@ interface GameSettings {
 }
 
 const gameSettings: {
-  [uuid: string]: GameSettings;
+  [uuid: string]: GameSettings|undefined;
 } = {};
 
 /** Login page */
@@ -94,6 +93,7 @@ app.post('/login', function (req, res) {
 
   getPlayer(uuid).then(player => {
     if (player) {
+      log.notice('User logged in :', escapedUser);
       savePlayer({
         ...player,
         username: escapedUser,
@@ -101,6 +101,7 @@ app.post('/login', function (req, res) {
       return;
     }
     // Account creation
+    log.notice('User signed up:', escapedUser);
     savePlayer({
       uuid,
       username: escapedUser,
@@ -158,14 +159,6 @@ wss.on('connection', async function connection(ws: WebSocket, request) {
     request.headers['x-forwarded-for'] || request.connection.remoteAddress
   );
   wsCounter++;
-
-  // REDIS
-  // if (!gameSettings[uuid]) {
-  //   log.notice('connected without gamesettings, kicking');
-  //   kick(ws, uuid);
-  //   return;
-  // }
-  // log.notice('User connected:', gameSettings[uuid].username);
 });
 
 /** Handle websocket messages and delegate to room */
@@ -189,8 +182,8 @@ const handleMessage = async function (ws: WebSocket, uuid: string, message: Mess
     }
     newGame(
       player,
-      // gameSettings[player.uuid].password,
-      // gameSettings[player.uuid].variant
+      gameSettings[player.uuid]?.password,
+      gameSettings[player.uuid]?.variant,
     );
     return;
   }
