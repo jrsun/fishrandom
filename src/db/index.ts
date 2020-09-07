@@ -2,11 +2,16 @@ import redis from 'redis';
 import { Room, Player, RoomState } from '../server/room';
 import { replacer, reviver } from '../common/message';
 import { ResolvePlugin } from 'webpack';
+import log from 'log';
 import { RoomSchema } from './schema';
 
 const REDIS_CLIENT = redis.createClient() as RedisClient;
 const PLAYERS: {[uuid: string]: Player} = {};
 const ROOMS: {[uuid: string]: Room} = {};
+
+setInterval(() => {
+  log.notice('Players:', Object.keys(PLAYERS).length);
+}, 60 * 1000);
 
 type RedisFn = (err: Error, res: any) => void;
 

@@ -30,7 +30,6 @@ var wsCounter = 0;
 
 setInterval(() => {
   log.notice('Active websockets:', wsCounter);
-  // log.notice('Players:', Object.);
 }, 60 * 1000);
 
 const argv = yargs

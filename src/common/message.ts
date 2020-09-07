@@ -187,13 +187,19 @@ export function sendMessage(
   m: Message,
   sync = false
 ): Promise<void> {
-  if (!ws) return new Promise(resolve => resolve());
-
-  if (typeof window === 'undefined') {
-    console.error('Sending message', m.type, sync);
+  if (!ws) {
+    console.error('tried to send message but no socket');
+    return Promise.resolve();
   }
+
   const input = JSON.stringify(m, replacer);
   if (sync) {
+    console.error(
+      '%s: Sending uncompressed msg of type %s with size %s',
+      new Date().toUTCString(),
+      m.type,
+      input.length
+    );
     const buffer = zlib.gzipSync(input);
     ws.send(buffer.toString('base64'));
     return Promise.resolve();
@@ -229,13 +235,13 @@ export function addMessageHandler(
       const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
 
       msg = JSON.parse(s, reviver) as Message;
-      if (typeof window === 'undefined') {
+      // if (typeof window === 'undefined') {
         console.error(
           '%s: Received message of type %s',
           new Date().toUTCString(),
           msg.type
         );
-      }
+      // }
       handler(msg as Message);
     } catch (err) {
       console.warn('error parsing message', err, e.data);
