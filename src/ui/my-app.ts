@@ -7,6 +7,7 @@ import {
 } from '../../node_modules/lit-element';
 import '@polymer/paper-dialog';
 import './my-element';
+import './my-announce';
 import {VARIANTS, Chess960, RANDOM_VARIANTS} from '../chess/variants/index';
 import {
   reviver,
@@ -540,6 +541,7 @@ export class MyApp extends LitElement {
 
   renderWaiting() {
     return html`<div class="app waiting">
+      <my-announce></my-announce>
       <div>
         <h1 class="title">
           Waiting for players...
@@ -597,6 +599,7 @@ export class MyApp extends LitElement {
     if (!this.game || !this.color) return this.renderWaiting();
 
     return html`<div class="app">
+      <my-announce></my-announce>
       <canvas id="confetti-canvas"></canvas>
       <div>
         <h1 class="title">

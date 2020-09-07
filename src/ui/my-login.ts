@@ -8,6 +8,7 @@ import {
 } from 'lit-element';
 import '@polymer/paper-button';
 import './my-release-notes';
+import './my-announce';
 import '@polymer/paper-dialog';
 import '@polymer/paper-toggle-button';
 import '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
@@ -171,7 +172,9 @@ export class MyLogin extends LitElement {
   };
 
   render() {
-    return html`<form .onsubmit=${this.login.bind(this)}>
+    return html`
+    <my-announce></my-announce>
+    <form .onsubmit=${this.login.bind(this)}>
       <div class="container">
         <div class="title">F I S H R A N D O M</div>
         <input
