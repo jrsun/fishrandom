@@ -20,7 +20,7 @@ import log from 'log';
 import {RoomSchema} from '../db/schema';
 import {VARIANTS} from '../chess/variants';
 import {BoardState} from '../chess/state';
-import { setRoom, getRoomSchema, setPlayer, deleteRoom } from '../db';
+import { saveRoom, savePlayer, deleteRoom } from '../db';
 
 // States progress from top to bottom within a room.
 export enum RoomState {
@@ -34,7 +34,6 @@ export enum RoomState {
 export interface Player {
   uuid: string;
   username: string;
-  // REDIS: room id
   roomId?: string;
   socket?: WebSocket;
   lastVariants: string[];
@@ -120,7 +119,7 @@ export class Room {
       }
     }, 1000);
     this.timerPaused = false;
-    setRoom(this);
+    saveRoom(this);
   }
 
   initGame() {
@@ -251,7 +250,7 @@ export class Room {
     game.state = turn.after;
     game.turnHistory.push(turn);
     game.stateHistory.push(turn.after);
-    setRoom(this);
+    saveRoom(this);
 
     me.time += INCREMENT_MS;
     // we should send the mover a `replaceState` and the opponent an
@@ -299,7 +298,7 @@ export class Room {
     game.state = turn.after;
     game.turnHistory.push(turn);
     game.stateHistory.push(turn.after);
-    setRoom(this);
+    saveRoom(this);
 
     const am1 = {
       type: 'appendState' as const,
@@ -505,9 +504,9 @@ export class Room {
     this.sendTimers();
     delete this.p1.player.roomId;
     delete this.p2.player.roomId;
-    setPlayer(this.p1.player);
-    setPlayer(this.p2.player);
-    deleteRoom(this.id); // Should delete
+    savePlayer(this.p1.player);
+    savePlayer(this.p2.player);
+    deleteRoom(this.id);
   }
 
   handleGameEvent = (event: GameEvent) => {

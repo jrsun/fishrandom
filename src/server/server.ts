@@ -22,8 +22,7 @@ import log from 'log';
 import logNode from 'log-node';
 import {Game} from '../chess/game';
 import {WAITING} from './waiting';
-import { getRoomSchema, setPlayer, getPlayer, setRoom, deleteRoom, PLAYERS } from '../db';
-import { RoomSchema } from '../db/schema';
+import { savePlayer, getPlayer, deleteRoom, getRoom } from '../db';
 logNode();
 
 var app = express();
@@ -61,7 +60,6 @@ app.get('/game', function (req, res) {
 });
 
 interface GameSettings {
-  username: string;
   password?: string;
   variant?: string;
 }
@@ -92,7 +90,26 @@ app.post('/login', function (req, res) {
       .toLocaleLowerCase()
       .slice(0, 15) ?? 'fish';
   // REDIS
-  gameSettings[uuid] = {username: escapedUser, password, variant};
+  gameSettings[uuid] = {password, variant};
+
+  getPlayer(uuid).then(player => {
+    if (player) {
+      savePlayer({
+        ...player,
+        username: escapedUser,
+      })
+      return;
+    }
+    // Account creation
+    savePlayer({
+      uuid,
+      username: escapedUser,
+      streak: 0,
+      lastVariants: [],
+      elo: 1500,
+    });
+  });
+
   res.end();
 });
 
@@ -119,9 +136,19 @@ const wss = new WS.Server({
 
 /** Game server state */
 
-const rooms: {[uuid: string]: Room} = {};
-
 wss.on('connection', async function connection(ws: WebSocket, request) {
+  const cookies = request.headers.cookie?.split(';');
+  const uuid = cookies?.find((cookie) => cookie.startsWith('uuid='))?.split('=')?.[1];
+  if (!uuid) {
+    log.notice('connected without uuid, kicking');
+    kick(ws);
+    return;
+  }
+  // Attach this early to be ready for client initGame
+  addMessageHandler(ws, (message) => {
+    handleMessage(ws, uuid, message);
+  });
+
   ws.addEventListener('close', () => {
     log.notice('Client disconnected:', uuid);
     wsCounter--;
@@ -131,15 +158,7 @@ wss.on('connection', async function connection(ws: WebSocket, request) {
     request.headers['x-forwarded-for'] || request.connection.remoteAddress
   );
   wsCounter++;
-  let uuid = '';
 
-  const cookies = request.headers.cookie?.split(';');
-  uuid = cookies?.find((cookie) => cookie.startsWith('uuid='))?.split('=')?.[1];
-  if (!uuid) {
-    log.notice('connected without uuid, kicking');
-    kick(ws);
-    return;
-  }
   // REDIS
   // if (!gameSettings[uuid]) {
   //   log.notice('connected without gamesettings, kicking');
@@ -147,57 +166,19 @@ wss.on('connection', async function connection(ws: WebSocket, request) {
   //   return;
   // }
   // log.notice('User connected:', gameSettings[uuid].username);
-
-  // load these from redis
-  let player = await getPlayer(uuid) as Player|undefined;
-  if (player) {
-    // maybe need to close the old socket here
-    player.socket = ws;
-  } else {
-    player = {
-      uuid,
-      username: randomChoice(['a','b','c','d','e','f']),
-      streak: 0,
-      lastVariants: [],
-      elo: 1500,
-      socket: ws,
-    };
-  }
-  setPlayer(player);
-
-  addMessageHandler(ws, (message) => {
-    handleMessage(ws, player!, message);
-  });
 });
 
 /** Handle websocket messages and delegate to room */
-const handleMessage = async function (ws: WebSocket, player: Player, message: Message) {  
-  const playerLog = log.get(player.username);
-  // REDIS get room id, then fetch room
-  const roomId = player.roomId;
-  // TEMP TEMP
-  let room = roomId ? rooms[roomId] : undefined;
-  if (roomId && !room) {
-    const schema = await getRoomSchema(roomId);
-    if (schema) {
-      const me = player; 
-      const opponentUuid = Object.keys(schema.players).find(uuid => uuid !== me.uuid);
-      if (!opponentUuid) {
-        kick(ws, me.uuid);
-        return;
-      }
-  
-      const opponent = await getPlayer(opponentUuid);
-      if (!opponent) {
-        console.log('kicking because no opponent');
-        kick(ws, player.uuid);
-        return;
-      }
-      console.log('reloaded room from db');
-      room = Room.thaw(me, opponent, schema);
-      rooms[room.id] = room;
-    }
+const handleMessage = async function (ws: WebSocket, uuid: string, message: Message) {  
+  const player = await getPlayer(uuid);
+  if (!player) {
+    kick(ws, uuid);
+    return;
   }
+  player.socket = ws;
+  const playerLog = log.get(player.username);
+  const roomId = player.roomId;
+  const room = await getRoom(roomId);
 
   if (message.type === 'newGame') {
     if (!!room) {
@@ -213,7 +194,6 @@ const handleMessage = async function (ws: WebSocket, player: Player, message: Me
     );
     return;
   }
-  // TODO it's no longer the same player object
   if (message.type === 'exit' && WAITING.hasPlayer(player.uuid)) {
     // Clean up references if a player left while waiting
     playerLog.notice('left the game');
@@ -245,7 +225,6 @@ const handleMessage = async function (ws: WebSocket, player: Player, message: Me
     room.handleResign(player.uuid);
   }
   if (room.state === RoomState.COMPLETED) {
-    delete rooms[room.id];
     playerLog.notice('game completed');
   }
 };
@@ -308,12 +287,11 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
   } else {
     room = new Room(roomId, opponent, player, NG, p1color);
   }
-  rooms[room.id] = room;
   room.initGame();
   opponent.roomId = room.id;
   player.roomId = room.id;
-  setPlayer(player);
-  setPlayer(opponent);
+  savePlayer(player);
+  savePlayer(opponent);
 
   // Set the last variant
   addLastVariant(opponent, room.game.name);
@@ -336,16 +314,9 @@ const kick = async (ws: WebSocket, uuid?: string) => {
     if (player) {
       const roomId = player.roomId;
       if (roomId) {
+        console.error('kicked someone out of existing room!!');
+        // Shouldn't happen, but just delete the room
         deleteRoom(roomId);
-        const room = rooms[roomId];
-        if (room) {
-          // This shouldn't happen, but end the room just in case.
-          room.wins(
-            room.p1.player.uuid === uuid
-              ? room.p2.player.uuid
-              : room.p1.player.uuid
-          );
-        }
       }
 
     }

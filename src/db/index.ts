@@ -5,7 +5,8 @@ import { ResolvePlugin } from 'webpack';
 import { RoomSchema } from './schema';
 
 const REDIS_CLIENT = redis.createClient() as RedisClient;
-export const PLAYERS: {[uuid: string]: Player} = {};
+const PLAYERS: {[uuid: string]: Player} = {};
+const ROOMS: {[uuid: string]: Room} = {};
 
 type RedisFn = (err: Error, res: any) => void;
 
@@ -15,20 +16,17 @@ interface RedisClient {
   del: (key: string, f: RedisFn) => void,
 }
 
-export async function setRoom (r: Room) {
+export async function saveRoom (r: Room) {
+  ROOMS[r.id] = r;
   return await new Promise((resolve, reject) => {
-    if (r.state !== RoomState.PLAYING) {
-      REDIS_CLIENT.del(r.id, (err) => {
-        if (err) reject(err);
-        resolve();
-      });
-    }
-    // REDIS_CLIENT.set()
     REDIS_CLIENT.set(
       r.id,
       JSON.stringify(Room.freeze(r), replacer),
       err => {
-        if (err) reject(err);
+        if (err) {
+          reject(err);
+          return;
+        } 
         resolve();
       }
     );
@@ -36,29 +34,53 @@ export async function setRoom (r: Room) {
 }
 
 export function deleteRoom(rid: string) {
+  delete ROOMS[rid];
   REDIS_CLIENT.del(rid, () => {});
 }
 
-export async function getRoomSchema (id: string): Promise<RoomSchema|undefined> {
+export async function getRoom(id?: string): Promise<Room|undefined> {
+  if (!id) return Promise.resolve(undefined);
+
+  if (id in ROOMS) return Promise.resolve(ROOMS[id]);
+
+  // Reconstruct room from DB
   return await new Promise((resolve, reject) => {
     REDIS_CLIENT.get(id, (err, reply) => {
       if (err) {
         reject(err);
-      } else {
-        resolve(JSON.parse(reply, reviver));
+        return;
       }
+      const rs = JSON.parse(reply, reviver) as RoomSchema|undefined;
+      if (!rs) {
+        resolve();
+        return;
+      }
+      const playerUuids = Object.keys(rs.players);
+      Promise.all(playerUuids.map(uuid => getPlayer(uuid))).then(
+        players => {
+          if (players.length !== 2 || !players[0] || !players[1]) {
+            console.error('attempted to get room without 2 players');
+            resolve();
+            return;
+          }
+          resolve(Room.thaw(players[0], players[1], rs));
+        }
+      )
     })
   })
 }
 
-export async function setPlayer (p: Player) {
+export async function savePlayer (p: Player) {
   PLAYERS[p.uuid] = p;
   return await new Promise((resolve, reject) => {
     REDIS_CLIENT.set(
       p.uuid,
       JSON.stringify({...p, socket: undefined}),
       (err) => {
-        if (err) reject(err);
+        if (err) {
+          reject(err);
+          return;
+        }
         console.log('created player', p.uuid);
         resolve();
       },
@@ -73,16 +95,16 @@ export async function getPlayer(id: string): Promise<Player|undefined> {
     REDIS_CLIENT.get(id, (err, reply) => {
       if (err) {
         reject(err);
-      } else {
-        if (!reply) {
-          resolve();
-        }
-        const player = JSON.parse(reply) as Player;
-        resolve({
-          ...player,
-          socket: undefined,
-        });
+        return;
       }
+      if (!reply) {
+        resolve();
+      }
+      const player = JSON.parse(reply) as Player;
+      resolve({
+        ...player,
+        socket: undefined,
+      });
     })
   })
 }
