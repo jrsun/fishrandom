@@ -87,7 +87,6 @@ app.post('/login', function (req, res) {
       .replace(/[^0-9A-Za-z]+/gi, '')
       .toLocaleLowerCase()
       .slice(0, 15) ?? 'fish';
-  // REDIS
   gameSettings[uuid] = {password, variant};
 
   getPlayer(uuid).then(player => {
@@ -150,7 +149,9 @@ wss.on('connection', async function connection(ws: WebSocket, request) {
   });
 
   ws.addEventListener('close', () => {
-    log.notice('Client disconnected:', uuid);
+    getPlayer(uuid).then((player) => {
+      log.notice('Client disconnected:', player?.username);
+    })
     wsCounter--;
   });
   log.notice(
@@ -246,7 +247,11 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
   const {uuid: opponentUuid, variant: opVariant} = entry;
   const opponent = await getPlayer(opponentUuid);
   if (!opponent) {
-    return; // TEMP
+    console.error('Fetched opponent from waiting, but they were missing!!');
+    if (player.socket) {
+      kick(player.socket!, player.uuid);
+    }
+    return;
   }
   let NG: typeof Game;
 
