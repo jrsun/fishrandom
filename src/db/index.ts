@@ -3,6 +3,7 @@ import { Room, Player, RoomState } from '../server/room';
 import { replacer, reviver } from '../common/message';
 import { ResolvePlugin } from 'webpack';
 import log from 'log';
+import zlib from 'zlib';
 import { RoomSchema } from './schema';
 
 const REDIS_CLIENT = redis.createClient() as RedisClient;
@@ -24,23 +25,30 @@ interface RedisClient {
 export async function saveRoom (r: Room) {
   ROOMS[r.id] = r;
   return await new Promise((resolve, reject) => {
-    REDIS_CLIENT.set(
-      r.id,
-      JSON.stringify(Room.freeze(r), replacer),
-      err => {
-        if (err) {
-          reject(err);
-          return;
-        } 
-        resolve();
+    const s = JSON.stringify(Room.freeze(r), replacer);
+    zlib.gzip(s, (err, buffer) => {
+      if (err) {
+        console.error('Failed to compress and save message %s', s);
+        return;
       }
-    );
+      REDIS_CLIENT.set(
+        `room:${r.id}`,
+        buffer.toString('base64'),
+        err => {
+          if (err) {
+            reject(err);
+            return;
+          } 
+          resolve();
+        }
+      );
+    });
   })
 }
 
 export function deleteRoom(rid: string) {
   delete ROOMS[rid];
-  REDIS_CLIENT.del(rid, () => {});
+  REDIS_CLIENT.del(`room:${rid}`, () => {});
 }
 
 export async function getRoom(id?: string): Promise<Room|undefined> {
@@ -50,29 +58,40 @@ export async function getRoom(id?: string): Promise<Room|undefined> {
 
   // Reconstruct room from DB
   return await new Promise((resolve, reject) => {
-    REDIS_CLIENT.get(id, (err, reply) => {
+    REDIS_CLIENT.get(`room:${id}`, (err, reply) => {
       if (err) {
         reject(err);
         return;
       }
-      const rs = JSON.parse(reply, reviver) as RoomSchema|undefined;
-      if (!rs) {
-        resolve();
-        return;
-      }
-      const playerUuids = Object.keys(rs.players);
-      Promise.all(playerUuids.map(uuid => getPlayer(uuid))).then(
-        players => {
-          if (players.length !== 2 || !players[0] || !players[1]) {
-            console.error('attempted to get room without 2 players');
-            resolve();
-            return;
-          }
-          const room = Room.thaw(players[0], players[1], rs);
-          ROOMS[room.id] = room;
-          resolve(room);
+      const zipped = Buffer.from(reply, 'base64');
+      zlib.gunzip(zipped, (err, data) => {
+        if (err) {
+          reject(err);
         }
-      )
+        let rs: RoomSchema|undefined;
+        try {
+          rs = JSON.parse(data.toString(), reviver) as RoomSchema|undefined;
+        } catch (e) {
+          reject(e);
+        }
+        if (!rs) {
+          resolve();
+          return;
+        }
+        const playerUuids = Object.keys(rs.players);
+        Promise.all(playerUuids.map(uuid => getPlayer(uuid))).then(
+          players => {
+            if (players.length !== 2 || !players[0] || !players[1]) {
+              console.error('attempted to get room without 2 players');
+              resolve();
+              return;
+            }
+            const room = Room.thaw(players[0], players[1], rs!);
+            ROOMS[room.id] = room;
+            resolve(room);
+          }
+        )
+      });
     })
   })
 }
@@ -81,7 +100,7 @@ export async function savePlayer (p: Player) {
   PLAYERS[p.uuid] = p;
   return await new Promise((resolve, reject) => {
     REDIS_CLIENT.set(
-      p.uuid,
+      `player:${p.uuid}`,
       JSON.stringify({...p, socket: undefined}),
       (err) => {
         if (err) {
@@ -99,7 +118,7 @@ export async function getPlayer(id: string): Promise<Player|undefined> {
   if (id in PLAYERS) return Promise.resolve(PLAYERS[id]);
 
   return await new Promise((resolve, reject) => {
-    REDIS_CLIENT.get(id, (err, reply) => {
+    REDIS_CLIENT.get(`player:${id}`, (err, reply) => {
       if (err) {
         reject(err);
         return;
