@@ -183,12 +183,23 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
 }
 
 export function sendMessage(
-  ws: WebSocket,
+  ws: WebSocket|undefined,
   m: Message,
   sync = false
 ): Promise<void> {
+  if (!ws) {
+    console.error('tried to send message but no socket');
+    return Promise.resolve();
+  }
+
   const input = JSON.stringify(m, replacer);
   if (sync) {
+    console.error(
+      '%s: Sending uncompressed msg of type %s with size %s',
+      new Date().toUTCString(),
+      m.type,
+      input.length
+    );
     const buffer = zlib.gzipSync(input);
     ws.send(buffer.toString('base64'));
     return Promise.resolve();

@@ -13,9 +13,14 @@ import {
   TimerMessage,
   ReconnectMessage,
   PlayerInfo,
+  reviver,
 } from '../common/message';
 import WS from 'ws';
 import log from 'log';
+import {RoomSchema} from '../db/schema';
+import {VARIANTS} from '../chess/variants';
+import {BoardState} from '../chess/state';
+import { saveRoom, savePlayer, deleteRoom } from '../db';
 
 // States progress from top to bottom within a room.
 export enum RoomState {
@@ -29,8 +34,8 @@ export enum RoomState {
 export interface Player {
   uuid: string;
   username: string;
-  room?: Room;
-  socket: WebSocket;
+  roomId?: string;
+  socket?: WebSocket;
   lastVariants: string[];
   streak: number;
   elo: number;
@@ -50,6 +55,7 @@ const ELO_K = 100;
 
 export class Room {
   // public
+  id: string;
   game: Game;
 
   p1: RoomPlayer;
@@ -62,22 +68,28 @@ export class Room {
   timerPaused: boolean;
 
   constructor(
+    id: string,
     p1: Player,
     p2: Player,
     gc: typeof Game,
-    timeMs = 3 * 60 * 1000,
-    incrementMs = 5 * 1000
+    p1Color = Color.WHITE,
+    p1time = 3 * 60 * 1000,
+    p2time = 3 * 60 * 1000,
+    turnHistory?: Turn[],
+    stateHistory?: BoardState[]
   ) {
+    this.id = id;
+
     this.p1 = {
       player: p1,
-      color: randomChoice([Color.WHITE, Color.BLACK]),
-      time: timeMs,
+      color: p1Color,
+      time: p1time,
       name: p1.username,
     };
     this.p2 = {
       player: p2,
-      color: getOpponent(this.p1.color),
-      time: timeMs,
+      color: getOpponent(p1Color),
+      time: p2time,
       name: p2.username,
     };
     if (this.p1.color === Color.WHITE) {
@@ -87,43 +99,51 @@ export class Room {
     }
     this.setState(RoomState.PLAYING);
     this.game = new gc(true);
+    if (turnHistory) this.game.turnHistory = turnHistory;
+    if (stateHistory) {
+      this.game.stateHistory = stateHistory;
+      this.game.state = stateHistory[
+        stateHistory.length - 1
+      ];
+    }
     this.game.onEvent(this.handleGameEvent);
+    this.timerInterval = setInterval(() => {
+      if (this.timerPaused) return;
+      const me =
+        this.game.state.whoseTurn === this.p1.color ? this.p1 : this.p2;
+      const opponent = me === this.p1 ? this.p2 : this.p1;
+      me.time -= 1000;
+      if (me.time <= 0) {
+        log.get(me.name).notice('ran out of time');
+        this.wins(opponent.player.uuid);
+      }
+    }, 1000);
+    this.timerPaused = false;
+    saveRoom(this);
+  }
 
-    const player1 = this.p1.player;
-    const player2 = this.p2.player;
-
+  initGame() {
     // Send init game messages
+    const {p1, p2} = this;
     Promise.all([
-      sendMessage(player1.socket, {
+      sendMessage(p1.player.socket, {
         type: 'initGame',
         state: this.game.visibleState(this.game.state, this.p1.color),
         variantName: this.game.name,
         color: this.p1.color,
-        player: toPlayerInfo(player1),
-        opponent: toPlayerInfo(player2),
+        player: toPlayerInfo(p1.player),
+        opponent: toPlayerInfo(p2.player),
       }),
-      sendMessage(player2.socket, {
+      sendMessage(p2.player.socket, {
         type: 'initGame',
         state: this.game.visibleState(this.game.state, this.p2.color),
         variantName: this.game.name,
         color: this.p2.color,
-        player: toPlayerInfo(player2),
-        opponent: toPlayerInfo(player1),
+        player: toPlayerInfo(p2.player),
+        opponent: toPlayerInfo(p1.player),
       }),
     ]).then(() => {
       this.game.onConnect();
-      this.timerInterval = setInterval(() => {
-        if (this.timerPaused) return;
-        const me =
-          this.game.state.whoseTurn === this.p1.color ? this.p1 : this.p2;
-        const opponent = me === this.p1 ? this.p2 : this.p1;
-        me.time -= 1000;
-        if (me.time <= 0) {
-          log.get(me.name).notice('ran out of time');
-          this.wins(opponent.player.uuid);
-        }
-      }, 1000);
-      this.timerPaused = false;
       this.sendTimers();
     });
     log.get(this.p1.name).notice('playing variant', this.game.name);
@@ -230,6 +250,7 @@ export class Room {
     game.state = turn.after;
     game.turnHistory.push(turn);
     game.stateHistory.push(turn.after);
+    saveRoom(this);
 
     me.time += INCREMENT_MS;
     // we should send the mover a `replaceState` and the opponent an
@@ -277,6 +298,7 @@ export class Room {
     game.state = turn.after;
     game.turnHistory.push(turn);
     game.stateHistory.push(turn.after);
+    saveRoom(this);
 
     const am1 = {
       type: 'appendState' as const,
@@ -480,8 +502,11 @@ export class Room {
     clearInterval(this.timerInterval);
 
     this.sendTimers();
-    delete this.p1.player.room;
-    delete this.p2.player.room;
+    delete this.p1.player.roomId;
+    delete this.p2.player.roomId;
+    savePlayer(this.p1.player);
+    savePlayer(this.p2.player);
+    deleteRoom(this.id);
   }
 
   handleGameEvent = (event: GameEvent) => {
@@ -492,6 +517,49 @@ export class Room {
     sendMessage(this.p1.player.socket, gem);
     sendMessage(this.p2.player.socket, gem);
   };
+
+  static freeze(r: Room): RoomSchema {
+    const {id, p1, p2, game} = r;
+    return {
+      id,
+      players: {
+        [p1.player.uuid]: {
+          time: p1.time,
+          name: p1.name,
+          color: p1.color,
+        },
+        [p2.player.uuid]: {
+          time: p2.time,
+          name: p2.name,
+          color: p2.color,
+        },
+      },
+      turnHistory: game.turnHistory,
+      stateHistory: game.stateHistory,
+      variant: game.name,
+    };
+  }
+
+  static thaw(p1: Player, p2: Player, rs: RoomSchema): Room {
+    const {id, variant, turnHistory, stateHistory} = rs;
+    const p1info = rs.players[p1.uuid];
+    const p2info = rs.players[p2.uuid];
+    if (!p1info || !p2info) {
+      console.error('uuid didnt resolve', p1, p2, p1info, p2info);
+    }
+
+    return new Room(
+      id,
+      p1,
+      p2,
+      VARIANTS[variant],
+      p1info.color,
+      p1info.time,
+      p2info.time,
+      turnHistory,
+      stateHistory
+    );
+  }
 }
 
 const toPlayerInfo = (p: Player): PlayerInfo => {

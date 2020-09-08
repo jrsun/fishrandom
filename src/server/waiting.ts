@@ -1,71 +1,71 @@
-import {Player} from './room';
+type Uuid = string;
 
 class Waiting {
-  open: Set<Player> = new Set<Player>();
-  private: Map<string, {player: Player; variant?: string}> = new Map<
+  open: Set<Uuid> = new Set<Uuid>();
+  private: Map<string, {uuid: Uuid; variant?: string}> = new Map<
     string,
-    {player: Player; variant?: string}
+    {uuid: Uuid; variant?: string}
   >();
 
-  addToOpen(player: Player) {
-    this.open.add(player);
+  addToOpen(uuid: Uuid) {
+    this.open.add(uuid);
   }
 
   hasOpen(): boolean {
     return !!this.open.size;
   }
 
-  popOpen(): Player | undefined {
+  popOpen(): Uuid | undefined {
     const first = Array.from(this.open)[0];
     if (!first) return;
     this.open.delete(first);
     return first;
   }
 
-  addToPrivate(player: Player, password: string, variant?: string) {
-    this.private.set(password, {player, variant});
+  addToPrivate(uuid: Uuid, password: string, variant?: string) {
+    this.private.set(password, {uuid, variant});
   }
 
-  popPrivate(password: string): {player: Player; variant?: string} | undefined {
+  popPrivate(password: string): {uuid: Uuid; variant?: string} | undefined {
     const entry = this.private.get(password);
     if (!entry) return;
     this.private.delete(password);
     return entry;
   }
 
-  hasPlayer(player: Player): boolean {
-    if (this.open.has(player)) return true;
+  hasPlayer(uuid: Uuid): boolean {
+    if (this.open.has(uuid)) return true;
 
     for (const [pass, p] of this.private) {
-      if (p.player === player) {
+      if (p.uuid === uuid) {
         return true;
       }
     }
     return false;
   }
 
-  add(player: Player, password?: string, variant?: string) {
+  add(uuid: Uuid, password?: string, variant?: string) {
     if (password) {
-      return this.addToPrivate(player, password, variant);
+      return this.addToPrivate(uuid, password, variant);
     } else {
-      return this.addToOpen(player);
+      return this.addToOpen(uuid);
     }
   }
 
-  pop(password?: string): {player: Player; variant?: string} | undefined {
+  pop(password?: string): {uuid: Uuid; variant?: string} | undefined {
     if (password) {
       return this.popPrivate(password);
     } else {
-      const player = this.popOpen();
-      if (player) return {player};
+      const uuid = this.popOpen();
+      if (uuid) return {uuid};
     }
   }
 
-  deletePlayer(player: Player): boolean {
-    const wasInOpen = this.open.delete(player);
+  deletePlayer(uuid: Uuid): boolean {
+    const wasInOpen = this.open.delete(uuid);
     if (wasInOpen) return true;
     for (const [pass, p] of this.private) {
-      if (p.player === player) {
+      if (p.uuid === uuid) {
         this.private.delete(pass);
         return true;
       }
