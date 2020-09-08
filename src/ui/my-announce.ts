@@ -8,7 +8,7 @@ import {
 } from 'lit-element';
 import '@polymer/paper-button';
 
-const ANNOUNCE_TEXT = 'Fishrandom will be offline for maintenance at 7pm Pacific Time.';
+const ANNOUNCE_TEXT = '';
 
 @customElement('my-announce')
 export class MyAnnounce extends LitElement {
@@ -47,7 +47,7 @@ export class MyAnnounce extends LitElement {
   }
 
   render() {
-    if (!this.open) return html``;
+    if (!this.open || !ANNOUNCE_TEXT) return html``;
 
     return html`<div class="announcement" @click=${this.onClose}>
        ${ANNOUNCE_TEXT}

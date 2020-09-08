@@ -64,7 +64,7 @@ export class Elephant extends Piece {
           )
       ) as Square[];
     const lastTurn = turnHistory[turnHistory.length - 1];
-    let end: Pair = randomChoice(squares);
+    let end: Pair = randomChoice(squares.filter(square => !square.occupant));
 
     if (lastTurn && squares.some((square) => equals(square, lastTurn.end))) {
       end = lastTurn.end;
@@ -80,6 +80,7 @@ export class Elephant extends Piece {
         .place(this, end.row, end.col),
       end,
       piece: this,
+      cpu: true,
     };
   }
 

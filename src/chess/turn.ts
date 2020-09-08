@@ -21,6 +21,7 @@ interface BaseTurn {
   piece: Piece;
   type: TurnType; // 'move', 'castle', etc.
   captured?: Piece;
+  cpu?: boolean;
 }
 
 export interface Move extends BaseTurn {

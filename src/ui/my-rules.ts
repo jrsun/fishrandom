@@ -220,19 +220,16 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   Gobbler: html`An uncapturable <b>Elephant</b> wanders the board gobbling
     pieces.
     <ul>
-      <li>Elephant moves one space after every turn in any direction.</li>
+      <li>Elephant moves to a random empty adjacent square after each turn, with two exceptions.</li>
+      <li>#1: Elephant will not capture or move adjacent to a <b>King</b>.</li>
       <li>
-        If you move a piece to a square adjacent to the Elephant, it will
-        <b>capture</b> it on that turn, except...
+        #2: If you move a piece to a square adjacent to the Elephant, it will
+        <b>capture</b> it on that turn, unless #1 applies.
       </li>
-      <li>Elephant will not capture or move adjacent to a <b>King</b>.</li>
-      <li>
-        Otherwise, the Elephant chooses randomly from the legal squares it can
-        move to.
-      </li>
+      <li>If the Elephant has no legal moves, it will not move.</li>
       <li>Checkmate or capture the opponent's king to win.</li>
     </ul>
-    Piece Eater by Peter Aronson (2001) `,
+    Based on Piece Eater by Peter Aronson (2001) `,
   Football: html`Get a piece on your opponent's King or Queen starting squares
     to win.
     <ul>
