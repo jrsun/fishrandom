@@ -85,13 +85,14 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
 
 export function Random(...except: string[]): typeof Game {
   if (except) {
-    return VARIANTS[
-      randomChoice(
-        Object.keys(RANDOM_VARIANTS).filter((name) => !except.includes(name))
-      )
-    ];
+    const variantName = randomChoice(
+      Object.keys(RANDOM_VARIANTS).filter((name) => !except.includes(name))
+    );
+    if (variantName) {
+      return VARIANTS[variantName];
+    }
   }
-  return VARIANTS[randomChoice(Object.keys(RANDOM_VARIANTS))];
+  return VARIANTS[randomChoice(Object.keys(RANDOM_VARIANTS))!];
 }
 
 export {

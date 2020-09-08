@@ -162,7 +162,7 @@ export class MyControls extends LitElement {
   }
 
   renderStopGame() {
-    const isAbort = this.turnHistory.length <= 1;
+    const isAbort = this.turnHistory.filter(turn => !turn.cpu).length <= 1;
     return html`<paper-button
       class="resign-button"
       raised

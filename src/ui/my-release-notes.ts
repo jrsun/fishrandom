@@ -2,9 +2,7 @@ import {
   LitElement,
   html,
   customElement,
-  property,
   css,
-  TemplateResult,
 } from 'lit-element';
 import '@polymer/paper-button';
 
@@ -42,7 +40,7 @@ export class MyReleaseNotes extends LitElement {
 
   render() {
     return html` <div class="relnotes">Release Notes:</div>
-      <div class="subtitle">9/7 - zero downtime updates</div>
+      <div class="subtitle">9/7 - gobbler changes / zero downtime updates</div>
       <div class="subtitle">9/4 - choose variant in private rooms</div>
       <div class="subtitle">
         9/3 - gay chess / right click for arrows / minor tweaks
