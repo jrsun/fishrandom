@@ -223,6 +223,16 @@ export class Game {
   }
 
   drawCondition(color: Color, state: BoardState): boolean {
+    const lastFiftyTurns = this.turnHistory.slice(-50);
+    if (lastFiftyTurns.length === 50) {
+      // If there was no pawn move or capture in the last
+      // 50 moves, draw
+      if (!lastFiftyTurns.some(turn => {
+        turn.captured || turn.piece instanceof Pawn
+      })) {
+        return true;
+      }
+    }
     for (const square of state.squares
       .flat()
       .filter((square) => square.occupant?.color === color)) {
