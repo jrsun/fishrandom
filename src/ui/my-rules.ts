@@ -195,7 +195,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>You may choose which piece to change to if ambiguous.</li>
       <li>You can have two bishops of the same color.</li>
     </ul>
-    Panos Louridas (1998) `,
+    Panos Louridas (1957) `,
   Atomic: html`Captures explode the captured piece and all neighboring pieces
     except pawns.
     <ul>
