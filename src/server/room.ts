@@ -235,21 +235,12 @@ export class Room {
         throw new Error(`unimplemented turn type ${turnAttempt.type}`);
     }
 
+    turn = game.execute(me.color, turn);
     if (!turn) {
       sendMessage(me.player.socket, {type: 'undo'});
       log.get(me.name).warn('submitted an invalid move, undoing!');
       return;
     }
-    turn = game.modifyTurn(turn);
-    if (!turn) {
-      sendMessage(me.player.socket, {type: 'undo'});
-      log.get(me.name).error('submitted an invalid move, undoing!');
-      return;
-    }
-
-    game.state = turn.after;
-    game.turnHistory.push(turn);
-    game.stateHistory.push(turn.after);
     saveRoom(this);
 
     me.time += INCREMENT_MS;

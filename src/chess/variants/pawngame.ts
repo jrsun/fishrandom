@@ -49,10 +49,10 @@ export class SecretPawnGame extends Game {
     );
     return vis;
   }
-  modifyTurn(turn: Turn): Turn {
-    if (!this.isServer) return turn;
+  sideEffects(turn: Turn) {
+    if (!this.isServer) return;
 
-    if (this.turnHistory.length + 1 === 2) {
+    if (this.turnHistory.length === 2) {
       if (this.eventHandler) {
         this.eventHandler({
           type: GameEventType.Off,
@@ -60,6 +60,11 @@ export class SecretPawnGame extends Game {
           pairs: secondRank,
         });
       }
+    }
+  }
+  modifyTurn(turn: Turn): Turn {
+    // After this turn, 2 moves will have passed.
+    if (this.turnHistory.length + 1 === 2) {
       return {
         ...turn,
         after: BoardState.copy(turn.after).setPhase(Phase.NORMAL),
@@ -115,7 +120,6 @@ export class SecretPawnGame extends Game {
       end: {row, col},
       piece,
     };
-    if (!this.validateTurn(piece.color, turn)) return;
     return turn;
   }
 

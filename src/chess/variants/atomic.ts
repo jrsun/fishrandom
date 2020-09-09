@@ -12,10 +12,29 @@ export class Atomic extends Game {
     super(isServer, generateStartState());
   }
 
-  legalMovesFrom(state: BoardState, row, col, allowCastles): (Move | Castle)[] {
+  sideEffects(turn: Turn) {
+    if (!turn.captured) return;
+
+    if (this.eventHandler) {
+      const pairs: Pair[] = [];
+      const {row, col} = turn.end;
+      for (let i = row - 1; i < row + 2; i++) {
+        for (let j = col - 1; j < col + 2; j++) {
+          pairs.push({row: i, col: j});
+        }
+      }
+      this.eventHandler({
+        pairs,
+        name: GameEventName.Explode,
+        type: GameEventType.Temporary,
+      });
+    }
+  }
+
+  legalMovesFrom(state: BoardState, row, col, allowCastle): Turn[] {
     const square = state.getSquare(row, col);
     const piece = square?.occupant;
-    let moves = super.legalMovesFrom(state, row, col, allowCastles);
+    let moves = super.legalMovesFrom(state, row, col, allowCastle);
 
     if (piece instanceof King) {
       moves = moves.filter((move) => !move.captured);
@@ -39,13 +58,6 @@ export class Atomic extends Game {
           after.empty(i, j);
         }
       }
-    }
-    if (this.eventHandler) {
-      this.eventHandler({
-        pairs,
-        name: GameEventName.Explode,
-        type: GameEventType.Temporary,
-      });
     }
     return {
       ...turn,

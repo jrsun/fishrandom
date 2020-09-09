@@ -338,16 +338,13 @@ export class MyElement extends LitElement {
           detail: selectPieceEvent(),
         })
       );
-      if (!turn) {
+      const exTurn = this.game.execute(this.color, turn);
+      if (!exTurn) {
         return;
       }
 
-      this.game.turnHistory = [...this.game.turnHistory, turn];
-      this.game.stateHistory.push(turn.after);
-      this.game.state = turn.after;
-
-      sendMessage(this.socket, {type: 'turn', turn});
-      if (turn.captured) {
+      sendMessage(this.socket, {type: 'turn', turn: exTurn});
+      if (exTurn.captured) {
         this.audio.capture?.play();
       } else {
         this.audio.move?.play();
@@ -423,9 +420,8 @@ export class MyElement extends LitElement {
           detail: selectPieceEvent(),
         })
       );
-      this.game.state = turn.after;
-      this.game.turnHistory = [...this.game.turnHistory, turn];
-      this.game.stateHistory.push(turn.after);
+      turn = this.game.execute(this.color, turn);
+      if (!turn) return;
 
       sendMessage(this.socket, {type: 'turn', turn});
       if (turn.captured) {
@@ -463,12 +459,10 @@ export class MyElement extends LitElement {
     const {square, piece, start, type} = e.detail;
 
     if (type === 'drop') {
-      const turn = this.game.drop(this.color, piece, square.row, square.col);
-      if (!turn) return;
+      let turn: Turn|undefined = this.game.drop(this.color, piece, square.row, square.col);
 
-      this.game.turnHistory = [...this.game.turnHistory, turn];
-      this.game.stateHistory.push(turn.after);
-      this.game.state = turn.after;
+      turn = this.game.execute(this.color, turn);
+      if (!turn) return;
 
       sendMessage(this.socket, {type: 'turn', turn});
       if (turn.captured) {
@@ -493,18 +487,14 @@ export class MyElement extends LitElement {
   private onDoubleClick = (e: CustomEvent) => {
     const square = e.detail as Square;
     if (square.occupant) {
-      const turn = this.game.activate(
+      let turn = this.game.activate(
         this.color,
         square.occupant,
         square.row,
         square.col
       );
-      if (!turn) {
-        return;
-      }
-      this.game.turnHistory = [...this.game.turnHistory, turn];
-      this.game.stateHistory.push(turn.after);
-      this.game.state = turn.after;
+      turn = this.game.execute(this.color, turn);
+      if (!turn) {return}
 
       sendMessage(this.socket, {type: 'turn', turn});
       this.audio.move?.play();
@@ -523,7 +513,7 @@ export class MyElement extends LitElement {
     )
       return;
 
-    const turn = this.game.promote(
+    let turn: Turn|undefined = this.game.promote(
       this.color,
       this.selectedPiece,
       piece,
@@ -532,11 +522,10 @@ export class MyElement extends LitElement {
       this.promotionSquare.row,
       this.promotionSquare.col
     );
+
+    turn = this.game.execute(this.color, turn);
     if (!turn) return;
 
-    this.game.turnHistory = [...this.game.turnHistory, turn];
-    this.game.stateHistory.push(turn.after);
-    this.game.state = turn.after;
     sendMessage(this.socket, {type: 'turn', turn});
     this.audio.move?.play();
 

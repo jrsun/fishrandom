@@ -13,6 +13,27 @@ export class Stealthbomber extends SecretPawnGame {
     super(isServer, generateStartState(), BomberPawn);
   }
 
+  sideEffects(turn: Turn) {
+    super.sideEffects(turn);
+
+    if (turn.piece instanceof BomberPawn && turn.type === TurnType.ACTIVATE) {
+      const {end: {row, col}} = turn;
+      const pairs: Pair[] = [];
+      for (let i = row - 1; i < row + 2; i++) {
+        for (let j = col - 1; j < col + 2; j++) {
+          pairs.push({row: i, col: j});
+        }
+      }
+      if (this.eventHandler) {
+        this.eventHandler({
+          pairs,
+          name: GameEventName.Explode,
+          type: GameEventType.Temporary,
+        });
+      }
+    }
+  }
+
   activate(
     color: Color,
     piece: Piece,
@@ -29,29 +50,18 @@ export class Stealthbomber extends SecretPawnGame {
       return;
     }
     const after = BoardState.copy(this.state).setTurn(getOpponent(color));
-    const pairs: Pair[] = [];
     for (let i = row - 1; i < row + 2; i++) {
       for (let j = col - 1; j < col + 2; j++) {
         after.empty(i, j);
-        pairs.push({row: i, col: j});
       }
     }
-    if (this.eventHandler) {
-      this.eventHandler({
-        pairs,
-        name: GameEventName.Explode,
-        type: GameEventType.Temporary,
-      });
-    }
-    const turn = {
+    return {
       type: TurnType.ACTIVATE as const,
       before: this.state,
       after,
       end: {row, col},
       piece,
     };
-    if (!this.validateTurn(piece.color, turn)) return;
-    return turn;
   }
 }
 

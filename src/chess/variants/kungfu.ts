@@ -27,10 +27,10 @@ export class Kungfu extends Game {
       }
     }
   }
-  modifyTurn(turn: Turn): Turn {
-    if (!this.isServer) return turn;
+  sideEffects(turn: Turn) {
+    if (!this.isServer) return;
 
-    if (this.turnHistory.length + 1 === 2) {
+    if (this.turnHistory.length === 2) {
       if (this.eventHandler) {
         this.eventHandler({
           type: GameEventType.Off,
@@ -45,6 +45,10 @@ export class Kungfu extends Game {
             .flat(),
         });
       }
+    }
+  }
+  modifyTurn(turn: Turn): Turn {
+    if (this.turnHistory.length + 1 === 2) {
       return {
         ...turn,
         after: BoardState.copy(turn.after).setPhase(Phase.NORMAL),

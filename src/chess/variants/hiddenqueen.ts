@@ -1,6 +1,6 @@
 import {Game, GameEventType, GameEventName} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
-import {Color, getOpponent, equals} from '../const';
+import {Color, getOpponent, equals, Pair} from '../const';
 import {BoardState, generateStartState, Phase} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
@@ -66,22 +66,26 @@ export class Hiddenqueen extends Game {
     );
     return vis;
   }
-  modifyTurn(turn: Turn): Turn {
-    if (!this.isServer) return turn;
+  sideEffects(turn: Turn) {
+    if (!this.isServer) return;
 
+    const secondRank: Pair[] = [0, 1, 2, 3, 4, 5, 6, 7]
+      .map((col) => [
+        {row: 1, col},
+        {row: 6, col},
+      ])
+      .flat();
+    if (this.turnHistory.length === 2 && this.eventHandler) {
+      this.eventHandler({
+        type: GameEventType.Off,
+        name: GameEventName.Highlight,
+        pairs: secondRank,
+      });
+    }
+  }
+  modifyTurn(turn: Turn): Turn {
+    // After this turn, 2 moves will have passed.
     if (this.turnHistory.length + 1 === 2) {
-      if (this.eventHandler) {
-        this.eventHandler({
-          type: GameEventType.Off,
-          name: GameEventName.Highlight,
-          pairs: [0, 1, 2, 3, 4, 5, 6, 7]
-            .map((col) => [
-              {row: 1, col},
-              {row: 6, col},
-            ])
-            .flat(),
-        });
-      }
       return {
         ...turn,
         after: BoardState.copy(turn.after).setPhase(Phase.NORMAL),
@@ -127,7 +131,6 @@ export class Hiddenqueen extends Game {
       end: {row, col},
       piece,
     };
-    if (!this.validateTurn(piece.color, turn)) return;
     return turn;
   }
 

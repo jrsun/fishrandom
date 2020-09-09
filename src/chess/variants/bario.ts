@@ -16,8 +16,6 @@ export class Bario extends Game {
   }
 
   modifyTurn(turn: Turn): Turn {
-    if (!this.isServer) return turn;
-
     const {after, piece, captured} = turn;
     if (!(piece instanceof Zero) && !captured) {
       return turn;
@@ -42,7 +40,7 @@ export class Bario extends Game {
             }
           }
         }
-        this.resetOptions(newState, piece.color);
+        newState.extra.bario = this.resetOptions(newState, piece.color);
       }
     }
     return {...turn, after: newState};
@@ -91,13 +89,13 @@ export class Bario extends Game {
     state: BoardState,
     row,
     col,
-    allowCastles = false
-  ): (Castle | Move)[] {
+    allowCastle,
+  ): Turn[] {
     const square = state.getSquare(row, col);
     const piece = square?.occupant;
     if (!piece) return [];
     if (!(piece instanceof Zero))
-      return super.legalMovesFrom(state, row, col, allowCastles);
+      return super.legalMovesFrom(state, row, col, allowCastle);
 
     const moves: Move[] = [];
     const extra = state.extra.bario;
@@ -129,9 +127,15 @@ export class Bario extends Game {
     const extra = state.extra.bario;
     if (!extra) return;
     if (color === Color.WHITE) {
-      extra.whiteOptions = OPTIONS.map((c) => new c(Color.WHITE));
+      return {
+        ...extra,
+        whiteOptions: OPTIONS.map((c) => new c(Color.WHITE)),
+      };
     } else {
-      extra.blackOptions = OPTIONS.map((c) => new c(Color.BLACK));
+      return {
+        ...extra,
+        blackOptions: OPTIONS.map((c) => new c(Color.BLACK)),
+      }
     }
   }
 }

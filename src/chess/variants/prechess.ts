@@ -59,10 +59,10 @@ export class Prechess extends Game {
     if (this.state.extra.phase === Phase.PRE) return false;
     return super.winCondition(color, state);
   }
-  modifyTurn(turn: Turn): Turn {
-    if (!this.isServer) return turn;
+  sideEffects(turn: Turn) {
+    if (!this.isServer) return;
 
-    if (this.turnHistory.length + 1 === 16) {
+    if (this.turnHistory.length === 16) {
       if (this.eventHandler) {
         this.eventHandler({
           type: GameEventType.Off,
@@ -70,6 +70,10 @@ export class Prechess extends Game {
           pairs: backRank,
         });
       }
+    }
+  }
+  modifyTurn(turn: Turn): Turn {
+    if (this.turnHistory.length + 1 === 16) {
       return {
         ...turn,
         after: BoardState.copy(turn.after).setPhase(Phase.NORMAL),

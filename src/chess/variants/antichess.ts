@@ -16,7 +16,7 @@ export class Losers extends Game {
     return [Queen, Rook, Bishop, Knight, Mann].map((t) => new t(piece.color));
   }
 
-  legalMovesFrom(state: BoardState, row, col, allowCastles): (Move | Castle)[] {
+  legalMovesFrom(state: BoardState, row, col, allowCastle): Turn[] {
     // only captures
     let atLeastOneCapture = false;
     const occupant = state.getSquare(row, col)?.occupant;
@@ -27,7 +27,7 @@ export class Losers extends Game {
           state,
           square.row,
           square.col,
-          false
+          allowCastle,
         );
         if (allMoves.some((move) => move.captured)) {
           atLeastOneCapture = true;
@@ -35,7 +35,7 @@ export class Losers extends Game {
         }
       }
     }
-    const moves = super.legalMovesFrom(state, row, col, false);
+    const moves = super.legalMovesFrom(state, row, col, allowCastle);
     if (atLeastOneCapture) {
       return moves.filter((move) => move.captured);
     }

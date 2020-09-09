@@ -43,13 +43,7 @@ export class Royalpawn extends SecretPawnGame {
   }
 
   drawCondition(color: Color): boolean {
-    const legalMoves = this.state.squares
-      .flat()
-      .filter((square) => square.occupant?.color === color)
-      .flatMap((square) =>
-        this.legalMovesFrom(this.state, square.row, square.col, true)
-      );
-    return legalMoves.length === 0;
+    return this.allLegalMoves(color, this.state, true).length === 0;
   }
 
   validateTurn(color: Color, turn: Turn): boolean {
