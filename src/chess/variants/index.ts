@@ -78,7 +78,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Amazonarmy,
   Losers,
   Golemchess,
-  Kungfu,
+  // Kungfu,
   // Instagram,
   Gaychess,
 };
