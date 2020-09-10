@@ -312,6 +312,15 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       </li>
     </ul>
     Two Kings by Rob McCarter (1997) `,
+  Monster: html`White moves twice for every Black move,
+  but only has four pawns.
+  <ul>
+      <li>White <b>must</b> move twice every turn, either a single piece
+      two times, or two pieces once each.</li>
+      <li>Checkmate to win. White can also capture the black king.</li>
+      <li>White can move into check with their first move, but
+      must move out of check with their second move.</li>
+  </ul>`
 };
 
 declare global {
