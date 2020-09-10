@@ -42,6 +42,7 @@ export class MyReleaseNotes extends LitElement {
 
   render() {
     return html` <div class="relnotes">Release Notes:</div>
+      <div class="subtitle">9/9 - monster</div>
       <div class="subtitle">9/8 - removed kungfu from rotation / squashed checkmate bugs</div>
       <div class="subtitle">9/7 - gobbler changes / zero downtime updates</div>
       <div class="subtitle">9/4 - choose variant in private rooms</div>

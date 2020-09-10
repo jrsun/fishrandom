@@ -180,7 +180,7 @@ export class Game {
 
     // See if checked opponent has any saving moves.
     for (const move of this.allLegalMoves(opponent, state, false)) {
-      if (!this.knowsInCheck(opponent, move.after)) {
+      if (move.after.whoseTurn === opponent || !this.knowsInCheck(opponent, move.after)) {
         return false;
       }
     }
@@ -200,7 +200,7 @@ export class Game {
       return true;
     }
     // TODO: This call repeats work done in winCondition
-    if (this.knowsInCheck(color, turn.after)) {
+    if (turn.after.whoseTurn === getOpponent(color) && this.knowsInCheck(color, turn.after)) {
       return false;
     }
     return true;
@@ -222,7 +222,7 @@ export class Game {
   drawCondition(color: Color, state: BoardState): boolean {
     if (this.knowsInCheck(color, state)) return false;
     for (const move of this.allLegalMoves(color, state, true)) {
-      if (!this.knowsInCheck(color, move.after)) {
+      if (move.after.whoseTurn === color || !this.knowsInCheck(color, move.after)) {
         return false;
       }
     }
