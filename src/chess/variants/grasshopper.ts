@@ -12,6 +12,12 @@ export class Grasshopper extends Game {
   constructor(isServer: boolean) {
     super(isServer, generateInitial());
   }
+  promotesTo(piece: Piece): Piece[] {
+    return [
+      ...super.promotesTo(piece),
+      new Hopper(piece.color),
+    ];
+  }
 }
 
 export class Hopper extends Piece {
@@ -22,9 +28,9 @@ export class Hopper extends Piece {
   ];
   get img(): string {
     if (this.color === Color.BLACK) {
-      return 'gdt.svg';
+      return 'bgrasshopper.svg';
     } else if (this.color === Color.WHITE) {
-      return 'glt.svg';
+      return 'wgrasshopper.svg';
     }
     throw new Error(
       'no image for color: ' + this.color + 'for piece ' + this.name
