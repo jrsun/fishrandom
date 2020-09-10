@@ -82,6 +82,27 @@ export class Hiddenqueen extends Game {
         pairs: secondRank,
       });
     }
+    if (turn.type !== TurnType.MOVE) {
+      return;
+    }
+    const {piece, start: {row, col}} = turn;
+
+    // If queenpawn moved in a way that was impossible for a pawn, reveal it.
+    if (piece instanceof QueenPawn) {
+      const dummyState = BoardState.copy(turn.before).place(
+        new Pawn(piece.color),
+        row,
+        col
+      );
+      if (
+        !this.legalMovesFrom(dummyState, row, col, false).some(
+          (pmove) =>
+            equals(pmove.end, turn.end) && pmove.captured === turn.captured
+        )
+      ) {
+        this.revealed[piece.color] = true;
+      }
+    }
   }
   modifyTurn(turn: Turn): Turn {
     // After this turn, 2 moves will have passed.
@@ -95,7 +116,6 @@ export class Hiddenqueen extends Game {
   }
 
   visibleTurn(turn: Turn, color: Color): Turn {
-    if (color === turn.piece.color) return turn;
     if (turn.type === TurnType.ACTIVATE) {
       return {
         type: TurnType.UNKNOWN,
@@ -106,7 +126,23 @@ export class Hiddenqueen extends Game {
         piece: new Pawn(turn.piece.color),
       };
     }
-    return turn;
+    const {piece} = turn;
+    if (this.revealed[piece.color]) {
+      return turn;
+    }
+    // TODO: see your own captured queenpawn
+    const visiblePiece = piece instanceof QueenPawn
+        ? new Pawn(piece.color)
+        : piece;
+    const visibleCapture =
+      turn.captured?.color !== color && turn.captured instanceof QueenPawn
+        ? new Pawn(turn.captured.color)
+        : turn.captured;
+    return {
+      ...turn,
+      piece: visiblePiece,
+      captured: visibleCapture,
+    };
   }
   activate(
     color: Color,
@@ -134,54 +170,6 @@ export class Hiddenqueen extends Game {
     return turn;
   }
 
-  move(
-    color: Color,
-    piece: Piece,
-    srow: number,
-    scol: number,
-    drow: number,
-    dcol: number
-  ): Move | undefined {
-    if (!this.isServer) {
-      return super.move(color, piece, srow, scol, drow, dcol);
-    }
-    const move = super.move(color, piece, srow, scol, drow, dcol);
-    if (!move) return;
-    if (this.revealed[piece.color]) {
-      return move;
-    }
-    // If queenpawn moved in a way that was impossible for a pawn, reveal it.
-    if (piece instanceof QueenPawn) {
-      const dummyState = BoardState.copy(move.before).place(
-        new Pawn(piece.color),
-        srow,
-        scol
-      );
-      if (
-        !this.legalMovesFrom(dummyState, srow, scol, false).some(
-          (pmove) =>
-            equals(pmove.end, move.end) && pmove.captured === move.captured
-        )
-      ) {
-        this.revealed[piece.color] = true;
-        return move;
-      }
-    }
-    // TODO: see your own captured queenpawn
-    const visiblePiece =
-      piece.color !== color && piece instanceof QueenPawn
-        ? new Pawn(piece.color)
-        : piece;
-    const visibleCapture =
-      move.captured?.color !== color && move.captured instanceof QueenPawn
-        ? new Pawn(move.captured.color)
-        : move.captured;
-    return {
-      ...move,
-      piece: visiblePiece,
-      captured: visibleCapture,
-    };
-  }
   validateTurn(color: Color, turn: Turn): boolean {
     if (!super.validateTurn(color, turn)) return false;
     const isSelectQueen = turn.type === TurnType.ACTIVATE;
