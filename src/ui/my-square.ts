@@ -48,9 +48,6 @@ export class MySquare extends LitElement {
     :host([dragged]) my-piece {
       opacity: 0.5;
     }
-    :host([color='black']) .square {
-      transform: rotate(180deg);
-    }
 
     my-piece {
       z-index: 1;

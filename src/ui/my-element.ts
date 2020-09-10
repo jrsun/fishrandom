@@ -84,10 +84,7 @@ export class MyElement extends LitElement {
       position: relative;
       transition: none;
     }
-    :host([color='black']) my-square {
-      top: -8000px;
-    }
-    :host([color='white']) my-square {
+    :host my-square {
       top: 8000px;
     }
     :host([started]) my-square {
@@ -252,6 +249,15 @@ export class MyElement extends LitElement {
       lastTurn = this.game.turnHistory[this.viewMoveIndex - 1];
     }
 
+    let squares = uiState.squares;
+    if (this.color === Color.BLACK) {
+      const reversed: Square[][] = [];
+      for (const row of [...uiState.squares].reverse()) {
+        reversed.push([...row].reverse());
+      }
+      squares = reversed;
+    }
+
     // BUG: Promo event keeps firing
     return html`
       <audio
@@ -276,14 +282,13 @@ export class MyElement extends LitElement {
       <div class="board-bg">
         <div
           id="board"
-          style=${this.color === Color.BLACK ? 'transform:rotate(180deg);' : ''}
         >
           <canvas id="canvas"></canvas>
-          ${uiState.squares.map(
-            (row, i) => html`<div class="row">
+          ${squares.map(
+            (row) => html`<div class="row">
               ${row.map(
-                (square, j) => html`<my-square
-                  class=${classMap(this.pairToClass[hash({row: i, col: j})])}
+                (square) => html`<my-square
+                  class=${classMap(this.pairToClass[hash(square)])}
                   .frozen=${this.viewMoveIndex != null || this.gameOver}
                   .square=${square}
                   .selected=${square === this.selectedSquare}
@@ -293,7 +298,6 @@ export class MyElement extends LitElement {
                   ((lastTurn.type === TurnType.MOVE &&
                     equals(lastTurn.start, square)) ||
                     equals(lastTurn.end, square))}
-                  .color=${this.color}
                   .checked=${!!(
                     square.occupant?.isRoyal &&
                     this.game.knowsAttackedSquare(
@@ -303,6 +307,7 @@ export class MyElement extends LitElement {
                       square.col
                     )
                   )}
+                  .color=${this.color}
                 ></my-square>`
               )}
             </div>`
