@@ -12,6 +12,7 @@ import {styleMap} from 'lit-html/directives/style-map';
 import {Message, addMessageHandler, sendMessage} from '../common/message';
 import '@polymer/paper-button';
 import {Move} from '../chess/turn';
+import { Color } from '../chess/const';
 
 @customElement('my-controls')
 export class MyControls extends LitElement {
@@ -162,7 +163,10 @@ export class MyControls extends LitElement {
   }
 
   renderStopGame() {
-    const isAbort = this.turnHistory.filter(turn => !turn.cpu).length <= 1;
+    const isAbort = (
+      !this.turnHistory.some(turn => turn.piece.color === Color.WHITE) ||
+      !this.turnHistory.some(turn => turn.piece.color === Color.BLACK)
+    )
     return html`<paper-button
       class="resign-button"
       raised

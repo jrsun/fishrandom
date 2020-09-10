@@ -156,8 +156,11 @@ export class Room {
 
   handleResign(uuid: string) {
     if (this.state !== RoomState.PLAYING) return;
-
-    if (this.game.turnHistory.filter(turn => !turn.cpu).length <= 1) {
+    const {turnHistory} = this.game;
+    if (
+      !turnHistory.some(turn => turn.piece.color === Color.WHITE) ||
+      !turnHistory.some(turn => turn.piece.color === Color.BLACK)
+    ) {
       return this.aborts();
     }
     return this.wins(
