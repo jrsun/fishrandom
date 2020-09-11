@@ -291,9 +291,9 @@ export class MyElement extends LitElement {
                   class=${classMap(this.pairToClass[hash(square)])}
                   .frozen=${this.viewMoveIndex != null || this.gameOver}
                   .square=${square}
-                  .selected=${square === this.selectedSquare}
+                  .selected=${equals(square, this.selectedSquare)}
                   .piece=${square.occupant}
-                  .possible=${this.possibleTargets.includes(square)}
+                  .possible=${this.possibleTargets.some(target => equals(target, square))}
                   .lastMove=${lastTurn &&
                   ((lastTurn.type === TurnType.MOVE &&
                     equals(lastTurn.start, square)) ||

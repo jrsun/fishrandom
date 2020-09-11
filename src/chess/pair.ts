@@ -3,7 +3,9 @@ export interface Pair {
   col: number;
 }
 
-export function equals(a: Pair, b: Pair): boolean {
+export function equals(a?: Pair, b?: Pair): boolean {
+  if (!a || !b) return false;
+
   return a.row === b.row && a.col === b.col;
 }
 
