@@ -86,15 +86,33 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Monster,
 };
 
-export function Random(...except: string[]): typeof Game {
-  if (except) {
-    return VARIANTS[
-      randomChoice(
-        Object.keys(RANDOM_VARIANTS).filter((name) => !except.includes(name))
-      )
-    ];
+// Takes two arrays of recently played variants ordered from most to least recent
+// and returns a variant that minimizes staleness.
+export function Random(recent: string[], recent2: string[]): typeof Game {
+  const staleness: {[variant: string]: number} = {};
+  for (const variant of Object.keys(RANDOM_VARIANTS)) {
+    staleness[variant] = 0;
   }
-  return VARIANTS[randomChoice(Object.keys(RANDOM_VARIANTS))];
+  for (const [i, variant] of [...recent].reverse().entries()) {
+    // recent.reverse() is from least stale to most
+    staleness[variant] = Math.max(staleness[variant] ?? 0, i+1);
+  }
+  for (const [i, variant] of [...recent2].reverse().entries()) {
+    // recent2.reverse() is from least stale to most
+    staleness[variant] = Math.max(staleness[variant] ?? 0, i+1);
+  }
+  let minStaleness = recent.length + 1;
+  let possibleVariants: string[] = [];
+  for (const [variant, s] of Object.entries(staleness)) {
+    if (!(variant in RANDOM_VARIANTS)) continue;
+    if (s === minStaleness) {
+      possibleVariants.push(variant);
+    } else if (s < minStaleness) {
+      possibleVariants = [variant];
+      minStaleness = s;
+    }
+  }
+  return VARIANTS[randomChoice(possibleVariants)];
 }
 
 export {

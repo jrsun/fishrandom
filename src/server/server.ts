@@ -262,8 +262,8 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
   } else {
     NG = Variants.Random(
       /**except*/
-      ...opponent.lastVariants,
-      ...player.lastVariants
+      opponent.lastVariants,
+      player.lastVariants,
     );
   }
   let room: Room;
@@ -298,10 +298,10 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
   log.get(opponent.username).notice('after waiting, found a game');
 };
 
-const EXCLUDE_LAST_N_VARIANTS = 5;
+const SAVE_LAST_N_VARIANTS = 20;
 const addLastVariant = (player: Player, variant: string) => {
   player.lastVariants.unshift(variant);
-  player.lastVariants = player.lastVariants.slice(0, EXCLUDE_LAST_N_VARIANTS);
+  player.lastVariants = player.lastVariants.slice(0, SAVE_LAST_N_VARIANTS);
 };
 
 const kick = async (ws: WebSocket, uuid?: string) => {
