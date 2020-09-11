@@ -80,6 +80,7 @@ app.post('/login', function (req, res) {
     uuid = randomNumber.substring(2, randomNumber.length);
     res.cookie('uuid', uuid, {
       encode: String,
+      maxAge: 2147483647,
     });
   }
   const escapedUser =
