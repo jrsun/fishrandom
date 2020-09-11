@@ -63,6 +63,9 @@ export async function getRoom(id?: string): Promise<Room|undefined> {
         reject(err);
         return;
       }
+      if (!reply) {
+        resolve(undefined);
+      }
       const zipped = Buffer.from(reply, 'base64');
       zlib.gunzip(zipped, (err, data) => {
         if (err) {
