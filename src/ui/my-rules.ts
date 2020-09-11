@@ -319,7 +319,8 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       two times, or two pieces once each.</li>
       <li>Checkmate to win. White can also capture the black king.</li>
       <li>White can move into check with their first move, but
-      must move out of check with their second move.</li>
+      must move out of check with their second move, except
+      when capturing the black king.</li>
   </ul>`
 };
 
