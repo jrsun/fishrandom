@@ -77,7 +77,7 @@ export class MyElement extends LitElement {
       width: 100%;
       pointer-events: none;
       height: 100%;
-      z-index: 1;
+      z-index: 2;
     }
 
     my-square {
@@ -595,7 +595,13 @@ export class MyElement extends LitElement {
   private drawArrow(srow: number, scol: number, erow: number, ecol: number) {
     const ctx = this.canvas.getContext('2d');
     if (!ctx) return;
-    const toxy = (rc: number) => SQUARE_SIZE / 2 + SQUARE_SIZE * rc;
+    const toxy = (rc: number) => {
+      if (this.color === Color.WHITE) {
+        return SQUARE_SIZE / 2 + SQUARE_SIZE * rc;
+      } else {
+        return SQUARE_SIZE * 8 - SQUARE_SIZE * rc - SQUARE_SIZE / 2;
+      }
+    }
     drawArrow(ctx, toxy(scol), toxy(srow), toxy(ecol), toxy(erow));
     // drawArrow(ctx, 75, 75, 75, 125);
   }
