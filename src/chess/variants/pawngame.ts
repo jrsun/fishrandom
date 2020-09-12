@@ -103,11 +103,12 @@ export class SecretPawnGame extends Game {
 
   activate(
     color: Color,
-    piece: Piece,
     row: number,
-    col: number
+    col: number,
+    piece?: Piece
   ): Turn | undefined {
-    if (!this.isWhoseTurn(color, piece) || !(piece.name === 'Pawn')) return;
+    if (!piece || !this.isWhoseTurn(color, piece) || !(piece.name === 'Pawn'))
+      return;
 
     const after = BoardState.copy(this.state)
       .setTurn(getOpponent(color))

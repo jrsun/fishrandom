@@ -20,7 +20,7 @@ import log from 'log';
 import {RoomSchema} from '../db/schema';
 import {VARIANTS} from '../chess/variants';
 import {BoardState} from '../chess/state';
-import { saveRoom, savePlayer, deleteRoom } from '../db';
+import {saveRoom, savePlayer, deleteRoom} from '../db';
 
 // States progress from top to bottom within a room.
 export enum RoomState {
@@ -103,9 +103,7 @@ export class Room {
     if (turnHistory) this.game.turnHistory = turnHistory;
     if (stateHistory) {
       this.game.stateHistory = stateHistory;
-      this.game.state = stateHistory[
-        stateHistory.length - 1
-      ];
+      this.game.state = stateHistory[stateHistory.length - 1];
     }
     this.game.onEvent(this.handleGameEvent);
     this.timerInterval = setInterval(() => {
@@ -159,8 +157,8 @@ export class Room {
     if (this.state !== RoomState.PLAYING) return;
     const {turnHistory} = this.game;
     if (
-      !turnHistory.some(turn => turn.piece.color === Color.WHITE) ||
-      !turnHistory.some(turn => turn.piece.color === Color.BLACK)
+      !turnHistory.some((turn) => turn.piece.color === Color.WHITE) ||
+      !turnHistory.some((turn) => turn.piece.color === Color.BLACK)
     ) {
       return this.aborts();
     }
@@ -172,8 +170,9 @@ export class Room {
 
   handleDraw(uuid: string) {
     if (this.state !== RoomState.PLAYING) return;
-    const opponent = (uuid === this.p1.player.uuid ? this.p2.player : this.p1.player);
-    
+    const opponent =
+      uuid === this.p1.player.uuid ? this.p2.player : this.p1.player;
+
     if (this.drawRequestedBy === opponent.uuid) {
       return this.draws();
     }
@@ -239,12 +238,11 @@ export class Room {
           turnAttempt.end.row,
           turnAttempt.end.col
         )?.occupant;
-        if (!apiece) return;
         turn = game.activate(
           me.color,
-          apiece,
           turnAttempt.end.row,
-          turnAttempt.end.col
+          turnAttempt.end.col,
+          apiece
         );
         break;
       default:

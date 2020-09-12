@@ -13,10 +13,7 @@ export class Grasshopper extends Game {
     super(isServer, generateInitial());
   }
   promotesTo(piece: Piece): Piece[] {
-    return [
-      ...super.promotesTo(piece),
-      new Hopper(piece.color),
-    ];
+    return [...super.promotesTo(piece), new Hopper(piece.color)];
   }
 }
 

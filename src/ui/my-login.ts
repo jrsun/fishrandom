@@ -172,63 +172,62 @@ export class MyLogin extends LitElement {
   };
 
   render() {
-    return html`
-    <my-announce></my-announce>
-    <form .onsubmit=${this.login.bind(this)}>
-      <div class="container">
-        <div class="title">F I S H R A N D O M</div>
-        <input
-          id="username"
-          type="text"
-          autocomplete="off"
-          placeholder="Username"
-        />
-        <div class="buttons">
-          <paper-button
-            class="button play"
-            raised
-            .onclick=${this.login.bind(this)}
-            >Play</paper-button
-          >
-          <paper-button class="button room" raised .onclick=${this.openModal}
-            >Private...</paper-button
-          >
-        </div>
-        <input type="submit" style="display: none" />
-        <my-release-notes></my-release-notes>
-      </div>
-      <paper-dialog id="room-modal">
-        <div class="room-container">
-          <div class="instructions">
-            Share password with a friend, or use the password shared with you to
-            join.
-          </div>
+    return html` <my-announce></my-announce>
+      <form .onsubmit=${this.login.bind(this)}>
+        <div class="container">
+          <div class="title">F I S H R A N D O M</div>
           <input
-            id="password"
+            id="username"
             type="text"
             autocomplete="off"
-            placeholder="Room password"
+            placeholder="Username"
           />
-          <paper-dropdown-menu
-            label="Vote for game (Opponent chooses too!)"
-            id="variant-menu"
-          >
-            <paper-listbox slot="dropdown-content" selected="0">
-              <paper-item>random</paper-item>
-              ${Object.keys(VARIANTS).map((name: string) => {
-                return html`<paper-item>${name}</paper-item>`;
-              })}
-            </paper-listbox>
-          </paper-dropdown-menu>
-          <paper-button
-            class="button play"
-            raised
-            .onclick=${this.loginPrivate.bind(this)}
-            >Play</paper-button
-          >
+          <div class="buttons">
+            <paper-button
+              class="button play"
+              raised
+              .onclick=${this.login.bind(this)}
+              >Play</paper-button
+            >
+            <paper-button class="button room" raised .onclick=${this.openModal}
+              >Private...</paper-button
+            >
+          </div>
+          <input type="submit" style="display: none" />
+          <my-release-notes></my-release-notes>
         </div>
-      </paper-dialog>
-    </form>`;
+        <paper-dialog id="room-modal">
+          <div class="room-container">
+            <div class="instructions">
+              Share password with a friend, or use the password shared with you
+              to join.
+            </div>
+            <input
+              id="password"
+              type="text"
+              autocomplete="off"
+              placeholder="Room password"
+            />
+            <paper-dropdown-menu
+              label="Vote for game (Opponent chooses too!)"
+              id="variant-menu"
+            >
+              <paper-listbox slot="dropdown-content" selected="0">
+                <paper-item>random</paper-item>
+                ${Object.keys(VARIANTS).map((name: string) => {
+                  return html`<paper-item>${name}</paper-item>`;
+                })}
+              </paper-listbox>
+            </paper-dropdown-menu>
+            <paper-button
+              class="button play"
+              raised
+              .onclick=${this.loginPrivate.bind(this)}
+              >Play</paper-button
+            >
+          </div>
+        </paper-dialog>
+      </form>`;
   }
 }
 

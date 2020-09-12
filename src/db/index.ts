@@ -1,10 +1,10 @@
 import redis from 'redis';
-import { Room, Player, RoomState } from '../server/room';
-import { replacer, reviver } from '../common/message';
-import { ResolvePlugin } from 'webpack';
+import {Room, Player, RoomState} from '../server/room';
+import {replacer, reviver} from '../common/message';
+import {ResolvePlugin} from 'webpack';
 import log from 'log';
 import zlib from 'zlib';
-import { RoomSchema } from './schema';
+import {RoomSchema} from './schema';
 
 const REDIS_CLIENT = redis.createClient() as RedisClient;
 const PLAYERS: {[uuid: string]: Player} = {};
@@ -17,12 +17,12 @@ setInterval(() => {
 type RedisFn = (err: Error, res: any) => void;
 
 interface RedisClient {
-  set: (key: string, value: string, f: RedisFn) => void,
-  get: (key: string, f: RedisFn) => void,
-  del: (key: string, f: RedisFn) => void,
+  set: (key: string, value: string, f: RedisFn) => void;
+  get: (key: string, f: RedisFn) => void;
+  del: (key: string, f: RedisFn) => void;
 }
 
-export async function saveRoom (r: Room) {
+export async function saveRoom(r: Room) {
   ROOMS[r.id] = r;
   return await new Promise((resolve, reject) => {
     const s = JSON.stringify(Room.freeze(r), replacer);
@@ -31,19 +31,15 @@ export async function saveRoom (r: Room) {
         console.error('Failed to compress and save message %s', s);
         return;
       }
-      REDIS_CLIENT.set(
-        `room:${r.id}`,
-        buffer.toString('base64'),
-        err => {
-          if (err) {
-            reject(err);
-            return;
-          } 
-          resolve();
+      REDIS_CLIENT.set(`room:${r.id}`, buffer.toString('base64'), (err) => {
+        if (err) {
+          reject(err);
+          return;
         }
-      );
+        resolve();
+      });
     });
-  })
+  });
 }
 
 export function deleteRoom(rid: string) {
@@ -51,7 +47,7 @@ export function deleteRoom(rid: string) {
   REDIS_CLIENT.del(`room:${rid}`, () => {});
 }
 
-export async function getRoom(id?: string): Promise<Room|undefined> {
+export async function getRoom(id?: string): Promise<Room | undefined> {
   if (!id) return Promise.resolve(undefined);
 
   if (id in ROOMS) return Promise.resolve(ROOMS[id]);
@@ -71,9 +67,9 @@ export async function getRoom(id?: string): Promise<Room|undefined> {
         if (err) {
           reject(err);
         }
-        let rs: RoomSchema|undefined;
+        let rs: RoomSchema | undefined;
         try {
-          rs = JSON.parse(data.toString(), reviver) as RoomSchema|undefined;
+          rs = JSON.parse(data.toString(), reviver) as RoomSchema | undefined;
         } catch (e) {
           reject(e);
         }
@@ -82,8 +78,8 @@ export async function getRoom(id?: string): Promise<Room|undefined> {
           return;
         }
         const playerUuids = Object.keys(rs.players);
-        Promise.all(playerUuids.map(uuid => getPlayer(uuid))).then(
-          players => {
+        Promise.all(playerUuids.map((uuid) => getPlayer(uuid))).then(
+          (players) => {
             if (players.length !== 2 || !players[0] || !players[1]) {
               console.error('attempted to get room without 2 players');
               resolve();
@@ -93,13 +89,13 @@ export async function getRoom(id?: string): Promise<Room|undefined> {
             ROOMS[room.id] = room;
             resolve(room);
           }
-        )
+        );
       });
-    })
-  })
+    });
+  });
 }
 
-export async function savePlayer (p: Player) {
+export async function savePlayer(p: Player) {
   PLAYERS[p.uuid] = p;
   return await new Promise((resolve, reject) => {
     REDIS_CLIENT.set(
@@ -112,12 +108,12 @@ export async function savePlayer (p: Player) {
         }
         console.log('created player', p.uuid);
         resolve();
-      },
-    )
+      }
+    );
   });
 }
 
-export async function getPlayer(id: string): Promise<Player|undefined> {
+export async function getPlayer(id: string): Promise<Player | undefined> {
   if (id in PLAYERS) return Promise.resolve(PLAYERS[id]);
 
   return await new Promise((resolve, reject) => {
@@ -135,6 +131,6 @@ export async function getPlayer(id: string): Promise<Player|undefined> {
         ...player,
         socket: undefined,
       });
-    })
-  })
+    });
+  });
 }

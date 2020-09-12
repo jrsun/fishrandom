@@ -282,9 +282,7 @@ export class MyElement extends LitElement {
         ></my-piece-picker
       ></paper-dialog>
       <div class="board-bg">
-        <div
-          id="board"
-        >
+        <div id="board">
           <canvas id="canvas"></canvas>
           ${squares.map(
             (row) => html`<div class="row">
@@ -295,7 +293,9 @@ export class MyElement extends LitElement {
                   .square=${square}
                   .selected=${equals(square, this.selectedSquare)}
                   .piece=${square.occupant}
-                  .possible=${this.possibleTargets.some(target => equals(target, square))}
+                  .possible=${this.possibleTargets.some((target) =>
+                    equals(target, square)
+                  )}
                   .lastMove=${lastTurn &&
                   ((lastTurn.type === TurnType.MOVE &&
                     equals(lastTurn.start, square)) ||
@@ -325,7 +325,6 @@ export class MyElement extends LitElement {
       new CustomEvent('board-clicked', {bubbles: true, composed: true})
     );
     if (this.viewMoveIndex != null) return;
-
 
     this.eraseCanvas();
     // There's a bug here where updating the game using move doesn't cause rerender.
@@ -391,7 +390,7 @@ export class MyElement extends LitElement {
           this.selectedSquare.row,
           this.selectedSquare.col,
           row,
-          col,
+          col
         );
       }
       if (!turn) return;
@@ -463,7 +462,12 @@ export class MyElement extends LitElement {
     const {square, piece, start, type} = e.detail;
 
     if (type === 'drop') {
-      let turn: Turn|undefined = this.game.drop(this.color, piece, square.row, square.col);
+      let turn: Turn | undefined = this.game.drop(
+        this.color,
+        piece,
+        square.row,
+        square.col
+      );
 
       turn = this.game.execute(this.color, turn);
       if (!turn) return;
@@ -490,20 +494,20 @@ export class MyElement extends LitElement {
   // Activate
   private onDoubleClick = (e: CustomEvent) => {
     const square = e.detail as Square;
-    if (square.occupant) {
-      let turn = this.game.activate(
-        this.color,
-        square.occupant,
-        square.row,
-        square.col
-      );
-      turn = this.game.execute(this.color, turn);
-      if (!turn) {return}
-
-      sendMessage(this.socket, {type: 'turn', turn});
-      this.audio.move?.play();
-      this.performUpdate();
+    let turn = this.game.activate(
+      this.color,
+      square.row,
+      square.col,
+      square.occupant
+    );
+    turn = this.game.execute(this.color, turn);
+    if (!turn) {
+      return;
     }
+
+    sendMessage(this.socket, {type: 'turn', turn});
+    this.audio.move?.play();
+    this.performUpdate();
   };
 
   // Promotion
@@ -517,7 +521,7 @@ export class MyElement extends LitElement {
     )
       return;
 
-    let turn: Turn|undefined = this.game.promote(
+    let turn: Turn | undefined = this.game.promote(
       this.color,
       this.promotee,
       piece,
@@ -600,7 +604,7 @@ export class MyElement extends LitElement {
       } else {
         return SQUARE_SIZE * 8 - SQUARE_SIZE * rc - SQUARE_SIZE / 2;
       }
-    }
+    };
     drawArrow(ctx, toxy(scol), toxy(srow), toxy(ecol), toxy(erow));
     // drawArrow(ctx, 75, 75, 75, 125);
   }

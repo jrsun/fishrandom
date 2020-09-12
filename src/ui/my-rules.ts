@@ -220,7 +220,10 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   Gobbler: html`An uncapturable <b>Elephant</b> wanders the board gobbling
     pieces.
     <ul>
-      <li>Elephant moves to a random empty adjacent square after each turn, with two exceptions.</li>
+      <li>
+        Elephant moves to a random empty adjacent square after each turn, with
+        two exceptions.
+      </li>
       <li>#1: Elephant will not capture or move adjacent to a <b>King</b>.</li>
       <li>
         #2: If you move a piece to a square adjacent to the Elephant, it will
@@ -312,16 +315,28 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       </li>
     </ul>
     Two Kings by Rob McCarter (1997) `,
-  Monster: html`White moves twice for every Black move,
-  but only has four pawns.
-  <ul>
-      <li>White <b>must</b> move twice every turn, either a single piece
-      two times, or two pieces once each.</li>
+  Monster: html`White moves twice for every Black move, but only has four pawns.
+    <ul>
+      <li>
+        White <b>must</b> move twice every turn, either a single piece two
+        times, or two pieces once each.
+      </li>
       <li>Checkmate to win. White can also capture the black king.</li>
-      <li>White can move into check with their first move, but
-      must move out of check with their second move, except
-      when capturing the black king.</li>
-  </ul>`
+      <li>
+        White can move into check with their first move, but must move out of
+        check with their second move, except when capturing the black king.
+      </li>
+    </ul>`,
+  Veto: html`Second best moves.
+    <ul>
+      <li>
+        When your opponent makes a move, you have one <b>veto</b>. If you veto,
+        the opponent must make a different move.
+      </li>
+      <li><b>Double click</b> the red square to veto.</li>
+      <li><b>Double click</b> the green square to accept.</li>
+    </ul>
+    Known bugs: Captured pieces show even if capture is vetoed. `,
 };
 
 declare global {

@@ -35,7 +35,7 @@ import {Knight, Piece} from '../chess/piece';
 import {randomChoice, memecase} from '../utils';
 import Square from '../chess/square';
 import {SelectEventType, SelectEventDetail} from './utils';
-import { equals } from '../chess/pair';
+import {equals} from '../chess/pair';
 
 @customElement('my-app')
 export class MyApp extends LitElement {

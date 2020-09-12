@@ -27,7 +27,7 @@ export class Losers extends Game {
           state,
           square.row,
           square.col,
-          allowCastle,
+          allowCastle
         );
         if (allMoves.some((move) => move.captured)) {
           atLeastOneCapture = true;

@@ -42,10 +42,18 @@ export class MyReleaseNotes extends LitElement {
 
   render() {
     return html` <div class="relnotes">Release Notes:</div>
-      <div class="subtitle">9/12 - offer draw / dark2r castling fix / mouse select bugfixes</div>
-      <div class="subtitle">9/10 - improved random game chooser / fix server crashes / fix drawing arrows</div>
+      <div class="subtitle">
+        9/12 - (veto chess) / offer draw / dark2r castling fix / mouse select
+        bugfixes
+      </div>
+      <div class="subtitle">
+        9/10 - improved random game chooser / fix server crashes / fix drawing
+        arrows
+      </div>
       <div class="subtitle">9/9 - monster</div>
-      <div class="subtitle">9/8 - removed kungfu from rotation / squashed checkmate bugs</div>
+      <div class="subtitle">
+        9/8 - removed kungfu from rotation / squashed checkmate bugs
+      </div>
       <div class="subtitle">9/7 - gobbler changes / zero downtime updates</div>
       <div class="subtitle">9/4 - choose variant in private rooms</div>
       <div class="subtitle">

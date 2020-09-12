@@ -37,7 +37,7 @@ export class MyAnnounce extends LitElement {
   onClose = () => {
     this.open = false;
     localStorage.setItem('closed', ANNOUNCE_TEXT);
-  }
+  };
 
   connectedCallback() {
     super.connectedCallback();
@@ -50,7 +50,7 @@ export class MyAnnounce extends LitElement {
     if (!this.open || !ANNOUNCE_TEXT) return html``;
 
     return html`<div class="announcement" @click=${this.onClose}>
-       ${ANNOUNCE_TEXT}
+      ${ANNOUNCE_TEXT}
     </div>`;
   }
 }

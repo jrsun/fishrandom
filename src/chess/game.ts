@@ -37,9 +37,9 @@ export class Game {
   canDrop = false;
   activate(
     color: Color,
-    piece: Piece,
     row: number,
-    col: number
+    col: number,
+    piece?: Piece
   ): Turn | undefined {
     return;
   }
@@ -66,18 +66,13 @@ export class Game {
     state: BoardState,
     row: number,
     col: number,
-    allowCastle: boolean,
+    allowCastle: boolean
   ): Turn[] {
     const square = state.getSquare(row, col);
     const piece = square?.occupant;
     if (!piece) return [];
 
-    const moves: Turn[] = piece.legalMoves(
-      row,
-      col,
-      state,
-      this.turnHistory
-    );
+    const moves: Turn[] = piece.legalMoves(row, col, state, this.turnHistory);
 
     if (piece instanceof Pawn) {
       const yDir = piece.color === Color.WHITE ? -1 : 1;
@@ -141,7 +136,7 @@ export class Game {
         }
       }
     }
-    return moves.map(turn => this.modifyTurn(turn));
+    return moves.map((turn) => this.modifyTurn(turn));
   }
   allLegalMoves(color: Color, state: BoardState, allowCastle: boolean): Turn[] {
     const moves: Turn[] = [];
@@ -150,14 +145,19 @@ export class Game {
       if (state.banks?.[color]) {
         for (const droppable of state.banks[color]) {
           const drop = this.drop(color, droppable, row, col);
-          if (drop) {moves.push(drop)}
+          if (drop) {
+            moves.push(drop);
+          }
         }
       }
-      
+
       if (occupant && occupant.color === color) {
         moves.push(...this.legalMovesFrom(state, row, col, allowCastle));
-        const activate = this.activate(color, occupant, row, col);
-        if (activate) {moves.push(activate)}
+      }
+
+      const activate = this.activate(color, row, col, square.occupant);
+      if (activate) {
+        moves.push(activate);
       }
     }
     return moves;
@@ -180,7 +180,10 @@ export class Game {
 
     // See if checked opponent has any saving moves.
     for (const move of this.allLegalMoves(opponent, state, false)) {
-      if (move.after.whoseTurn === opponent || !this.knowsInCheck(opponent, move.after)) {
+      if (
+        move.after.whoseTurn === opponent ||
+        !this.knowsInCheck(opponent, move.after)
+      ) {
         return false;
       }
     }
@@ -200,7 +203,10 @@ export class Game {
       return true;
     }
     // TODO: This call repeats work done in winCondition
-    if (turn.after.whoseTurn === getOpponent(color) && this.knowsInCheck(color, turn.after)) {
+    if (
+      turn.after.whoseTurn === getOpponent(color) &&
+      this.knowsInCheck(color, turn.after)
+    ) {
       return false;
     }
     return true;
@@ -223,10 +229,14 @@ export class Game {
     if (this.knowsInCheck(color, state)) return false;
     if (
       state.pieces.length === 2 &&
-      state.pieces.every(p => p instanceof King)
-    ) return true; // Draw by insufficient material
+      state.pieces.every((p) => p instanceof King)
+    )
+      return true; // Draw by insufficient material
     for (const move of this.allLegalMoves(color, state, true)) {
-      if (move.after.whoseTurn === color || !this.knowsInCheck(color, move.after)) {
+      if (
+        move.after.whoseTurn === color ||
+        !this.knowsInCheck(color, move.after)
+      ) {
         return false;
       }
     }
@@ -236,7 +246,7 @@ export class Game {
   /***********************
    *  Private
    *************************/
-  execute(color: Color, turn?: Turn): Turn|undefined {
+  execute(color: Color, turn?: Turn): Turn | undefined {
     if (!turn) return undefined;
 
     if (turn.type !== TurnType.MOVE) {
@@ -266,17 +276,14 @@ export class Game {
   ): Move | undefined {
     if (!this.isWhoseTurn(color, piece)) return;
 
-    const legalMoves = this.legalMovesFrom(
-      this.state,
-      srow,
-      scol,
-      true,
-    ).filter((move) => {
-      return (
-        move.type === TurnType.MOVE &&
-        equals(move.end, {row: drow, col: dcol})
-      );
-    }) as Move[];
+    const legalMoves = this.legalMovesFrom(this.state, srow, scol, true).filter(
+      (move) => {
+        return (
+          move.type === TurnType.MOVE &&
+          equals(move.end, {row: drow, col: dcol})
+        );
+      }
+    ) as Move[];
     if (legalMoves.length === 0) {
       return; // invalid move
     }
@@ -342,7 +349,7 @@ export class Game {
     if (this.turnHistory.some((move) => equals(move.end, {row, col}))) {
       return;
     }
-    let rookTargetCol: number|undefined;
+    let rookTargetCol: number | undefined;
     if (kingside) {
       rookSquare = unmovedRookSquares.filter((square) => square.col > col)?.[0];
       target = {
@@ -396,11 +403,7 @@ export class Game {
       .empty(rookSquare.row, rookSquare.col)
       .empty(row, col)
       .place(king, target.row, target.col)
-      .place(
-        rookSquare.occupant!,
-        target.row,
-        rookTargetCol,
-      );
+      .place(rookSquare.occupant!, target.row, rookTargetCol);
     const type = TurnType.CASTLE as const;
     return {
       before,
@@ -427,10 +430,7 @@ export class Game {
     const legalMoves = promoter
       .legalMoves(srow, scol, this.state, this.turnHistory)
       .filter((move) => {
-        return (
-          move.end.col === dcol &&
-          move.end.row === drow
-        );
+        return move.end.col === dcol && move.end.row === drow;
       });
     if (!legalMoves.length) {
       console.log('cannot promote here');
@@ -490,7 +490,7 @@ export class Game {
     const enemyMovesWithoutCastle = this.allLegalMoves(
       getOpponent(color),
       stateWithDummy,
-      false,
+      false
     );
 
     return enemyMovesWithoutCastle.some(
@@ -514,6 +514,7 @@ export enum GameEventName {
   Explode = 'explode',
   Finish = 'finish',
   Highlight = 'highlight',
+  Veto = 'veto',
 }
 export enum GameEventType {
   On = 'on',

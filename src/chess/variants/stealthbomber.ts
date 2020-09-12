@@ -17,7 +17,9 @@ export class Stealthbomber extends SecretPawnGame {
     super.sideEffects(turn);
 
     if (turn.piece instanceof BomberPawn && turn.type === TurnType.ACTIVATE) {
-      const {end: {row, col}} = turn;
+      const {
+        end: {row, col},
+      } = turn;
       const pairs: Pair[] = [];
       for (let i = row - 1; i < row + 2; i++) {
         for (let j = col - 1; j < col + 2; j++) {
@@ -36,12 +38,12 @@ export class Stealthbomber extends SecretPawnGame {
 
   activate(
     color: Color,
-    piece: Piece,
     row: number,
-    col: number
+    col: number,
+    piece?: Piece
   ): Turn | undefined {
-    if (!this.isWhoseTurn(color, piece)) return;
-    const activatePawn = super.activate(color, piece, row, col);
+    if (!piece || !this.isWhoseTurn(color, piece)) return;
+    const activatePawn = super.activate(color, row, col, piece);
     if (activatePawn) {
       return activatePawn;
     }

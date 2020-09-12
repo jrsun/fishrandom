@@ -1,7 +1,7 @@
 import {generateStartState, BoardState} from '../state';
 import {Game} from '../game';
 import {Turn, TurnType} from '../turn';
-import { Piece } from '../piece';
+import {Piece} from '../piece';
 
 export class Shooting extends Game {
   name = 'Shooting';
@@ -11,7 +11,7 @@ export class Shooting extends Game {
 
   promotions(turn: Turn): Piece[] | undefined {
     if (turn.captured) return; // capture means pawn didn't really move
-    
+
     return super.promotions(turn);
   }
 

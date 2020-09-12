@@ -3,7 +3,7 @@ import {Knight, Pawn, AmazonRoyal, King} from '../piece';
 import {Color, getOpponent} from '../const';
 import {BoardState, backRank} from '../state';
 import Square from '../square';
-import { Turn } from '../turn';
+import {Turn} from '../turn';
 
 export class Monster extends Game {
   name = 'Monster';
@@ -12,12 +12,12 @@ export class Monster extends Game {
   }
   modifyTurn(turn: Turn): Turn {
     if (turn.piece.color === Color.WHITE) {
-      const lastTurn = this.turnHistory[this.turnHistory.length-1];
+      const lastTurn = this.turnHistory[this.turnHistory.length - 1];
       if (!lastTurn || lastTurn.piece.color === Color.BLACK) {
         return {
           ...turn,
           after: turn.after.setTurn(Color.WHITE),
-        }
+        };
       }
     }
     return turn;

@@ -11,12 +11,14 @@ import {
 } from './piece';
 import {hash, Color} from './const';
 import {randomChoice} from '../utils';
+import {Move, Turn} from './turn';
 
 type BoardJson = (string | null)[][];
 
 export enum Phase {
   PRE = 'pre',
   NORMAL = 'normal',
+  VETO = 'veto',
 }
 
 interface Extra {
@@ -25,6 +27,7 @@ interface Extra {
     blackOptions: Piece[];
   };
   phase?: Phase;
+  vetoed?: Turn | false;
 }
 
 export class BoardState {

@@ -85,7 +85,10 @@ export class Hiddenqueen extends Game {
     if (turn.type !== TurnType.MOVE) {
       return;
     }
-    const {piece, start: {row, col}} = turn;
+    const {
+      piece,
+      start: {row, col},
+    } = turn;
 
     // If queenpawn moved in a way that was impossible for a pawn, reveal it.
     if (piece instanceof QueenPawn) {
@@ -131,9 +134,8 @@ export class Hiddenqueen extends Game {
       return turn;
     }
     // TODO: see your own captured queenpawn
-    const visiblePiece = piece instanceof QueenPawn
-        ? new Pawn(piece.color)
-        : piece;
+    const visiblePiece =
+      piece instanceof QueenPawn ? new Pawn(piece.color) : piece;
     const visibleCapture =
       turn.captured?.color !== color && turn.captured instanceof QueenPawn
         ? new Pawn(turn.captured.color)
@@ -146,11 +148,11 @@ export class Hiddenqueen extends Game {
   }
   activate(
     color: Color,
-    piece: Piece,
     row: number,
-    col: number
+    col: number,
+    piece?: Piece
   ): Turn | undefined {
-    if (!this.isWhoseTurn(color, piece)) return;
+    if (!piece || !this.isWhoseTurn(color, piece)) return;
 
     let after: BoardState | undefined;
     if (piece.name === 'Pawn') {

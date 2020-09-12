@@ -25,6 +25,7 @@ import {Kungfu} from './kungfu';
 import {Instagram} from './instagram';
 import {Gaychess} from './gaychess';
 import {Monster} from './monster';
+import {Veto} from './veto';
 import {randomChoice} from '../../utils';
 
 export const VARIANTS: {[name: string]: typeof Game} = {
@@ -56,6 +57,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Instagram,
   Gaychess,
   Monster,
+  Veto,
 };
 
 export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
@@ -95,11 +97,11 @@ export function Random(recent: string[], recent2: string[]): typeof Game {
   }
   for (const [i, variant] of [...recent].reverse().entries()) {
     // recent.reverse() is from least stale to most
-    staleness[variant] = Math.max(staleness[variant] ?? 0, i+1);
+    staleness[variant] = Math.max(staleness[variant] ?? 0, i + 1);
   }
   for (const [i, variant] of [...recent2].reverse().entries()) {
     // recent2.reverse() is from least stale to most
-    staleness[variant] = Math.max(staleness[variant] ?? 0, i+1);
+    staleness[variant] = Math.max(staleness[variant] ?? 0, i + 1);
   }
   let minStaleness = recent.length + 1;
   let possibleVariants: string[] = [];
@@ -144,4 +146,5 @@ export {
   Instagram,
   Gaychess,
   Monster,
+  Veto,
 };

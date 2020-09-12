@@ -85,12 +85,7 @@ export class Bario extends Game {
     return turn;
   }
 
-  legalMovesFrom(
-    state: BoardState,
-    row,
-    col,
-    allowCastle,
-  ): Turn[] {
+  legalMovesFrom(state: BoardState, row, col, allowCastle): Turn[] {
     const square = state.getSquare(row, col);
     const piece = square?.occupant;
     if (!piece) return [];
@@ -135,7 +130,7 @@ export class Bario extends Game {
       return {
         ...extra,
         blackOptions: OPTIONS.map((c) => new c(Color.BLACK)),
-      }
+      };
     }
   }
 }

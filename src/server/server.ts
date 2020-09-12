@@ -22,7 +22,7 @@ import log from 'log';
 import logNode from 'log-node';
 import {Game} from '../chess/game';
 import {WAITING} from './waiting';
-import { savePlayer, getPlayer, deleteRoom, getRoom } from '../db';
+import {savePlayer, getPlayer, deleteRoom, getRoom} from '../db';
 logNode();
 
 var app = express();
@@ -63,7 +63,7 @@ interface GameSettings {
 }
 
 const gameSettings: {
-  [uuid: string]: GameSettings|undefined;
+  [uuid: string]: GameSettings | undefined;
 } = {};
 
 /** Login page */
@@ -90,13 +90,13 @@ app.post('/login', function (req, res) {
       .slice(0, 15) ?? 'fish';
   gameSettings[uuid] = {password, variant};
 
-  getPlayer(uuid).then(player => {
+  getPlayer(uuid).then((player) => {
     if (player) {
       log.notice('User logged in :', escapedUser);
       savePlayer({
         ...player,
         username: escapedUser,
-      })
+      });
       return;
     }
     // Account creation
@@ -138,7 +138,9 @@ const wss = new WS.Server({
 
 wss.on('connection', async function connection(ws: WebSocket, request) {
   const cookies = request.headers.cookie?.split(';');
-  const uuid = cookies?.find((cookie) => cookie.startsWith('uuid='))?.split('=')?.[1];
+  const uuid = cookies
+    ?.find((cookie) => cookie.startsWith('uuid='))
+    ?.split('=')?.[1];
   if (!uuid) {
     log.notice('connected without uuid, kicking');
     kick(ws);
@@ -152,7 +154,7 @@ wss.on('connection', async function connection(ws: WebSocket, request) {
   ws.addEventListener('close', () => {
     getPlayer(uuid).then((player) => {
       log.notice('Client disconnected:', player?.username);
-    })
+    });
     wsCounter--;
   });
   log.notice(
@@ -163,7 +165,11 @@ wss.on('connection', async function connection(ws: WebSocket, request) {
 });
 
 /** Handle websocket messages and delegate to room */
-const handleMessage = async function (ws: WebSocket, uuid: string, message: Message) {  
+const handleMessage = async function (
+  ws: WebSocket,
+  uuid: string,
+  message: Message
+) {
   const player = await getPlayer(uuid);
   if (!player) {
     kick(ws, uuid);
@@ -184,7 +190,7 @@ const handleMessage = async function (ws: WebSocket, uuid: string, message: Mess
     newGame(
       player,
       gameSettings[player.uuid]?.password,
-      gameSettings[player.uuid]?.variant,
+      gameSettings[player.uuid]?.variant
     );
     return;
   }
@@ -235,7 +241,7 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
     } game with variant ${variant ?? 'unspecified'}.`
   );
 
-  let selectedVariant = (variant || argv.game) ?? '';
+  let selectedVariant = (argv.game || variant) ?? '';
   selectedVariant =
     selectedVariant.charAt(0).toUpperCase() + selectedVariant.slice(1);
   if (!(selectedVariant in Variants.VARIANTS)) {
@@ -267,7 +273,7 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
     NG = Variants.Random(
       /**except*/
       opponent.lastVariants,
-      player.lastVariants,
+      player.lastVariants
     );
   }
   let room: Room;
@@ -319,7 +325,6 @@ const kick = async (ws: WebSocket, uuid?: string) => {
         // Shouldn't happen, but just delete the room
         deleteRoom(roomId);
       }
-
     }
     delete gameSettings[uuid];
   }

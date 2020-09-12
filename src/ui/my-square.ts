@@ -26,9 +26,6 @@ export class MySquare extends LitElement {
     :host(.finish) .square {
       background-image: url('/img/bg.svg');
     }
-    :host(.highlight) .square {
-      background-color: rgba(0, 255, 0, 0.3);
-    }
     :host([lastmove]) .square {
       background-color: rgba(255, 255, 0, 0.3);
     }
@@ -43,6 +40,12 @@ export class MySquare extends LitElement {
     }
     :host(.explode) .square {
       background-color: #fa0;
+    }
+    :host(.highlight) .square {
+      background-color: rgba(0, 255, 0, 0.3);
+    }
+    :host(.veto) .square {
+      background-color: rgba(255, 100, 100);
     }
 
     :host([dragged]) my-piece {

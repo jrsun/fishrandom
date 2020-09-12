@@ -188,7 +188,7 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
 }
 
 export function sendMessage(
-  ws: WebSocket|undefined,
+  ws: WebSocket | undefined,
   m: Message,
   sync = false
 ): Promise<void> {
