@@ -145,4 +145,10 @@ export class Veto extends Game {
       );
     }
   }
+
+  isWhoseTurn(color: Color, piece?: Piece): boolean {
+    // if (process.env.NODE_ENV === 'development') return true;
+
+    return color === this.state.whoseTurn;
+  }
 }
