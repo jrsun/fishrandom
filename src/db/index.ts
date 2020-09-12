@@ -60,18 +60,21 @@ export async function getRoom(id?: string): Promise<Room | undefined> {
         return;
       }
       if (!reply) {
-        resolve(undefined);
+        resolve();
+        return;
       }
       const zipped = Buffer.from(reply, 'base64');
       zlib.gunzip(zipped, (err, data) => {
         if (err) {
           reject(err);
+          return;
         }
         let rs: RoomSchema | undefined;
         try {
           rs = JSON.parse(data.toString(), reviver) as RoomSchema | undefined;
         } catch (e) {
           reject(e);
+          return;
         }
         if (!rs) {
           resolve();
