@@ -117,6 +117,7 @@ export class MyElement extends LitElement {
   canvas: HTMLCanvasElement;
   pairToClass: {[pair: string]: {[name: string]: boolean}} = {};
   promotionFromSquare: Pair | undefined;
+  promotee: Piece | undefined;
 
   connectedCallback() {
     super.connectedCallback();
@@ -325,11 +326,21 @@ export class MyElement extends LitElement {
     );
     if (this.viewMoveIndex != null) return;
 
+
     this.eraseCanvas();
     // There's a bug here where updating the game using move doesn't cause rerender.
     const {row, col} = e.detail.square as Square;
     const square = this.game.state.getSquare(row, col);
     if (!square) return;
+
+    // Don't do anything async after this
+    this.dispatchEvent(
+      new CustomEvent(SelectEventType.PIECE, {
+        composed: true,
+        bubbles: true,
+        detail: selectPieceEvent(square.occupant, square),
+      })
+    );
 
     let turn: Turn | undefined;
     if (this.selectedPiece && !this.selectedSquare) {
@@ -340,6 +351,10 @@ export class MyElement extends LitElement {
         square.row,
         square.col
       );
+      const exTurn = this.game.execute(this.color, turn);
+      if (!exTurn) {
+        return;
+      }
       this.dispatchEvent(
         new CustomEvent(SelectEventType.PIECE, {
           composed: true,
@@ -347,10 +362,6 @@ export class MyElement extends LitElement {
           detail: selectPieceEvent(),
         })
       );
-      const exTurn = this.game.execute(this.color, turn);
-      if (!exTurn) {
-        return;
-      }
 
       sendMessage(this.socket, {type: 'turn', turn: exTurn});
       if (exTurn.captured) {
@@ -383,16 +394,7 @@ export class MyElement extends LitElement {
           col,
         );
       }
-      if (!turn) {
-        this.dispatchEvent(
-          new CustomEvent(SelectEventType.PIECE, {
-            composed: true,
-            bubbles: true,
-            detail: selectPieceEvent(square.occupant, square),
-          })
-        );
-        return;
-      }
+      if (!turn) return;
 
       const promotions = this.game.promotions(turn);
       if (promotions?.length) {
@@ -416,12 +418,16 @@ export class MyElement extends LitElement {
           ) as PaperDialogElement;
           this.promotionFromSquare = {row: turn.start.row, col: turn.start.col};
           this.promotionSquare = {row, col};
+          this.promotee = turn.piece;
           promotionModal.positionTarget = this;
           promotionModal.open();
           // Early return to avoid saving the move.
           return;
         }
       }
+
+      turn = this.game.execute(this.color, turn);
+      if (!turn) return;
 
       this.dispatchEvent(
         new CustomEvent(SelectEventType.PIECE, {
@@ -430,24 +436,12 @@ export class MyElement extends LitElement {
           detail: selectPieceEvent(),
         })
       );
-      turn = this.game.execute(this.color, turn);
-      if (!turn) return;
 
       sendMessage(this.socket, {type: 'turn', turn});
       if (turn.captured) {
         this.audio.capture?.play();
       } else {
         this.audio.move?.play();
-      }
-    } else {
-      if (square.occupant) {
-        this.dispatchEvent(
-          new CustomEvent(SelectEventType.PIECE, {
-            composed: true,
-            bubbles: true,
-            detail: selectPieceEvent(square.occupant, square),
-          })
-        );
       }
     }
     this.performUpdate();
@@ -518,14 +512,14 @@ export class MyElement extends LitElement {
     if (
       !this.promotionSquare ||
       !this.promotionFromSquare ||
-      !this.selectedPiece ||
+      !this.promotee ||
       !piece
     )
       return;
 
     let turn: Turn|undefined = this.game.promote(
       this.color,
-      this.selectedPiece,
+      this.promotee,
       piece,
       this.promotionFromSquare?.row,
       this.promotionFromSquare?.col,
