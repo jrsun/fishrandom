@@ -30,11 +30,12 @@ import './my-element';
 
 import {Game} from '../chess/game';
 import {BoardState} from '../chess/state';
-import {Color, getOpponent, ROULETTE_SECONDS} from '../chess/const';
+import {Color, getOpponent, ROULETTE_SECONDS, Pair} from '../chess/const';
 import {Knight, Piece} from '../chess/piece';
 import {randomChoice, memecase} from '../utils';
 import Square from '../chess/square';
 import {SelectEventType, SelectEventDetail} from './utils';
+import { equals } from '../chess/pair';
 
 @customElement('my-app')
 export class MyApp extends LitElement {
@@ -293,7 +294,7 @@ export class MyApp extends LitElement {
   @property({type: Number}) opponentTimer?: number;
   @property({type: Boolean, reflect: true}) started = false;
   @property({type: Object}) selectedPiece?: Piece;
-  @property({type: Object}) selectedSquare?: Square;
+  @property({type: Object}) selectedSquare?: Pair;
 
   private gameResult: string | undefined;
   private color?: Color;
@@ -315,8 +316,17 @@ export class MyApp extends LitElement {
     this.addEventListener('init-game', this.initGame);
     this.addEventListener(SelectEventType.PIECE, (e: CustomEvent) => {
       const {piece, square} = e.detail;
-      this.selectedPiece = piece;
-      this.selectedSquare = square;
+      if (
+        piece &&
+        square?.row !== undefined &&
+        square?.col !== undefined &&
+        !equals(square, this.selectedSquare)
+      ) {
+        this.selectedSquare = {row: square.row, col: square.col};
+      } else {
+        this.selectedSquare = undefined;
+      }
+      this.selectedPiece = piece as Piece;
     });
 
     // Unload
@@ -446,6 +456,8 @@ export class MyApp extends LitElement {
       this.game.turnHistory = [];
       this.game.stateHistory = [state];
       this.gameResult = '';
+      this.selectedPiece = undefined;
+      this.selectedSquare = undefined;
 
       clearInterval(this.timerInterval);
       this.timerInterval = setInterval(() => {

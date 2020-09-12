@@ -105,9 +105,9 @@ export class MyElement extends LitElement {
 
   // protected
   @property({type: Object}) selectedPiece: Piece | undefined;
-  @property({type: Object}) selectedSquare: Square | undefined;
+  @property({type: Object}) selectedSquare: Pair | undefined;
   @property({type: Object}) arrowStartSquare: Square | undefined;
-  @property({type: Object}) promotionSquare: Square | undefined;
+  @property({type: Object}) promotionSquare: Pair | undefined;
   @property({type: Boolean}) gameOver = false;
   @property({type: Boolean, reflect: true}) started = false;
   @property({type: Array}) possibleTargets: Square[] = [];
@@ -116,6 +116,7 @@ export class MyElement extends LitElement {
   audio: {[name: string]: HTMLAudioElement | null | undefined} = {};
   canvas: HTMLCanvasElement;
   pairToClass: {[pair: string]: {[name: string]: boolean}} = {};
+  promotionFromSquare: Pair | undefined;
 
   connectedCallback() {
     super.connectedCallback();
@@ -326,7 +327,10 @@ export class MyElement extends LitElement {
 
     this.eraseCanvas();
     // There's a bug here where updating the game using move doesn't cause rerender.
-    const square = e.detail.square as Square;
+    const {row, col} = e.detail.square as Square;
+    const square = this.game.state.getSquare(row, col);
+    if (!square) return;
+
     let turn: Turn | undefined;
     if (this.selectedPiece && !this.selectedSquare) {
       // Drop
@@ -358,8 +362,8 @@ export class MyElement extends LitElement {
     if (this.selectedPiece && this.selectedSquare) {
       if (
         this.selectedPiece instanceof this.game.castler &&
-        this.selectedSquare.row === square.row &&
-        (Math.abs(this.selectedSquare.col - square.col) === 2 ||
+        this.selectedSquare.row === row &&
+        (Math.abs(this.selectedSquare.col - col) === 2 ||
           (square.occupant instanceof Rook &&
             square.occupant.color === this.color))
       ) {
@@ -367,7 +371,7 @@ export class MyElement extends LitElement {
           this.color,
           this.selectedSquare.row,
           this.selectedSquare.col,
-          square.col - this.selectedSquare.col > 0
+          col - this.selectedSquare.col > 0
         );
       } else {
         turn = this.game.move(
@@ -375,8 +379,8 @@ export class MyElement extends LitElement {
           this.selectedPiece,
           this.selectedSquare.row,
           this.selectedSquare.col,
-          square.row,
-          square.col
+          row,
+          col,
         );
       }
       if (!turn) {
@@ -384,7 +388,7 @@ export class MyElement extends LitElement {
           new CustomEvent(SelectEventType.PIECE, {
             composed: true,
             bubbles: true,
-            detail: selectPieceEvent(),
+            detail: selectPieceEvent(square.occupant, square),
           })
         );
         return;
@@ -410,7 +414,8 @@ export class MyElement extends LitElement {
           const promotionModal = this.shadowRoot!.querySelector(
             '#promotion-modal'
           ) as PaperDialogElement;
-          this.promotionSquare = square;
+          this.promotionFromSquare = {row: turn.start.row, col: turn.start.col};
+          this.promotionSquare = {row, col};
           promotionModal.positionTarget = this;
           promotionModal.open();
           // Early return to avoid saving the move.
@@ -512,7 +517,7 @@ export class MyElement extends LitElement {
     const {piece} = e.detail as SelectEventDetail;
     if (
       !this.promotionSquare ||
-      !this.selectedSquare ||
+      !this.promotionFromSquare ||
       !this.selectedPiece ||
       !piece
     )
@@ -522,8 +527,8 @@ export class MyElement extends LitElement {
       this.color,
       this.selectedPiece,
       piece,
-      this.selectedSquare?.row,
-      this.selectedSquare?.col,
+      this.promotionFromSquare?.row,
+      this.promotionFromSquare?.col,
       this.promotionSquare.row,
       this.promotionSquare.col
     );
@@ -562,7 +567,7 @@ export class MyElement extends LitElement {
   }
 
   // Highlight squares to move to
-  computeTargets(piece?: Piece, square?: Square) {
+  computeTargets(piece?: Piece, square?: Pair) {
     const {game} = this;
     if (!piece || !square || !game) {
       this.possibleTargets = [];
