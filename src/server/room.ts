@@ -66,6 +66,7 @@ export class Room {
   lastMoveTime: number;
   timerInterval: any; // timer
   timerPaused: boolean;
+  drawRequestedBy: string | undefined; // uuid
 
   constructor(
     id: string,
@@ -163,9 +164,21 @@ export class Room {
     ) {
       return this.aborts();
     }
+    // TODO: fix this so it checks actual uuid equality
     return this.wins(
       uuid === this.p1.player.uuid ? this.p2.player.uuid : this.p1.player.uuid
     );
+  }
+
+  handleDraw(uuid: string) {
+    if (this.state !== RoomState.PLAYING) return;
+    const opponent = (uuid === this.p1.player.uuid ? this.p2.player : this.p1.player);
+    
+    if (this.drawRequestedBy === opponent.uuid) {
+      return this.draws();
+    }
+    this.drawRequestedBy = uuid;
+    sendMessage(opponent.socket, {type: 'draw'});
   }
 
   async handleTurn(uuid: string, turnAttempt: Turn) {
@@ -247,8 +260,8 @@ export class Room {
     saveRoom(this);
 
     me.time += INCREMENT_MS;
-    // we should send the mover a `replaceState` and the opponent an
-    // `appendState`
+
+    this.drawRequestedBy = undefined;
     const rm = {
       type: 'replaceState' as const,
       turn: {

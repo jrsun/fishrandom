@@ -221,6 +221,10 @@ export class Game {
   // Always check this after winCondition
   drawCondition(color: Color, state: BoardState): boolean {
     if (this.knowsInCheck(color, state)) return false;
+    if (
+      state.pieces.length === 2 &&
+      state.pieces.every(p => p instanceof King)
+    ) return true; // Draw by insufficient material
     for (const move of this.allLegalMoves(color, state, true)) {
       if (move.after.whoseTurn === color || !this.knowsInCheck(color, move.after)) {
         return false;

@@ -65,6 +65,16 @@ export class MyControls extends LitElement {
     paper-button {
       background-color: #fefdfa;
     }
+    :host([oppRequestedDraw]) .draw-button {
+      background-color: #bde6c0;
+    }
+    :host([requestedDraw]) .draw-button {
+      background-color: #fefdaa;
+    }
+    .draw-button:hover {
+      transition: 0.2s;
+      background-color: #fefdaa;
+    }
     .resign-button:hover {
       transition: 0.2s;
       background-color: #e2a18b;
@@ -77,6 +87,8 @@ export class MyControls extends LitElement {
 
   // protected
   @property({type: Number}) viewMoveIndex: number | undefined;
+  @property({type: Boolean, reflect: true}) oppRequestedDraw = false;
+  @property({type: Boolean, reflect: true}) requestedDraw = false;
 
   connectedCallback() {
     super.connectedCallback();
@@ -89,6 +101,13 @@ export class MyControls extends LitElement {
   handleSocketMessage = (message: Message) => {
     if (message.type !== 'replaceState') {
       this.viewMoveIndex = undefined;
+    }
+    if (message.type === 'replaceState' || message.type === 'appendState') {
+      this.oppRequestedDraw = false;
+      this.requestedDraw = false;
+    }
+    if (message.type === 'draw') {
+      this.oppRequestedDraw = true;
     }
     this.requestUpdate();
   };
@@ -111,6 +130,11 @@ export class MyControls extends LitElement {
 
   onClickResign() {
     sendMessage(this.socket, {type: 'resign'});
+  }
+
+  onClickDraw() {
+    sendMessage(this.socket, {type: 'draw'});
+    this.requestedDraw = true;
   }
 
   onClickNew() {
@@ -162,6 +186,16 @@ export class MyControls extends LitElement {
     >`;
   }
 
+  renderDraw() {
+    return html`<paper-button
+      class="draw-button"
+      raised
+      ?disabled=${!this.playing}
+      .onclick=${this.onClickDraw.bind(this)}
+      >${this.oppRequestedDraw ? 'Draw' : 'Draw?'}</paper-button
+    >`;
+  }
+
   renderStopGame() {
     const isAbort = (
       !this.turnHistory.some(turn => turn.piece.color === Color.WHITE) ||
@@ -197,6 +231,7 @@ export class MyControls extends LitElement {
             ?disabled=${this.viewMoveIndex === undefined}
             >></paper-button
           >
+          ${this.playing ? this.renderDraw() : undefined}
           ${this.playing
             ? this.renderStopGame()
             : html`

@@ -22,6 +22,12 @@ export class Monster extends Game {
     }
     return turn;
   }
+  drawCondition(color: Color, state: BoardState) {
+    // K vs. K is a win for white
+    if (state.pieces.length === 2) return false;
+
+    return super.drawCondition(color, state);
+  }
 }
 
 function generateStartState(): BoardState {

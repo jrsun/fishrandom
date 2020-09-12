@@ -20,6 +20,7 @@ export type Message =
   | ReplaceMessage
   | AppendMessage
   | ResignMessage
+  | DrawMessage
   | ExitMessage
   | NewGameMessage
   | InitGameMessage
@@ -40,6 +41,10 @@ export interface TurnMessage {
 
 export interface ResignMessage {
   type: 'resign';
+}
+
+export interface DrawMessage {
+  type: 'draw';
 }
 
 export interface NewGameMessage {

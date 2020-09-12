@@ -218,6 +218,9 @@ const handleMessage = async function (ws: WebSocket, uuid: string, message: Mess
   if (message.type === 'resign') {
     room.handleResign(player.uuid);
   }
+  if (message.type === 'draw') {
+    room.handleDraw(player.uuid);
+  }
   if (room.state === RoomState.COMPLETED) {
     playerLog.notice('game completed');
   }
