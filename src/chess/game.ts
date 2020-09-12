@@ -125,7 +125,7 @@ export class Game {
           ) {
             targetCol = col + (kingside ? 1 : -1);
           }
-          if (!targetCol) continue;
+          if (targetCol === undefined) continue;
           // Dummy move for display purposes. Also used in checking positions.
           // The end square is inaccurate, used for UI display rather than true record
           // of position.
@@ -338,26 +338,29 @@ export class Game {
     if (this.turnHistory.some((move) => equals(move.end, {row, col}))) {
       return;
     }
+    let rookTargetCol: number|undefined;
     if (kingside) {
       rookSquare = unmovedRookSquares.filter((square) => square.col > col)?.[0];
       target = {
         row: color === Color.BLACK ? 0 : this.state.ranks - 1,
         col: this.state.files - 2,
       };
+      rookTargetCol = target.col - 1;
     } else {
       rookSquare = unmovedRookSquares.filter((square) => square.col < col)?.[0];
       target = {
         row: color === Color.BLACK ? 0 : this.state.ranks - 1,
         col: 2,
       };
+      rookTargetCol = target.col + 1;
     }
     // If there is no square with an unmoved rook on the corresponding
     // side of the king, return
     if (!rookSquare) return;
 
     for (
-      let i = Math.min(col, rookSquare.col, target.col);
-      i <= Math.max(col, rookSquare.col, target.col);
+      let i = Math.min(col, rookSquare.col, target.col, rookTargetCol);
+      i <= Math.max(col, rookSquare.col, target.col, rookTargetCol);
       i++
     ) {
       cols.push(i);
@@ -392,7 +395,7 @@ export class Game {
       .place(
         rookSquare.occupant!,
         target.row,
-        target.col + (kingside ? -1 : 1)
+        rookTargetCol,
       );
     const type = TurnType.CASTLE as const;
     return {
