@@ -556,7 +556,7 @@ export class MyApp extends LitElement {
       <my-announce></my-announce>
       <div>
         <h1 class="title">
-          Waiting for players...
+          Waiting for opponent...
         </h1>
       </div>
       <div class="fish-con"><div class="fish"></div></div>
