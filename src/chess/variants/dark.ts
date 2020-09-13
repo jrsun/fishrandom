@@ -50,6 +50,40 @@ export class Dark extends Game {
     return vis;
   }
 
+  validateTurn(color: Color, turn: Turn): boolean {
+    if (
+      turn.end.row < 0 ||
+      turn.end.row >= this.state.ranks ||
+      turn.end.col < 0 ||
+      turn.end.col >= this.state.files ||
+      !('start' in turn)
+    ) {
+      return false;
+    }
+    if (this.winCondition(color, turn.after)) {
+      return true;
+    }
+    const newKnownState = BoardState
+      .copy(this.visibleState(turn.before, color))
+      .empty(turn.start.row, turn.start.col)
+      .place(turn.piece, turn.end.row, turn.end.col);
+    if (
+      turn.after.whoseTurn === getOpponent(color) &&
+      this.knowsInCheck(color, newKnownState)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  winCondition(color: Color, state: BoardState): boolean {
+    // The client never knows if they've won
+    if (!this.isServer) {
+      return false;
+    }
+    return super.winCondition(color, state);
+  }
+
   visibleTurn(turn: Turn, color: Color): Turn {
     if (color === turn.piece.color) return turn;
     // Hack: Pawn double steps as is, if visible, for en-passant
