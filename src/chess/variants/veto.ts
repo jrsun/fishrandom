@@ -74,12 +74,6 @@ export class Veto extends Game {
     }
     return turn;
   }
-  
-  winCondition(color: Color, state: BoardState): boolean {
-    if (state.extra.phase === Phase.VETO) return false;
-
-    return super.winCondition(color, state);
-  }
 
   drawCondition(color: Color, state: BoardState): boolean {
     if (state.extra.phase === Phase.VETO) return false;

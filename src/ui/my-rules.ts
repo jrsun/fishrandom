@@ -336,6 +336,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       </li>
       <li><b>Double click</b> the red square to veto.</li>
       <li><b>Double click</b> the green square to accept.</li>
+      <li>King capture <b>cannot be vetoed.</b></li>
       <li>If you veto the opponent's only legal move, it is checkmate if
         they are in check, and stalemate if not.</li>
     </ul>
