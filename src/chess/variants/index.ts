@@ -86,6 +86,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   // Instagram,
   Gaychess,
   Monster,
+  Veto,
 };
 
 // Takes two arrays of recently played variants ordered from most to least recent
