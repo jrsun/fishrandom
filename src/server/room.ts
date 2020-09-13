@@ -372,8 +372,9 @@ export class Room {
       this.wins(opponent.player.uuid);
       return true;
     }
-    // This move put the opponent into stalemate
-    if (game.drawCondition(opponent.color, game.state)) {
+    // Whoever's turn it is got stalemated
+    const whoseTurn = game.state.whoseTurn;
+    if (game.drawCondition(whoseTurn, game.state)) {
       this.draws();
       return true;
     }
