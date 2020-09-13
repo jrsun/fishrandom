@@ -43,7 +43,7 @@ export class MyReleaseNotes extends LitElement {
   render() {
     return html` <div class="relnotes">Release Notes:</div>
       <div class="subtitle">
-        9/12 - (veto chess) / offer draw / dark2r castling fix / mouse select
+        9/12 - vetochess added / offer draw / dark2r castling fix / mouse select
         bugfixes
       </div>
       <div class="subtitle">
