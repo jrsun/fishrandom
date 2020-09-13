@@ -188,7 +188,8 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <ul>
       <li>
         When no Crescents of a color remain,
-        <b>that color's pieces all revert to Crescents.</b>
+        <b>that color's pieces all revert to Crescents and all pieces
+          once again are available for transformation.</b>
       </li>
       <li>Checkmate or <b>capture</b> the king to win.</li>
       <li>No castling.</li>

@@ -72,7 +72,8 @@ export class Bario extends Game {
   promote(color, promoter, to, srow, scol, drow, dcol): Promote | undefined {
     const turn = super.promote(color, promoter, to, srow, scol, drow, dcol);
     if (!turn) return;
-    const {after} = turn;
+
+    if (turn.piece instanceof Pawn) return turn;
     const extra = this.state.extra.bario;
     if (!extra) return;
 
