@@ -76,7 +76,7 @@ export class Veto extends Game {
   }
 
   activate(color, row, col, piece?: Piece): Turn | undefined {
-    if (!this.isWhoseTurn(color, piece)) return;
+    if (color !== this.state.whoseTurn) return;
 
     const last = this.turnHistory[this.turnHistory.length - 1];
     if (!last || !('start' in last)) return;
@@ -144,11 +144,5 @@ export class Veto extends Game {
         last.piece.color === getOpponent(color)
       );
     }
-  }
-
-  isWhoseTurn(color: Color, piece?: Piece): boolean {
-    // if (process.env.NODE_ENV === 'development') return true;
-
-    return color === this.state.whoseTurn;
   }
 }
