@@ -74,6 +74,18 @@ export class Veto extends Game {
     }
     return turn;
   }
+  
+  winCondition(color: Color, state: BoardState): boolean {
+    if (state.extra.phase === Phase.VETO) return false;
+
+    return super.winCondition(color, state);
+  }
+
+  drawCondition(color: Color, state: BoardState): boolean {
+    if (state.extra.phase === Phase.VETO) return false;
+
+    return super.drawCondition(color, state);
+  }
 
   activate(color, row, col, piece?: Piece): Turn | undefined {
     if (color !== this.state.whoseTurn) return;
@@ -144,5 +156,13 @@ export class Veto extends Game {
         last.piece.color === getOpponent(color)
       );
     }
+  }
+
+  isWhoseTurn(color: Color, piece?: Piece): boolean {
+    let result = color === this.state.whoseTurn;
+    if (piece) {
+      result = result && color === piece.color;
+    }
+    return result;
   }
 }
