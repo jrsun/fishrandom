@@ -127,11 +127,15 @@ export class Veto extends Game {
   legalMovesFrom(state: BoardState, row, col, allowCastle): Turn[] {
     if (state.extra.phase === Phase.VETO) return [];
 
-    return super.legalMovesFrom(state, row, col, allowCastle).filter((move) => {
-      const vetoed = state.extra.vetoed;
-      if (!vetoed) return true;
-      if (!('start' in move) || !('start' in vetoed)) return false;
+    const legalMoves = super.legalMovesFrom(state, row, col, allowCastle);
+    const vetoed = state.extra.vetoed;
+    if (!vetoed || !('start' in vetoed)) return legalMoves;
 
+    if (vetoed.type === TurnType.CASTLE) {
+      return legalMoves.filter(turn => turn.type !== TurnType.CASTLE);
+    }
+    return legalMoves.filter((move) => {
+      if (!('start' in move)) return false;
       return (
         !equals(move.end, vetoed.end) ||
         move.piece?.name !== vetoed.piece?.name ||
