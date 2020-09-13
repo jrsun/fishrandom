@@ -77,7 +77,6 @@ export class MySquare extends LitElement {
         @click=${this._onClick}
         @mousedown=${this._onMouseDown}
         @mouseup=${this._onMouseUp}
-        @dblclick=${this._onDblClick}
         @dragover=${(e) => {
           e.preventDefault();
         }}
@@ -96,17 +95,33 @@ export class MySquare extends LitElement {
     `;
   }
 
-  private _onClick(e: MouseEvent) {
-    const isRightMB = e.which === 3;
-    if (isRightMB) return;
-    this.dispatchEvent(
-      new CustomEvent('square-clicked', {
-        bubbles: true,
-        composed: true,
-        detail: {square: this.square},
-      })
-    );
-  }
+  _onClick = (() => {
+    let lastClicked: Date|undefined = undefined;
+    return (e: MouseEvent) => {
+      const isRightMB = e.which === 3;
+      if (isRightMB) return;
+      this.dispatchEvent(
+        new CustomEvent('square-clicked', {
+          bubbles: true,
+          composed: true,
+          detail: {square: this.square},
+        })
+      );
+      if (
+        lastClicked &&
+        Math.abs(new Date().getTime() - lastClicked.getTime()) < 500
+      ) {
+        this.dispatchEvent(
+          new CustomEvent('square-double', {
+            bubbles: true,
+            composed: true,
+            detail: this.square,
+          })
+        );
+      }
+      lastClicked = new Date();
+    }
+  })();
 
   private _onMouseDown(e: MouseEvent) {
     const isRightMB = e.which === 3;
@@ -170,16 +185,6 @@ export class MySquare extends LitElement {
       })
     );
     e.preventDefault();
-  }
-
-  private _onDblClick(e: MouseEvent) {
-    this.dispatchEvent(
-      new CustomEvent('square-double', {
-        bubbles: true,
-        composed: true,
-        detail: this.square,
-      })
-    );
   }
 }
 
