@@ -165,10 +165,10 @@ export class Game {
   winCondition(color: Color, state: BoardState): boolean {
     const opponent = getOpponent(color);
     // Capturing the King wins with highest priority.
+    const royalty = state.pieces.filter(piece => piece.isRoyal);
     if (
-      !state.pieces
-        .filter((piece) => piece.color === opponent)
-        .some((piece) => piece.isRoyal)
+      royalty.some(piece => piece.color === color) &&
+      !royalty.some(piece => piece.color === opponent)
     ) {
       return true;
     }

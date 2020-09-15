@@ -34,12 +34,16 @@ export class Atomic extends Game {
   legalMovesFrom(state: BoardState, row, col, allowCastle): Turn[] {
     const square = state.getSquare(row, col);
     const piece = square?.occupant;
-    let moves = super.legalMovesFrom(state, row, col, allowCastle);
+    if (!piece) return [];
 
-    if (piece instanceof King) {
-      moves = moves.filter((move) => !move.captured);
-    }
-    return moves;
+    let moves = super.legalMovesFrom(state, row, col, allowCastle);
+    // No moves that result in own King being gone after turn.
+    return moves.filter((move) => (
+      move.after.pieces.some(p => {
+        return p instanceof King &&
+          p.color === piece.color
+      })
+    ));
   }
 
   modifyTurn(turn: Turn): Turn {
