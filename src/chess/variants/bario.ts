@@ -23,11 +23,7 @@ export class Bario extends Game {
     let newState: BoardState = BoardState.copy(after);
     for (const color of [Color.WHITE, Color.BLACK]) {
       // If no zeroes of the player's color are left, replace all their pieces with zeroes.
-      if (
-        newState.pieces.filter(
-          (piece) => piece instanceof Zero && piece.color === color
-        ).length === 0
-      ) {
+      if (hasNoCrescents(newState, color)) {
         for (let i = 0; i < newState.squares.length; i++) {
           for (let j = 0; j < newState.squares[i].length; j++) {
             const occupant = newState.getSquare(i, j)?.occupant;
@@ -59,6 +55,11 @@ export class Bario extends Game {
       const options =
         piece.color === Color.WHITE ? extra.whiteOptions : extra.blackOptions;
       const index = options.findIndex((opt) => opt.name === afterPiece.name);
+      // If no crescents after the move, no need to disambiguate
+      if (hasNoCrescents(after, piece.color)) {
+        return [afterPiece];
+      }
+      // If bishop or rook, might be a queen
       if (afterPiece instanceof Bishop || afterPiece instanceof Rook) {
         const qindex = options.findIndex((opt) => opt instanceof Queen);
         if (qindex !== -1) {
@@ -134,6 +135,12 @@ export class Bario extends Game {
       };
     }
   }
+}
+
+function hasNoCrescents(state: BoardState, color: Color): boolean {
+  return state.pieces.filter(
+    (piece) => piece instanceof Zero && piece.color === color
+  ).length === 0;
 }
 
 export function generateInitial(): BoardState {
