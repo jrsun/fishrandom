@@ -361,13 +361,8 @@ export class Room {
     const playerWins = game.winCondition(me.color, game.state);
     const opponentWins = game.winCondition(opponent.color, game.state);
     if (playerWins) {
-      if (opponentWins) {
-        this.draws();
-        return true;
-      } else {
-        this.wins(me.player.uuid);
-        return true;
-      }
+      this.wins(me.player.uuid);
+      return true;
     } else if (opponentWins) {
       this.wins(opponent.player.uuid);
       return true;
