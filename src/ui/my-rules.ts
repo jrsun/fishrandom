@@ -278,6 +278,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     W. B. Seabrook (1921)`,
   Losers: html`Chess for losers.
     <ul>
+      <li>Initial position of pieces are randomized.</li>
       <li>Lose all your pieces or have no legal moves to win.</li>
       <li>You <b>must</b> make a capture if you can.</li>
       <li>No castling. King is not royal.</li>
