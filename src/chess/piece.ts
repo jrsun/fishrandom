@@ -113,7 +113,7 @@ class Leaper extends Piece {
   }
 }
 
-class Rider extends Piece {
+export class Rider extends Piece {
   moves: Pair[];
   max?: number;
   legalMoves(row: number, col: number, state: BoardState): Move[] {

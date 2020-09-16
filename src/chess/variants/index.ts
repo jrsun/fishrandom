@@ -28,6 +28,8 @@ import {Monster} from './monster';
 import {Veto} from './veto';
 import {Werewolf} from './werewolf';
 import {Pawnside} from './pawnside';
+import {Knightrider} from './knightrider';
+
 import {randomChoice} from '../../utils';
 
 export const VARIANTS: {[name: string]: typeof Game} = {
@@ -62,6 +64,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Veto,
   Werewolf,
   Pawnside,
+  Knightrider,
 };
 
 export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
@@ -93,6 +96,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Veto,
   Werewolf,
   Pawnside,
+  Knightrider,
 };
 
 // Takes two arrays of recently played variants ordered from most to least recent
@@ -156,4 +160,5 @@ export {
   Veto,
   Werewolf,
   Pawnside,
+  Knightrider,
 };

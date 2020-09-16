@@ -360,6 +360,13 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   Exploring Alternative Rule Sets in Chess." However, if this is not the case,
   please let me know.
   `,
+  Knightrider: html`Knights are replaced by Nightriders.
+  <ul>
+    <li>A <b>Nightrider</b> is a ranging piece that moves any number of steps
+    as a <b>Knight</b> in the same direction, unless blocked.</li>
+    <li>Checkmate to win.</li>
+  </ul>
+  `,
 };
 
 declare global {

@@ -15,6 +15,7 @@ import {Elephant} from '../chess/variants/pieceeater';
 import {GameEvent, GameResult} from '../chess/game';
 import {Golem, Halfgolem} from '../chess/variants/golem';
 import { Wolf } from '../chess/variants/werewolf';
+import { Nightrider } from '../chess/variants/knightrider';
 
 export type Message =
   | TurnMessage
@@ -134,6 +135,7 @@ export function replacer(k: string, o: Piece | BoardState | Square): object {
   if (o instanceof BomberPawn) return BomberPawn.freeze(o);
   if (o instanceof Golem) return Golem.freeze(o);
   if (o instanceof Halfgolem) return Halfgolem.freeze(o);
+  if (o instanceof Nightrider) return Nightrider.freeze(o);
   if (o instanceof Wolf) return Wolf.freeze(o);
   if (o instanceof Hopper) return Hopper.freeze(o);
   if (o instanceof Piece) return Piece.freeze(o);
@@ -170,6 +172,9 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
     }
     if (v._class === 'Halfgolem') {
       return Halfgolem.thaw(v);
+    }
+    if (v._class === 'Nightrider') {
+      return Nightrider.thaw(v);
     }
     if (v._class === 'Piece') {
       return Piece.thaw(v);
