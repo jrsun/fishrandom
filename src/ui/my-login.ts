@@ -214,7 +214,7 @@ export class MyLogin extends LitElement {
             >
               <paper-listbox slot="dropdown-content" selected="0">
                 <paper-item>random</paper-item>
-                ${Object.keys(VARIANTS).map((name: string) => {
+                ${Object.keys(VARIANTS).sort().map((name: string) => {
                   return html`<paper-item>${name}</paper-item>`;
                 })}
               </paper-listbox>

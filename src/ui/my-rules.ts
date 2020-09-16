@@ -261,7 +261,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Then, play continues as a normal chess game.</li>
     </ul>
     Pal Benko (1978) `,
-  Shooting: html`Brap brap brap brap brap
+  Shooting: html`Brap brap brap
     <ul>
       <li>
         Pieces shoot each other to capture (they don't move when capturing.)
