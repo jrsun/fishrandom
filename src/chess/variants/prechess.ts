@@ -1,4 +1,4 @@
-import {Game, GameEventType, GameEventName} from '../game';
+import {Game, GameEventType, GameEventName, GameResult} from '../game';
 import {BoardState, generateStartState, squaresFromPos, Phase} from '../state';
 import {Move, Turn, TurnType} from '../turn';
 import {Color} from '../const';
@@ -55,8 +55,8 @@ export class Prechess extends Game {
       }
     }
   }
-  winCondition(color: Color, state: BoardState): boolean {
-    if (this.state.extra.phase === Phase.PRE) return false;
+  winCondition(color: Color, state: BoardState): GameResult|undefined {
+    if (this.state.extra.phase === Phase.PRE) return;
     return super.winCondition(color, state);
   }
   sideEffects(turn: Turn) {

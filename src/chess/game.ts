@@ -162,7 +162,7 @@ export class Game {
     }
     return moves;
   }
-  winCondition(color: Color, state: BoardState): boolean {
+  winCondition(color: Color, state: BoardState): GameResult|undefined {
     const opponent = getOpponent(color);
     // Capturing the King wins with highest priority.
     const royalty = state.pieces.filter(piece => piece.isRoyal);
@@ -170,13 +170,16 @@ export class Game {
       royalty.some(piece => piece.color === color) &&
       !royalty.some(piece => piece.color === opponent)
     ) {
-      return true;
+      return {
+        type: GameResultType.WIN,
+        reason: 'king capture',
+      };
     }
 
     // Opponent is not in check, so they can't be mated.
-    if (!this.knowsInCheck(opponent, state)) return false;
+    if (!this.knowsInCheck(opponent, state)) return;
     // Player is in check.
-    if (this.knowsInCheck(color, state)) return false;
+    if (this.knowsInCheck(color, state)) return;
 
     // See if checked opponent has any saving moves.
     for (const move of this.allLegalMoves(opponent, state, false)) {
@@ -184,11 +187,14 @@ export class Game {
         move.after.whoseTurn === opponent ||
         !this.knowsInCheck(opponent, move.after)
       ) {
-        return false;
+        return;
       }
     }
     // Opponent is in check and cannot escape it.
-    return true;
+    return {
+      type: GameResultType.WIN,
+      reason: 'checkmate',
+    };
   }
   validateTurn(color: Color, turn: Turn): boolean {
     if (
@@ -225,22 +231,28 @@ export class Game {
   }
 
   // Always check this after winCondition
-  drawCondition(color: Color, state: BoardState): boolean {
-    if (this.knowsInCheck(color, state)) return false;
+  drawCondition(color: Color, state: BoardState): GameResult|undefined {
+    if (this.knowsInCheck(color, state)) return;
     if (
       state.pieces.length === 2 &&
       state.pieces.every((p) => p instanceof King)
     )
-      return true; // Draw by insufficient material
+      return {
+        type: GameResultType.DRAW,
+        reason: 'insufficient material',
+      };
     for (const move of this.allLegalMoves(color, state, true)) {
       if (
         move.after.whoseTurn === color ||
         !this.knowsInCheck(color, move.after)
       ) {
-        return false;
+        return;
       }
     }
-    return true;
+    return {
+      type: GameResultType.DRAW,
+      reason: 'stalemate',
+    };
   }
 
   /***********************
@@ -512,6 +524,18 @@ export class Game {
     }
     return result;
   }
+}
+
+export enum GameResultType {
+  WIN = 'win',
+  DRAW = 'draw',
+  LOSS = 'loss',
+  ABORTED = 'aborted',
+}
+
+export interface GameResult {
+  type: GameResultType,
+  reason?: string,
 }
 
 export enum GameEventName {

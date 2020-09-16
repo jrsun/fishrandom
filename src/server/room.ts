@@ -1,4 +1,4 @@
-import {Game, GameEvent} from '../chess/game';
+import {Game, GameEvent, GameResult, GameResultType} from '../chess/game';
 import {randomChoice} from '../utils';
 import {Move, Turn, TurnType} from '../chess/turn';
 import {Color, getOpponent, ROULETTE_SECONDS} from '../chess/const';
@@ -6,7 +6,6 @@ import {
   AppendMessage,
   replacer,
   ReplaceMessage,
-  GameResult,
   GameOverMessage,
   sendMessage,
   InitGameMessage,
@@ -114,7 +113,7 @@ export class Room {
       me.time -= 1000;
       if (me.time <= 0) {
         log.get(me.name).notice('ran out of time');
-        this.wins(opponent.player.uuid);
+        this.wins(opponent.player.uuid, {type: GameResultType.WIN, reason: 'timeout'});
       }
     }, 1000);
     this.timerPaused = false;
@@ -164,7 +163,11 @@ export class Room {
     }
     // TODO: fix this so it checks actual uuid equality
     return this.wins(
-      uuid === this.p1.player.uuid ? this.p2.player.uuid : this.p1.player.uuid
+      uuid === this.p1.player.uuid ? this.p2.player.uuid : this.p1.player.uuid,
+      {
+        type: GameResultType.WIN,
+        reason: 'resignation',
+      }
     );
   }
 
@@ -174,7 +177,7 @@ export class Room {
       uuid === this.p1.player.uuid ? this.p2.player : this.p1.player;
 
     if (this.drawRequestedBy === opponent.uuid) {
-      return this.draws();
+      return this.draws({type: GameResultType.DRAW, reason: 'agreement'});
     }
     this.drawRequestedBy = uuid;
     sendMessage(opponent.socket, {type: 'draw'});
@@ -358,19 +361,20 @@ export class Room {
     // player is who just moved
     const {game} = this;
     const opponent = me === this.p1 ? this.p2 : this.p1;
-    const playerWins = game.winCondition(me.color, game.state);
-    const opponentWins = game.winCondition(opponent.color, game.state);
-    if (playerWins) {
-      this.wins(me.player.uuid);
+    const playerWin = game.winCondition(me.color, game.state);
+    const opponentWin = game.winCondition(opponent.color, game.state);
+    if (playerWin) {
+      this.wins(me.player.uuid, playerWin);
       return true;
-    } else if (opponentWins) {
-      this.wins(opponent.player.uuid);
+    } else if (opponentWin) {
+      this.wins(opponent.player.uuid, opponentWin);
       return true;
     }
     // Whoever's turn it is got stalemated
     const whoseTurn = game.state.whoseTurn;
-    if (game.drawCondition(whoseTurn, game.state)) {
-      this.draws();
+    const drawResult = game.drawCondition(whoseTurn, game.state);
+    if (drawResult) {
+      this.draws(drawResult);
       return true;
     }
     return false;
@@ -380,7 +384,7 @@ export class Room {
     return this.p1.player.uuid === uuid ? this.p1.color : this.p2.color;
   }
 
-  wins(uuid: string) {
+  wins(uuid: string, result: GameResult) {
     const me = this.p1.player.uuid === uuid ? this.p1 : this.p2;
     const opponent = me === this.p1 ? this.p2 : this.p1;
 
@@ -406,13 +410,13 @@ export class Room {
 
     sendMessage(me.player.socket, {
       ...gom,
-      result: GameResult.WIN,
+      result: result,
       player: toPlayerInfo(me.player),
       opponent: toPlayerInfo(opponent.player),
     });
     sendMessage(opponent.player.socket, {
       ...gom,
-      result: GameResult.LOSS,
+      result: {...result, type: GameResultType.LOSS},
       player: toPlayerInfo(opponent.player),
       opponent: toPlayerInfo(me.player),
     });
@@ -422,12 +426,12 @@ export class Room {
     log.get(opponent.name).notice('lost');
   }
 
-  draws() {
+  draws(result: GameResult) {
     const gom = {
       type: 'gameOver' as const,
       stateHistory: this.game.stateHistory,
       turnHistory: this.game.turnHistory,
-      result: GameResult.DRAW,
+      result,
     };
 
     const me = this.p1;
@@ -464,7 +468,9 @@ export class Room {
       type: 'gameOver' as const,
       stateHistory: this.game.stateHistory,
       turnHistory: this.game.turnHistory,
-      result: GameResult.ABORTED,
+      result: {
+        type: GameResultType.ABORTED,
+      }
     };
     sendMessage(this.p1.player.socket, {
       ...gom,

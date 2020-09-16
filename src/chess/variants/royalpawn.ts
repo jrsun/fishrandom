@@ -1,4 +1,4 @@
-import {Game, GameEventType, GameEventName} from '../game';
+import {Game, GameEventType, GameEventName, GameResult, GameResultType} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn, Mann} from '../piece';
 import {Color, getOpponent} from '../const';
 import {BoardState, generateStartState, Phase} from '../state';
@@ -17,15 +17,18 @@ export class Royalpawn extends SecretPawnGame {
     if (turn.piece instanceof KingPawn) return;
     return super.promotions(turn);
   }
-  winCondition(color: Color, state: BoardState): boolean {
-    if (state.extra.phase === Phase.PRE) return false;
+  winCondition(color: Color, state: BoardState): GameResult|undefined {
+    if (state.extra.phase === Phase.PRE) return;
     // Win by capturing the king pawn
     if (
       !state.pieces
         .filter((piece) => piece.color === getOpponent(color))
         .some((piece) => piece.isRoyal)
     ) {
-      return true;
+      return {
+        type: GameResultType.WIN,
+        reason: 'capturing royal pawn',
+      };
     }
 
     const myKingSquare = this.state.squares
@@ -36,14 +39,25 @@ export class Royalpawn extends SecretPawnGame {
       );
 
     // King pawn reaching the end wins
-    return (
+    if (
       (myKingSquare?.row === 0 && color === Color.WHITE) ||
       (myKingSquare?.row === this.state.files - 1 && color === Color.BLACK)
-    );
+    ) {
+      return {
+        type: GameResultType.WIN,
+        reason: 'promoting royal pawn',
+      }
+    }
+    return;
   }
 
-  drawCondition(color: Color): boolean {
-    return this.allLegalMoves(color, this.state, true).length === 0;
+  drawCondition(color: Color): GameResult|undefined {
+    if (this.allLegalMoves(color, this.state, true).length === 0) {
+      return {
+        type: GameResultType.DRAW,
+        reason: 'stalemate',
+      }
+    }
   }
 
   validateTurn(color: Color, turn: Turn): boolean {

@@ -1,4 +1,4 @@
-import {Game} from '../game';
+import {Game, GameResult, GameResultType} from '../game';
 import {King, Knight, Rook, Bishop, Queen, Pawn} from '../piece';
 import {Color, getOpponent} from '../const';
 import {BoardState, squaresFromPos, backRank} from '../state';
@@ -11,17 +11,23 @@ export class Horde extends Game {
   constructor(isServer) {
     super(isServer, generateStartState());
   }
-  winCondition(color: Color, state: BoardState): boolean {
+  winCondition(color: Color, state: BoardState): GameResult|undefined {
     const opponent = getOpponent(color);
     if (color === Color.WHITE) {
       return super.winCondition(color, state);
     }
     // Black wins by capturing all the pawns
-    return (
+    if (
       state.squares
         .flat()
         .filter((square) => square.occupant?.color === opponent).length === 0
-    );
+    ) {
+      return {
+        type: GameResultType.WIN,
+        reason: 'capturing all pawns',
+      }
+    }
+    return;
   }
 }
 

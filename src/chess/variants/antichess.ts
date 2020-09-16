@@ -1,4 +1,4 @@
-import {Game, GameEventName, GameEventType} from '../game';
+import {Game, GameEventName, GameEventType, GameResult, GameResultType} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn, Mann} from '../piece';
 import {Color, getOpponent, Pair} from '../const';
 import {BoardState, generateStartState, generate960} from '../state';
@@ -42,11 +42,20 @@ export class Losers extends Game {
     return moves;
   }
 
-  winCondition(color: Color, state: BoardState): boolean {
+  winCondition(color: Color, state: BoardState): GameResult|undefined {
     if (state.whoseTurn === color && super.drawCondition(color, state)) {
-      return true;
+      return {
+        type: GameResultType.WIN,
+        reason: 'stalemate',
+      };
     }
-    return state.pieces.filter((piece) => piece.color === color).length === 0;
+    if (state.pieces.filter((piece) => piece.color === color).length === 0) {
+      return {
+        type: GameResultType.WIN,
+        reason: 'losing all pieces',
+      }
+    }
+    return;
   }
 
   validateTurn(color: Color, turn: Turn): boolean {

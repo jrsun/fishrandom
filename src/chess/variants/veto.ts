@@ -1,4 +1,4 @@
-import {Game, GameEventName, GameEventType} from '../game';
+import {Game, GameEventName, GameEventType, GameResult} from '../game';
 import {Knight, Pawn, AmazonRoyal, King, Piece} from '../piece';
 import {Color, getOpponent, Pair} from '../const';
 import {BoardState, generateStartState, Phase} from '../state';
@@ -83,8 +83,8 @@ export class Veto extends Game {
     return turn;
   }
 
-  drawCondition(color: Color, state: BoardState): boolean {
-    if (state.extra.phase === Phase.VETO) return false;
+  drawCondition(color: Color, state: BoardState): GameResult|undefined {
+    if (state.extra.phase === Phase.VETO) return;
 
     return super.drawCondition(color, state);
   }

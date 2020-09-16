@@ -12,7 +12,7 @@ import {Stealthbomber} from '../chess/variants';
 import {BomberPawn} from '../chess/variants/stealthbomber';
 import {KingPawn} from '../chess/variants/royalpawn';
 import {Elephant} from '../chess/variants/pieceeater';
-import {GameEvent} from '../chess/game';
+import {GameEvent, GameResult} from '../chess/game';
 import {Golem, Halfgolem} from '../chess/variants/golem';
 
 export type Message =
@@ -99,13 +99,6 @@ export interface TimerMessage {
   type: 'timer';
   player: number;
   opponent: number;
-}
-
-export enum GameResult {
-  WIN = 'win',
-  DRAW = 'draw',
-  LOSS = 'loss',
-  ABORTED = 'aborted',
 }
 
 export interface GameOverMessage {

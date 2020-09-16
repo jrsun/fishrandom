@@ -1,4 +1,4 @@
-import {Game} from '../game';
+import {Game, GameResult} from '../game';
 import {Knight, Pawn, AmazonRoyal, King} from '../piece';
 import {Color, getOpponent} from '../const';
 import {BoardState, backRank} from '../state';
@@ -22,9 +22,9 @@ export class Monster extends Game {
     }
     return turn;
   }
-  drawCondition(color: Color, state: BoardState) {
+  drawCondition(color: Color, state: BoardState): GameResult|undefined {
     // K vs. K is a win for white
-    if (state.pieces.length === 2) return false;
+    if (state.pieces.length === 2) return;
 
     return super.drawCondition(color, state);
   }

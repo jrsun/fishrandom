@@ -144,8 +144,8 @@ export class MyElement extends LitElement {
     });
 
     this.gameOver =
-      this.game.winCondition(Color.BLACK, this.game.state) ||
-      this.game.winCondition(Color.WHITE, this.game.state);
+      !!(this.game.winCondition(Color.BLACK, this.game.state) ||
+      this.game.winCondition(Color.WHITE, this.game.state));
   }
 
   firstUpdated() {
@@ -230,8 +230,8 @@ export class MyElement extends LitElement {
     }
     // async?
     this.gameOver =
-      this.game.winCondition(Color.WHITE, this.game.state) ||
-      this.game.winCondition(Color.BLACK, this.game.state);
+      !!(this.game.winCondition(Color.WHITE, this.game.state) ||
+      this.game.winCondition(Color.BLACK, this.game.state));
     this.performUpdate();
   };
 

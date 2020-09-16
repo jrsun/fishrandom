@@ -1,4 +1,4 @@
-import {Game} from '../game';
+import {Game, GameResult} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
 import {Color, getOpponent} from '../const';
 import {BoardState, generate9602} from '../state';
@@ -76,10 +76,10 @@ export class Dark extends Game {
     return true;
   }
 
-  winCondition(color: Color, state: BoardState): boolean {
+  winCondition(color: Color, state: BoardState): GameResult|undefined {
     // The client never knows if they've won
     if (!this.isServer) {
-      return false;
+      return;
     }
     return super.winCondition(color, state);
   }

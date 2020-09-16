@@ -14,7 +14,6 @@ import {
   Message,
   InitGameMessage,
   GameOverMessage,
-  GameResult,
   addMessageHandler,
   TimerMessage,
   sendMessage,
@@ -28,7 +27,7 @@ import './my-captures';
 import './my-release-notes';
 import './my-element';
 
-import {Game} from '../chess/game';
+import {Game, GameResult, GameResultType} from '../chess/game';
 import {BoardState} from '../chess/state';
 import {Color, getOpponent, ROULETTE_SECONDS, Pair} from '../chess/const';
 import {Knight, Piece} from '../chess/piece';
@@ -249,6 +248,9 @@ export class MyApp extends LitElement {
     .game-over-result {
       font-family: 'JelleeBold';
     }
+    .game-over-reason {
+      margin-top: 0;
+    }
     .game-over-button:hover {
       transition: 0.2s;
       background-color: #bde6c0;
@@ -296,7 +298,7 @@ export class MyApp extends LitElement {
   @property({type: Object}) selectedPiece?: Piece;
   @property({type: Object}) selectedSquare?: Pair;
 
-  private gameResult: string | undefined;
+  private gameResult: GameResult | undefined;
   private color?: Color;
   private timerInterval;
   private audio: {
@@ -455,7 +457,7 @@ export class MyApp extends LitElement {
       this.game = new VARIANTS[variantName](/* isServer=*/ false);
       this.game.turnHistory = [];
       this.game.stateHistory = [state];
-      this.gameResult = '';
+      this.gameResult = undefined;
       this.selectedPiece = undefined;
       this.selectedSquare = undefined;
 
@@ -513,7 +515,7 @@ export class MyApp extends LitElement {
       this.gameResult = result;
       const goDialog = this.shadowRoot?.querySelector('paper-dialog');
       goDialog?.open();
-      if (result === GameResult.WIN) {
+      if (result.type === GameResultType.WIN) {
         const canvas = this.shadowRoot?.querySelector('#confetti-canvas');
         var confettiSettings = {target: canvas};
         var confetti = new ConfettiGenerator(confettiSettings);
@@ -714,7 +716,12 @@ export class MyApp extends LitElement {
         entry-animation="scale-up-animation"
         exit-animation="fade-out-animation"
       >
-        <h2 class="game-over-result">${memecase(this.gameResult ?? '')}</h2>
+        <h2 class="game-over-result">${memecase(this.gameResult?.type ?? '')}</h2>
+        <div class="game-over-reason">${
+          this.gameResult?.reason ?
+          `by ${this.gameResult.reason}` :
+          ''
+        }</div>
         <div>
           <paper-button
             class="game-over-button"
