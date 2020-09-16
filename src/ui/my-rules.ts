@@ -342,6 +342,14 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
         they are in check, and stalemate if not.</li>
     </ul>
     Known bugs: Captured pieces show even if capture is vetoed. `,
+  Werewolf: html`Convert by capturing.
+  <ul>
+    <li>Werewolf moves up to 3 squares as a Queen.</li>
+    <li>Capturing a werewolf with any piece <b>sacrifices</b> that piece
+    and changes the werewolf to your color, except...</li>
+    <li>When the capturer is a King, the werewolf is captured normally.</li>
+  </ul>
+  `
 };
 
 declare global {

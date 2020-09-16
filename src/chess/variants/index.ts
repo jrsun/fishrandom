@@ -26,6 +26,7 @@ import {Instagram} from './instagram';
 import {Gaychess} from './gaychess';
 import {Monster} from './monster';
 import {Veto} from './veto';
+import {Werewolf} from './werewolf';
 import {randomChoice} from '../../utils';
 
 export const VARIANTS: {[name: string]: typeof Game} = {
@@ -58,6 +59,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Gaychess,
   Monster,
   Veto,
+  Werewolf,
 };
 
 export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
@@ -87,6 +89,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Gaychess,
   Monster,
   Veto,
+  Werewolf,
 };
 
 // Takes two arrays of recently played variants ordered from most to least recent
@@ -148,4 +151,5 @@ export {
   Gaychess,
   Monster,
   Veto,
+  Werewolf,
 };
