@@ -28,7 +28,7 @@ import {classMap, ClassInfo} from 'lit-html/directives/class-map';
 import {VARIANTS} from '../chess/variants';
 import {Game, GameEvent, GameEventType, GameEventName} from '../chess/game';
 import {Move, toFEN, Turn, TurnType, toEndSquare} from '../chess/turn';
-import {Color, ROULETTE_SECONDS} from '../chess/const';
+import {Color, ROULETTE_SECONDS, getOpponent} from '../chess/const';
 import {BoardState} from '../chess/state';
 import {Chess960} from '../chess/variants/960';
 import {equals, hash, Pair} from '../chess/pair';
@@ -245,12 +245,22 @@ export class MyElement extends LitElement {
     );
 
     let uiState: BoardState = state;
-    let lastTurn: Turn = this.game.turnHistory[
-      this.game.turnHistory.length - 1
-    ];
+    let squaresInTurnsSincePlayerChange: Pair[] = [];
+    const lastTurn = this.viewMoveIndex === undefined ?
+      this.game.turnHistory.length - 1 :
+      this.viewMoveIndex - 1;
+    for (let i = lastTurn; i >= 0; i--) {
+      const turn = this.game.turnHistory[i];
+      squaresInTurnsSincePlayerChange.push({row: turn.end.row, col: turn.end.col});
+      if ('start' in turn) {
+        squaresInTurnsSincePlayerChange.push({row: turn.start.row, col: turn.start.col});
+      }
+      if ([Color.WHITE, Color.BLACK].includes(turn.piece.color)) {
+        break;
+      }
+    }
     if (this.viewMoveIndex != null) {
       uiState = this.game.turnHistory[this.viewMoveIndex]?.before ?? state;
-      lastTurn = this.game.turnHistory[this.viewMoveIndex - 1];
     }
 
     let squares = uiState.squares;
@@ -298,10 +308,9 @@ export class MyElement extends LitElement {
                   .possible=${this.possibleTargets.some((target) =>
                     equals(target, square)
                   )}
-                  .lastMove=${lastTurn &&
-                  ((lastTurn.type === TurnType.MOVE &&
-                    equals(lastTurn.start, square)) ||
-                    equals(lastTurn.end, square))}
+                  .lastMove=${squaresInTurnsSincePlayerChange.some(s => {
+                    return equals(s, square)
+                  })}
                   .checked=${!!(
                     square.occupant?.isRoyal &&
                     this.game.knowsAttackedSquare(
