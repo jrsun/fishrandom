@@ -73,8 +73,11 @@ export class Losers extends Game {
 
 function genInitial(): BoardState {
   const state = generate960();
-  state.place(new Mann(Color.WHITE), 7, 4);
-  state.place(new Mann(Color.BLACK), 0, 4);
+  for (const square of state.squares.flat()) {
+    if (square.occupant instanceof King) {
+      state.place(new Mann(square.occupant.color), square.row, square.col);
+    }
+  }
 
   return state;
 }
