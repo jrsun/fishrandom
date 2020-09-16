@@ -349,7 +349,17 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     and changes the werewolf to your color, except...</li>
     <li>When the capturer is a King, the werewolf is captured normally.</li>
   </ul>
-  `
+  H. G. Muller (2015)
+  `,
+  Pawnside: html`Pawns can move sideways one square without capturing.
+  <ul>
+    <li>Checkmate to win.</li>
+  </ul>
+  As far as I know, the first appearance of this variant is in the recent paper
+  due to Tomašev, Paquet, Hassabis, and Kramnik, "Assessing Game Balance with AlphaZero:
+  Exploring Alternative Rule Sets in Chess." However, if this is not the case,
+  please let me know.
+  `,
 };
 
 declare global {
