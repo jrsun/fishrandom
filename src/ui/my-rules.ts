@@ -366,6 +366,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     as a <b>Knight</b> in the same direction, unless blocked.</li>
     <li>Checkmate to win.</li>
   </ul>
+  Nightrider invented by T. R. Dawson (1925)
   `,
 };
 
