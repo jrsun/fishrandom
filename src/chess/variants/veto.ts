@@ -21,6 +21,14 @@ export class Veto extends Game {
     this.sideEffects(last);
   }
   sideEffects(turn: Turn) {
+    // If veto, mangle the last turn if it was a castle (hack)
+    if (turn.type === TurnType.ACTIVATE) {
+      const last = this.turnHistory[this.turnHistory.length-2];
+      if (last.type === TurnType.CASTLE) {
+        last.end = {row: -1, col: -1};
+      }
+    }
+
     if (!this.eventHandler) return;
     if (this.lastOn) {
       this.eventHandler({

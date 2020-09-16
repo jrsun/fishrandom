@@ -205,6 +205,8 @@ export class MyElement extends LitElement {
       this.game.turnHistory = [...turnHistory, turn];
       this.game.stateHistory.push(turn.after);
       this.game.state = turn.after;
+      
+      this.game.sideEffects(turn);
     } else if (message.type === 'gameEvent') {
       const {pairs, type, name} = message.content;
       for (const pair of pairs) {

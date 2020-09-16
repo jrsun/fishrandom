@@ -346,7 +346,11 @@ export class Game {
       );
     const castler = this.state.getSquare(row, col)?.occupant;
     if (!(castler instanceof this.castler)) return;
-    if (this.turnHistory.some((move) => equals(move.end, {row, col}))) {
+    if (this.turnHistory.some((move) =>
+      equals(move.end, {row, col}) &&
+      'start' in move &&
+      !equals(move.end, move.start)
+    )) {
       return;
     }
     let rookTargetCol: number | undefined;
