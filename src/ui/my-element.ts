@@ -246,7 +246,10 @@ export class MyElement extends LitElement {
 
     let uiState: BoardState = state;
     let squaresInTurnsSincePlayerChange: Pair[] = [];
-    const lastTurn = this.viewMoveIndex === undefined ?
+    const lastTurn = (
+      this.viewMoveIndex === null ||
+      this.viewMoveIndex === undefined
+    ) ?
       this.game.turnHistory.length - 1 :
       this.viewMoveIndex - 1;
     for (let i = lastTurn; i >= 0; i--) {
