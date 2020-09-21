@@ -393,8 +393,8 @@ export class Game {
       cols.push(i);
     }
 
-    // If any square between the target, rook, and king is obstructed
-    // or attacked, or dest square doesn't exist, return
+    // If any square between the target, rook, and, rook target, king is obstructed
+    // or doesn't exist, return
     const isBlocked = cols.some((travelCol) => {
       const square = this.state.getSquare(row, travelCol);
       if (!square) {
@@ -402,16 +402,47 @@ export class Game {
           , ${row}, ${travelCol}`);
         return false;
       }
-      return (
-        this.knowsAttackedSquare(color, this.state, row, travelCol) ||
-        (square.occupant &&
+      return (square.occupant &&
           square.occupant !== rookSquare.occupant &&
-          square.occupant !== castler)
-      );
+          square.occupant !== castler);
     });
+    for (
+      let i = Math.min(col, rookSquare.col, target.col, rookTargetCol);
+      i <= Math.max(col, rookSquare.col, target.col, rookTargetCol);
+      i++
+    ) {
+      cols.push(i);
+    }
     if (isBlocked) {
       return;
     }
+
+    let kingCols: number[] = [];
+    for (
+      let i = Math.min(col, target.col);
+      i <= Math.max(col, target.col);
+      i++
+    ) {
+      kingCols.push(i);
+    }
+
+    // If any square between the target and king is attacked
+    // or doesn't exist, return
+    const isAttacked = kingCols.some((travelCol) => {
+      const square = this.state.getSquare(row, travelCol);
+      if (!square) {
+        console.log(`attempted to castle through nonexistent square
+          , ${row}, ${travelCol}`);
+        return false;
+      }
+      return (
+        this.knowsAttackedSquare(color, this.state, row, travelCol)
+      );
+    });
+    if (isAttacked) {
+      return;
+    }
+
     const before = this.state;
     const king = castler!;
     const after = BoardState.copy(before)
