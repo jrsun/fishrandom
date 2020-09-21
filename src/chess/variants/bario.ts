@@ -36,7 +36,7 @@ export class Bario extends Game {
             }
           }
         }
-        newState.extra.bario = this.resetOptions(newState, piece.color);
+        newState.extra.bario = this.resetOptions(newState, color);
       }
     }
     return {...turn, after: newState};
