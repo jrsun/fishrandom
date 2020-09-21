@@ -37,6 +37,7 @@ export function generateInitial(): BoardState {
     piecePositions[1][col] = new Pawn(Color.BLACK);
     piecePositions[6][col] = new Pawn(Color.WHITE);
   }
+  piecePositions[1][2] = new Knight(Color.BLACK);
   piecePositions[1][3] = new Rook(Color.BLACK);
   piecePositions[2][0] = new Pawn(Color.BLACK);
 
