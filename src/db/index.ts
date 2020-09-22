@@ -22,6 +22,13 @@ interface RedisClient {
   del: (key: string, f: RedisFn) => void;
 }
 
+/**
+ * DB Schema
+ * 
+ * room:{room_id} -> {room_schema}
+ * player:{player_id} -> {player}
+ */
+
 export async function saveRoom(r: Room) {
   ROOMS[r.id] = r;
   return await new Promise((resolve, reject) => {
