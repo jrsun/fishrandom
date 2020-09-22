@@ -275,6 +275,9 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
       opponent.lastVariants,
       player.lastVariants
     );
+    // Set the last variant
+    addLastVariant(opponent, NG.name);
+    addLastVariant(player, NG.name);
   }
   let room: Room;
   const p1color = randomChoice([Color.WHITE, Color.BLACK]);
@@ -299,10 +302,6 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
   player.roomId = room.id;
   savePlayer(player);
   savePlayer(opponent);
-
-  // Set the last variant
-  addLastVariant(opponent, room.game.name);
-  addLastVariant(player, room.game.name);
 
   playerLog.notice('found a game');
   log.get(opponent.username).notice('after waiting, found a game');
