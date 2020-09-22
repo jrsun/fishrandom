@@ -2,7 +2,9 @@ import {Piece} from '../chess/piece';
 import Square from '../chess/square';
 
 export enum SelectEventType {
-  PIECE = 'piece-selected-event',
+  PIECE_TOGGLE = 'piece-toggle-event',
+  PIECE_ON = 'piece-on-event',
+  PIECE_OFF = 'piece-off-event',
   PROMOTION = 'promotion-event',
 }
 

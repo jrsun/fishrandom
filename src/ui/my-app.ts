@@ -317,20 +317,9 @@ export class MyApp extends LitElement {
       this.handleViewMoveChanged.bind(this)
     );
     this.addEventListener('init-game', this.initGame);
-    this.addEventListener(SelectEventType.PIECE, (e: CustomEvent) => {
-      const {piece, square} = e.detail;
-      if (
-        piece &&
-        square?.row !== undefined &&
-        square?.col !== undefined &&
-        !equals(square, this.selectedSquare)
-      ) {
-        this.selectedSquare = {row: square.row, col: square.col};
-      } else {
-        this.selectedSquare = undefined;
-      }
-      this.selectedPiece = piece as Piece;
-    });
+    this.addEventListener(SelectEventType.PIECE_TOGGLE, this.onPieceToggle);
+    this.addEventListener(SelectEventType.PIECE_ON, this.onPieceOn);
+    this.addEventListener(SelectEventType.PIECE_OFF, this.onPieceOff);
 
     // Unload
     const onUnload = (e) => {
@@ -343,6 +332,27 @@ export class MyApp extends LitElement {
     window.onunload = onUnload;
 
     this.wsConnect();
+  }
+
+  onPieceOff = () => {
+    this.selectedSquare = undefined;
+    this.selectedPiece = undefined;
+  }
+  onPieceOn = (e: CustomEvent) => this.onPieceSelected(e, false);
+  onPieceToggle = (e: CustomEvent) => this.onPieceSelected(e, true);
+  onPieceSelected = (e: CustomEvent, toggle: boolean) => {
+    const {piece, square} = e.detail;
+    if (
+      piece &&
+      square?.row !== undefined &&
+      square?.col !== undefined &&
+      (!toggle || !equals(square, this.selectedSquare))
+    ) {
+      this.selectedSquare = {row: square.row, col: square.col};
+    } else {
+      this.selectedSquare = undefined;
+    }
+    this.selectedPiece = piece as Piece;
   }
 
   onUnload = () => {
@@ -414,6 +424,9 @@ export class MyApp extends LitElement {
       this.handleViewMoveChanged.bind(this)
     );
     this.removeEventListener('init-game', this.initGame);
+    this.removeEventListener(SelectEventType.PIECE_TOGGLE, this.onPieceToggle);
+    this.removeEventListener(SelectEventType.PIECE_ON, this.onPieceOn);
+    this.removeEventListener(SelectEventType.PIECE_OFF, this.onPieceOff);
     this.socket.close();
   }
 
@@ -475,7 +488,7 @@ export class MyApp extends LitElement {
               const {lowTime, lowTimePlayed} = this.audio;
               if (lowTime && !lowTimePlayed) {
                 this.audio.lowTimePlayed = true;
-                
+
                 lowTime.volume = 0.6;
                 lowTime.play();
                 lowTime.volume = 1;
@@ -595,7 +608,7 @@ export class MyApp extends LitElement {
     return html`<div class="bank-wrapper">
       <div class="card bank">
         <my-piece-picker
-          .eventName=${SelectEventType.PIECE}
+          .eventName=${SelectEventType.PIECE_TOGGLE}
           .pieces=${this.game.state.banks[opponent]}
           .needsTarget=${true}
           .selectedPiece=${this.selectedPiece}
@@ -604,7 +617,7 @@ export class MyApp extends LitElement {
       </div>
       <div class="card bank">
         <my-piece-picker
-          .eventName=${SelectEventType.PIECE}
+          .eventName=${SelectEventType.PIECE_TOGGLE}
           .pieces=${this.game.state.banks[player]}
           .needsTarget=${true}
           .selectedPiece=${this.selectedPiece}

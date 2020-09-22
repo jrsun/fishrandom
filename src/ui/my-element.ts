@@ -348,7 +348,7 @@ export class MyElement extends LitElement {
 
     // Don't do anything async after this
     this.dispatchEvent(
-      new CustomEvent(SelectEventType.PIECE, {
+      new CustomEvent(SelectEventType.PIECE_TOGGLE, {
         composed: true,
         bubbles: true,
         detail: selectPieceEvent(square.occupant, square),
@@ -369,10 +369,9 @@ export class MyElement extends LitElement {
         return;
       }
       this.dispatchEvent(
-        new CustomEvent(SelectEventType.PIECE, {
+        new CustomEvent(SelectEventType.PIECE_OFF, {
           composed: true,
           bubbles: true,
-          detail: selectPieceEvent(),
         })
       );
 
@@ -443,10 +442,9 @@ export class MyElement extends LitElement {
       if (!turn) return;
 
       this.dispatchEvent(
-        new CustomEvent(SelectEventType.PIECE, {
+        new CustomEvent(SelectEventType.PIECE_OFF, {
           composed: true,
           bubbles: true,
-          detail: selectPieceEvent(),
         })
       );
 
@@ -463,7 +461,7 @@ export class MyElement extends LitElement {
   onSquareDragStart = (e: CustomEvent) => {
     const square = e.detail as Square;
     this.dispatchEvent(
-      new CustomEvent(SelectEventType.PIECE, {
+      new CustomEvent(SelectEventType.PIECE_ON, {
         composed: true,
         bubbles: true,
         detail: selectPieceEvent(square.occupant, square),
@@ -496,7 +494,7 @@ export class MyElement extends LitElement {
       return;
     }
     this.dispatchEvent(
-      new CustomEvent(SelectEventType.PIECE, {
+      new CustomEvent(SelectEventType.PIECE_ON, {
         composed: true,
         bubbles: true,
         detail: selectPieceEvent(piece, start),
@@ -552,10 +550,9 @@ export class MyElement extends LitElement {
     this.audio.move?.play();
 
     this.dispatchEvent(
-      new CustomEvent(SelectEventType.PIECE, {
+      new CustomEvent(SelectEventType.PIECE_OFF, {
         composed: true,
         bubbles: true,
-        detail: selectPieceEvent(),
       })
     );
     const promotionModal = this.shadowRoot!.querySelector('#promotion-modal');
