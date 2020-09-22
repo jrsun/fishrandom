@@ -184,9 +184,19 @@ export class Game {
     // See if checked opponent has any saving moves.
     for (const move of this.allLegalMoves(opponent, state, false)) {
       if (
+        // It's opponent's turn again after their move, OR
         move.after.whoseTurn === opponent ||
+        // Opponent king is alive
+        (
+          move.after.pieces.filter(piece => 
+            piece.isRoyal &&
+            piece.color === opponent
+          ).length > 0
+        ) &&
+        // and opponent not in check
         !this.knowsInCheck(opponent, move.after)
       ) {
+        // This is a saving move.
         return;
       }
     }
