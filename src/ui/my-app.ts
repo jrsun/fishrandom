@@ -302,6 +302,7 @@ export class MyApp extends LitElement {
   private color?: Color;
   private timerInterval;
   private audio: {
+    lowTimePlayed: boolean;
     lowTime: HTMLAudioElement | null | undefined;
     win: HTMLAudioElement | null | undefined;
     lose: HTMLAudioElement | null | undefined;
@@ -390,6 +391,7 @@ export class MyApp extends LitElement {
 
   firstUpdated() {
     this.audio = {
+      lowTimePlayed: false,
       lowTime: document.querySelector('#low-time-audio') as HTMLAudioElement,
       win: document.querySelector('#win-audio') as HTMLAudioElement,
       lose: document.querySelector('#lose-audio') as HTMLAudioElement,
@@ -461,6 +463,7 @@ export class MyApp extends LitElement {
       this.selectedPiece = undefined;
       this.selectedSquare = undefined;
 
+      this.audio.lowTimePlayed = false;
       clearInterval(this.timerInterval);
       this.timerInterval = setInterval(() => {
         if (this.game?.state.whoseTurn === this.color) {
@@ -469,8 +472,10 @@ export class MyApp extends LitElement {
             if (this.playerTimer === 10 * 1000) {
               const timerEl = this.shadowRoot?.querySelector('.timer.player');
               timerEl?.classList.add('blinking');
-              const {lowTime} = this.audio;
-              if (lowTime) {
+              const {lowTime, lowTimePlayed} = this.audio;
+              if (lowTime && !lowTimePlayed) {
+                this.audio.lowTimePlayed = true;
+                
                 lowTime.volume = 0.6;
                 lowTime.play();
                 lowTime.volume = 1;
