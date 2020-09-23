@@ -12,19 +12,8 @@ import {ROULETTE_SECONDS} from '../chess/const';
 @customElement('my-rules')
 export class MyRules extends LitElement {
   static styles = css`
-    /* :host {
-      display: block;
-      margin: 20px;
-      max-width: 800px;
-      padding: 10px;
-      background-color: #efece0;
-      padding: 30px;
-      border-radius: 4px;
-      box-shadow: 0px 7px #dad4c8;
-    } */
     :host {
       max-height: 100%;
-      width: 300px;
       display: block;
     }
     #title > h3 {
@@ -45,11 +34,6 @@ export class MyRules extends LitElement {
     .examples {
       overflow-x: auto;
       display: block;
-    }
-    .examples > img {
-      height: 200px;
-      width: 200px;
-      background-size: cover;
     }
     ul {
       padding-left: 20px;

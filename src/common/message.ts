@@ -31,7 +31,8 @@ export type Message =
   | ReconnectMessage
   | GameEventMessage
   | KickMessage
-  | UndoMessage;
+  | UndoMessage
+  | LeaderboardMessage;
 
 /*
  * Client-initiated
@@ -124,6 +125,14 @@ export interface KickMessage {
 
 export interface UndoMessage {
   type: 'undo';
+}
+
+export interface LeaderboardMessage {
+  type: 'leader';
+  scores: [{
+    name: string;
+    score: number;
+  }];
 }
 
 // Could use evals here instead
@@ -252,7 +261,12 @@ export function addMessageHandler(
       }
       handler(msg as Message);
     } catch (err) {
-      console.warn('error parsing message', err, e.data);
+      // Handle uncompressed as well
+      try {
+        handler(JSON.parse(e.data) as Message);
+      } catch (err) {
+        console.warn('error parsing message', err, e.data);
+      }
     }
   });
 }

@@ -17,19 +17,8 @@ import {Color} from '../chess/const';
 @customElement('my-controls')
 export class MyControls extends LitElement {
   static styles = css`
-    /* :host {
-      display: block;
-      margin: 20px;
-      max-width: 800px;
-      padding: 10px;
-      background-color: #efece0;
-      padding: 30px;
-      border-radius: 4px;
-      box-shadow: 0px 7px #dad4c8;
-    } */
     :host {
       max-height: 100%;
-      width: 300px;
       display: block;
     }
     .container {
@@ -89,15 +78,7 @@ export class MyControls extends LitElement {
   @property({type: Number}) viewMoveIndex: number | undefined;
   @property({type: Boolean, reflect: true}) oppRequestedDraw = false;
   @property({type: Boolean, reflect: true}) requestedDraw = false;
-
-  connectedCallback() {
-    super.connectedCallback();
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
-  }
-
+  
   handleSocketMessage = (message: Message) => {
     if (message.type !== 'replaceState') {
       this.viewMoveIndex = undefined;

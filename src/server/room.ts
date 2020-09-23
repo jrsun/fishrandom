@@ -19,7 +19,7 @@ import log from 'log';
 import {RoomSchema} from '../db/schema';
 import {VARIANTS} from '../chess/variants';
 import {BoardState} from '../chess/state';
-import {saveRoom, savePlayer, deleteRoom} from '../db';
+import {saveRoom, savePlayer, deleteRoom, updateScore} from '../db';
 
 // States progress from top to bottom within a room.
 export enum RoomState {
@@ -59,6 +59,7 @@ export class Room {
 
   p1: RoomPlayer;
   p2: RoomPlayer;
+  ranked: boolean;
 
   // protected
   state: RoomState;
@@ -72,6 +73,7 @@ export class Room {
     p1: Player,
     p2: Player,
     gc: typeof Game,
+    ranked: boolean,
     p1Color = Color.WHITE,
     p1time = 3 * 60 * 1000,
     p2time = 3 * 60 * 1000,
@@ -92,6 +94,7 @@ export class Room {
       time: p2time,
       name: p2.username,
     };
+    this.ranked = ranked;
     if (this.p1.color === Color.WHITE) {
       this.p1.time += ROULETTE_SECONDS * 1000;
     } else {
@@ -394,19 +397,24 @@ export class Room {
       turnHistory: this.game.turnHistory,
     };
 
-    // Set streak
-    me.player.streak += 1;
-    opponent.player.streak = 0;
-    // Set ELO
-    const ra = me.player.elo;
-    const rb = opponent.player.elo;
-    const ea = 1 / (1 + 10 ** ((rb - ra) / 400));
-    const eb = 1 / (1 + 10 ** ((ra - rb) / 400));
+    if (this.ranked) {
+      // Set streak
+      me.player.streak += 1;
+      opponent.player.streak = 0;
+      updateScore(me.player.uuid, me.player.streak);
+      updateScore(opponent.player.uuid, 0);
 
-    const ran = Math.ceil(ra + ELO_K * (1 - ea));
-    const rbn = Math.ceil(rb + ELO_K * (0 - eb));
-    me.player.elo = ran;
-    opponent.player.elo = rbn;
+      // Set ELO
+      const ra = me.player.elo;
+      const rb = opponent.player.elo;
+      const ea = 1 / (1 + 10 ** ((rb - ra) / 400));
+      const eb = 1 / (1 + 10 ** ((ra - rb) / 400));
+
+      const ran = Math.ceil(ra + ELO_K * (1 - ea));
+      const rbn = Math.ceil(rb + ELO_K * (0 - eb));
+      me.player.elo = ran;
+      opponent.player.elo = rbn;
+    }
 
     sendMessage(me.player.socket, {
       ...gom,
@@ -434,18 +442,20 @@ export class Room {
       result,
     };
 
-    const me = this.p1;
-    const opponent = this.p2;
+    if (this.ranked) {
+      const me = this.p1;
+      const opponent = this.p2;
 
-    const ra = me.player.elo;
-    const rb = opponent.player.elo;
-    const ea = 1 / ((1 + 10) ^ ((rb - ra) / 400));
-    const eb = 1 / ((1 + 10) ^ ((ra - rb) / 400));
+      const ra = me.player.elo;
+      const rb = opponent.player.elo;
+      const ea = 1 / ((1 + 10) ^ ((rb - ra) / 400));
+      const eb = 1 / ((1 + 10) ^ ((ra - rb) / 400));
 
-    const ran = Math.ceil(ra + ELO_K * (0.5 - ea));
-    const rbn = Math.ceil(rb + ELO_K * (0.5 - eb));
-    me.player.elo = ran;
-    opponent.player.elo = rbn;
+      const ran = Math.ceil(ra + ELO_K * (0.5 - ea));
+      const rbn = Math.ceil(rb + ELO_K * (0.5 - eb));
+      me.player.elo = ran;
+      opponent.player.elo = rbn;
+    }
 
     sendMessage(this.p1.player.socket, {
       ...gom,
@@ -526,9 +536,10 @@ export class Room {
   };
 
   static freeze(r: Room): RoomSchema {
-    const {id, p1, p2, game} = r;
+    const {id, p1, p2, ranked, game} = r;
     return {
       id,
+      ranked,
       players: {
         [p1.player.uuid]: {
           time: p1.time,
@@ -560,6 +571,7 @@ export class Room {
       p1,
       p2,
       VARIANTS[variant],
+      rs.ranked,
       p1info.color,
       p1info.time,
       p2info.time,

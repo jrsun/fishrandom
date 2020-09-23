@@ -20,13 +20,20 @@ interface RedisClient {
   set: (key: string, value: string, f: RedisFn) => void;
   get: (key: string, f: RedisFn) => void;
   del: (key: string, f: RedisFn) => void;
+  zadd: (key: string, ...any) => void;
+  zrevrange: (key: string, start: number, end: number, withScores: 'WITHSCORES', f: RedisFn) => void;
+  zrevrank: (key: string, username: string, f: RedisFn) => void;
+  zscore: (key: string, username: string, f: RedisFn) => void;
 }
+
+const SCORES_KEY = 'scores:streak';
 
 /**
  * DB Schema
  * 
  * room:{room_id} -> {room_schema}
  * player:{player_id} -> {player}
+ * scores:streak -> sorted set of uuid -> streak
  */
 
 export async function saveRoom(r: Room) {
@@ -144,3 +151,73 @@ export async function getPlayer(id: string): Promise<Player | undefined> {
     });
   });
 }
+
+export async function updateScore(username: string, score: number) {
+  return await new Promise((resolve, reject) => {
+    REDIS_CLIENT.zadd(SCORES_KEY, score, username, (err, reply) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      if (!reply) {
+        resolve();
+      }
+      resolve(reply);
+    });
+  });
+}
+
+export async function getTopK(k: number): Promise<undefined|{[name: string]: number}> {
+  return await new Promise((resolve, reject) => {
+    REDIS_CLIENT.zrevrange(SCORES_KEY, 0, k - 1, 'WITHSCORES', (err, reply) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      if (!reply) {
+        resolve();
+      }
+      const topKToScores = {};
+      for (let i=0; i < reply.length; i +=2) {
+        const name = reply[i];
+        const score = parseInt(reply[i+1], 10);
+        topKToScores[name] = score;
+      }
+      resolve(topKToScores);
+    })
+  })
+}
+
+// async function getRevRank(username: string): Promise<undefined|number> {
+//   return await new Promise((resolve, reject) => {
+//     REDIS_CLIENT.zrevrank(SCORES_KEY, username, (err, reply) => {
+//       if (err) {
+//         reject(err);
+//         return;
+//       }
+//       if (!reply) {
+//         resolve();
+//       }
+//       resolve(reply);
+//     })
+//   })
+// }
+
+// async function getScore(username: string): Promise<undefined|number> {
+//   return await new Promise((resolve, reject) => {
+//     REDIS_CLIENT.zscore(SCORES_KEY, username, (err, reply) => {
+//       if (err) {
+//         reject(err);
+//         return;
+//       }
+//       if (!reply) {
+//         resolve();
+//       }
+//       resolve(reply);
+//     })
+//   })
+// }
+
+// export async function getRevRankAndScore(username: string) {
+//   return await Promise.all([getRevRank(username), getScore(username)]);
+// }
