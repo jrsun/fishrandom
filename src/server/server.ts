@@ -22,7 +22,7 @@ import log from 'log';
 import logNode from 'log-node';
 import {Game} from '../chess/game';
 import {WAITING} from './waiting';
-import {savePlayer, getPlayer, deleteRoom, getRoom} from '../db';
+import {savePlayer, getPlayer, deleteRoom, getRoom, uncachePlayer, getTopK} from '../db';
 logNode();
 
 var app = express();
@@ -31,6 +31,12 @@ var wsCounter = 0;
 setInterval(() => {
   log.notice('Active websockets:', wsCounter);
 }, 60 * 1000);
+
+setInterval(() => {
+  getTopK(10).then(result => {
+    console.log(result);
+  })
+}, 1 * 1000);
 
 const argv = yargs
   .option('game', {
@@ -154,6 +160,7 @@ wss.on('connection', async function connection(ws: WebSocket, request) {
   ws.addEventListener('close', () => {
     getPlayer(uuid).then((player) => {
       log.notice('Client disconnected:', player?.username);
+      uncachePlayer(uuid);
     });
     wsCounter--;
   });
