@@ -2,12 +2,10 @@ import {LitElement, html, customElement, property, css} from 'lit-element';
 import {Piece} from '../chess/piece';
 import Square from '../chess/square';
 import {BoardState} from '../chess/state';
-import {Color} from '../chess/const';
+import {Color, SQUARE_SIZE} from '../chess/const';
 import {styleMap} from 'lit-html/directives/style-map';
 import './my-piece';
 import {reviver, replacer} from '../common/message';
-
-const SQUARE_SIZE = Math.min(window.innerWidth / 8, 50); // 50
 
 @customElement('my-square')
 export class MySquare extends LitElement {

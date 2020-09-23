@@ -12,8 +12,6 @@ export default class Square {
   render(): HTMLElement {
     const result = document.createElement('div');
     result.setAttribute('class', 'square');
-    // result.style.height = `${SQUARE_SIZE}px`;
-    // result.style.width = `${SQUARE_SIZE}px`;
     if (this.occupant) {
       result.appendChild(this.occupant.render());
     }

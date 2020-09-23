@@ -7,6 +7,7 @@ import {
 } from '../../node_modules/lit-element';
 import '@polymer/paper-dialog';
 import './my-element';
+import './my-leaderboard';
 import './my-announce';
 import {VARIANTS, Chess960, RANDOM_VARIANTS} from '../chess/variants/index';
 import {
@@ -72,9 +73,8 @@ export class MyApp extends LitElement {
       /* border: solid 1px gray; */
       /* margin: 15px; */
       /* max-width: 800px; */
-      padding: 10px;
       background-color: #efece0;
-      padding: 30px;
+      padding: 20px;
       border-radius: 4px;
       box-shadow: 0px 7px #dad4c8;
     }
@@ -91,7 +91,6 @@ export class MyApp extends LitElement {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      margin-right: 20px;
     }
     :host([started]) .bank-wrapper {
       top: 0;
@@ -106,8 +105,6 @@ export class MyApp extends LitElement {
     .active-game-container {
       display: flex;
       flex-direction: column;
-      margin-right: 30px;
-      margin-bottom: 20px;
     }
     @media only screen and (max-width: 600px) {
       .active-game-container {
@@ -118,6 +115,7 @@ export class MyApp extends LitElement {
         padding: 0px;
         border-radius: 0;
         box-shadow: none;
+        background: none;
       }
       .bank-wrapper { flex-direction: row;}
       .bank:first-child{
@@ -148,8 +146,8 @@ export class MyApp extends LitElement {
       align-items: flex-start;
     }
     .avatar {
-      height: 60px;
-      width: 60px;
+      height: 40px;
+      width: 40px;
       background-size: cover;
       margin-right: 10px;
       border-radius: 4px;
@@ -163,46 +161,39 @@ export class MyApp extends LitElement {
       padding: 1px 3px;
     }
     .board-wrapper {
-      margin: 20px 0;
+      margin-top: 10px;
+      margin-bottom: 17px; /* allow box-shadow */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     /* timer */
     .timer {
-      font-size: 30px;
+      font-size: 20px;
       /* display: inline-block; */
       /* border: solid 1px gray; */
       /* margin: 15px; */
       /* max-width: 800px; */
       background-color: #efece0;
       padding: 10px;
-      padding-left: 60px;
-      border-radius: 4px;
+      padding-left: 50px;
+      border-radius: 5px;
       font-family: 'JelleeBold';
-      min-width: 75px;
     }
     .timer.opponent {
       background-color: #344155;
       color: #99b;
-      box-shadow: 0px 7px #243145;
+      box-shadow: 0px 4px #243145;
     }
     .timer.player {
       background-color: #ddd;
       color: #344155;
-      box-shadow: 0px 7px #bbb;
+      box-shadow: 0px 4px #bbb;
     }
     .timer.paused {
       opacity: 0.5;
     }
     /* right */
-    .right-panel {
-      display: flex;
-      flex-direction: column;
-    }
-    .controls {
-      margin-bottom: 30px;
-    }
-    .rules {
-      flex: 1;
-    }
     paper-dialog {
       font-family: 'JelleeBold';
       border-radius: 2px;
@@ -282,6 +273,46 @@ export class MyApp extends LitElement {
     }
     .footer a {
       color: #6a0dad;
+    }
+    /* CSS Grid */
+    .grid {
+      width: 100%;
+      display: grid;
+      grid-gap: 20px;
+      grid-template-areas:
+        "game"
+        "leaderboard"
+        "controls"
+        "rules";
+    }
+    @media (min-width: 500px) {
+      .grid {
+        grid-template-columns: auto;
+        grid-template-rows: auto;
+        justify-items: center;
+        grid-template-areas:
+          "game leaderboard"
+          "game rules"
+          "controls rules";
+      }
+    }
+    .bank-wrapper {
+      grid-area: bank;
+    }
+    .active-game-container {
+      grid-area: game;
+    }
+    my-leaderboard {
+      grid-area: leaderboard;
+      width: 100%;
+    }
+    .controls {
+      max-width: 350px;
+      grid-area: controls;
+    }
+    .rules {
+      grid-area: rules;
+      max-width: 300px;
     }
   }`;
 
@@ -605,7 +636,7 @@ export class MyApp extends LitElement {
     const player = this.color;
     const opponent = getOpponent(this.color);
 
-    return html`<div class="bank-wrapper">
+    return html`<div class="bank-wrapper grid-item">
       <div class="card bank">
         <my-piece-picker
           .eventName=${SelectEventType.PIECE_TOGGLE}
@@ -640,9 +671,9 @@ export class MyApp extends LitElement {
             : ''}
         </h1>
       </div>
-      <div class="game-container">
+      <div class="game-container grid">
         ${this.renderBanks()}
-        <div class="active-game-container">
+        <div class="active-game-container grid-item">
           <div class="active-game-info opponent">
             <div class="user-info">
               <div
@@ -716,17 +747,16 @@ export class MyApp extends LitElement {
             </div>
           </div>
         </div>
-        <div class="right-panel">
-          <div class="card controls">
-            <my-controls
-              .socket=${this.socket}
-              .turnHistory=${this.game?.turnHistory ?? []}
-              .playing=${!this.gameResult}
-            ></my-controls>
-          </div>
-          <div class="card rules">
-            <my-rules .game=${this.game} .started=${this.started}></my-rules>
-          </div>
+        <my-leaderboard class="grid-item"></my-leaderboard>
+        <div class="card controls grid-item">
+          <my-controls
+            .socket=${this.socket}
+            .turnHistory=${this.game?.turnHistory ?? []}
+            .playing=${!this.gameResult}
+          ></my-controls>
+        </div>
+        <div class="card rules grid-item">
+          <my-rules .game=${this.game} .started=${this.started}></my-rules>
         </div>
       </div>
       <paper-dialog

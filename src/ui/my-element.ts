@@ -28,7 +28,7 @@ import {classMap, ClassInfo} from 'lit-html/directives/class-map';
 import {VARIANTS} from '../chess/variants';
 import {Game, GameEvent, GameEventType, GameEventName} from '../chess/game';
 import {Move, toFEN, Turn, TurnType, toEndSquare} from '../chess/turn';
-import {Color, ROULETTE_SECONDS, getOpponent} from '../chess/const';
+import {Color, ROULETTE_SECONDS, getOpponent, SQUARE_SIZE} from '../chess/const';
 import {BoardState} from '../chess/state';
 import {Chess960} from '../chess/variants/960';
 import {equals, hash, Pair} from '../chess/pair';
@@ -38,7 +38,6 @@ import {PaperDialogElement} from '@polymer/paper-dialog/paper-dialog';
 import {MySquare} from './my-square';
 import {selectPieceEvent, SelectEventType, SelectEventDetail} from './utils';
 
-const SQUARE_SIZE = Math.min(window.innerWidth / 8, 50); // 50
 /**
  * An example element.
  *
