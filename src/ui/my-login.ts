@@ -19,7 +19,7 @@ import {VARIANTS} from '../chess/variants';
 import {PaperDropdownMenuElement} from '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
 import { randomChoice } from '../utils';
 
-const LIST_OF_FISH = ['fish', 'anchovy', 'cod', 'tilapia', 'salmon', 'snapper', 'tuna', 'carp'];
+const LIST_OF_FISH = ['fish', 'trout', 'anchovy', 'cod', 'tilapia', 'salmon', 'snapper', 'tuna', 'carp'];
 
 @customElement('my-login')
 export class MyLogin extends LitElement {
