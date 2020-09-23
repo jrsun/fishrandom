@@ -42,6 +42,7 @@ export class MyReleaseNotes extends LitElement {
 
   render() {
     return html` <div class="relnotes">Release Notes:</div>
+      <div class="subtitle">9/23 - win streak leaderboards are here!</div>
       <div class="subtitle">9/22 - checkmate detects next-turn king capture / click+drag better behaved</div>
       <div class="subtitle">9/16 - 3 new variants! knightrider chess / werewolf chess / pawn-sideways chess</div>
       <div class="subtitle">9/16 (cont.) - added reason in win-loss-draw dialog / antichess bugs / veto castling bug</div>
