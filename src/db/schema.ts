@@ -4,6 +4,7 @@ import {BoardState} from '../chess/state';
 
 export interface RoomSchema {
   id: string;
+  ranked: boolean;
   players: {
     [uuid: string]: {
       time: number;

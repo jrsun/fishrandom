@@ -22,7 +22,7 @@ import log from 'log';
 import logNode from 'log-node';
 import {Game} from '../chess/game';
 import {WAITING} from './waiting';
-import {savePlayer, getPlayer, deleteRoom, getRoom, uncachePlayer, getTopK} from '../db';
+import {savePlayer, getPlayer, deleteRoom, getRoom, getTopK} from '../db';
 logNode();
 
 var app = express();
@@ -33,8 +33,25 @@ setInterval(() => {
 }, 60 * 1000);
 
 setInterval(() => {
-  getTopK(10).then(result => {
-    console.log(result);
+  getTopK(10).then(async result => {
+    if (!result) return;
+
+    const scores: any[] = [];
+    for (const [uuid, score] of Object.entries(result)) {
+      // remove this await
+      const player = await getPlayer(uuid);
+      if (!player) continue;
+      scores.push({name: player.username, score});
+    }
+    wss.clients.forEach(client => {
+      if (client.readyState === 1) {
+        client.send(JSON.stringify({
+          type: 'leader',
+          scores,
+          score: undefined,
+        }));
+      }
+    });
   })
 }, 1 * 1000);
 
@@ -160,7 +177,6 @@ wss.on('connection', async function connection(ws: WebSocket, request) {
   ws.addEventListener('close', () => {
     getPlayer(uuid).then((player) => {
       log.notice('Client disconnected:', player?.username);
-      uncachePlayer(uuid);
     });
     wsCounter--;
   });
@@ -297,12 +313,13 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
       opponent,
       player,
       NG,
+      !password, // only ranked if open
       p1color,
       99 * 60 * 1000,
-      99 * 60 * 1000
+      99 * 60 * 1000,
     );
   } else {
-    room = new Room(roomId, opponent, player, NG, p1color);
+    room = new Room(roomId, opponent, player, NG, /*ranked*/true, p1color);
   }
   room.initGame();
   opponent.roomId = room.id;

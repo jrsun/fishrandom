@@ -78,15 +78,7 @@ export class MyControls extends LitElement {
   @property({type: Number}) viewMoveIndex: number | undefined;
   @property({type: Boolean, reflect: true}) oppRequestedDraw = false;
   @property({type: Boolean, reflect: true}) requestedDraw = false;
-
-  connectedCallback() {
-    super.connectedCallback();
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
-  }
-
+  
   handleSocketMessage = (message: Message) => {
     if (message.type !== 'replaceState') {
       this.viewMoveIndex = undefined;

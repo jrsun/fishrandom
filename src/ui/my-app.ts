@@ -278,7 +278,8 @@ export class MyApp extends LitElement {
     .grid {
       width: 100%;
       display: grid;
-      grid-gap: 20px;
+      grid-row-gap: 30px;
+      grid-column-gap: 40px;
       grid-template-areas:
         "game"
         "leaderboard"
@@ -307,7 +308,7 @@ export class MyApp extends LitElement {
       width: 100%;
     }
     .controls {
-      max-width: 350px;
+      width: 350px;
       grid-area: controls;
     }
     .rules {
@@ -747,7 +748,10 @@ export class MyApp extends LitElement {
             </div>
           </div>
         </div>
-        <my-leaderboard class="grid-item"></my-leaderboard>
+        <my-leaderboard class="grid-item"
+          .socket=${this.socket}
+          .player=${this.playerInfo}
+        ></my-leaderboard>
         <div class="card controls grid-item">
           <my-controls
             .socket=${this.socket}
