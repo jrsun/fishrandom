@@ -177,6 +177,10 @@ wss.on('connection', async function connection(ws: WebSocket, request) {
   ws.addEventListener('close', () => {
     getPlayer(uuid).then((player) => {
       log.notice('Client disconnected:', player?.username);
+      const deleted = WAITING.deletePlayer(uuid);
+      if (deleted) {
+        log.notice('Removed from waiting:', player?.username);
+      }
     });
     wsCounter--;
   });
