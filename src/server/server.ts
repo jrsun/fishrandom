@@ -17,16 +17,26 @@ import {randomChoice, randomInt} from '../utils';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import escape from 'validator/lib/escape';
+import pPkg from '@2toad/profanity';
+const {Profanity, ProfanityOptions} = pPkg;
 
 import log from 'log';
 import logNode from 'log-node';
 import {Game} from '../chess/game';
 import {WAITING} from './waiting';
+import customProfanity from './profanity';
 import {savePlayer, getPlayer, deleteRoom, getRoom, getTopK} from '../db';
 logNode();
 
 var app = express();
 var wsCounter = 0;
+
+// Profanity
+const profanityOptions = new ProfanityOptions();
+profanityOptions.wholeWord = false;
+profanityOptions.grawlix = 'fish';
+const profanity = new Profanity(profanityOptions);
+profanity.addWords(customProfanity);
 
 setInterval(() => {
   log.notice('Active websockets:', wsCounter);
@@ -95,7 +105,9 @@ app.post('/login', function (req, res) {
     return;
   }
 
-  const {username, password, variant} = req.body;
+  let {username, password, variant} = req.body;
+  username = profanity.censor(username);
+
   log.notice('logged in', username);
   let uuid = req.cookies.uuid;
   if (!uuid) {
