@@ -1,4 +1,4 @@
-import {Game, GameResult} from '../game';
+import {Game, GameResult, GameResultType} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
 import {Color, getOpponent} from '../const';
 import {BoardState, generate9602} from '../state';
@@ -77,9 +77,22 @@ export class Dark extends Game {
   }
 
   winCondition(color: Color, state: BoardState): GameResult|undefined {
-    // The client never knows if they've won
     if (!this.isServer) {
-      return;
+      // The client can know if they can capture the king.
+      // This is actually necessary to validate the turn clientside.
+      const opponent = getOpponent(color);
+      const royalty = state.pieces.filter(piece => piece.isRoyal);
+      if (
+        royalty.some(piece => piece.color === color) &&
+        !royalty.some(piece => piece.color === opponent)
+      ) {
+        return {
+          type: GameResultType.WIN,
+          reason: 'king capture',
+        };
+      } else {
+        return;
+      }
     }
     return super.winCondition(color, state);
   }

@@ -27,11 +27,11 @@ export class MySquare extends LitElement {
     :host([lastmove]) .square {
       background-color: rgba(255, 255, 0, 0.3);
     }
-    :host([possible]) .square {
-      background-color: rgba(0, 255, 0, 0.3);
-    }
     :host([checked]) .square {
       background-color: rgba(255, 0, 0, 0.6);
+    }
+    :host([possible]) .square {
+      background-color: rgba(0, 255, 0, 0.3);
     }
     :host([selected]) .square {
       background-color: rgba(0, 0, 255, 0.3);
