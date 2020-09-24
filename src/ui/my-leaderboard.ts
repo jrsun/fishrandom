@@ -44,7 +44,7 @@ export class MyLeaderboard extends LitElement {
       display: flex;
       flex-direction: column;
       flex-wrap: wrap;
-      max-height: 100px;
+      max-height: 125px;
       padding: 10px;
       padding-bottom: 15px;
     }
