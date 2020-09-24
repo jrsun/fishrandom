@@ -351,8 +351,14 @@ export class Pawn extends Piece {
     const yDir = this.color === Color.WHITE ? -1 : 1;
     // en passant
     if (turnHistory.length) {
-      const lastMove = turnHistory[turnHistory.length - 1];
-      if (lastMove.type !== TurnType.MOVE) return;
+      let lastMove: Turn|undefined;
+      for (let i = turnHistory.length-1; i >= 0; i--) {
+        if (turnHistory[i].cpu) continue;
+        lastMove = turnHistory[i];
+        break;
+      }
+      if (!lastMove || lastMove.type !== TurnType.MOVE) return;
+
       if (
         lastMove.piece instanceof Pawn &&
         lastMove.piece.color !== this.color &&
