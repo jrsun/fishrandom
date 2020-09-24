@@ -25,7 +25,7 @@ export class MyControls extends LitElement {
       display: flex;
       flex-direction: column;
     }
-    .controls {
+    .buttons {
       display: flex;
       justify-content: space-between;
     }
@@ -47,7 +47,7 @@ export class MyControls extends LitElement {
     .fen {
       margin-right: 10px;
     }
-    .controls > * {
+    .buttons > * {
       flex: 1;
       min-width: 20px;
     }
@@ -198,7 +198,7 @@ export class MyControls extends LitElement {
             .map(toFEN)
             .map((fen: string, i: number) => this.renderMove(fen, i))}
         </div>
-        <div class="controls">
+        <div class="buttons">
           <paper-button
             raised
             .onclick=${this.onClickPrev.bind(this)}

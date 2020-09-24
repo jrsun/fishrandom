@@ -53,4 +53,4 @@ export {
   Color,
 };
 
-export const SQUARE_SIZE = 45; //px
+export const SQUARE_SIZE = 50; //px

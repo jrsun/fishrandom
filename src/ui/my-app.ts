@@ -146,8 +146,8 @@ export class MyApp extends LitElement {
       align-items: flex-start;
     }
     .avatar {
-      height: 40px;
-      width: 40px;
+      height: 60px;
+      width: 60px;
       background-size: cover;
       margin-right: 10px;
       border-radius: 4px;
@@ -161,34 +161,35 @@ export class MyApp extends LitElement {
       padding: 1px 3px;
     }
     .board-wrapper {
-      margin-top: 10px;
-      margin-bottom: 17px; /* allow box-shadow */
+      margin-top: 20px;
+      margin-bottom: 27px; /* allow box-shadow */
       display: flex;
       flex-direction: column;
       align-items: center;
     }
     /* timer */
     .timer {
-      font-size: 20px;
+      font-size: 30px;
       /* display: inline-block; */
       /* border: solid 1px gray; */
       /* margin: 15px; */
       /* max-width: 800px; */
       background-color: #efece0;
       padding: 10px;
-      padding-left: 50px;
-      border-radius: 5px;
+      padding-left: 60px;
+      border-radius: 4px;
+      min-width: 75px;
       font-family: 'JelleeBold';
     }
     .timer.opponent {
       background-color: #344155;
       color: #99b;
-      box-shadow: 0px 4px #243145;
+      box-shadow: 0px 7px #243145;
     }
     .timer.player {
       background-color: #ddd;
       color: #344155;
-      box-shadow: 0px 4px #bbb;
+      box-shadow: 0px 7px #bbb;
     }
     .timer.paused {
       opacity: 0.5;
@@ -288,13 +289,14 @@ export class MyApp extends LitElement {
     }
     @media (min-width: 500px) {
       .grid {
-        grid-template-columns: auto;
+        grid-template-columns: auto 350px;
         grid-template-rows: auto;
         justify-items: center;
+        align-items: start;
         grid-template-areas:
           "game leaderboard"
-          "game rules"
-          "controls rules";
+          "game controls"
+          "game rules";
       }
     }
     .bank-wrapper {
@@ -308,12 +310,11 @@ export class MyApp extends LitElement {
       width: 100%;
     }
     .controls {
-      width: 350px;
       grid-area: controls;
+      width: 100%;
     }
     .rules {
       grid-area: rules;
-      max-width: 300px;
     }
   }`;
 
@@ -752,8 +753,9 @@ export class MyApp extends LitElement {
           .socket=${this.socket}
           .player=${this.playerInfo}
         ></my-leaderboard>
-        <div class="card controls grid-item">
+        <div class="controls grid-item">
           <my-controls
+            class="card"
             .socket=${this.socket}
             .turnHistory=${this.game?.turnHistory ?? []}
             .playing=${!this.gameResult}
