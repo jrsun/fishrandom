@@ -185,7 +185,7 @@ export class MyLogin extends LitElement {
       <form .onsubmit=${this.login.bind(this)}>
         <div class="container">
           <div class="title">FISHRANDOM</div>
-          <div class="subtitle">randomized chess variants</div>
+          <div class="subtitle">chess variant roulette</div>
           <input
             id="username"
             type="text"
