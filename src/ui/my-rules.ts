@@ -332,6 +332,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <li>Capturing a werewolf with any piece <b>sacrifices</b> that piece
     and changes the werewolf to your color, except...</li>
     <li>When the capturer is a King, the werewolf is captured normally.</li>
+    <li>Pawn <b>cannot</b> promote to Werewolf.</li>
   </ul>
   H. G. Muller (2015)
   `,
