@@ -39,7 +39,12 @@ export class MyLogin extends LitElement {
     .title {
       color: #eeeeee;
       font-size: 7vw;
-      margin-bottom: 1vw;
+      letter-spacing: 0.2em;
+    }
+    .subtitle {
+      font-size: 2vw;
+      color: #eeeeee;
+      margin-bottom: 2vw;
     }
     .row {
       display: flex;
@@ -179,7 +184,8 @@ export class MyLogin extends LitElement {
     return html` <my-announce></my-announce>
       <form .onsubmit=${this.login.bind(this)}>
         <div class="container">
-          <div class="title">F I S H R A N D O M</div>
+          <div class="title">FISHRANDOM</div>
+          <div class="subtitle">randomized chess variants</div>
           <input
             id="username"
             type="text"
