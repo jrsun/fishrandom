@@ -80,7 +80,7 @@ export class MyControls extends LitElement {
   @property({type: Boolean, reflect: true}) requestedDraw = false;
   
   handleSocketMessage = (message: Message) => {
-    if (message.type !== 'replaceState') {
+    if (['appendState', 'initGame', 'reconnect', 'gameOver'].includes(message.type)) {
       this.viewMoveIndex = undefined;
     }
     if (message.type === 'replaceState' || message.type === 'appendState') {
