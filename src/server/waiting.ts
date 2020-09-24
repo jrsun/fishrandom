@@ -7,8 +7,12 @@ class Waiting {
     {uuid: Uuid; variant?: string}
   >();
 
-  addToOpen(uuid: Uuid) {
+  private addToOpen(uuid: Uuid) {
     this.open.add(uuid);
+  }
+
+  private addToPrivate(uuid: Uuid, password: string, variant?: string) {
+    this.private.set(password, {uuid, variant});
   }
 
   hasOpen(): boolean {
@@ -20,10 +24,6 @@ class Waiting {
     if (!first) return;
     this.open.delete(first);
     return first;
-  }
-
-  addToPrivate(uuid: Uuid, password: string, variant?: string) {
-    this.private.set(password, {uuid, variant});
   }
 
   popPrivate(password: string): {uuid: Uuid; variant?: string} | undefined {
@@ -45,6 +45,7 @@ class Waiting {
   }
 
   add(uuid: Uuid, password?: string, variant?: string) {
+    this.deletePlayer(uuid);
     if (password) {
       return this.addToPrivate(uuid, password, variant);
     } else {
