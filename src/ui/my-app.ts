@@ -498,8 +498,7 @@ export class MyApp extends LitElement {
   }
 
   handleSocketMessage(message: Message) {
-    // console.log('Received message of type %s', message.type);
-    // console.log(message);
+    // if (message.type !== 'leader') console.log(message);
     if (message.type === 'kick') {
       location.href = '/';
     }
