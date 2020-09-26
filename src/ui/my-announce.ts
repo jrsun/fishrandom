@@ -8,7 +8,7 @@ import {
 } from 'lit-element';
 import '@polymer/paper-button';
 
-const ANNOUNCE_TEXT = '';
+const ANNOUNCE_TEXT = 'Leaderboards will be reset in the next 5 minutes.';
 
 @customElement('my-announce')
 export class MyAnnounce extends LitElement {
