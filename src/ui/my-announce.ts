@@ -8,7 +8,7 @@ import {
 } from 'lit-element';
 import '@polymer/paper-button';
 
-const ANNOUNCE_TEXT = 'Leaderboards will be reset in the next 5 minutes.';
+const ANNOUNCE_TEXT = 'Ratings and leaderboard positions will be reset today at 2pm Pacific Time.';
 
 @customElement('my-announce')
 export class MyAnnounce extends LitElement {
