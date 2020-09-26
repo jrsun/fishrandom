@@ -90,7 +90,7 @@ export class MyLeaderboard extends LitElement {
     let onLeaderboard = false;
 
     return html`<div class="card">
-      <div class="title">Leaderboard</div>
+      <div class="title">Leaderboard (wins in a row)</div>
       <div class="scores">
         ${this.topScores.map((score, i) => {
           const isMe = score.name === name && score.score === streak && !onLeaderboard;
