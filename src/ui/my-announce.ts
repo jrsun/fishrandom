@@ -8,7 +8,7 @@ import {
 } from 'lit-element';
 import '@polymer/paper-button';
 
-const ANNOUNCE_TEXT = 'Ratings and leaderboard positions will be reset today at 2pm Pacific Time.';
+const ANNOUNCE_TEXT = 'Happy fishing!';
 
 @customElement('my-announce')
 export class MyAnnounce extends LitElement {
