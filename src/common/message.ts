@@ -3,7 +3,7 @@ import {BoardState} from '../chess/state';
 import Square from '../chess/square';
 import zlib from 'zlib';
 import {Turn} from '../chess/turn';
-import {Color, Pair} from '../chess/const';
+import {Color, Pair, RoomAction} from '../chess/const';
 import WS from 'ws';
 import {QueenPawn} from '../chess/variants/hiddenqueen';
 import {Hopper} from '../chess/variants/grasshopper';
@@ -21,8 +21,7 @@ export type Message =
   | TurnMessage
   | ReplaceMessage
   | AppendMessage
-  | ResignMessage
-  | DrawMessage
+  | RoomActionMessage
   | ExitMessage
   | NewGameMessage
   | InitGameMessage
@@ -33,7 +32,8 @@ export type Message =
   | KickMessage
   | UndoMessage
   | LeaderboardMessage
-  | PlayerInfoMessage;
+  | PlayerInfoMessage
+  | AllowedActionsMessage;
 
 /*
  * Client-initiated
@@ -43,14 +43,6 @@ export interface TurnMessage {
   turn: Turn;
 }
 
-export interface ResignMessage {
-  type: 'resign';
-}
-
-export interface DrawMessage {
-  type: 'draw';
-}
-
 export interface NewGameMessage {
   type: 'newGame';
   password?: string;
@@ -58,6 +50,11 @@ export interface NewGameMessage {
 
 export interface ExitMessage {
   type: 'exit';
+}
+
+export interface RoomActionMessage {
+  type: 'roomAction';
+  action: RoomAction; // draw, resign, etc
 }
 
 /*
@@ -141,6 +138,11 @@ export interface PlayerInfoMessage {
   type: 'playerInfo';
   player: PlayerInfo;
   opponent: PlayerInfo;
+}
+
+export interface AllowedActionsMessage {
+  type: 'allowedActions';
+  actions: RoomAction[];
 }
 
 // Could use evals here instead

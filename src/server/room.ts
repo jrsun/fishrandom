@@ -1,7 +1,7 @@
 import {Game, GameEvent, GameResult, GameResultType} from '../chess/game';
 import {randomChoice} from '../utils';
 import {Move, Turn, TurnType} from '../chess/turn';
-import {Color, getOpponent, ROULETTE_SECONDS, DISCONNECT_TIMEOUT_SECONDS} from '../chess/const';
+import {Color, getOpponent, ROULETTE_SECONDS, DISCONNECT_TIMEOUT_SECONDS, FIRST_MOVE_ABORT_SECONDS, RoomAction} from '../chess/const';
 import {
   AppendMessage,
   replacer,
@@ -48,11 +48,12 @@ interface RoomPlayer {
   time: number;
   name: string; // for logging namespace
   disconnectTimeout?: ReturnType<typeof setTimeout>; // return value of a disconnect timeout
+  allowedActions: RoomAction[];
 }
 
 const INCREMENT_MS = 5 * 1000;
-
 const ELO_K = 100;
+const DEFAULT_RANKED_SECONDS = 3 * 60;
 
 export class Room {
   // public
@@ -67,7 +68,6 @@ export class Room {
   state: RoomState;
   timerInterval: any; // timer
   timerPaused: boolean;
-  drawRequestedBy: string | undefined; // uuid
 
   constructor(
     id: string,
@@ -76,8 +76,8 @@ export class Room {
     gc: typeof Game,
     ranked: boolean,
     p1Color = Color.WHITE,
-    p1time = 3 * 60 * 1000,
-    p2time = 3 * 60 * 1000,
+    p1time = DEFAULT_RANKED_SECONDS * 1000,
+    p2time = DEFAULT_RANKED_SECONDS * 1000,
     turnHistory?: Turn[],
     stateHistory?: BoardState[]
   ) {
@@ -88,12 +88,14 @@ export class Room {
       color: p1Color,
       time: p1time,
       name: p1.username,
+      allowedActions: DEFAULT_ALLOWED_ACTIONS,
     };
     this.p2 = {
       player: p2,
       color: getOpponent(p1Color),
       time: p2time,
       name: p2.username,
+      allowedActions: DEFAULT_ALLOWED_ACTIONS,
     };
     this.ranked = ranked;
     if (this.p1.color === Color.WHITE) {
@@ -124,6 +126,32 @@ export class Room {
         this.game.state.whoseTurn === this.p1.color ? this.p1 : this.p2;
       const opponent = me === this.p1 ? this.p2 : this.p1;
       me.time -= 1000;
+      if (
+        (
+          // I'm letting my time tick as white, opponent can abort
+          opponent.color === Color.BLACK
+          && this.game.turnHistory.length === 0
+          && (me.time / 1000) < (DEFAULT_RANKED_SECONDS - FIRST_MOVE_ABORT_SECONDS)
+        ) || (
+          // Opponent has made a move as white, I'm letting my time tick as
+          // black, opponent can abort.
+          opponent.color === Color.WHITE
+          && this.game.turnHistory.some(turn => turn.piece.color === Color.WHITE)
+          && !this.game.turnHistory.some(turn => turn.piece.color === Color.BLACK)
+          && (me.time / 1000) < (DEFAULT_RANKED_SECONDS - FIRST_MOVE_ABORT_SECONDS)
+        )
+      ) {
+        if (!opponent.allowedActions.includes(RoomAction.ABORT)) {
+          opponent.allowedActions = [
+            RoomAction.ABORT,
+            ...opponent.allowedActions,
+          ];
+          sendMessage(opponent.player.socket, {
+            type: 'allowedActions',
+            actions: opponent.allowedActions,
+          });
+        }
+      }
       if (me.time <= 0) {
         log.get(me.name).notice('ran out of time');
         this.wins(opponent.player.uuid, {type: GameResultType.WIN, reason: 'timeout'});
@@ -156,6 +184,7 @@ export class Room {
     ]).then(() => {
       this.game.onConnect();
       this.sendTimers();
+      this.resetAllowedActions();
     });
 
     log.get(this.p1.name).notice('playing variant', this.game.name);
@@ -166,16 +195,33 @@ export class Room {
     this.state = state;
   }
 
-  handleResign(uuid: string) {
-    if (this.state !== RoomState.PLAYING) return;
-    const {turnHistory} = this.game;
-    if (
-      !turnHistory.some((turn) => turn.piece.color === Color.WHITE) ||
-      !turnHistory.some((turn) => turn.piece.color === Color.BLACK)
-    ) {
-      return this.aborts();
+  /** Room action handlers */
+
+  handleAction(uuid: string, action: RoomAction) {
+    const rp = this.uuidToRoomPlayer(uuid);
+    if (!rp) {
+      log.warn('no such player in room', uuid);
+      return;
     }
-    // TODO: fix this so it checks actual uuid equality
+    if (this.state !== RoomState.PLAYING) return;
+    // Check if action is allowed
+    if (!(rp.allowedActions.includes(action))) {
+      log.get(rp.name).warn('attempted illegal action', action);
+      return;
+    }
+    log.get(rp.name).notice('ended game by ', action);
+    if (action === RoomAction.RESIGN) {
+      this.handleResign(uuid);
+    } else if (action === RoomAction.OFFER_DRAW) {
+      this.handleOfferDraw(uuid);
+    } else if (action === RoomAction.CLAIM_DRAW) {
+      this.handleDraw(uuid);
+    } else if (action === RoomAction.ABORT) {
+      this.handleAbort();
+    }
+  }
+
+  private handleResign(uuid: string) {
     return this.wins(
       uuid === this.p1.player.uuid ? this.p2.player.uuid : this.p1.player.uuid,
       {
@@ -185,16 +231,46 @@ export class Room {
     );
   }
 
-  handleDraw(uuid: string) {
-    if (this.state !== RoomState.PLAYING) return;
-    const opponent =
-      uuid === this.p1.player.uuid ? this.p2.player : this.p1.player;
+  private handleOfferDraw(uuid: string) {
+    const opRoomPlayer =
+      uuid === this.p1.player.uuid ? this.p2 : this.p1;
 
-    if (this.drawRequestedBy === opponent.uuid) {
-      return this.draws({type: GameResultType.DRAW, reason: 'agreement'});
-    }
-    this.drawRequestedBy = uuid;
-    sendMessage(opponent.socket, {type: 'draw'});
+    // opponent cannot offer draw if you've already offered
+    opRoomPlayer.allowedActions = [
+      RoomAction.CLAIM_DRAW,
+      ...opRoomPlayer.allowedActions,
+    ].filter(action => action !== RoomAction.OFFER_DRAW);
+
+    sendMessage(opRoomPlayer.player.socket, {
+      type: 'allowedActions',
+      actions: opRoomPlayer.allowedActions,
+    });
+  }
+
+  private handleDraw(uuid: string) {
+    return this.draws({type: GameResultType.DRAW, reason: 'agreement'});
+  }
+
+  private handleAbort() {
+    const gom = {
+      type: 'gameOver' as const,
+      stateHistory: this.game.stateHistory,
+      turnHistory: this.game.turnHistory,
+      result: {
+        type: GameResultType.ABORTED,
+      }
+    };
+    sendMessage(this.p1.player.socket, {
+      ...gom,
+      player: toPlayerInfo(this.p1.player),
+      opponent: toPlayerInfo(this.p2.player),
+    });
+    sendMessage(this.p2.player.socket, {
+      ...gom,
+      player: toPlayerInfo(this.p2.player),
+      opponent: toPlayerInfo(this.p1.player),
+    });
+    this.end();
   }
 
   async handleTurn(uuid: string, turnAttempt: Turn) {
@@ -281,7 +357,6 @@ export class Room {
 
     me.time += INCREMENT_MS;
 
-    this.drawRequestedBy = undefined;
     const rm = {
       type: 'replaceState' as const,
       turn: {
@@ -304,6 +379,7 @@ export class Room {
     await sendMessage(me.player.socket, rm);
     await sendMessage(opponent.player.socket, am);
     this.sendTimers();
+    this.resetAllowedActions();
     // Pause timer because we're now handling cpuTurn
     this.timerPaused = true;
 
@@ -383,6 +459,7 @@ export class Room {
     };
     sendMessage(socket, rec).then(() => {
       this.sendTimers();
+      this.resetAllowedActions();
       this.game.onConnect();
     });
 
@@ -511,8 +588,8 @@ export class Room {
 
       const ra = me.player.elo;
       const rb = opponent.player.elo;
-      const ea = 1 / ((1 + 10) ^ ((rb - ra) / 400));
-      const eb = 1 / ((1 + 10) ^ ((ra - rb) / 400));
+      const ea = 1 / (1 + 10 ** ((rb - ra) / 400));
+      const eb = 1 / (1 + 10 ** ((ra - rb) / 400));
 
       const ran = Math.ceil(ra + ELO_K * (0.5 - ea));
       const rbn = Math.ceil(rb + ELO_K * (0.5 - eb));
@@ -536,31 +613,6 @@ export class Room {
     log.get(this.p2.name).notice('draw');
   }
 
-  aborts() {
-    const gom = {
-      type: 'gameOver' as const,
-      stateHistory: this.game.stateHistory,
-      turnHistory: this.game.turnHistory,
-      result: {
-        type: GameResultType.ABORTED,
-      }
-    };
-    sendMessage(this.p1.player.socket, {
-      ...gom,
-      player: toPlayerInfo(this.p1.player),
-      opponent: toPlayerInfo(this.p2.player),
-    });
-    sendMessage(this.p2.player.socket, {
-      ...gom,
-      player: toPlayerInfo(this.p2.player),
-      opponent: toPlayerInfo(this.p1.player),
-    });
-    this.end();
-
-    log.get(this.p1.name).notice('aborted');
-    log.get(this.p2.name).notice('aborted');
-  }
-
   sendTimers() {
     const timerMessage = {
       type: 'timer',
@@ -577,6 +629,25 @@ export class Room {
     } as TimerMessage);
   }
 
+  /** Allowed actions */
+  
+  sendAllowedActions() {
+    sendMessage(this.p1.player.socket, {
+      type: 'allowedActions',
+      actions: this.p1.allowedActions,
+    });
+    sendMessage(this.p2.player.socket, {
+      type: 'allowedActions',
+      actions: this.p2.allowedActions,
+    });
+  }
+
+  resetAllowedActions() {
+    this.p1.allowedActions = DEFAULT_ALLOWED_ACTIONS;
+    this.p2.allowedActions = DEFAULT_ALLOWED_ACTIONS;
+    this.sendAllowedActions();
+  }
+
   end() {
     this.setState(RoomState.COMPLETED);
     clearInterval(this.timerInterval);
@@ -584,6 +655,12 @@ export class Room {
     this.sendTimers();
     delete this.p1.player.roomId;
     delete this.p2.player.roomId;
+    if (this.p1.disconnectTimeout) {
+      clearInterval(this.p1.disconnectTimeout);
+    }
+    if (this.p2.disconnectTimeout) {
+      clearInterval(this.p2.disconnectTimeout);
+    }
     savePlayer(this.p1.player);
     savePlayer(this.p2.player);
     deleteRoom(this.id);
@@ -652,6 +729,9 @@ export class Room {
     );
   }
 }
+
+const DEFAULT_ALLOWED_ACTIONS = [RoomAction.OFFER_DRAW, RoomAction.RESIGN];
+
 
 const toPlayerInfo = (p: Player): PlayerInfo => {
   const {username, streak, elo, connected} = p;

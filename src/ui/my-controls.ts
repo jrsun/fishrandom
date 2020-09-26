@@ -12,7 +12,7 @@ import {styleMap} from 'lit-html/directives/style-map';
 import {Message, addMessageHandler, sendMessage} from '../common/message';
 import '@polymer/paper-button';
 import {Move} from '../chess/turn';
-import {Color} from '../chess/const';
+import {Color, RoomAction} from '../chess/const';
 
 @customElement('my-controls')
 export class MyControls extends LitElement {
@@ -54,17 +54,21 @@ export class MyControls extends LitElement {
     paper-button {
       background-color: #fefdfa;
     }
-    :host([oppRequestedDraw]) .draw-button {
-      background-color: #bde6c0;
-    }
-    :host([requestedDraw]) .draw-button {
+    .action-button.claim-draw {
       background-color: #fefdaa;
     }
-    .draw-button:hover {
+    :host([offeredDraw]) .action-button.offer-draw {
+      background-color: #fefdaa;
+    }
+    .action-button.offer-draw:hover {
       transition: 0.2s;
       background-color: #fefdaa;
     }
-    .resign-button:hover {
+    .action-button.abort:hover {
+      transition: 0.2s;
+      background-color: #fefdaa;
+    }
+    .action-button.resign:hover {
       transition: 0.2s;
       background-color: #e2a18b;
     }
@@ -76,19 +80,15 @@ export class MyControls extends LitElement {
 
   // protected
   @property({type: Number}) viewMoveIndex: number | undefined;
-  @property({type: Boolean, reflect: true}) oppRequestedDraw = false;
-  @property({type: Boolean, reflect: true}) requestedDraw = false;
+  @property({type: Array}) allowedActions: RoomAction[] = [];
+  @property({type: Boolean, reflect: true}) offeredDraw = false;
   
   handleSocketMessage = (message: Message) => {
     if (['appendState', 'initGame', 'reconnect', 'gameOver'].includes(message.type)) {
       this.viewMoveIndex = undefined;
     }
-    if (message.type === 'replaceState' || message.type === 'appendState') {
-      this.oppRequestedDraw = false;
-      this.requestedDraw = false;
-    }
-    if (message.type === 'draw') {
-      this.oppRequestedDraw = true;
+    if (message.type === 'allowedActions') {
+      this.allowedActions = message.actions;
     }
     this.requestUpdate();
   };
@@ -109,13 +109,11 @@ export class MyControls extends LitElement {
     }
   }
 
-  onClickResign() {
-    sendMessage(this.socket, {type: 'resign'});
-  }
-
-  onClickDraw() {
-    sendMessage(this.socket, {type: 'draw'});
-    this.requestedDraw = true;
+  onClickAction(action: RoomAction) {
+    sendMessage(this.socket, {type: 'roomAction', action});
+    if (action === RoomAction.OFFER_DRAW) {
+      this.offeredDraw = true;
+    }
   }
 
   onClickNew() {
@@ -167,29 +165,6 @@ export class MyControls extends LitElement {
     >`;
   }
 
-  renderDraw() {
-    return html`<paper-button
-      class="draw-button"
-      raised
-      ?disabled=${!this.playing}
-      .onclick=${this.onClickDraw.bind(this)}
-      >${this.oppRequestedDraw ? 'Draw' : 'Draw?'}</paper-button
-    >`;
-  }
-
-  renderStopGame() {
-    const isAbort =
-      !this.turnHistory.some((turn) => turn.piece.color === Color.WHITE) ||
-      !this.turnHistory.some((turn) => turn.piece.color === Color.BLACK);
-    return html`<paper-button
-      class="resign-button"
-      raised
-      ?disabled=${!this.playing}
-      .onclick=${this.onClickResign.bind(this)}
-      >${isAbort ? 'Abort' : 'Resign'}</paper-button
-    >`;
-  }
-
   render() {
     return html`
       <div class="container">
@@ -211,26 +186,31 @@ export class MyControls extends LitElement {
             ?disabled=${this.viewMoveIndex === undefined}
             >></paper-button
           >
-          ${this.playing ? this.renderDraw() : undefined}
-          ${this.playing
-            ? this.renderStopGame()
-            : html`
-                <paper-button
-                  raised
-                  style="background-color: #bde6c0;"
-                  ?disabled=${this.playing}
-                  .onclick=${this.onClickNew.bind(this)}
-                  >New</paper-button
-                >
-                <paper-button
-                  raised
-                  ?disabled=${this.playing}
-                  .onclick=${() => {
-                    location.href = '/';
-                  }}
-                  >Exit</paper-button
-                >
-              `}
+          ${this.playing ? this.allowedActions.map(action => {
+            return html`
+              <paper-button
+              class="action-button ${action}"
+              raised
+              .onclick=${() => this.onClickAction(action)}
+              >${action.replace(/-/g, ' ')}</paper-button>
+            `;
+          }) : html`
+          <paper-button
+            raised
+            style="background-color: #bde6c0;"
+            ?disabled=${this.playing}
+            .onclick=${this.onClickNew.bind(this)}
+            >New</paper-button
+          >
+          <paper-button
+            raised
+            ?disabled=${this.playing}
+            .onclick=${() => {
+              location.href = '/';
+            }}
+            >Exit</paper-button
+          >
+        `}
         </div>
       </div>
     `;

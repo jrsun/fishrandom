@@ -268,11 +268,8 @@ const handleMessage = async function (
       log.error('ERR: fatal turn error', e);
     }
   }
-  if (message.type === 'resign') {
-    room.handleResign(player.uuid);
-  }
-  if (message.type === 'draw') {
-    room.handleDraw(player.uuid);
+  if (message.type === 'roomAction') {
+    room.handleAction(player.uuid, message.action);
   }
   if (room.state === RoomState.COMPLETED) {
     playerLog.notice('game completed');

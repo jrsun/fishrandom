@@ -36,12 +36,20 @@ enum Color {
 }
 
 export const DISCONNECT_TIMEOUT_SECONDS = 10;
+export const FIRST_MOVE_ABORT_SECONDS = 15;
 
 /** UI */
 export const ROULETTE_SECONDS = 5;
 
 export function getOpponent(color: Color) {
   return color === Color.WHITE ? Color.BLACK : Color.WHITE;
+}
+
+export enum RoomAction {
+  OFFER_DRAW = 'offer-draw',
+  CLAIM_DRAW = 'claim-draw',
+  ABORT = 'abort',
+  RESIGN = 'resign',
 }
 
 export {
