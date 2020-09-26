@@ -1,7 +1,7 @@
 import {Game, GameEvent, GameResult, GameResultType} from '../chess/game';
 import {randomChoice} from '../utils';
 import {Move, Turn, TurnType} from '../chess/turn';
-import {Color, getOpponent, ROULETTE_SECONDS} from '../chess/const';
+import {Color, getOpponent, ROULETTE_SECONDS, DISCONNECT_TIMEOUT_SECONDS} from '../chess/const';
 import {
   AppendMessage,
   replacer,
@@ -38,6 +38,7 @@ export interface Player {
   lastVariants: string[];
   streak: number;
   elo: number;
+  connected?: boolean;
 }
 
 // Player inside room
@@ -46,6 +47,7 @@ interface RoomPlayer {
   color: Color;
   time: number;
   name: string; // for logging namespace
+  disconnectTimeout?: ReturnType<typeof setTimeout>; // return value of a disconnect timeout
 }
 
 const INCREMENT_MS = 5 * 1000;
@@ -63,7 +65,6 @@ export class Room {
 
   // protected
   state: RoomState;
-  lastMoveTime: number;
   timerInterval: any; // timer
   timerPaused: boolean;
   drawRequestedBy: string | undefined; // uuid
@@ -88,12 +89,18 @@ export class Room {
       time: p1time,
       name: p1.username,
     };
+    if (!this.p1.player.connected) {
+      this.disconnect(this.p1.player);
+    }
     this.p2 = {
       player: p2,
       color: getOpponent(p1Color),
       time: p2time,
       name: p2.username,
     };
+    if (!this.p2.player.connected) {
+      this.disconnect(this.p2.player);
+    }
     this.ranked = ranked;
     if (this.p1.color === Color.WHITE) {
       this.p1.time += ROULETTE_SECONDS * 1000;
@@ -190,8 +197,13 @@ export class Room {
     if (this.state !== RoomState.PLAYING) return;
 
     const game = this.game;
-    const me = this.p1.player.uuid === uuid ? this.p1 : this.p2;
+
+    const me = this.uuidToRoomPlayer(uuid);
     const opponent = me === this.p1 ? this.p2 : this.p1;
+    if (!me || !opponent) {
+      log.warn('in turn, someone used wrong uuid', uuid, this.p1.player.uuid);
+      return;
+    }
     let turn: Turn | undefined;
     const {
       end: {row: drow, col: dcol},
@@ -334,9 +346,19 @@ export class Room {
   }
 
   reconnect(uuid: string, socket: WebSocket) {
-    const me = this.p1.player.uuid === uuid ? this.p1 : this.p2;
-    const opponent = this.p1.player.uuid === uuid ? this.p2 : this.p1;
+    const me = this.uuidToRoomPlayer(uuid);
+    const opponent = me === this.p1 ? this.p2 : this.p1;
+    if (!me || !opponent) {
+      log.warn('in reconnect, someone used wrong uuid', uuid, this.p1.player.uuid);
+      return;
+    }
+    
     me.player.socket = socket;
+    me.player.connected = true;
+
+    if (me.disconnectTimeout) {
+      clearTimeout(me.disconnectTimeout);
+    }
 
     const rec = {
       type: 'reconnect' as const,
@@ -358,6 +380,37 @@ export class Room {
       this.sendTimers();
       this.game.onConnect();
     });
+
+    // Opponent needs to know player has reconnected
+    sendMessage(opponent.player.socket, {
+      type: 'playerInfo',
+      player: toPlayerInfo(opponent.player),
+      opponent: toPlayerInfo(me.player),
+    });
+  }
+
+  disconnect(player: Player) {
+    const me = this.uuidToRoomPlayer(player.uuid);
+    const opponent = me === this.p1 ? this.p2 : this.p1;
+    if (!me || !opponent) {
+      log.warn('in disconnect, someone used wrong uuid', player.uuid, this.p1, this.p2);
+      return;
+    }
+    me.player.connected = false;
+    sendMessage(opponent.player.socket, {
+      type: 'playerInfo',
+      player: toPlayerInfo(opponent.player),
+      opponent: toPlayerInfo(me.player),
+    });
+    if (this.ranked) {
+      // Give the other player the win after X seconds
+      me.disconnectTimeout = setTimeout(() => {
+        this.wins(opponent.player.uuid, {
+          type: GameResultType.WIN,
+          reason: 'timeout',
+        })
+      }, DISCONNECT_TIMEOUT_SECONDS * 1000);
+    }
   }
 
   checkIfOver(me: RoomPlayer): boolean {
@@ -388,8 +441,12 @@ export class Room {
   }
 
   wins(uuid: string, result: GameResult) {
-    const me = this.p1.player.uuid === uuid ? this.p1 : this.p2;
+    const me = this.uuidToRoomPlayer(uuid);
     const opponent = me === this.p1 ? this.p2 : this.p1;
+    if (!me || !opponent) {
+      log.warn('Someone sent the wrong uuid', uuid, this.p1.player.uuid);
+      return;
+    }
 
     const gom = {
       type: 'gameOver' as const,
@@ -535,6 +592,15 @@ export class Room {
     sendMessage(this.p2.player.socket, gem);
   };
 
+  uuidToRoomPlayer = (uuid: string): RoomPlayer|undefined => {
+    if (this.p1.player.uuid === uuid) {
+      return this.p1;
+    } else if (this.p2.player.uuid === uuid) {
+      return this.p2;
+    }
+    return;
+  }
+
   static freeze(r: Room): RoomSchema {
     const {id, p1, p2, ranked, game} = r;
     return {
@@ -563,7 +629,7 @@ export class Room {
     const p1info = rs.players[p1.uuid];
     const p2info = rs.players[p2.uuid];
     if (!p1info || !p2info) {
-      console.error('uuid didnt resolve', p1, p2, p1info, p2info);
+      log.error('uuid didnt resolve', p1, p2, p1info, p2info);
     }
 
     return new Room(
@@ -582,10 +648,11 @@ export class Room {
 }
 
 const toPlayerInfo = (p: Player): PlayerInfo => {
-  const {username, streak, elo} = p;
+  const {username, streak, elo, connected} = p;
   return {
     name: username,
     streak,
     elo,
+    connected: !!connected,
   };
 };

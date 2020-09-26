@@ -147,6 +147,7 @@ export async function getPlayer(id: string): Promise<Player | undefined> {
       resolve({
         ...player,
         socket: undefined,
+        connected: false,
       });
     });
   });

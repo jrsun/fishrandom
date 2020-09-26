@@ -30,7 +30,7 @@ import './my-element';
 
 import {Game, GameResult, GameResultType} from '../chess/game';
 import {BoardState} from '../chess/state';
-import {Color, getOpponent, ROULETTE_SECONDS, Pair} from '../chess/const';
+import {Color, getOpponent, ROULETTE_SECONDS, Pair, DISCONNECT_TIMEOUT_SECONDS} from '../chess/const';
 import {Knight, Piece} from '../chess/piece';
 import {randomChoice, memecase} from '../utils';
 import Square from '../chess/square';
@@ -144,6 +144,9 @@ export class MyApp extends LitElement {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
+    }
+    .connection-status {
+      font-size: 10px;
     }
     .avatar {
       height: 60px;
@@ -583,6 +586,9 @@ export class MyApp extends LitElement {
       const tim = message as TimerMessage;
       this.playerTimer = tim.player;
       this.opponentTimer = tim.opponent;
+    } else if (message.type === 'playerInfo') {
+      this.playerInfo = message.player;
+      this.opponentInfo = message.opponent;
     }
   }
 
@@ -688,6 +694,12 @@ export class MyApp extends LitElement {
                   <span class="opponent win-streak">
                     ${this.opponentInfo?.elo}
                   </span>
+                </div>
+                <div class="opponent connection-status">
+                    ${this.opponentInfo?.connected ?
+                      'Connected' :
+                      `Disconnected... auto-resign in ${DISCONNECT_TIMEOUT_SECONDS} seconds`
+                    }
                 </div>
                 <div class="captures">
                   <my-captures

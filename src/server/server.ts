@@ -142,6 +142,7 @@ app.post('/login', function (req, res) {
       streak: 0,
       lastVariants: [],
       elo: 1500,
+      connected: false,
     });
   });
 
@@ -193,6 +194,12 @@ wss.on('connection', async function connection(ws: WebSocket, request) {
       if (deleted) {
         log.notice('Removed from waiting:', player?.username);
       }
+      if (player?.roomId) {
+        getRoom(player.roomId).then(room => {
+          if (!room) return;
+          room.disconnect(player);
+        })
+      }
     });
     wsCounter--;
   });
@@ -215,6 +222,7 @@ const handleMessage = async function (
     return;
   }
   player.socket = ws;
+  player.connected = true;
   const playerLog = log.get(player.username);
   const roomId = player.roomId;
   const room = await getRoom(roomId);
@@ -364,6 +372,7 @@ const kick = async (ws: WebSocket, uuid?: string) => {
         // Shouldn't happen, but just delete the room
         deleteRoom(roomId);
       }
+      player.connected = false;
     }
     delete gameSettings[uuid];
   }

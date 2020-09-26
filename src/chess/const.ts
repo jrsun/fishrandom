@@ -35,6 +35,8 @@ enum Color {
   OTHER = 'other',
 }
 
+export const DISCONNECT_TIMEOUT_SECONDS = 10;
+
 /** UI */
 export const ROULETTE_SECONDS = 5;
 

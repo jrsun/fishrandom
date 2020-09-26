@@ -32,7 +32,8 @@ export type Message =
   | GameEventMessage
   | KickMessage
   | UndoMessage
-  | LeaderboardMessage;
+  | LeaderboardMessage
+  | PlayerInfoMessage;
 
 /*
  * Client-initiated
@@ -76,6 +77,7 @@ export interface PlayerInfo {
   name: string;
   streak: number; // not used
   elo: number;
+  connected: boolean;
 }
 
 export interface InitGameMessage {
@@ -133,6 +135,12 @@ export interface LeaderboardMessage {
     name: string;
     score: number;
   }];
+}
+
+export interface PlayerInfoMessage {
+  type: 'playerInfo';
+  player: PlayerInfo;
+  opponent: PlayerInfo;
 }
 
 // Could use evals here instead
