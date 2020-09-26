@@ -89,24 +89,27 @@ export class Room {
       time: p1time,
       name: p1.username,
     };
-    if (!this.p1.player.connected) {
-      this.disconnect(this.p1.player);
-    }
     this.p2 = {
       player: p2,
       color: getOpponent(p1Color),
       time: p2time,
       name: p2.username,
     };
-    if (!this.p2.player.connected) {
-      this.disconnect(this.p2.player);
-    }
     this.ranked = ranked;
     if (this.p1.color === Color.WHITE) {
       this.p1.time += ROULETTE_SECONDS * 1000;
     } else {
       this.p2.time += ROULETTE_SECONDS * 1000;
     }
+
+    // Disconnected players on hot reload should set timer
+    if (!this.p1.player.connected) {
+      this.disconnect(this.p1.player);
+    }
+    if (!this.p2.player.connected) {
+      this.disconnect(this.p2.player);
+    }
+
     this.setState(RoomState.PLAYING);
     this.game = new gc(true);
     if (turnHistory) this.game.turnHistory = turnHistory;
@@ -154,6 +157,7 @@ export class Room {
       this.game.onConnect();
       this.sendTimers();
     });
+
     log.get(this.p1.name).notice('playing variant', this.game.name);
     log.get(this.p2.name).notice('playing variant', this.game.name);
   }
@@ -355,6 +359,7 @@ export class Room {
     
     me.player.socket = socket;
     me.player.connected = true;
+    savePlayer(me.player);
 
     if (me.disconnectTimeout) {
       clearTimeout(me.disconnectTimeout);
@@ -397,6 +402,7 @@ export class Room {
       return;
     }
     me.player.connected = false;
+    savePlayer(me.player);
     sendMessage(opponent.player.socket, {
       type: 'playerInfo',
       player: toPlayerInfo(opponent.player),

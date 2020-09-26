@@ -123,7 +123,7 @@ export async function savePlayer(p: Player) {
           reject(err);
           return;
         }
-        console.log('created player', p.uuid);
+        console.log('saved player', p.uuid);
         resolve();
       }
     );
@@ -147,7 +147,6 @@ export async function getPlayer(id: string): Promise<Player | undefined> {
       resolve({
         ...player,
         socket: undefined,
-        connected: false,
       });
     });
   });
