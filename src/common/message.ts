@@ -33,7 +33,8 @@ export type Message =
   | UndoMessage
   | LeaderboardMessage
   | PlayerInfoMessage
-  | AllowedActionsMessage;
+  | AllowedActionsMessage
+  | RankMessage;
 
 /*
  * Client-initiated
@@ -132,6 +133,11 @@ export interface LeaderboardMessage {
     name: string;
     score: number;
   }];
+}
+
+export interface RankMessage {
+  type: 'rank';
+  rank: number;
 }
 
 export interface PlayerInfoMessage {

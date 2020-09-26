@@ -290,7 +290,7 @@ export class MyApp extends LitElement {
         "controls"
         "rules";
     }
-    @media (min-width: 500px) {
+    @media (min-width: 600px) {
       .grid {
         grid-template-columns: auto 350px;
         grid-template-rows: auto;

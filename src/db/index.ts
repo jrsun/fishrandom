@@ -188,36 +188,14 @@ export async function getTopK(k: number): Promise<undefined|{[name: string]: num
   })
 }
 
-// async function getRevRank(username: string): Promise<undefined|number> {
-//   return await new Promise((resolve, reject) => {
-//     REDIS_CLIENT.zrevrank(SCORES_KEY, username, (err, reply) => {
-//       if (err) {
-//         reject(err);
-//         return;
-//       }
-//       if (!reply) {
-//         resolve();
-//       }
-//       resolve(reply);
-//     })
-//   })
-// }
-
-// async function getScore(username: string): Promise<undefined|number> {
-//   return await new Promise((resolve, reject) => {
-//     REDIS_CLIENT.zscore(SCORES_KEY, username, (err, reply) => {
-//       if (err) {
-//         reject(err);
-//         return;
-//       }
-//       if (!reply) {
-//         resolve();
-//       }
-//       resolve(reply);
-//     })
-//   })
-// }
-
-// export async function getRevRankAndScore(username: string) {
-//   return await Promise.all([getRevRank(username), getScore(username)]);
-// }
+export async function getRevRank(uuid: string): Promise<undefined|number> {
+  return await new Promise((resolve, reject) => {
+    REDIS_CLIENT.zrevrank(SCORES_KEY, uuid, (err, reply) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(reply);
+    })
+  })
+}

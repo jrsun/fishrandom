@@ -19,7 +19,7 @@ import log from 'log';
 import {RoomSchema} from '../db/schema';
 import {VARIANTS} from '../chess/variants';
 import {BoardState} from '../chess/state';
-import {saveRoom, savePlayer, deleteRoom, updateScore} from '../db';
+import {saveRoom, savePlayer, deleteRoom, updateScore, getRevRank} from '../db';
 
 // States progress from top to bottom within a room.
 export enum RoomState {
@@ -185,6 +185,7 @@ export class Room {
       this.game.onConnect();
       this.sendTimers();
       this.resetAllowedActions();
+      this.sendRanks();
     });
 
     log.get(this.p1.name).notice('playing variant', this.game.name);
@@ -460,6 +461,7 @@ export class Room {
     sendMessage(socket, rec).then(() => {
       this.sendTimers();
       this.resetAllowedActions();
+      this.sendRanks();
       this.game.onConnect();
     });
 
@@ -648,11 +650,24 @@ export class Room {
     this.sendAllowedActions();
   }
 
+  /** Send ranks */
+  sendRanks() {
+    getRevRank(this.p1.player.uuid).then(rank => {
+      if (rank === undefined) return;
+      sendMessage(this.p1.player.socket, {type: 'rank', rank});
+    });
+    getRevRank(this.p2.player.uuid).then(rank => {
+      if (rank === undefined) return;
+      sendMessage(this.p2.player.socket, {type: 'rank', rank});
+    });
+ }
+
   end() {
     this.setState(RoomState.COMPLETED);
     clearInterval(this.timerInterval);
 
     this.sendTimers();
+    this.sendRanks();
     delete this.p1.player.roomId;
     delete this.p2.player.roomId;
     if (this.p1.disconnectTimeout) {

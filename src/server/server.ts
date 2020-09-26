@@ -42,6 +42,7 @@ setInterval(() => {
   log.notice('Active websockets:', wsCounter);
 }, 60 * 1000);
 
+// Update leaderboard
 setInterval(() => {
   getTopK(10).then(async result => {
     if (!result) return;

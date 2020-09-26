@@ -44,7 +44,7 @@ export class MyLeaderboard extends LitElement {
       display: flex;
       flex-direction: column;
       flex-wrap: wrap;
-      max-height: 125px;
+      max-height: 150px;
       padding: 10px;
       padding-bottom: 15px;
     }
@@ -66,6 +66,7 @@ export class MyLeaderboard extends LitElement {
   @property({type: Object}) socket: WebSocket;
   @property({type: Object}) player?: PlayerInfo;
   @property({type: Array}) topScores: RankScore[] = [];
+  @property({type: Number}) myRank?: number;
 
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
@@ -76,6 +77,8 @@ export class MyLeaderboard extends LitElement {
   handleSocketMessage = (message: Message) => {
     if (message.type === 'leader') {
       this.topScores = message.scores;
+    } else if (message.type === 'rank') {
+      this.myRank = message.rank;
     }
   }
 
@@ -83,6 +86,7 @@ export class MyLeaderboard extends LitElement {
     if (!this.player) return;
 
     const {name, streak} = this.player;
+    const {myRank} = this;
     let onLeaderboard = false;
 
     return html`<div class="card">
@@ -97,13 +101,16 @@ export class MyLeaderboard extends LitElement {
             ${scoreString(score.name, score.score, i+1)}
           </div>`
         })}
-
+        ${!onLeaderboard ? html`
+        <div class="score me">
+          ${scoreString(name, streak, myRank ? myRank + 1 : '?')}
+        </div>` : undefined}
       </div>
     </div>`;
   }
 }
 
-function scoreString(user: string, score: number, rank: number): string {
+function scoreString(user: string, score: number, rank: string|number): string {
   return `${rank}. ${user} - ${score}`;
 }
 
