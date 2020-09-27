@@ -107,7 +107,6 @@ app.post('/login', function (req, res) {
   }
 
   let {username, password, variant} = req.body;
-  username = profanity.censor(username);
 
   log.notice('logged in', username);
   let uuid = req.cookies.uuid;
@@ -119,11 +118,13 @@ app.post('/login', function (req, res) {
       maxAge: 2147483647,
     });
   }
-  const escapedUser =
+  let escapedUser =
     username
       .replace(/[^0-9A-Za-z]+/gi, '')
       .toLocaleLowerCase()
       .slice(0, 15) ?? 'fish';
+  escapedUser = profanity.censor(escapedUser);
+
   gameSettings[uuid] = {password, variant};
 
   getPlayer(uuid).then((player) => {
