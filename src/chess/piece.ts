@@ -445,7 +445,7 @@ export class Amazon extends Piece {
   }
 
   get img(): string {
-    return this.color === Color.BLACK ? '_dt.svg' : 'svg/alt.svg';
+    return this.color === Color.BLACK ? 'svg/adt.svg' : 'svg/alt.svg';
   }
 }
 
@@ -480,6 +480,36 @@ export class Chancellor extends Piece {
       return 'cdt45.svg';
     } else {
       return 'clt45.svg';
+    }
+  }
+}
+
+export class Princess extends Piece {
+  name = 'Princess';
+
+  toFEN() {
+    return 'P';
+  }
+
+  legalMoves(row, col, state): Move[] {
+    return [
+      ...new Knight(this.color).legalMoves(row, col, state),
+      ...new Bishop(this.color).legalMoves(row, col, state),
+    ].map((move: Move) => {
+      const {end, after} = move;
+      return {
+        ...move,
+        after: after.place(this, end.row, end.col),
+        piece: this,
+      };
+    });
+  }
+
+  get img(): string {
+    if (this.color === Color.BLACK) {
+      return 'prncsb.svg';
+    } else {
+      return 'prncsw.svg';
     }
   }
 }
@@ -531,4 +561,5 @@ export const ALL_PIECES: {[name: string]: typeof Piece} = {
   Amazon,
   Zero,
   Rook4,
+  Princess,
 };

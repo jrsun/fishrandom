@@ -102,9 +102,14 @@ export async function getRoom(id?: string): Promise<Room | undefined> {
               resolve();
               return;
             }
-            const room = Room.thaw(players[0], players[1], rs!);
-            ROOMS[room.id] = room;
-            resolve(room);
+            try {
+              const room = Room.thaw(players[0], players[1], rs!);
+              ROOMS[room.id] = room;
+              resolve(room);
+            } catch (e) {
+              console.error('couldnt thaw room', e);
+              deleteRoom(id);
+            }
           }
         );
       });

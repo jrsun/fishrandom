@@ -355,6 +355,15 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   </ul>
   Piece by T. R. Dawson (1925), variant by Uray M. János (2013)
   `,
+  Absorption: html`Captures absorb powers.
+  <ul>
+    <li>When a piece (except King and Pawn) captures another, it gains its movement abilities.</li>
+    <li>For instance, a Rook capturing a Bishop becomes a Queen (R + B).</li>
+    <li>Knight and Rook make a (N + R) compound, and Knight and Bishop make a (N + B) compound.</li>
+    <li>An Amazon (N + R + B) can be formed in multiple ways.</li>
+    <li>When a pawn captures a piece, it becomes that piece.</li>
+  </ul>
+  `,
 };
 
 declare global {
