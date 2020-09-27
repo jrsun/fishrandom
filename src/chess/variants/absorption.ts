@@ -33,10 +33,16 @@ export class Absorption extends Game {
 }
 
 const DESC_PIECES = ['Amazon', 'Princess', 'Queen', 'Chancellor', 'Rook', 'Knight', 'Bishop', 'Pawn'] as const;
+const LEVEL_2_PIECES = ['Princess', 'Queen', 'Chancellor'];
 
 const combinePieces = (captor: Piece, captured: Piece): typeof Piece => {
   const pieces = [captor.name, captured.name];
   if (captor.name === 'King') return King;
+  if (captor.name === captured.name) return ALL_PIECES[captor.name];
+
+  if (pieces.every(p => LEVEL_2_PIECES.includes(p))) {
+    return Amazon;
+  }
   if (
     (pieces.includes('Bishop') && pieces.includes('Chancellor')) ||
     (pieces.includes('Rook') && pieces.includes('Princess')) || 
