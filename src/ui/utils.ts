@@ -19,3 +19,5 @@ export function selectPieceEvent(
 ): SelectEventDetail {
   return {piece, square};
 }
+
+export const SQUARE_SIZE = Math.min(50, document.body.clientWidth / 8); //px

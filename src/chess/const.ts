@@ -62,5 +62,3 @@ export {
   PAWN_HOME_RANK,
   Color,
 };
-
-export const SQUARE_SIZE = 50; //px
