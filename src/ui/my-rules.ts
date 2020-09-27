@@ -338,6 +338,8 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   `,
   Pawnside: html`Pawns can move sideways one square without capturing.
   <ul>
+    <li>Pawns can execute the initial double-move as long as they
+      are on their starting rank.</li>
     <li>Checkmate to win.</li>
   </ul>
   As far as I know, the first appearance of this variant is in the recent paper

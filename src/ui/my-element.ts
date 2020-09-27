@@ -252,7 +252,8 @@ export class MyElement extends LitElement {
       this.game.turnHistory.length - 1 :
       this.viewMoveIndex - 1;
     for (let i = lastTurn; i >= 0; i--) {
-      const turn = this.game.turnHistory[i];
+      const turn = this.game.turnHistory[i] as Turn|undefined;
+      if (!turn) continue;
       squaresInTurnsSincePlayerChange.push({row: turn.end.row, col: turn.end.col});
       if ('start' in turn) {
         squaresInTurnsSincePlayerChange.push({row: turn.start.row, col: turn.start.col});
