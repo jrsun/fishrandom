@@ -48,7 +48,7 @@ interface RoomPlayer {
   time: number;
   name: string; // for logging namespace
   disconnectTimeout?: ReturnType<typeof setTimeout>; // return value of a disconnect timeout
-  allowedActions: RoomAction[];
+  allowedActions: Set<RoomAction>;
 }
 
 const INCREMENT_MS = 5 * 1000;
@@ -88,14 +88,14 @@ export class Room {
       color: p1Color,
       time: p1time,
       name: p1.username,
-      allowedActions: DEFAULT_ALLOWED_ACTIONS,
+      allowedActions: new Set(),
     };
     this.p2 = {
       player: p2,
       color: getOpponent(p1Color),
       time: p2time,
       name: p2.username,
-      allowedActions: DEFAULT_ALLOWED_ACTIONS,
+      allowedActions: new Set(),
     };
     this.ranked = ranked;
     if (this.p1.color === Color.WHITE) {
@@ -141,14 +141,14 @@ export class Room {
           && (me.time / 1000) < (DEFAULT_RANKED_SECONDS - FIRST_MOVE_ABORT_SECONDS)
         )
       ) {
-        if (!opponent.allowedActions.includes(RoomAction.ABORT)) {
-          opponent.allowedActions = [
-            RoomAction.ABORT,
-            ...opponent.allowedActions,
-          ];
+        if (!opponent.allowedActions.has(RoomAction.ABORT)) {
+          opponent.allowedActions.delete(RoomAction.RESIGN);
+          opponent.allowedActions.add(RoomAction.ABORT);
+          opponent.allowedActions.add(RoomAction.RESIGN);
+
           sendMessage(opponent.player.socket, {
             type: 'allowedActions',
-            actions: opponent.allowedActions,
+            actions: Array.from(opponent.allowedActions),
           });
         }
       }
@@ -184,7 +184,8 @@ export class Room {
     ]).then(() => {
       this.game.onConnect();
       this.sendTimers();
-      this.resetAllowedActions();
+      this.resetAllowedActions(this.p1, true);
+      this.resetAllowedActions(this.p2, true);
       this.sendRanks();
     });
 
@@ -206,11 +207,11 @@ export class Room {
     }
     if (this.state !== RoomState.PLAYING) return;
     // Check if action is allowed
-    if (!(rp.allowedActions.includes(action))) {
+    if (!(rp.allowedActions.has(action))) {
       log.get(rp.name).warn('attempted illegal action', action);
       return;
     }
-    log.get(rp.name).notice('ended game by ', action);
+    log.get(rp.name).notice('executed room action', action);
     if (action === RoomAction.RESIGN) {
       this.handleResign(uuid);
     } else if (action === RoomAction.OFFER_DRAW) {
@@ -237,15 +238,16 @@ export class Room {
       uuid === this.p1.player.uuid ? this.p2 : this.p1;
 
     // opponent cannot offer draw if you've already offered
-    opRoomPlayer.allowedActions = [
-      RoomAction.CLAIM_DRAW,
-      ...opRoomPlayer.allowedActions,
-    ].filter(action => action !== RoomAction.OFFER_DRAW);
-
-    sendMessage(opRoomPlayer.player.socket, {
-      type: 'allowedActions',
-      actions: opRoomPlayer.allowedActions,
-    });
+    if (!opRoomPlayer.allowedActions.has(RoomAction.CLAIM_DRAW)) {
+      opRoomPlayer.allowedActions.delete(RoomAction.RESIGN);
+      opRoomPlayer.allowedActions.delete(RoomAction.OFFER_DRAW);
+      opRoomPlayer.allowedActions.add(RoomAction.CLAIM_DRAW);
+      opRoomPlayer.allowedActions.add(RoomAction.RESIGN);
+      sendMessage(opRoomPlayer.player.socket, {
+        type: 'allowedActions',
+        actions: Array.from(opRoomPlayer.allowedActions),
+      });
+    }
   }
 
   private handleDraw(uuid: string) {
@@ -380,7 +382,8 @@ export class Room {
     await sendMessage(me.player.socket, rm);
     await sendMessage(opponent.player.socket, am);
     this.sendTimers();
-    this.resetAllowedActions();
+    this.resetAllowedActions(this.p1, false);
+    this.resetAllowedActions(this.p2, false);
     // Pause timer because we're now handling cpuTurn
     this.timerPaused = true;
 
@@ -460,7 +463,7 @@ export class Room {
     };
     sendMessage(socket, rec).then(() => {
       this.sendTimers();
-      this.resetAllowedActions();
+      this.resetAllowedActions(me, true);
       this.sendRanks();
       this.game.onConnect();
     });
@@ -632,22 +635,20 @@ export class Room {
   }
 
   /** Allowed actions */
-  
-  sendAllowedActions() {
-    sendMessage(this.p1.player.socket, {
-      type: 'allowedActions',
-      actions: this.p1.allowedActions,
-    });
-    sendMessage(this.p2.player.socket, {
-      type: 'allowedActions',
-      actions: this.p2.allowedActions,
-    });
-  }
 
-  resetAllowedActions() {
-    this.p1.allowedActions = DEFAULT_ALLOWED_ACTIONS;
-    this.p2.allowedActions = DEFAULT_ALLOWED_ACTIONS;
-    this.sendAllowedActions();
+  resetAllowedActions(rp: RoomPlayer, force: boolean) {
+    const listActions = Array.from(rp.allowedActions);
+    if (
+      listActions.length !== DEFAULT_ALLOWED_ACTIONS.length ||
+      !listActions.every(action => DEFAULT_ALLOWED_ACTIONS.includes(action)) ||
+      force
+    ) {
+      rp.allowedActions = new Set(DEFAULT_ALLOWED_ACTIONS);
+      sendMessage(rp.player.socket, {
+        type: 'allowedActions',
+        actions: Array.from(rp.allowedActions),
+      })
+    }
   }
 
   /** Send ranks */

@@ -90,6 +90,7 @@ export class MyControls extends LitElement {
     if (message.type === 'allowedActions') {
       this.allowedActions = message.actions;
     }
+    this.offeredDraw = false;
     this.requestUpdate();
   };
 
