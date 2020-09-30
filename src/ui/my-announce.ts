@@ -20,7 +20,7 @@ export class MyAnnounce extends LitElement {
       flex-direction: row;
       align-items: center;
       max-height: 2vh;
-      background-color: rgba(219, 117, 83, 0.7);
+      background-color: rgb(83 164 219 / 70%);
       padding: 10px;
       position: fixed;
       justify-content: center;
