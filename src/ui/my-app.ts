@@ -44,7 +44,6 @@ export class MyApp extends LitElement {
       display: flex;
       flex-direction: column;
       align-items: center;
-      height: 100%;
       width: 100%;
     }
     .waiting {
@@ -266,18 +265,6 @@ export class MyApp extends LitElement {
       from {opacity: 0};
     }
 
-    .footer {
-      /* position: fixed; */
-      /* background-color: var(--google-blue-300); */
-      margin-top: 100px;
-      /* padding: 5px; */
-      /* border-top-left-radius: 4px; */
-      /* bottom: 0; */
-      /* right: 0; */
-    }
-    .footer a {
-      color: #6a0dad;
-    }
     /* CSS Grid */
     .grid {
       width: 100%;

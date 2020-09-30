@@ -8,10 +8,17 @@
         font-family: JelleeBold;
         src: url('/font/Jellee_1223/OTF/Jellee-Bold.otf');
       }
-      .discord-link {
-        position: fixed;
-        bottom: 5px;
-        right: 5px;
+      .footer {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      .footer * {
+        padding-left: 20px;
+      }
+      .footer *:first-child {
+        padding-left: 0;
       }
     </style>
     <!-- Meta desc -->
@@ -52,8 +59,13 @@
   font-weight: normal;
   font-style: normal;">
   <script src="/dist/login.bundle.js"></script><my-login></my-login>
-  <a href="https://discord.gg/DpWUJYt" target="_blank">
-    <img src="/img/discord.svg" width="75px" class="discord-link" /></body>
-  </a></html>
-
-<!-- background: linear-gradient(#95AEB3, #19404E);background-repeat: no-repeat;"> -->
+  <div class="footer">
+    <a href="https://discord.gg/DpWUJYt" target="_blank">
+      <img src="/img/discord.svg" width="100px" class="discord-link" />
+    </a>
+    <a href="https://buymeacoffee.com/fishrandom" target="_blank">
+      <img src="/img/bmac.png" width="100px" class='bmac-link' />
+    </a>
+  </div>
+</body>
+</html>
