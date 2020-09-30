@@ -26,6 +26,7 @@ import {Game} from '../chess/game';
 import {WAITING} from './waiting';
 import customProfanity from './profanity';
 import {savePlayer, getPlayer, deleteRoom, getRoom, getTopK} from '../db';
+import BLACKLIST from './blacklist';
 logNode();
 
 var app = express();
@@ -179,15 +180,20 @@ wss.on('connection', async function connection(ws: WebSocket, request) {
   const uuid = cookies
     ?.find((cookie) => cookie.startsWith('uuid='))
     ?.split('=')?.[1];
+  const ip = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
   if (!uuid) {
     log.notice('connected without uuid, kicking');
     kick(ws);
     return;
   }
   // Attach this early to be ready for client initGame
-  addMessageHandler(ws, (message) => {
-    handleMessage(ws, uuid, message);
-  });
+  if (BLACKLIST.has(ip)) {
+    console.warn('Caught in blacklist', ip);
+  } else {
+    addMessageHandler(ws, (message) => {
+      handleMessage(ws, uuid, message);
+    });
+  }
 
   ws.addEventListener('close', () => {
     getPlayer(uuid).then((player) => {
