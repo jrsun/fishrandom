@@ -353,6 +353,7 @@ export class Pawn extends Piece {
     if (turnHistory.length) {
       let lastMove: Turn|undefined;
       for (let i = turnHistory.length-1; i >= 0; i--) {
+        // BUG: Veto chess
         if (turnHistory[i].cpu) continue;
         lastMove = turnHistory[i];
         break;
