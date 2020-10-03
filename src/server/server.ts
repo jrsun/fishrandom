@@ -172,9 +172,8 @@ const io: SocketIO.Server = socketio(ioPort);
 /** Game server state */
 
 io.on('connection', async function connection(socket: SocketIO.Socket) {
-  const {headers} = socket.handshake;
+  const {handshake: {headers}, request} = socket;
   const cookies = headers.cookie?.split(';') as string[];
-  // const cookies = request.headers.cookie?.split(';');
   const uuid = cookies
     ?.find((cookie) => cookie.trim().startsWith('uuid='))
     ?.split('=')?.[1];
@@ -211,7 +210,8 @@ io.on('connection', async function connection(socket: SocketIO.Socket) {
   });
   log.notice(
     'Socket connected',
-    request.headers['x-forwarded-for'] || request.connection.remoteAddress
+    uuid,
+    headers['x-forwarded-for'] || request.connection.remoteAddress,
   );
   wsCounter++;
 });

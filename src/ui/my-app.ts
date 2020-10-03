@@ -384,6 +384,7 @@ export class MyApp extends LitElement {
     });
 
     this.socket.on('disconnect', () => {
+      // Maybe redirect to / if not in game?
       this.disconnected = true;
     });
   }
@@ -506,7 +507,7 @@ export class MyApp extends LitElement {
       // Disconnect so that a sporadic network connection
       // doesn't cause us to rejoin the queue.
       this.socket.disconnect();
-      
+
       const gom = message as GameOverMessage;
       const {turnHistory, stateHistory, result, player, opponent} = gom;
       this.playerInfo = player;
