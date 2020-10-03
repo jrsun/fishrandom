@@ -384,7 +384,10 @@ export class MyApp extends LitElement {
     });
 
     this.socket.on('disconnect', () => {
-      // Maybe redirect to / if not in game?
+      // Redirect to / if not in game?
+      if (!this.game || this.gameResult) {
+        location.href = '/';
+      }
       this.disconnected = true;
     });
   }
@@ -504,10 +507,6 @@ export class MyApp extends LitElement {
       if (message.type === 'initGame') this.playRoulette();
       this.performUpdate();
     } else if (message.type === 'gameOver') {
-      // Disconnect so that a sporadic network connection
-      // doesn't cause us to rejoin the queue.
-      this.socket.disconnect();
-
       const gom = message as GameOverMessage;
       const {turnHistory, stateHistory, result, player, opponent} = gom;
       this.playerInfo = player;
