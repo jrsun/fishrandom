@@ -27,7 +27,7 @@ export class Losers extends Game {
           state,
           square.row,
           square.col,
-          allowCastle
+          false,
         );
         if (allMoves.some((move) => move.captured)) {
           atLeastOneCapture = true;
@@ -35,7 +35,7 @@ export class Losers extends Game {
         }
       }
     }
-    const moves = super.legalMovesFrom(state, row, col, allowCastle);
+    const moves = super.legalMovesFrom(state, row, col, false);
     if (atLeastOneCapture) {
       return moves.filter((move) => move.captured);
     }
