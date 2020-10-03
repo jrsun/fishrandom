@@ -7,9 +7,10 @@ import {
   sendMessage,
   addMessageHandler,
   ReplaceMessage,
+  replacer,
 } from '../common/message';
 import {Room, RoomState, Player} from './room';
-import WS from 'ws';
+import socketio from 'socket.io';
 import * as Variants from '../chess/variants/index';
 import {Color} from '../chess/const';
 import yargs from 'yargs';
@@ -55,15 +56,10 @@ setInterval(() => {
       if (!player) continue;
       scores.push({name: player.username, score});
     }
-    wss.clients.forEach(client => {
-      if (client.readyState === 1) {
-        client.send(JSON.stringify({
-          type: 'leader',
-          scores,
-          score: undefined,
-        }));
-      }
-    });
+    io.sockets.emit('message', JSON.stringify({
+      type: 'leader',
+      scores,
+    }, replacer));
   })
 }, 1 * 1000);
 
@@ -169,33 +165,35 @@ app.use('/snd', express.static(path.join(path.resolve() + '/snd')));
 log.notice('serving on 8080');
 app.listen(8080);
 
-const wss = new WS.Server({
-  port: process.env.NODE_ENV === 'development' ? 8081 : 8082,
-});
+const ioPort = process.env.NODE_ENV === 'development' ? 8081 : 8082;
+
+const io: SocketIO.Server = socketio(ioPort);
 
 /** Game server state */
 
-wss.on('connection', async function connection(ws: WebSocket, request) {
-  const cookies = request.headers.cookie?.split(';');
+io.on('connection', async function connection(socket: SocketIO.Socket) {
+  const {headers} = socket.handshake;
+  const cookies = headers.cookie?.split(';') as string[];
+  // const cookies = request.headers.cookie?.split(';');
   const uuid = cookies
-    ?.find((cookie) => cookie.startsWith('uuid='))
+    ?.find((cookie) => cookie.trim().startsWith('uuid='))
     ?.split('=')?.[1];
   const ip = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
   if (!uuid) {
     log.notice('connected without uuid, kicking');
-    kick(ws);
+    kick(socket);
     return;
   }
   // Attach this early to be ready for client initGame
   if (BLACKLIST.has(ip)) {
     console.warn('Caught in blacklist', ip);
   } else {
-    addMessageHandler(ws, (message) => {
-      handleMessage(ws, uuid, message);
+    addMessageHandler(socket, (message) => {
+      handleMessage(socket, uuid, message);
     });
   }
 
-  ws.addEventListener('close', () => {
+  socket.on('disconnect', () => {
     getPlayer(uuid).then((player) => {
       log.notice('Client disconnected:', player?.username);
       const deleted = WAITING.deletePlayer(uuid);
@@ -220,7 +218,7 @@ wss.on('connection', async function connection(ws: WebSocket, request) {
 
 /** Handle websocket messages and delegate to room */
 const handleMessage = async function (
-  ws: WebSocket,
+  ws: SocketIO.Socket,
   uuid: string,
   message: Message
 ) {
@@ -249,15 +247,8 @@ const handleMessage = async function (
     );
     return;
   }
-  if (message.type === 'exit' && WAITING.hasPlayer(player.uuid)) {
-    // Clean up references if a player left while waiting
-    playerLog.notice('left the game');
-    kick(ws, player.uuid);
-    return;
-  }
   if (!room) {
-    playerLog.notice('not in a room, kicking');
-    kick(ws, player.uuid);
+    playerLog.notice('tried to message nonexistent room');
     return;
   }
 
@@ -366,7 +357,7 @@ const addLastVariant = (player: Player, variant: string) => {
   player.lastVariants = player.lastVariants.slice(0, SAVE_LAST_N_VARIANTS);
 };
 
-const kick = async (ws: WebSocket, uuid?: string) => {
+const kick = async (ws: SocketIO.Socket, uuid?: string) => {
   if (uuid) {
     WAITING.deletePlayer(uuid);
     const player = await getPlayer(uuid);
@@ -382,5 +373,6 @@ const kick = async (ws: WebSocket, uuid?: string) => {
     delete gameSettings[uuid];
   }
   sendMessage(ws, {type: 'kick'});
-  ws.close();
+  // Close the connection
+  ws.disconnect(true);
 };

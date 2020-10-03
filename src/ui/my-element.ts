@@ -99,7 +99,7 @@ export class MyElement extends LitElement {
   // public
   @property({type: String, reflect: true}) color: Color;
   @property({type: Object}) game: Game;
-  @property({type: Object}) socket: WebSocket;
+  @property({type: Object}) socket: SocketIO.Socket;
   @property({type: Number}) viewMoveIndex: number | undefined;
 
   // protected
@@ -188,8 +188,6 @@ export class MyElement extends LitElement {
   }
 
   handleSocketMessage = (message: Message) => {
-    if (!this.isConnected) return;
-
     const {turnHistory, stateHistory} = this.game;
     if (message.type === 'replaceState') {
       const rm = message as ReplaceMessage;

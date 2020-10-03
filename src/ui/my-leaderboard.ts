@@ -63,7 +63,7 @@ export class MyLeaderboard extends LitElement {
     }
   `;
 
-  @property({type: Object}) socket: WebSocket;
+  @property({type: Object}) socket: SocketIO.Socket;
   @property({type: Object}) player?: PlayerInfo;
   @property({type: Array}) topScores: RankScore[] = [];
   @property({type: Number}) myRank?: number;

@@ -14,7 +14,6 @@ import {
   PlayerInfo,
   reviver,
 } from '../common/message';
-import WS from 'ws';
 import log from 'log';
 import {RoomSchema} from '../db/schema';
 import {VARIANTS} from '../chess/variants';
@@ -34,7 +33,7 @@ export interface Player {
   uuid: string;
   username: string;
   roomId?: string;
-  socket?: WebSocket;
+  socket?: SocketIO.Socket;
   lastVariants: string[];
   streak: number;
   elo: number;
@@ -429,7 +428,7 @@ export class Room {
     this.checkIfOver(justMovedPlayer);
   }
 
-  reconnect(uuid: string, socket: WebSocket) {
+  reconnect(uuid: string, socket: SocketIO.Socket) {
     const me = this.uuidToRoomPlayer(uuid);
     const opponent = me === this.p1 ? this.p2 : this.p1;
     if (!me || !opponent) {
@@ -461,12 +460,12 @@ export class Room {
         this.game.visibleState(state, me.color)
       ),
     };
-    sendMessage(socket, rec).then(() => {
-      this.sendTimers();
-      this.resetAllowedActions(me, true);
-      this.sendRanks();
-      this.game.onConnect();
-    });
+    sendMessage(socket, rec);
+    
+    this.sendTimers();
+    this.resetAllowedActions(me, true);
+    this.sendRanks();
+    this.game.onConnect();
 
     // Opponent needs to know player has reconnected
     sendMessage(opponent.player.socket, {

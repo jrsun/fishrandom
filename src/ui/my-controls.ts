@@ -74,7 +74,7 @@ export class MyControls extends LitElement {
     }
   `;
   // public
-  @property({type: Object}) socket: WebSocket;
+  @property({type: Object}) socket: SocketIO.Socket;
   @property({type: Array}) turnHistory: Turn[] = [];
   @property({type: Boolean}) playing = false;
 

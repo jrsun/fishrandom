@@ -28,6 +28,9 @@ import './my-captures';
 import './my-release-notes';
 import './my-element';
 
+// with ES6 import
+import io from 'socket.io-client';
+
 import {Game, GameResult, GameResultType} from '../chess/game';
 import {BoardState} from '../chess/state';
 import {Color, getOpponent, ROULETTE_SECONDS, Pair, DISCONNECT_TIMEOUT_SECONDS} from '../chess/const';
@@ -309,7 +312,7 @@ export class MyApp extends LitElement {
   }`;
 
   @property({type: Object}) game?: Game;
-  private socket: WebSocket;
+  private socket: SocketIO.Socket;
 
   // private
   @property({type: Number}) viewMoveIndex: number | undefined;
@@ -320,6 +323,7 @@ export class MyApp extends LitElement {
   @property({type: Boolean, reflect: true}) started = false;
   @property({type: Object}) selectedPiece?: Piece;
   @property({type: Object}) selectedSquare?: Pair;
+  @property({type: Boolean}) disconnected = true;
 
   private gameResult: GameResult | undefined;
   private color?: Color;
@@ -331,7 +335,6 @@ export class MyApp extends LitElement {
     lose: HTMLAudioElement | null | undefined;
     roulette: HTMLAudioElement | null | undefined;
   };
-  private unloaded?: boolean;
 
   connectedCallback() {
     super.connectedCallback();
@@ -343,16 +346,6 @@ export class MyApp extends LitElement {
     this.addEventListener(SelectEventType.PIECE_TOGGLE, this.onPieceToggle);
     this.addEventListener(SelectEventType.PIECE_ON, this.onPieceOn);
     this.addEventListener(SelectEventType.PIECE_OFF, this.onPieceOff);
-
-    // Unload
-    const onUnload = (e) => {
-      // Hack: if onUnload itself is async, it triggers the confirmation dialog.
-      (async () => {
-        await sendMessage(this.socket, {type: 'exit' as const});
-      })();
-    };
-    window.onbeforeunload = onUnload;
-    window.onunload = onUnload;
 
     this.wsConnect();
   }
@@ -378,48 +371,21 @@ export class MyApp extends LitElement {
     this.selectedPiece = piece as Piece;
   }
 
-  onUnload = () => {
-    if (this.unloaded) return;
-    this.unloaded = true;
-    sendMessage(this.socket, {type: 'exit'}, true);
-    this.socket.onclose = () => {};
-    this.socket.close();
-  };
-
   wsConnect() {
-    if (process.env.NODE_ENV === 'development') {
-      this.socket = new WebSocket('ws://localhost:8081');
-    } else {
-      this.socket = new WebSocket(`wss://${location.hostname}:8081`);
-    }
-    this.socket.onopen = () => {
+    this.socket = io(':8081') as SocketIO.Socket;
+
+    this.socket.on('connect', () => {
+      this.disconnected = false;
       addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
       this.requestUpdate().then(() => {
         // set up child event listeners
         this.initGame();
       });
-    };
+    });
 
-    this.socket.onclose = (e) => {
-      if (this.game && !this.gameResult) {
-        console.log(
-          'Socket closed during game. Reconnect will be attempted in 1 second.',
-          e.reason
-        );
-        setTimeout(() => {
-          // if game isn't over, start
-          this.wsConnect();
-        }, 1000);
-      } else {
-        console.warn('Socket closed.');
-        location.href = '/';
-      }
-    };
-
-    this.socket.onerror = (e) => {
-      console.error('Socket encountered error: ', e, 'Closing socket');
-      this.socket.close();
-    };
+    this.socket.on('disconnect', () => {
+      this.disconnected = true;
+    });
   }
 
   firstUpdated() {
@@ -437,11 +403,6 @@ export class MyApp extends LitElement {
 
     clearInterval(this.timerInterval);
 
-    this.socket.removeEventListener('open', function (e) {}.bind(this));
-    this.socket.removeEventListener(
-      'message',
-      this.handleSocketMessage.bind(this)
-    );
     this.removeEventListener(
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
@@ -450,10 +411,10 @@ export class MyApp extends LitElement {
     this.removeEventListener(SelectEventType.PIECE_TOGGLE, this.onPieceToggle);
     this.removeEventListener(SelectEventType.PIECE_ON, this.onPieceOn);
     this.removeEventListener(SelectEventType.PIECE_OFF, this.onPieceOff);
-    this.socket.close();
+    this.socket.disconnect();
   }
 
-  onInitGame() {
+  playRoulette() {
     // Reset animations in child elements
     this.started = false;
     this.performUpdate();
@@ -539,8 +500,13 @@ export class MyApp extends LitElement {
       this.opponentInfo = opponent;
       this.color = color;
 
-      if (message.type === 'initGame') this.onInitGame();
+      if (message.type === 'initGame') this.playRoulette();
+      this.performUpdate();
     } else if (message.type === 'gameOver') {
+      // Disconnect so that a sporadic network connection
+      // doesn't cause us to rejoin the queue.
+      this.socket.disconnect();
+      
       const gom = message as GameOverMessage;
       const {turnHistory, stateHistory, result, player, opponent} = gom;
       this.playerInfo = player;
@@ -589,7 +555,7 @@ export class MyApp extends LitElement {
     this.gameResult = undefined;
     this.game = undefined;
     this.color = undefined;
-    if (!(this.socket.readyState === 1)) {
+    if (this.socket.disconnected) {
       this.wsConnect();
     } else {
       sendMessage(this.socket, {type: 'newGame'});
@@ -655,6 +621,11 @@ export class MyApp extends LitElement {
   render() {
     if (!this.game || !this.color) return this.renderWaiting();
 
+    let disconnectText = 'Disconnected';
+    if (!this.gameResult) {
+      disconnectText += `... auto-resign in ${DISCONNECT_TIMEOUT_SECONDS} seconds`;
+    }
+
     return html`<div class="app">
       <my-announce></my-announce>
       <canvas id="confetti-canvas"></canvas>
@@ -684,7 +655,7 @@ export class MyApp extends LitElement {
                 <div class="opponent connection-status">
                     ${this.opponentInfo?.connected ?
                       'Connected' :
-                      `Disconnected... auto-resign in ${DISCONNECT_TIMEOUT_SECONDS} seconds`
+                      disconnectText
                     }
                 </div>
                 <div class="captures">
@@ -728,6 +699,9 @@ export class MyApp extends LitElement {
                   <span class="player win-streak">
                     ${this.playerInfo?.elo}
                   </span>
+                </div>
+                <div class="player connection-status">
+                    ${!this.disconnected ? 'Connected' : disconnectText}
                 </div>
                 <div class="captures">
                   <my-captures
