@@ -22,6 +22,7 @@ export type Message =
   | ReplaceMessage
   | AppendMessage
   | RoomActionMessage
+  | GetAllowedMessage
   | NewGameMessage
   | InitGameMessage
   | GameOverMessage
@@ -51,6 +52,10 @@ export interface NewGameMessage {
 export interface RoomActionMessage {
   type: 'roomAction';
   action: RoomAction; // draw, resign, etc
+}
+
+export interface GetAllowedMessage {
+  type: 'getAllowed';
 }
 
 /*
@@ -220,38 +225,6 @@ export function sendMessage(
   }
 
   socket.emit('message', JSON.stringify(m, replacer));
-
-  // const input = JSON.stringify(m, replacer);
-  // if (sync) {
-  //   console.error(
-  //     '%s: Sending uncompressed msg of type %s with size %s',
-  //     new Date().toUTCString(),
-  //     m.type,
-  //     input.length
-  //   );
-  //   const buffer = zlib.gzipSync(input);
-  //   ws.send(buffer.toString('base64'));
-  //   return Promise.resolve();
-  // }
-  // return new Promise((resolve) => {
-  //   zlib.gzip(input, (err, buffer) => {
-  //     if (err) {
-  //       console.error('Failed to compress and send message %s', input);
-  //       return;
-  //     }
-  //     if (typeof window === 'undefined') {
-  //       console.error(
-  //         '%s: Sending message of type %s with size %s',
-  //         new Date().toUTCString(),
-  //         m.type,
-  //         buffer.length
-  //       );
-  //     }
-  //     ws.send(buffer.toString('base64'));
-
-  //     resolve();
-  //   });
-  // });
 }
 
 export function addMessageHandler(
@@ -267,27 +240,4 @@ export function addMessageHandler(
     }
     handler(parsed);
   })
-  // ws.addEventListener('message', (e: MessageEvent) => {
-  //   let msg: Message;
-  //   try {
-  //     const s = zlib.gunzipSync(Buffer.from(e.data, 'base64')).toString();
-
-  //     msg = JSON.parse(s, reviver) as Message;
-  //     if (typeof window === 'undefined') {
-  //       console.error(
-  //         '%s: Received message of type %s',
-  //         new Date().toUTCString(),
-  //         msg.type
-  //       );
-  //     }
-  //     handler(msg as Message);
-  //   } catch (err) {
-  //     // Handle uncompressed as well
-  //     try {
-  //       handler(JSON.parse(e.data) as Message);
-  //     } catch (err) {
-  //       console.warn('error parsing message', err, e.data);
-  //     }
-  //   }
-  // });
 }

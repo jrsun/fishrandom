@@ -270,6 +270,9 @@ const handleMessage = async function (
   if (message.type === 'roomAction') {
     room.handleAction(player.uuid, message.action);
   }
+  if (message.type === 'getAllowed') {
+    room.handleGetAllowed(player.uuid);
+  }
   if (room.state === RoomState.COMPLETED) {
     playerLog.notice('game completed');
   }

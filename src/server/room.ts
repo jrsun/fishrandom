@@ -163,30 +163,27 @@ export class Room {
   initGame() {
     // Send init game messages
     const {p1, p2} = this;
-    Promise.all([
-      sendMessage(p1.player.socket, {
-        type: 'initGame',
-        state: this.game.visibleState(this.game.state, this.p1.color),
-        variantName: this.game.name,
-        color: this.p1.color,
-        player: toPlayerInfo(p1.player),
-        opponent: toPlayerInfo(p2.player),
-      }),
-      sendMessage(p2.player.socket, {
-        type: 'initGame',
-        state: this.game.visibleState(this.game.state, this.p2.color),
-        variantName: this.game.name,
-        color: this.p2.color,
-        player: toPlayerInfo(p2.player),
-        opponent: toPlayerInfo(p1.player),
-      }),
-    ]).then(() => {
-      this.game.onConnect();
-      this.sendTimers();
-      this.resetAllowedActions(this.p1, true);
-      this.resetAllowedActions(this.p2, true);
-      this.sendRanks();
+    sendMessage(p1.player.socket, {
+      type: 'initGame',
+      state: this.game.visibleState(this.game.state, this.p1.color),
+      variantName: this.game.name,
+      color: this.p1.color,
+      player: toPlayerInfo(p1.player),
+      opponent: toPlayerInfo(p2.player),
     });
+    sendMessage(p2.player.socket, {
+      type: 'initGame',
+      state: this.game.visibleState(this.game.state, this.p2.color),
+      variantName: this.game.name,
+      color: this.p2.color,
+      player: toPlayerInfo(p2.player),
+      opponent: toPlayerInfo(p1.player),
+    });
+    this.game.onConnect();
+    this.sendTimers();
+    this.resetAllowedActions(this.p1, false);
+    this.resetAllowedActions(this.p2, false);
+    this.sendRanks();
 
     log.get(this.p1.name).notice('playing variant', this.game.name);
     log.get(this.p2.name).notice('playing variant', this.game.name);
@@ -197,6 +194,18 @@ export class Room {
   }
 
   /** Room action handlers */
+
+  handleGetAllowed(uuid: string) {
+    const rp = this.uuidToRoomPlayer(uuid);
+    if (!rp) {
+      log.warn('no such player in room', uuid);
+      return;
+    }
+    sendMessage(rp.player.socket, {
+      type: 'allowedActions',
+      actions: Array.from(rp.allowedActions),
+    });
+  }
 
   handleAction(uuid: string, action: RoomAction) {
     const rp = this.uuidToRoomPlayer(uuid);

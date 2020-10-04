@@ -505,7 +505,6 @@ export class MyApp extends LitElement {
       this.color = color;
 
       if (message.type === 'initGame') this.playRoulette();
-      this.performUpdate();
     } else if (message.type === 'gameOver') {
       const gom = message as GameOverMessage;
       const {turnHistory, stateHistory, result, player, opponent} = gom;

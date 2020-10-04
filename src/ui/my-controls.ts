@@ -83,6 +83,22 @@ export class MyControls extends LitElement {
   @property({type: Array}) allowedActions: RoomAction[] = [];
   @property({type: Boolean, reflect: true}) offeredDraw = false;
   
+  updated(changedProperties) {
+    if (changedProperties.has('socket')) {
+      addMessageHandler(this.socket, this.handleSocketMessage);
+      sendMessage(this.socket, {type: 'getAllowed'});
+    }
+    if (changedProperties.has('viewMoveIndex')) {
+      this.dispatchEvent(
+        new CustomEvent('view-move-changed', {
+          detail: this.viewMoveIndex,
+          bubbles: true,
+          composed: true,
+        })
+      );
+    }
+  }
+
   handleSocketMessage = (message: Message) => {
     if (['appendState', 'initGame', 'reconnect', 'gameOver'].includes(message.type)) {
       this.viewMoveIndex = undefined;
@@ -124,21 +140,6 @@ export class MyControls extends LitElement {
         composed: true,
       })
     );
-  }
-
-  updated(changedProperties) {
-    if (changedProperties.has('socket')) {
-      addMessageHandler(this.socket, this.handleSocketMessage);
-    }
-    if (changedProperties.has('viewMoveIndex')) {
-      this.dispatchEvent(
-        new CustomEvent('view-move-changed', {
-          detail: this.viewMoveIndex,
-          bubbles: true,
-          composed: true,
-        })
-      );
-    }
   }
 
   renderMove(fen: string, index: number) {
