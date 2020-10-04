@@ -494,7 +494,7 @@ export class Room {
       me.disconnectTimeout = setTimeout(() => {
         this.wins(opponent.player.uuid, {
           type: GameResultType.WIN,
-          reason: 'timeout',
+          reason: 'disconnect timeout',
         })
       }, DISCONNECT_TIMEOUT_SECONDS * 1000);
     }
