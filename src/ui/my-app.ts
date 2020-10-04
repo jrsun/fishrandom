@@ -8,6 +8,7 @@ import {
 import '@polymer/paper-dialog';
 import './my-element';
 import './my-leaderboard';
+import './my-stats';
 import './my-announce';
 import {VARIANTS, Chess960, RANDOM_VARIANTS} from '../chess/variants/index';
 import {
@@ -236,6 +237,9 @@ export class MyApp extends LitElement {
     .exit-while-waiting:hover {
       transition: 0.2s;
       background-color: #e2a18b;
+    }
+    my-stats {
+      margin-bottom: 10px;
     }
     .game-over-dialog {
       display: flex;
@@ -569,6 +573,7 @@ export class MyApp extends LitElement {
           Waiting for opponent...
         </h1>
       </div>
+      <my-stats .socket=${this.socket}></my-stats>
       <div class="fish-con"><div class="fish"></div></div>
       <my-release-notes></my-release-notes>
       <paper-button

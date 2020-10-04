@@ -67,6 +67,7 @@ export interface PingMessage {
     name: string;
     score: number;
   }[];
+  p: number;
 }
 export interface ReplaceMessage {
   type: 'replaceState';

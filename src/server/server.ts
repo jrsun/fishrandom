@@ -33,7 +33,7 @@ import BLACKLIST from './blacklist';
 logNode();
 
 var app = express();
-var wsCounter = 0;
+var onlineCount = 0;
 
 // Profanity
 const profanityOptions = new ProfanityOptions();
@@ -43,7 +43,7 @@ const profanity = new Profanity(profanityOptions);
 profanity.addWords(customProfanity);
 
 setInterval(() => {
-  log.notice('Active websockets:', wsCounter);
+  log.notice('Active websockets:', onlineCount);
 }, 60 * 1000);
 
 // Update leaderboard
@@ -58,12 +58,7 @@ setInterval(() => {
       if (!player) continue;
       scores.push({name: player.username, score});
     }
-    broadcast(io.sockets, {type: 'ping', scores})
-    io.sockets.emit('message', JSON.stringify({
-      type: 'ping',
-      scores,
-      onlineCount: wsCounter,
-    }, replacer));
+    broadcast(io.sockets, {type: 'ping', scores, p: onlineCount})
   });
 }, 2 * 1000);
 
@@ -210,14 +205,14 @@ io.on('connection', async function connection(socket: SocketIO.Socket) {
         })
       }
     });
-    wsCounter--;
+    onlineCount--;
   });
   log.notice(
     'Socket connected',
     uuid,
     headers['x-forwarded-for'] || request.connection.remoteAddress,
   );
-  wsCounter++;
+  onlineCount++;
 });
 
 /** Handle websocket messages and delegate to room */
