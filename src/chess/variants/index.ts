@@ -79,7 +79,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Royalpawn,
   Grasshopper,
   Dark,
-  Dark2r,
+  // Dark2r,
   // Pocketknight,
   Stealthbomber,
   // Chess921600,
