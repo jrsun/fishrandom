@@ -67,6 +67,7 @@ export class MyElement extends LitElement {
     :host([started]) .board-bg {
       background-position-y: 0;
       transition: all ${ROULETTE_SECONDS}s cubic-bezier(0.15, 0.82, 0.58, 1.02);
+      transition-property: background-position-y;
     }
 
     #canvas {
@@ -89,10 +90,14 @@ export class MyElement extends LitElement {
     :host([started]) my-square {
       top: 0;
       transition: all ${ROULETTE_SECONDS}s cubic-bezier(0.15, 0.82, 0.58, 1.02);
+      transition-property: top;
     }
 
     .row {
       height: ${SQUARE_SIZE}px;
+    }
+    :host([viewMoveIndex]) .board-bg {
+      opacity: 0.95;
     }
   `;
 
@@ -100,7 +105,7 @@ export class MyElement extends LitElement {
   @property({type: String, reflect: true}) color: Color;
   @property({type: Object}) game: Game;
   @property({type: Object}) socket: SocketIO.Socket;
-  @property({type: Number}) viewMoveIndex: number | undefined;
+  @property({type: Number, reflect: true}) viewMoveIndex: number | undefined;
 
   // protected
   @property({type: Object}) selectedPiece: Piece | undefined;
@@ -333,13 +338,15 @@ export class MyElement extends LitElement {
 
   // Regular move and castle and promotion trigger
   private onSquareClicked(e: CustomEvent) {
+    // Get rid of arrows
+    this.eraseCanvas();
+    // Let parent handle board selection state
     this.dispatchEvent(
       new CustomEvent('board-clicked', {bubbles: true, composed: true})
     );
-    if (this.viewMoveIndex != null) return;
 
-    this.eraseCanvas();
-    // There's a bug here where updating the game using move doesn't cause rerender.
+    /* Turn logic */
+    if (this.viewMoveIndex != null) return;
     const {row, col} = e.detail.square as Square;
     const square = this.game.state.getSquare(row, col);
     if (!square) return;
