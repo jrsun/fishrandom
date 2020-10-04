@@ -85,7 +85,7 @@ export class MyControls extends LitElement {
   
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
-      addMessageHandler(this.socket, this.handleSocketMessage);
+      addMessageHandler(this.socket, 'my-controls', this.handleSocketMessage);
       sendMessage(this.socket, {type: 'getAllowed'});
     }
     if (changedProperties.has('viewMoveIndex')) {

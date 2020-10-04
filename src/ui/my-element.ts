@@ -181,7 +181,7 @@ export class MyElement extends LitElement {
 
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
-      addMessageHandler(this.socket, this.handleSocketMessage);
+      addMessageHandler(this.socket, 'my-element', this.handleSocketMessage);
     }
     if (
       changedProperties.has('selectedSquare') ||

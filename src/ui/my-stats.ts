@@ -22,7 +22,7 @@ export class MyStats extends LitElement {
 
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
-      addMessageHandler(this.socket, this.handleSocketMessage);
+      addMessageHandler(this.socket, 'my-stats', this.handleSocketMessage);
     }
   }
 

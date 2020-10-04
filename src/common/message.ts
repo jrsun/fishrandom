@@ -231,17 +231,28 @@ export function sendMessage(
   socket.emit('message', JSON.stringify(m, replacer));
 }
 
-export function addMessageHandler(
-  socket: SocketIO.Socket,
-  handler: (message: Message) => void
-) {
-  socket.on('message', (data: any) => {
-    let parsed;
-    try {
-      parsed = JSON.parse(data, reviver) as Message;
-    } catch (err) {
-      console.warn('error parsing message', err, data);
+export const addMessageHandler = (() => {
+  const handlers: {[name: string]: ((data: any) => void)} = {};
+
+  return (
+    socket: SocketIO.Socket,
+    name: string,
+    handler: (message: Message) => void
+  ) => {
+    if (name in handlers) {
+      socket.off('message', handlers[name]);
     }
-    handler(parsed);
-  })
-}
+    const fn = (data: any) => {
+      let parsed;
+      try {
+        parsed = JSON.parse(data, reviver) as Message;
+      } catch (err) {
+        console.warn('error parsing message', err, data);
+      }
+      handler(parsed);
+    };
+    handlers[name] = fn;
+    socket.on('message', fn);
+  };
+})();
+

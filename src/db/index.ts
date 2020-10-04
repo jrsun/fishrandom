@@ -128,7 +128,6 @@ export async function savePlayer(p: Player) {
           reject(err);
           return;
         }
-        console.log('saved player', p.uuid);
         resolve();
       }
     );

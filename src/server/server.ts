@@ -187,7 +187,7 @@ io.on('connection', async function connection(socket: SocketIO.Socket) {
   if (BLACKLIST.has(ip)) {
     console.warn('Caught in blacklist', ip);
   } else {
-    addMessageHandler(socket, (message) => {
+    addMessageHandler(socket, 'server', (message) => {
       handleMessage(socket, uuid, message);
     });
   }

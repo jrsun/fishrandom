@@ -70,7 +70,7 @@ export class MyLeaderboard extends LitElement {
 
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
-      addMessageHandler(this.socket, this.handleSocketMessage);
+      addMessageHandler(this.socket, 'my-leaderboard', this.handleSocketMessage);
     }
   }
 

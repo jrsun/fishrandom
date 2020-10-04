@@ -380,7 +380,7 @@ export class MyApp extends LitElement {
 
     this.socket.on('connect', () => {
       this.disconnected = false;
-      addMessageHandler(this.socket, this.handleSocketMessage.bind(this));
+      addMessageHandler(this.socket, 'my-app', this.handleSocketMessage.bind(this));
       this.requestUpdate().then(() => {
         // set up child event listeners
         this.initGame();
