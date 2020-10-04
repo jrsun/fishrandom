@@ -42,6 +42,7 @@ export class MyReleaseNotes extends LitElement {
 
   render() {
     return html` <div class="relnotes">Release Notes:</div>
+      <div class="subtitle">10/3 - prevent disconnection / bugfixes</div>
       <div class="subtitle">9/27 - absorption chess</div>
       <div class="subtitle">9/26 - disconnect detection / limiting aborts / showing your own rank</div>
       <div class="subtitle">9/23 - win streak leaderboards are here!</div>
