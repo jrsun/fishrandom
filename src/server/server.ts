@@ -30,6 +30,7 @@ import {WAITING} from './waiting';
 import customProfanity from './profanity';
 import {savePlayer, getPlayer, deleteRoom, getRoom, getTopK} from '../db';
 import BLACKLIST from './blacklist';
+import { SAVE_LAST_N_VARIANTS } from '../chess/variants/index';
 logNode();
 
 var app = express();
@@ -312,21 +313,25 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
 
   const v = randomChoice([selectedVariant, opVariant].filter((n) => !!n));
 
-  if (v && v in Variants.VARIANTS) {
+  if (argv.game) {
     NG = Variants.VARIANTS[v];
-  } else {
+  } else if (!password) {
     NG = Variants.Random(
       /**except*/
       opponent.lastVariants,
       player.lastVariants
     );
+  } else if (v && v in Variants.VARIANTS) {
+    NG = Variants.VARIANTS[v];
+  } else {
+    NG = Variants.Random([], []);
   }
   let room: Room;
   const p1color = randomChoice([Color.WHITE, Color.BLACK]);
 
   const randomNumber = Math.random().toString();
   const roomId = randomNumber.substring(2, randomNumber.length);
-  if (password || process.env.NODE_ENV === 'development') {
+  if (v && v in Variants.VARIANTS) {
     room = new Room(
       roomId,
       opponent,
@@ -353,7 +358,6 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
   log.get(opponent.username).notice('after waiting, found a game');
 };
 
-const SAVE_LAST_N_VARIANTS = 20;
 const addLastVariant = (player: Player, variant: string) => {
   player.lastVariants.unshift(variant);
   player.lastVariants = player.lastVariants.slice(0, SAVE_LAST_N_VARIANTS);

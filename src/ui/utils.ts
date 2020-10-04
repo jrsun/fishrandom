@@ -21,3 +21,57 @@ export function selectPieceEvent(
 }
 
 export const SQUARE_SIZE = Math.min(50, document.body.clientWidth / 8); //px
+
+export function drawArrow(
+  ctx: CanvasRenderingContext2D,
+  fromx,
+  fromy,
+  tox,
+  toy
+) {
+  var headlen = 5;
+  var angle = Math.atan2(toy - fromy, tox - fromx);
+  const color = '#CC5757';
+
+  //starting path of the arrow from the start square to the end square and drawing the stroke
+  ctx.beginPath();
+  ctx.moveTo(fromx, fromy);
+  ctx.lineTo(tox, toy);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 10;
+  // ctx.lineCap = 'round';
+  ctx.stroke();
+
+  //starting a new path from the head of the arrow to one of the sides of the point
+  ctx.beginPath();
+  ctx.moveTo(tox, toy);
+  ctx.lineTo(
+    tox - headlen * Math.cos(angle - Math.PI / 5),
+    toy - headlen * Math.sin(angle - Math.PI / 5)
+  );
+
+  //path from the side point of the arrow, to the other side point
+  ctx.lineTo(
+    tox - headlen * Math.cos(angle + Math.PI / 5),
+    toy - headlen * Math.sin(angle + Math.PI / 5)
+  );
+
+  //path from the side point back to the tip of the arrow, and then again to the opposite side point
+  ctx.lineTo(tox, toy);
+  ctx.lineTo(
+    tox - headlen * Math.cos(angle - Math.PI / 5),
+    toy - headlen * Math.sin(angle - Math.PI / 5)
+  );
+
+  //draws the paths created above
+  ctx.strokeStyle = color;
+
+  ctx.lineWidth = 10;
+  ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+export function memecase(s: string) {
+  return s.toUpperCase().split('').join(' ');
+}

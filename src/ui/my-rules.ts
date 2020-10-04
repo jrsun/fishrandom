@@ -79,12 +79,16 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
   Knightmate: html`Whose Manns is this?
     <ul>
       <li>
-        The King is replaced by a <b>Royal Knight</b>, and the Knights are
-        replaced by <b>Manns</b>, which are regular pieces that move like Kings.
+        The King is replaced by a <b>Royal Knight</b> which moves like
+        a normal Knight.
+      </li>
+      <li>Checkmate the <b>Royal Knight</b> to win.</li>
+      <li>
+        The Knights are replaced by <b>Manns</b>, 
+        which are regular pieces that move like Kings.
       </li>
       <li>Castling allowed.</li>
       <li>Pawn can promote to <b>Mann</b> instead of Knight.</li>
-      <li>Checkmate the <b>Royal Knight</b> to win.</li>
     </ul>
     Bruce Zimov (1972)`,
   Horde: html`White has 36 pawns. Black has a regular chess setup.

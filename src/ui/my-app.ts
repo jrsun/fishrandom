@@ -36,9 +36,9 @@ import {Game, GameResult, GameResultType} from '../chess/game';
 import {BoardState} from '../chess/state';
 import {Color, getOpponent, ROULETTE_SECONDS, Pair, DISCONNECT_TIMEOUT_SECONDS} from '../chess/const';
 import {Knight, Piece} from '../chess/piece';
-import {randomChoice, memecase} from '../utils';
+import {randomChoice} from '../utils';
 import Square from '../chess/square';
-import {SelectEventType, SelectEventDetail} from './utils';
+import {SelectEventType, SelectEventDetail, memecase} from './utils';
 import {equals} from '../chess/pair';
 
 @customElement('my-app')

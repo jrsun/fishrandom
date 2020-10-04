@@ -31,7 +31,7 @@ import {Pawnside} from './pawnside';
 import {Knightrider} from './knightrider';
 import {Absorption} from './absorption';
 
-import {randomChoice} from '../../utils';
+import {randomChoice, zip} from '../../utils';
 
 export const VARIANTS: {[name: string]: typeof Game} = {
   Atomic,
@@ -109,16 +109,14 @@ export function Random(recent: string[], recent2: string[]): typeof Game {
   for (const variant of Object.keys(RANDOM_VARIANTS)) {
     staleness[variant] = 0;
   }
-  for (const [i, variant] of [...recent].reverse().entries()) {
-    // recent.reverse() is from least stale to most
-    if (staleness[variant] !== undefined) {
-      staleness[variant] = Math.max(staleness[variant] ?? 0, i + 1);
+  const recents = zip(recent, recent2);
+  for (const [i, [v1, v2]] of recents.slice(0, SAVE_LAST_N_VARIANTS).entries()) {
+    // recents is pairs of variants from most stale to least
+    if (staleness[v1] !== undefined) {
+      staleness[v1] = Math.max(staleness[v1] ?? 0, SAVE_LAST_N_VARIANTS - i);
     }
-  }
-  for (const [i, variant] of [...recent2].reverse().entries()) {
-    // recent2.reverse() is from least stale to most
-    if (staleness[variant] !== undefined) {
-      staleness[variant] = Math.max(staleness[variant] ?? 0, i + 1);
+    if (staleness[v2] !== undefined) {
+      staleness[v2] = Math.max(staleness[v2] ?? 0, SAVE_LAST_N_VARIANTS - i);
     }
   }
   let minStaleness = recent.length + 1;
@@ -134,6 +132,8 @@ export function Random(recent: string[], recent2: string[]): typeof Game {
   }
   return VARIANTS[randomChoice(possibleVariants)];
 }
+export const SAVE_LAST_N_VARIANTS = 10;
+
 
 export {
   Losers,

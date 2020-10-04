@@ -21,7 +21,6 @@ import {
 } from '../common/message';
 import {Queen, Rook, Bishop, Knight} from '../chess/piece';
 
-import {drawArrow} from '../utils';
 import './my-square';
 import {classMap, ClassInfo} from 'lit-html/directives/class-map';
 
@@ -36,7 +35,7 @@ import './my-piece-picker';
 import '@polymer/paper-dialog/paper-dialog';
 import {PaperDialogElement} from '@polymer/paper-dialog/paper-dialog';
 import {MySquare} from './my-square';
-import {selectPieceEvent, SelectEventType, SelectEventDetail, SQUARE_SIZE} from './utils';
+import {selectPieceEvent, SelectEventType, SelectEventDetail, SQUARE_SIZE, drawArrow} from './utils';
 
 /**
  * An example element.
