@@ -34,10 +34,10 @@ export class MyStats extends LitElement {
 
   render() {
     if (!this.onlineCount) return;
-    const plural = this.onlineCount !== 1 ? 's' : '';
-    return html`<div class="container">
-      <div class="online-count">${this.onlineCount} player${plural} online</div>
-    </div>`;
+    const message = this.onlineCount !== 1 ?
+      `${this.onlineCount} players online`:
+      'no one is online right now, grab a friend!';
+    return html`<div class="container">${message}</div>`;
   }
 }
 
