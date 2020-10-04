@@ -1,6 +1,6 @@
 import {Game, GameEvent, GameResult, GameResultType} from '../chess/game';
 import {randomChoice} from '../utils';
-import {Move, Turn, TurnType} from '../chess/turn';
+import {Move, Turn, TurnType, toFEN} from '../chess/turn';
 import {Color, getOpponent, ROULETTE_SECONDS, DISCONNECT_TIMEOUT_SECONDS, FIRST_MOVE_ABORT_SECONDS, RoomAction} from '../chess/const';
 import {
   AppendMessage,
@@ -311,16 +311,6 @@ export class Room {
           log.get(me.name).warn('no piece at ', srow, scol);
           return;
         }
-        log
-          .get(me.name)
-          .notice(
-            '%s: (%s, %s) -> (%s, %s)',
-            piece.name,
-            srow,
-            scol,
-            drow,
-            dcol
-          );
 
         turn = game.move(me.color, piece, srow, scol, drow, dcol);
         break;
@@ -364,6 +354,7 @@ export class Room {
       log.get(me.name).warn('submitted an invalid move, undoing!');
       return;
     }
+    logTurn(log.get(me.name), turn);
     saveRoom(this);
 
     me.time += INCREMENT_MS;
@@ -766,3 +757,7 @@ const toPlayerInfo = (p: Player): PlayerInfo => {
     connected: !!connected,
   };
 };
+
+const logTurn = (logger: any, turn: Turn) => {
+  logger.notice(toFEN(turn));
+}

@@ -615,7 +615,6 @@ export class MyElement extends LitElement {
       }
     };
     drawArrow(ctx, toxy(scol), toxy(srow), toxy(ecol), toxy(erow));
-    // drawArrow(ctx, 75, 75, 75, 125);
   }
 
   private eraseCanvas() {
