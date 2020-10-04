@@ -8,6 +8,8 @@ import {
   addMessageHandler,
   ReplaceMessage,
   replacer,
+  broadcast,
+  PingMessage,
 } from '../common/message';
 import {Room, RoomState, Player} from './room';
 import socketio from 'socket.io';
@@ -49,19 +51,21 @@ setInterval(() => {
   getTopK(10).then(async result => {
     if (!result) return;
 
-    const scores: any[] = [];
+    const scores: PingMessage['scores'] = [];
     for (const [uuid, score] of Object.entries(result)) {
       // remove this await
       const player = await getPlayer(uuid);
       if (!player) continue;
       scores.push({name: player.username, score});
     }
+    broadcast(io.sockets, {type: 'ping', scores})
     io.sockets.emit('message', JSON.stringify({
-      type: 'leader',
+      type: 'ping',
       scores,
+      onlineCount: wsCounter,
     }, replacer));
-  })
-}, 1 * 1000);
+  });
+}, 2 * 1000);
 
 const argv = yargs
   .option('game', {

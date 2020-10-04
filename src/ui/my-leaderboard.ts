@@ -75,7 +75,7 @@ export class MyLeaderboard extends LitElement {
   }
 
   handleSocketMessage = (message: Message) => {
-    if (message.type === 'leader') {
+    if (message.type === 'ping') {
       this.topScores = message.scores;
     } else if (message.type === 'rank') {
       this.myRank = message.rank;

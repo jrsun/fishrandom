@@ -31,7 +31,7 @@ export type Message =
   | GameEventMessage
   | KickMessage
   | UndoMessage
-  | LeaderboardMessage
+  | PingMessage
   | PlayerInfoMessage
   | AllowedActionsMessage
   | RankMessage;
@@ -61,6 +61,13 @@ export interface GetAllowedMessage {
 /*
  * Server-initiated
  */
+export interface PingMessage {
+  type: 'ping';
+  scores: {
+    name: string;
+    score: number;
+  }[];
+}
 export interface ReplaceMessage {
   type: 'replaceState';
   turn: Turn;
@@ -125,14 +132,6 @@ export interface KickMessage {
 
 export interface UndoMessage {
   type: 'undo';
-}
-
-export interface LeaderboardMessage {
-  type: 'leader';
-  scores: [{
-    name: string;
-    score: number;
-  }];
 }
 
 export interface RankMessage {
@@ -213,6 +212,10 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
   }
   // default to returning the value unaltered
   return v;
+}
+
+export function broadcast(sockets: SocketIO.Namespace, m: Message) {
+  sockets.emit('message', JSON.stringify(m, replacer));
 }
 
 export function sendMessage(
