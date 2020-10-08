@@ -304,6 +304,8 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
         Pinning the kings against each other wins if the opponent cannot block.
       </li>
     </ul>
+    Known bug: The King closer to the a-file castles long (it ends up on the c-file). 
+
     Two Kings by Rob McCarter (1997) `,
   Monster: html`White moves twice for every Black move, but only has four pawns.
     <ul>
@@ -329,7 +331,11 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>If you veto the opponent's only legal move, it is checkmate if
         they are in check, and stalemate if not.</li>
     </ul>
-    Known bugs: Captured pieces show even if capture is vetoed. `,
+    Known bugs:
+    <ul>
+      <li>Captured pieces are displayed even if capture is vetoed.</li>
+      <li>Vetoing castles and en passant are somewhat buggy.</li>
+    </ul> `,
   Werewolf: html`Convert by capturing.
   <ul>
     <li>Werewolf moves up to 3 squares as a Queen.</li>
