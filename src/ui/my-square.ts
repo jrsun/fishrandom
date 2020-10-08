@@ -22,7 +22,7 @@ export class MySquare extends LitElement {
       display: 'inline-block';
       background-size: cover;
     }
-    :host(.finish) .square {
+    :host(.finish) {
       background-image: url('/img/bg.svg');
     }
     :host([lastmove]) .square {
