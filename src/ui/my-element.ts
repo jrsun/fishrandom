@@ -35,7 +35,7 @@ import './my-piece-picker';
 import '@polymer/paper-dialog/paper-dialog';
 import {PaperDialogElement} from '@polymer/paper-dialog/paper-dialog';
 import {MySquare} from './my-square';
-import {selectPieceEvent, SelectEventType, SelectEventDetail, SQUARE_SIZE, drawArrow} from './utils';
+import {selectPieceEvent, SelectEventType, SelectEventDetail, SQUARE_SIZE, drawArrow, drawCircle} from './utils';
 
 /**
  * An example element.
@@ -564,7 +564,7 @@ export class MyElement extends LitElement {
     this.performUpdate();
   };
 
-  // Drawing arrows
+  // Drawing arrows and circles
   private onSquareMousedown(e: CustomEvent) {
     const square = e.detail as Square;
     this.arrowStartSquare = square;
@@ -575,9 +575,42 @@ export class MyElement extends LitElement {
     const {row, col} = this.arrowStartSquare;
     this.arrowStartSquare = undefined;
 
-    if (row === square.row && col === square.col) return;
+    if (row === square.row && col === square.col) {
+      this.drawCircle(row, col);
+      return;
+    };
     this.drawArrow(row, col, square.row, square.col);
   }
+
+  private drawArrow(srow: number, scol: number, erow: number, ecol: number) {
+    const ctx = this.canvas.getContext('2d');
+    if (!ctx) return;
+
+    drawArrow(ctx, this.scaleToXY(scol), this.scaleToXY(srow), this.scaleToXY(ecol), this.scaleToXY(erow));
+  }
+
+  private drawCircle(row: number, col: number) {
+    const ctx = this.canvas.getContext('2d');
+    if (!ctx) return;
+
+    drawCircle(ctx, this.scaleToXY(col), this.scaleToXY(row), SQUARE_SIZE / 2);
+  }
+
+  private eraseCanvas() {
+    const canvas = this.shadowRoot?.querySelector('canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  private scaleToXY(rc: number): number {
+    if (this.color === Color.WHITE) {
+      return SQUARE_SIZE / 2 + SQUARE_SIZE * rc;
+    } else {
+      return SQUARE_SIZE * 8 - SQUARE_SIZE * rc - SQUARE_SIZE / 2;
+    }
+  };
 
   // Highlight squares to move to
   computeTargets(piece?: Piece, square?: Pair) {
@@ -608,27 +641,6 @@ export class MyElement extends LitElement {
         this.requestUpdate();
       }, 0);
     }
-  }
-
-  private drawArrow(srow: number, scol: number, erow: number, ecol: number) {
-    const ctx = this.canvas.getContext('2d');
-    if (!ctx) return;
-    const toxy = (rc: number) => {
-      if (this.color === Color.WHITE) {
-        return SQUARE_SIZE / 2 + SQUARE_SIZE * rc;
-      } else {
-        return SQUARE_SIZE * 8 - SQUARE_SIZE * rc - SQUARE_SIZE / 2;
-      }
-    };
-    drawArrow(ctx, toxy(scol), toxy(srow), toxy(ecol), toxy(erow));
-  }
-
-  private eraseCanvas() {
-    const canvas = this.shadowRoot?.querySelector('canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
   playSound = (turn: Turn) => {

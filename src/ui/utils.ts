@@ -72,6 +72,24 @@ export function drawArrow(
   ctx.fill();
 }
 
+export function drawCircle(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  r: number,
+) {
+  const color = '#CC5757';
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 5;
+
+  //starting path of the arrow from the start square to the end square and drawing the stroke
+  ctx.beginPath();
+
+  ctx.arc(x, y, r, 0, 2 * Math.PI);
+  ctx.stroke();
+}
+
 export function memecase(s: string) {
   return s.toUpperCase().split('').join(' ');
 }
