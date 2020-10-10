@@ -6,7 +6,7 @@ import {
   css,
 } from 'lit-element';
 import '@polymer/paper-dialog';
-import './my-element';
+import './my-game';
 import './my-leaderboard';
 import './my-stats';
 import './my-announce';
@@ -27,7 +27,7 @@ import './my-piece-picker';
 import './my-controls';
 import './my-captures';
 import './my-release-notes';
-import './my-element';
+import './my-game';
 
 // with ES6 import
 import io from 'socket.io-client';
@@ -658,7 +658,7 @@ export class MyRoom extends LitElement {
             </div>
           </div>
           <div class="board-wrapper card">
-            <my-element
+            <my-game
               .color=${this.color}
               .socket=${this.socket}
               .game=${this.game}
@@ -666,7 +666,7 @@ export class MyRoom extends LitElement {
               .started=${this.started}
               .selectedPiece=${this.selectedPiece}
               .selectedSquare=${this.selectedSquare}
-            ></my-element>
+            ></my-game>
           </div>
           <div class="active-game-info player">
             <!-- this will be a component -->

@@ -10,7 +10,7 @@ import { Game } from '../chess/game';
 import { DEMO_VARIANTS } from '../chess/variants';
 import { Color, ROULETTE_SECONDS } from '../chess/const';
 import "@polymer/paper-button/paper-button";
-import "./my-element";
+import "./my-game";
 import "./my-announce";
 import { GameListener } from './game-listener';
 import { Piece } from '../chess/piece';
@@ -211,13 +211,13 @@ export class MyFrontPage extends LitElement {
         <div class="grid">
           <div class="demo">
             <div class="demo-title">${game.name.toLocaleUpperCase()}</div>
-            <my-element
+            <my-game
               .color=${Color.WHITE}
               .game=${game}
               ?started=${rouletteToggle}
               .selectedPiece=${selectedPiece}
               .selectedSquare=${selectedSquare}
-            ></my-element>
+            ></my-game>
             <paper-button .onclick=${this.reroll} raised class="reroll-btn">Reroll</paper-button>
           </div>
           <div class="login">
