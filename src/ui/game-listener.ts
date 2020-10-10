@@ -35,7 +35,6 @@ export class GameListener {
   onPieceOn = (e: CustomEvent) => this.onPieceSelected(e, false);
   onPieceToggle = (e: CustomEvent) => this.onPieceSelected(e, true);
   private onPieceSelected = (e: CustomEvent, toggle: boolean) => {
-    console.log(e, toggle);
     const {piece, square} = e.detail;
     if (
       piece &&

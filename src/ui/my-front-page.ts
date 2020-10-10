@@ -7,7 +7,7 @@ import {
   TemplateResult,
 } from 'lit-element';
 import { Game } from '../chess/game';
-import { Grasshopper, DEMO_VARIANTS } from '../chess/variants';
+import { DEMO_VARIANTS } from '../chess/variants';
 import { Color } from '../chess/const';
 import "@polymer/paper-button/paper-button";
 import "./my-element";
@@ -168,7 +168,7 @@ export class MyFrontPage extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    this.game = new (randomChoice(DEMO_VARIANTS))(false);
+    this.game = new (randomChoice(DEMO_VARIANTS))(true);
     this.gameListener = new GameListener(this);
     this.gameListener.attach();
   }
@@ -179,7 +179,7 @@ export class MyFrontPage extends LitElement {
   }
 
   reroll = () => {
-    this.game = new (randomChoice(DEMO_VARIANTS))(false);
+    this.game = new (randomChoice(DEMO_VARIANTS))(true);
   }
 
   render() {

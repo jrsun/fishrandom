@@ -105,7 +105,6 @@ export const DEMO_VARIANTS: (typeof Game)[] = [
   Knightmate,
   Horde,
   Grasshopper,
-  Gobbler,
   Football,
   Shooting,
   Amazonarmy,
