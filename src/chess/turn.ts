@@ -1,7 +1,8 @@
-import {Pair, Color} from './const';
+import {Color} from './const';
 import {Piece, Pawn, King} from './piece';
 import {BoardState} from './state';
 import Square from './square';
+import { Pair } from './pair';
 
 export enum TurnType {
   MOVE = 'move',

@@ -9,7 +9,7 @@ import {
   King,
   Pawn,
 } from './piece';
-import {hash, Color} from './const';
+import {Color} from './const';
 import {randomChoice} from '../utils';
 import {Move, Turn} from './turn';
 

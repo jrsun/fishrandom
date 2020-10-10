@@ -1,15 +1,11 @@
 import {
-  Pair,
-  equals,
-  dedup,
-  hash,
-  unhash,
   NotImplementedError,
   Color,
   getOpponent,
 } from './const';
 import {Move, Turn, TurnType} from './turn';
 import {BoardState} from './state';
+import { Pair, dedup } from './pair';
 
 // Classes
 export class Piece {

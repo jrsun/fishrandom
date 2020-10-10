@@ -34,12 +34,13 @@ import io from 'socket.io-client';
 
 import {Game, GameResult, GameResultType} from '../chess/game';
 import {BoardState} from '../chess/state';
-import {Color, getOpponent, ROULETTE_SECONDS, Pair, DISCONNECT_TIMEOUT_SECONDS} from '../chess/const';
+import {Color, getOpponent, ROULETTE_SECONDS, DISCONNECT_TIMEOUT_SECONDS} from '../chess/const';
 import {Knight, Piece} from '../chess/piece';
 import {randomChoice} from '../utils';
 import Square from '../chess/square';
 import {SelectEventType, SelectEventDetail, memecase} from './utils';
-import {equals} from '../chess/pair';
+import {equals, Pair} from '../chess/pair';
+import { GameListener } from './game-listener';
 
 @customElement('my-app')
 export class MyApp extends LitElement {
@@ -325,8 +326,8 @@ export class MyApp extends LitElement {
   @property({type: Object}) opponentInfo?: PlayerInfo;
   @property({type: Number}) opponentTimer?: number;
   @property({type: Boolean, reflect: true}) started = false;
-  @property({type: Object}) selectedPiece?: Piece;
-  @property({type: Object}) selectedSquare?: Pair;
+  @property({type: Object}) selectedPiece: Piece|undefined;
+  @property({type: Object}) selectedSquare: Pair|undefined;
   @property({type: Boolean}) disconnected = true;
 
   private gameResult: GameResult | undefined;
@@ -339,6 +340,7 @@ export class MyApp extends LitElement {
     lose: HTMLAudioElement | null | undefined;
     roulette: HTMLAudioElement | null | undefined;
   };
+  private gameListener: GameListener;
 
   connectedCallback() {
     super.connectedCallback();
@@ -347,32 +349,10 @@ export class MyApp extends LitElement {
       this.handleViewMoveChanged.bind(this)
     );
     this.addEventListener('init-game', this.initGame);
-    this.addEventListener(SelectEventType.PIECE_TOGGLE, this.onPieceToggle);
-    this.addEventListener(SelectEventType.PIECE_ON, this.onPieceOn);
-    this.addEventListener(SelectEventType.PIECE_OFF, this.onPieceOff);
+    this.gameListener = new GameListener(this);
+    this.gameListener.attach();
 
     this.wsConnect();
-  }
-
-  onPieceOff = () => {
-    this.selectedSquare = undefined;
-    this.selectedPiece = undefined;
-  }
-  onPieceOn = (e: CustomEvent) => this.onPieceSelected(e, false);
-  onPieceToggle = (e: CustomEvent) => this.onPieceSelected(e, true);
-  onPieceSelected = (e: CustomEvent, toggle: boolean) => {
-    const {piece, square} = e.detail;
-    if (
-      piece &&
-      square?.row !== undefined &&
-      square?.col !== undefined &&
-      (!toggle || !equals(square, this.selectedSquare))
-    ) {
-      this.selectedSquare = {row: square.row, col: square.col};
-    } else {
-      this.selectedSquare = undefined;
-    }
-    this.selectedPiece = piece as Piece;
   }
 
   wsConnect() {
@@ -416,9 +396,7 @@ export class MyApp extends LitElement {
       this.handleViewMoveChanged.bind(this)
     );
     this.removeEventListener('init-game', this.initGame);
-    this.removeEventListener(SelectEventType.PIECE_TOGGLE, this.onPieceToggle);
-    this.removeEventListener(SelectEventType.PIECE_ON, this.onPieceOn);
-    this.removeEventListener(SelectEventType.PIECE_OFF, this.onPieceOff);
+    this.gameListener.detach();
     this.socket.disconnect();
   }
 

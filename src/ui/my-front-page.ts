@@ -12,6 +12,9 @@ import { Color } from '../chess/const';
 import "@polymer/paper-button/paper-button";
 import "./my-element";
 import "./my-announce";
+import { GameListener } from './game-listener';
+import { Piece } from '../chess/piece';
+import { Pair } from '../chess/pair';
 
 @customElement('my-front-page')
 export class MyFrontPage extends LitElement {
@@ -88,11 +91,12 @@ export class MyFrontPage extends LitElement {
     }
 
     @media (min-width: 600px) {
+      .page-container {
+        padding: 5vw 10vw;
+      }
       .grid {
-        grid-template-columns: auto 350px;
-        grid-template-rows: auto;
         justify-items: center;
-        align-items: start;
+        align-items: center;
         grid-template-areas:
           "demo login"
           "demo play"
@@ -155,11 +159,22 @@ export class MyFrontPage extends LitElement {
 
   // protected
   @property({type: Object}) game: Game; // demo
+  @property({type: Object}) selectedPiece: Piece|undefined;
+  @property({type: Object}) selectedSquare: Pair|undefined;
+
+  private gameListener: GameListener;
 
   connectedCallback() {
     super.connectedCallback();
 
     this.game = new Grasshopper(false);
+    this.gameListener = new GameListener(this);
+    this.gameListener.attach();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.gameListener.detach();
   }
 
   render() {
@@ -178,6 +193,9 @@ export class MyFrontPage extends LitElement {
             <my-element
               .color=${Color.WHITE}
               .game=${this.game}
+              ?started=${true}
+              .selectedPiece=${this.selectedPiece}
+              .selectedSquare=${this.selectedSquare}
             ></my-element>
             <paper-button raised class="reroll-btn">Reroll</paper-button>
           </div>

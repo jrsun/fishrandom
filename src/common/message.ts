@@ -3,7 +3,7 @@ import {BoardState} from '../chess/state';
 import Square from '../chess/square';
 import zlib from 'zlib';
 import {Turn} from '../chess/turn';
-import {Color, Pair, RoomAction} from '../chess/const';
+import {Color, RoomAction} from '../chess/const';
 import WS from 'ws';
 import {QueenPawn} from '../chess/variants/hiddenqueen';
 import {Hopper} from '../chess/variants/grasshopper';

@@ -1,10 +1,10 @@
 import {Game, GameEventName, GameEventType, GameResult} from '../game';
 import {Knight, Pawn, AmazonRoyal, King, Piece} from '../piece';
-import {Color, getOpponent, Pair} from '../const';
+import {Color, getOpponent} from '../const';
 import {BoardState, generateStartState, Phase} from '../state';
 import Square from '../square';
 import {Turn, TurnType} from '../turn';
-import {equals} from '../pair';
+import {equals, Pair} from '../pair';
 import {cartesian} from '../../utils';
 
 export class Veto extends Game {

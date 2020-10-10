@@ -1,10 +1,11 @@
 import {Game, GameEventName, GameEventType} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
-import {Color, getOpponent, Pair} from '../const';
+import {Color, getOpponent} from '../const';
 import {BoardState, generateStartState} from '../state';
 import Square from '../square';
 import {randomChoice} from '../../utils';
 import {Move, Turn, Activate, TurnType, Castle} from '../turn';
+import { Pair } from '../pair';
 
 export class Atomic extends Game {
   name = 'Atomic';
