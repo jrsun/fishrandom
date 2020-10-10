@@ -7,3 +7,4 @@
 !/dist/index.html
 !/dist/login.html
 .DS_Store
+dump.rdb
