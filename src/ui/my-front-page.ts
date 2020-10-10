@@ -7,7 +7,7 @@ import {
   TemplateResult,
 } from 'lit-element';
 import { Game } from '../chess/game';
-import { Grasshopper } from '../chess/variants';
+import { Grasshopper, DEMO_VARIANTS } from '../chess/variants';
 import { Color } from '../chess/const';
 import "@polymer/paper-button/paper-button";
 import "./my-element";
@@ -15,6 +15,7 @@ import "./my-announce";
 import { GameListener } from './game-listener';
 import { Piece } from '../chess/piece';
 import { Pair } from '../chess/pair';
+import { randomChoice } from '../utils';
 
 @customElement('my-front-page')
 export class MyFrontPage extends LitElement {
@@ -167,7 +168,7 @@ export class MyFrontPage extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    this.game = new Grasshopper(false);
+    this.game = new (randomChoice(DEMO_VARIANTS))(false);
     this.gameListener = new GameListener(this);
     this.gameListener.attach();
   }
@@ -177,8 +178,12 @@ export class MyFrontPage extends LitElement {
     this.gameListener.detach();
   }
 
+  reroll = () => {
+    this.game = new (randomChoice(DEMO_VARIANTS))(false);
+  }
+
   render() {
-    const {seeking} = this;
+    const {seeking, game, selectedPiece, selectedSquare} = this;
 
     return html`
       <div class="header">
@@ -189,15 +194,15 @@ export class MyFrontPage extends LitElement {
         <div class="page-subtitle">Chess variant roulette</div>
         <div class="grid">
           <div class="demo">
-            <div class="demo-title">GRASSHOPPER</div>
+            <div class="demo-title">DEMO: ${game.name.toLocaleUpperCase()}</div>
             <my-element
               .color=${Color.WHITE}
               .game=${this.game}
               ?started=${true}
-              .selectedPiece=${this.selectedPiece}
-              .selectedSquare=${this.selectedSquare}
+              .selectedPiece=${selectedPiece}
+              .selectedSquare=${selectedSquare}
             ></my-element>
-            <paper-button raised class="reroll-btn">Reroll</paper-button>
+            <paper-button .onclick=${this.reroll} raised class="reroll-btn">Reroll</paper-button>
           </div>
           <div class="login">
             <input
