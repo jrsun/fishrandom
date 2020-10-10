@@ -54,7 +54,7 @@ export class MyFrontPage extends LitElement {
     }
 
     paper-button[disabled] {
-      background-color: #ccc;
+      background-color: #999;
       color: #666;
     }
 
@@ -150,9 +150,12 @@ export class MyFrontPage extends LitElement {
       flex: 1;
     }
 
-    .play-btn {
-      background-color: #82d7ba;
+    .play paper-button:first-child {
       margin-right: 10px;
+    }
+
+    .seek-btn {
+      background-color: #82d7ba;
     }
 
     .info {
@@ -194,6 +197,75 @@ export class MyFrontPage extends LitElement {
     }
   }
 
+  // render
+  render() {
+    const {seeking, game, selectedPiece, selectedSquare, rouletteToggle} = this;
+
+    return html`
+      <div class="header">
+        <my-announce></my-announce>
+      </div>
+      <div class="page-container">
+        <div class="page-title">FISHRANDOM</div>
+        <div class="page-subtitle">Chess variant roulette</div>
+        <div class="grid">
+          <div class="demo">
+            <div class="demo-title">${game.name.toLocaleUpperCase()}</div>
+            <my-element
+              .color=${Color.WHITE}
+              .game=${game}
+              ?started=${rouletteToggle}
+              .selectedPiece=${selectedPiece}
+              .selectedSquare=${selectedSquare}
+            ></my-element>
+            <paper-button .onclick=${this.reroll} raised class="reroll-btn">Reroll</paper-button>
+          </div>
+          <div class="login">
+            <form class="login-form" .onsubmit=${this.seek}>
+              <input
+                id="username"
+                type="text"
+                autocomplete="off"
+                ?disabled=${seeking}
+                placeholder="Username" />
+            </form>
+            <paper-button ?disabled=${seeking} raised class="g-signin-btn">G</paper-button>
+          </div>
+          <div class="play">
+            ${this.renderPlay()}
+          </div>
+          <div class="info card">
+            <b>Fishrandom</b> is randomized chess variant roulette. Inspired by
+            <a target="_blank" href="https://en.wikipedia.org/wiki/Fischer_random_chess">
+             Fischer random chess aka Chess960</a>, it is
+            motivated by the idea that adding an element of randomness gives
+            players a chance for more creativity and improvisation.
+            Instead of randomizing the starting position like in Chess960,
+            Fishrandom chooses an entirely random
+            <a target="_blank" href="https://en.wikipedia.org/wiki/List_of_chess_variants">
+            chess variant</a> at the beginning of each game.
+            So every game is unexpected and new!
+            <hr>
+            Please feel free to leave feedback in the
+            <a target="_blank" href="https://discord.gg/DpWUJYt">Discord</a>, or email
+            <a target="_blank" href="mailto:admin@fishrandom.io">admin@fishrandom.io</a>.
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  renderPlay = () => {
+    const {seeking} = this;
+    return html`
+      ${seeking ?
+        html`<paper-button .onclick=${this.cancelSeek}>Cancel</paper-button>`
+      : html`<paper-button .onclick=${this.seek} ?disabled=${seeking} raised class="seek-btn">Play</paper-button>`
+      }
+      <paper-button ?disabled=${seeking} raised class="private-btn">Private</paper-button>
+    `;
+  }
+
   // methods
 
   reroll = () => {
@@ -223,67 +295,42 @@ export class MyFrontPage extends LitElement {
     }
   }
 
-  login = (e: Event) => {
+  // auth
+  seek = (e: Event) => {
     e.preventDefault();
-    console.log('login');
+    this.seeking = true;
+
+    const usernameElement = this.shadowRoot?.querySelector(
+      '#username'
+    ) as HTMLInputElement;
+    let username = 'guest';
+    if (usernameElement?.value) username = usernameElement.value;
+
+    fetch('/login', {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      redirect: 'follow', // manual, *follow, error,
+      referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      body: JSON.stringify({
+        username: username,
+        // password: password.value,
+        // variant: variant,
+      }),
+    }).then(() => {
+      // seek game
+      localStorage.setItem('name', username);
+      console.log(username);
+    });
   }
 
-  render() {
-    const {seeking, game, selectedPiece, selectedSquare, rouletteToggle} = this;
-
-    return html`
-      <div class="header">
-        <my-announce></my-announce>
-      </div>
-      <div class="page-container">
-        <div class="page-title">FISHRANDOM</div>
-        <div class="page-subtitle">Chess variant roulette</div>
-        <div class="grid">
-          <div class="demo">
-            <div class="demo-title">${game.name.toLocaleUpperCase()}</div>
-            <my-element
-              .color=${Color.WHITE}
-              .game=${game}
-              ?started=${rouletteToggle}
-              .selectedPiece=${selectedPiece}
-              .selectedSquare=${selectedSquare}
-            ></my-element>
-            <paper-button .onclick=${this.reroll} raised class="reroll-btn">Reroll</paper-button>
-          </div>
-          <div class="login">
-            <form class="login-form" .onsubmit=${this.login}>
-              <input
-                id="username"
-                type="text"
-                autocomplete="off"
-                ?disabled=${seeking}
-                placeholder="Username" />
-            </form>
-            <paper-button ?disabled=${seeking} raised class="g-signin-btn">G</paper-button>
-          </div>
-          <div class="play">
-            <paper-button .onclick=${this.login} raised class="play-btn">Play</paper-button>
-            <paper-button raised class="private-btn">Private</paper-button>
-          </div>
-          <div class="info card">
-            <b>Fishrandom</b> is randomized chess variant roulette. Inspired by
-            <a target="_blank" href="https://en.wikipedia.org/wiki/Fischer_random_chess">
-             Fischer random chess aka Chess960</a>, it is
-            motivated by the idea that adding an element of randomness gives
-            players a chance for more creativity and improvisation.
-            Instead of randomizing the starting position like in Chess960,
-            Fishrandom chooses an entirely random
-            <a target="_blank" href="https://en.wikipedia.org/wiki/List_of_chess_variants">
-            chess variant</a> at the beginning of each game.
-            So every game is unexpected and new!
-            <hr>
-            Please feel free to leave feedback in the
-            <a target="_blank" href="https://discord.gg/DpWUJYt">Discord</a>, or email
-            <a target="_blank" href="mailto:admin@fishrandom.io">admin@fishrandom.io</a>.
-          </div>
-        </div>
-      </div>
-    `;
+  cancelSeek = () => {
+    this.seeking = false;
+    // send cancel
   }
 }
 
