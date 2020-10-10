@@ -4,7 +4,7 @@ import {
   customElement,
   property,
   css,
-} from '../../node_modules/lit-element';
+} from 'lit-element';
 import '@polymer/paper-dialog';
 import './my-element';
 import './my-leaderboard';
@@ -42,8 +42,8 @@ import {SelectEventType, SelectEventDetail} from './utils';
 import {equals, Pair} from '../chess/pair';
 import { GameListener } from './game-listener';
 
-@customElement('my-app')
-export class MyApp extends LitElement {
+@customElement('my-room')
+export class MyRoom extends LitElement {
   static styles = css`
     .app {
       display: flex;
@@ -360,7 +360,7 @@ export class MyApp extends LitElement {
 
     this.socket.on('connect', () => {
       this.disconnected = false;
-      addMessageHandler(this.socket, 'my-app', this.handleSocketMessage.bind(this));
+      addMessageHandler(this.socket, 'my-room', this.handleSocketMessage.bind(this));
       this.requestUpdate().then(() => {
         // set up child event listeners
         this.initGame();
@@ -746,6 +746,6 @@ export class MyApp extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'my-app': MyApp;
+    'my-room': MyRoom;
   }
 }

@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    index: './dist/ui/my-app.js',
+    index: './dist/ui/my-room.js',
     login: './dist/ui/my-front-page.js',
   },
   module: {
