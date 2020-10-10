@@ -38,7 +38,7 @@ import {Color, getOpponent, ROULETTE_SECONDS, DISCONNECT_TIMEOUT_SECONDS} from '
 import {Knight, Piece} from '../chess/piece';
 import {randomChoice} from '../utils';
 import Square from '../chess/square';
-import {SelectEventType, SelectEventDetail, memecase} from './utils';
+import {SelectEventType, SelectEventDetail} from './utils';
 import {equals, Pair} from '../chess/pair';
 import { GameListener } from './game-listener';
 
@@ -413,9 +413,9 @@ export class MyApp extends LitElement {
     const titleEl = this.shadowRoot?.querySelector('.title');
     const titleScrambler = setInterval(() => {
       if (titleEl) {
-        titleEl.innerHTML = memecase(
-          randomChoice(Object.keys(RANDOM_VARIANTS))
-        );
+        titleEl.innerHTML = 
+          randomChoice(Object.keys(RANDOM_VARIANTS)).toLocaleUpperCase()
+        ;
       }
     }, 50);
     setTimeout(() => {
@@ -724,7 +724,7 @@ export class MyApp extends LitElement {
         entry-animation="scale-up-animation"
         exit-animation="fade-out-animation"
       >
-        <h2 class="game-over-result">${memecase(this.gameResult?.type ?? '')}</h2>
+        <h2 class="game-over-result">${this.gameResult?.type}</h2>
         <div class="game-over-reason">${
           this.gameResult?.reason ?
           `by ${this.gameResult.reason}` :

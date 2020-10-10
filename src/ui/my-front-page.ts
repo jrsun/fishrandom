@@ -8,7 +8,7 @@ import {
 } from 'lit-element';
 import { Game } from '../chess/game';
 import { DEMO_VARIANTS } from '../chess/variants';
-import { Color } from '../chess/const';
+import { Color, ROULETTE_SECONDS } from '../chess/const';
 import "@polymer/paper-button/paper-button";
 import "./my-element";
 import "./my-announce";
@@ -128,11 +128,16 @@ export class MyFrontPage extends LitElement {
       grid-area: login;
       width: 100%;
       display: flex;
+      align-items: stretch;
     }
-    #username {
+    .login-form {
+      display: flex;
       flex: 1;
       margin-right: 10px;
+    }
+    #username {
       padding-left: 10px;
+      width: 100%;
       font-size: large;
     }
 
@@ -147,6 +152,7 @@ export class MyFrontPage extends LitElement {
 
     .play-btn {
       background-color: #82d7ba;
+      margin-right: 10px;
     }
 
     .info {
@@ -162,13 +168,17 @@ export class MyFrontPage extends LitElement {
   @property({type: Object}) game: Game; // demo
   @property({type: Object}) selectedPiece: Piece|undefined;
   @property({type: Object}) selectedSquare: Pair|undefined;
+  @property({type: Boolean}) rouletteToggle = true;
 
   private gameListener: GameListener;
+  private audio: {roulette: HTMLAudioElement|null|undefined};
+
+  // lifecycle
 
   connectedCallback() {
     super.connectedCallback();
 
-    this.game = new (randomChoice(DEMO_VARIANTS))(true);
+    this.game = new (randomChoice(Object.values(DEMO_VARIANTS)))(true);
     this.gameListener = new GameListener(this);
     this.gameListener.attach();
   }
@@ -178,12 +188,48 @@ export class MyFrontPage extends LitElement {
     this.gameListener.detach();
   }
 
+  firstUpdated() {
+    this.audio = {
+      roulette: document.querySelector('#roulette-audio') as HTMLAudioElement,
+    }
+  }
+
+  // methods
+
   reroll = () => {
-    this.game = new (randomChoice(DEMO_VARIANTS))(true);
+    this.game = new (randomChoice(Object.values(DEMO_VARIANTS)))(true);
+    this.rouletteToggle = false;
+    setTimeout(() => {this.rouletteToggle = true}, 0);
+
+    // Animate title
+    const titleEl = this.shadowRoot?.querySelector('.demo-title');
+    const titleScrambler = setInterval(() => {
+      if (titleEl) {
+        titleEl.innerHTML = randomChoice(Object.keys(DEMO_VARIANTS)).toLocaleUpperCase();
+      }
+    }, 50);
+    setTimeout(() => {
+      clearInterval(titleScrambler);
+      if (titleEl) {
+        titleEl.innerHTML =
+          this.game?.name.toLocaleUpperCase();
+      }
+    }, ROULETTE_SECONDS * 1000);
+    if (this.audio.roulette) {
+      this.audio.roulette.volume = 0.5;
+      this.audio.roulette.pause();
+      this.audio.roulette.currentTime = 0;
+      this.audio.roulette.play();
+    }
+  }
+
+  login = (e: Event) => {
+    e.preventDefault();
+    console.log('login');
   }
 
   render() {
-    const {seeking, game, selectedPiece, selectedSquare} = this;
+    const {seeking, game, selectedPiece, selectedSquare, rouletteToggle} = this;
 
     return html`
       <div class="header">
@@ -194,38 +240,42 @@ export class MyFrontPage extends LitElement {
         <div class="page-subtitle">Chess variant roulette</div>
         <div class="grid">
           <div class="demo">
-            <div class="demo-title">DEMO: ${game.name.toLocaleUpperCase()}</div>
+            <div class="demo-title">${game.name.toLocaleUpperCase()}</div>
             <my-element
               .color=${Color.WHITE}
-              .game=${this.game}
-              ?started=${true}
+              .game=${game}
+              ?started=${rouletteToggle}
               .selectedPiece=${selectedPiece}
               .selectedSquare=${selectedSquare}
             ></my-element>
             <paper-button .onclick=${this.reroll} raised class="reroll-btn">Reroll</paper-button>
           </div>
           <div class="login">
-            <input
-              id="username"
-              type="text"
-              autocomplete="off"
-              ?disabled=${seeking}
-              placeholder="Username" />
+            <form class="login-form" .onsubmit=${this.login}>
+              <input
+                id="username"
+                type="text"
+                autocomplete="off"
+                ?disabled=${seeking}
+                placeholder="Username" />
+            </form>
             <paper-button ?disabled=${seeking} raised class="g-signin-btn">G</paper-button>
           </div>
           <div class="play">
-            <paper-button raised class="play-btn">Play</paper-button>
+            <paper-button .onclick=${this.login} raised class="play-btn">Play</paper-button>
             <paper-button raised class="private-btn">Private</paper-button>
           </div>
           <div class="info card">
-            Fishrandom (inspired by
+            <b>Fishrandom</b> is randomized chess variant roulette. Inspired by
             <a target="_blank" href="https://en.wikipedia.org/wiki/Fischer_random_chess">
-             Fischerandom chess aka Chess960</a>) is
-            motivated by the idea that by adding an element of randomness,
-            it gives players a chance for more creativity and improvisation.
+             Fischer random chess aka Chess960</a>, it is
+            motivated by the idea that adding an element of randomness gives
+            players a chance for more creativity and improvisation.
             Instead of randomizing the starting position like in Chess960,
-            Fishrandom chooses an entirely random chess variant at the
-            beginning of each game. So every game is unexpected and new!
+            Fishrandom chooses an entirely random
+            <a target="_blank" href="https://en.wikipedia.org/wiki/List_of_chess_variants">
+            chess variant</a> at the beginning of each game.
+            So every game is unexpected and new!
             <hr>
             Please feel free to leave feedback in the
             <a target="_blank" href="https://discord.gg/DpWUJYt">Discord</a>, or email

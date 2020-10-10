@@ -99,7 +99,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
 /** Variants allowed on the front page.
  * Disallow hidden information ones, for instance.
  */
-export const DEMO_VARIANTS: (typeof Game)[] = [
+export const DEMO_VARIANTS: {[name: string]: typeof Game} = {
   Atomic,
   Bario,
   Knightmate,
@@ -114,7 +114,7 @@ export const DEMO_VARIANTS: (typeof Game)[] = [
   Pawnside,
   Knightrider,
   Absorption,
-];
+};
 
 // Takes two arrays of recently played variants ordered from most to least recent
 // and returns a variant that minimizes staleness.

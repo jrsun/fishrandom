@@ -89,7 +89,3 @@ export function drawCircle(
   ctx.arc(x, y, r, 0, 2 * Math.PI);
   ctx.stroke();
 }
-
-export function memecase(s: string) {
-  return s.toUpperCase().split('').join(' ');
-}
