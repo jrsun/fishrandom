@@ -224,6 +224,13 @@ const handleMessage = async function (
   const roomId = player.roomId;
   const room = await getRoom(roomId);
 
+  if (message.type === 'cancelSeek') {
+    const deleted = WAITING.deletePlayer(uuid);
+    if (deleted) {
+      log.notice('Cancelled seek:', player?.username);
+    }
+    return;
+  }
   if (message.type === 'newGame') {
     if (!!room) {
       // Handle existing room

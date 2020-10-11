@@ -23,6 +23,7 @@ export type Message =
   | AppendMessage
   | RoomActionMessage
   | GetAllowedMessage
+  | CancelSeekMessage
   | NewGameMessage
   | InitGameMessage
   | GameOverMessage
@@ -56,6 +57,10 @@ export interface RoomActionMessage {
 
 export interface GetAllowedMessage {
   type: 'getAllowed';
+}
+
+export interface CancelSeekMessage {
+  type: 'cancelSeek';
 }
 
 /*

@@ -64,6 +64,7 @@ export class MyApp extends LitElement {
 
   onCancelSeek = () => {
     this.seeking = false;
+    sendMessage(this.socket, {type: 'cancelSeek'})
   }
 
   render() {
