@@ -21,6 +21,10 @@ export function selectPieceEvent(
   return {piece, square};
 }
 
+// Events
+export const SeekEventType = 'seek-game';
+export const CancelSeekEventType = 'cancel-seek-game';
+
 // TODO: Seek event (sent from my-room and my-front-page to my-app)
 // then my-app sends a socket message to init-game (rename to seek?)
 // my-app also sets seeking property and passes it to children

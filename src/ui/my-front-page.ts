@@ -16,6 +16,8 @@ import { GameListener } from './game-listener';
 import { Piece } from '../chess/piece';
 import { Pair } from '../chess/pair';
 import { randomChoice } from '../utils';
+import "./my-tooltip";
+import { SeekEventType, CancelSeekEventType } from './utils';
 
 @customElement('my-front-page')
 export class MyFrontPage extends LitElement {
@@ -116,10 +118,27 @@ export class MyFrontPage extends LitElement {
       flex-direction: column;
       align-items: center;
     }
+    .demo-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1vw;
+    }
+    .demo-header>* {
+      margin-right: 10px;
+    }
+    .demo-header>*:last-child {
+      margin-right: 0;
+    }
     .demo-title {
       font-size: 2vw;
-      margin-bottom: 1vw;
       letter-spacing: 0.2em;
+    }
+    .demo-tooltip {
+      background-color: black;
+      border-radius: 0.5em;
+      width: 1em;
+      height: 1em;
+      text-align: center;
     }
     .reroll-btn {
       width: 100%;
@@ -213,7 +232,17 @@ export class MyFrontPage extends LitElement {
         <div class="page-subtitle">Chess variant roulette</div>
         <div class="grid">
           <div class="demo">
-            <div class="demo-title">${game.name.toLocaleUpperCase()}</div>
+            <div class="demo-header">
+              <div class="demo-title">
+                ${game.name.toLocaleUpperCase()}
+              </div>
+              <my-tooltip>
+                <div slot="tooltip" class="demo-tooltip">?</div>
+                <div slot="tooltiptext" class="demo-tooltiptext">
+                  You can play both sides in this practice mode.
+                </div>
+              </my-tooltip>
+            </div>
             <my-game
               .color=${Color.WHITE}
               .game=${game}
@@ -298,16 +327,19 @@ export class MyFrontPage extends LitElement {
     }
   }
 
-  // auth
-  seek = (e: Event) => {
-    e.preventDefault();
-    this.seeking = true;
-
+  getUsernameContent = (): string|undefined => {
     const usernameElement = this.shadowRoot?.querySelector(
       '#username'
     ) as HTMLInputElement;
-    let username = 'guest';
-    if (usernameElement?.value) username = usernameElement.value;
+    return usernameElement?.value;
+  }
+
+  // auth
+  seek = (e: Event) => {
+    console.log('fire seek');
+    e.preventDefault();
+
+    const username = this.getUsernameContent() || 'guest';
 
     fetch('/login', {
       method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -328,12 +360,24 @@ export class MyFrontPage extends LitElement {
       // seek game
       localStorage.setItem('name', username);
       console.log(username);
+      this.dispatchEvent(new CustomEvent(
+        SeekEventType,
+        {
+          bubbles: true,
+          composed: true,
+        }
+      ));
     });
   }
 
   cancelSeek = () => {
-    this.seeking = false;
-    // send cancel
+    this.dispatchEvent(new CustomEvent(
+      CancelSeekEventType,
+      {
+        bubbles: true,
+        composed: true,
+      }
+    ));
   }
 }
 

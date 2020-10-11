@@ -317,7 +317,8 @@ export class MyRoom extends LitElement {
   }`;
 
   @property({type: Object}) game?: Game;
-  private socket: SocketIO.Socket;
+  @property({type: Boolean}) seeking = false;
+  @property({type: Object}) socket: SocketIO.Socket;
 
   // private
   @property({type: Number}) viewMoveIndex: number | undefined;
@@ -333,7 +334,7 @@ export class MyRoom extends LitElement {
   private gameResult: GameResult | undefined;
   private color?: Color;
   private timerInterval;
-  private audio: {
+  audio: {
     lowTimePlayed: boolean;
     lowTime: HTMLAudioElement | null | undefined;
     win: HTMLAudioElement | null | undefined;
@@ -351,34 +352,19 @@ export class MyRoom extends LitElement {
     this.addEventListener('init-game', this.initGame);
     this.gameListener = new GameListener(this);
     this.gameListener.attach();
-
-    this.wsConnect();
+    this.audio.lowTimePlayed = false;
   }
 
-  wsConnect() {
-    this.socket = io(':8081') as SocketIO.Socket;
-
-    this.socket.on('connect', () => {
-      this.disconnected = false;
+  // TODO this.disconnect
+  updated(changedProperties) {
+    if (changedProperties.has('socket')) {
       addMessageHandler(this.socket, 'my-room', this.handleSocketMessage.bind(this));
-      this.requestUpdate().then(() => {
-        // set up child event listeners
-        this.initGame();
-      });
-    });
-
-    this.socket.on('disconnect', () => {
-      // Redirect to / if not in game?
-      if (!this.game || this.gameResult) {
-        location.href = '/';
-      }
-      this.disconnected = true;
-    });
+    }
   }
 
   firstUpdated() {
     this.audio = {
-      lowTimePlayed: false,
+      ...this.audio,
       lowTime: document.querySelector('#low-time-audio') as HTMLAudioElement,
       win: document.querySelector('#win-audio') as HTMLAudioElement,
       lose: document.querySelector('#lose-audio') as HTMLAudioElement,
@@ -432,7 +418,7 @@ export class MyRoom extends LitElement {
   }
 
   handleSocketMessage(message: Message) {
-    // if (message.type !== 'leader') console.log(message);
+    if (message.type !== 'ping') console.log('my-room', message);
     if (message.type === 'kick') {
       location.href = '/';
     }
@@ -445,7 +431,6 @@ export class MyRoom extends LitElement {
       this.selectedPiece = undefined;
       this.selectedSquare = undefined;
 
-      this.audio.lowTimePlayed = false;
       clearInterval(this.timerInterval);
       this.timerInterval = setInterval(() => {
         if (this.game?.state.whoseTurn === this.color) {
@@ -536,11 +521,7 @@ export class MyRoom extends LitElement {
     this.gameResult = undefined;
     this.game = undefined;
     this.color = undefined;
-    if (this.socket.disconnected) {
-      this.wsConnect();
-    } else {
-      sendMessage(this.socket, {type: 'newGame'});
-    }
+    sendMessage(this.socket, {type: 'newGame'});
   };
 
   renderWaiting() {
