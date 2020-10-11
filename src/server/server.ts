@@ -168,8 +168,8 @@ app.listen(8080);
 const ioPort = process.env.NODE_ENV === 'development' ? 8081 : 8082;
 
 const io: SocketIO.Server = socketio(ioPort, {
-  pingInterval: 5000, // these should be related to dcTimeout
-  pingTimeout: 12000,
+  pingInterval: 5000, // the sum of these should be < dcTimeout
+  pingTimeout: 7000,
 });
 
 /** Game server state */
