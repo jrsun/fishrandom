@@ -1,6 +1,7 @@
 import {Piece} from '../chess/piece';
 import Square from '../chess/square';
 
+// Select events
 export enum SelectEventType {
   PIECE_TOGGLE = 'piece-toggle-event',
   PIECE_ON = 'piece-on-event',
@@ -19,6 +20,10 @@ export function selectPieceEvent(
 ): SelectEventDetail {
   return {piece, square};
 }
+
+// TODO: Seek event (sent from my-room and my-front-page to my-app)
+// then my-app sends a socket message to init-game (rename to seek?)
+// my-app also sets seeking property and passes it to children
 
 export const SQUARE_SIZE = Math.min(50, document.body.clientWidth / 8); //px
 

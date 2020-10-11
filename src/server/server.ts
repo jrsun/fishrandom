@@ -77,14 +77,6 @@ app.use(bodyParser.json());
 
 /** HTTP entry point */
 app.get('/', function (req, res) {
-  res.sendFile(path.join(path.resolve() + '/dist/login.html'));
-});
-
-app.get('/game', function (req, res) {
-  if (!req.cookies.uuid) {
-    res.redirect('/');
-    return;
-  }
   res.sendFile(path.join(path.resolve() + '/dist/index.html'));
 });
 
@@ -152,10 +144,6 @@ app.post('/login', function (req, res) {
 app.use(
   '/dist/index.bundle.js',
   express.static(path.join(path.resolve() + '/dist/index.bundle.js'))
-);
-app.use(
-  '/dist/login.bundle.js',
-  express.static(path.join(path.resolve() + '/dist/login.bundle.js'))
 );
 
 app.use('/img', express.static(path.join(path.resolve() + '/img')));

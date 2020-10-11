@@ -28,6 +28,9 @@ export class MyFrontPage extends LitElement {
       font-family: 'JelleeBold';
       height: 100%;
       width: 100%;
+
+      background-size: 220%;
+      background-image: url('/img/bg-dark.svg');
     }
 
     .page-container {
