@@ -433,7 +433,7 @@ export class MyFrontPage extends LitElement {
   }
 
   reroll = () => {
-    this.game = new (randomChoice(Object.values(DEMO_VARIANTS)))(true);
+    this.game = new (randomChoice(Object.values(DEMO_VARIANTS)))(true, undefined, true);
     this.rouletteToggle = false;
     setTimeout(() => {this.rouletteToggle = true}, 0);
 
