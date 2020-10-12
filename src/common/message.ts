@@ -26,8 +26,9 @@ export type Message =
   | GetAllowedMessage
   | CancelSeekMessage
   | SkipRulesMessage
-  // Server
   | NewGameMessage
+  | GetGameMessage
+  // Server
   | InitGameMessage
   | GameOverMessage
   | TimerMessage
@@ -52,6 +53,10 @@ export interface TurnMessage {
 export interface NewGameMessage {
   type: 'newGame';
   password?: string;
+}
+
+export interface GetGameMessage {
+  type: 'getGame';
 }
 
 export interface RoomActionMessage {

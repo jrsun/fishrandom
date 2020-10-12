@@ -416,8 +416,9 @@ export class MyFrontPage extends LitElement {
   renderDemoInfoModal = () => {
     return html`
     <paper-dialog id="demo-info">
-      <div class="demo-instructions">
-        <h2>Practice mode (you can play both sides)</h2>
+      <h2>Practice mode</h2>
+      <div>This is a practice board where you can try out some
+        of the variants. You can play as both sides.
       </div>
       <hr>
       <my-rules .game=${this.game} ?started=${true}></my-rules>

@@ -236,7 +236,7 @@ const handleMessage = async function (
   if (message.type === 'newGame') {
     if (!!room) {
       // Handle existing room
-      playerLog.notice('already in a room, reconnecting');
+      playerLog.notice('new game when in a room, reconnecting');
       room.reconnect(player.uuid, ws);
       return;
     }
@@ -245,6 +245,15 @@ const handleMessage = async function (
       gameSettings[player.uuid]?.password,
       gameSettings[player.uuid]?.variant
     );
+    return;
+  }
+  if (message.type === 'getGame') {
+    if (!!room) {
+      playerLog.notice('getgame, reconnecting');
+      room.reconnect(player.uuid, ws);
+    } else {
+      kick(ws, player.uuid);
+    }
     return;
   }
   if (!room) {
@@ -383,6 +392,4 @@ const kick = async (ws: SocketIO.Socket, uuid?: string) => {
     delete gameSettings[uuid];
   }
   sendMessage(ws, {type: 'kick'});
-  // Close the connection
-  ws.disconnect(true);
 };

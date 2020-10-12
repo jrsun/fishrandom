@@ -76,14 +76,13 @@ export class Room {
     if (!this.p2.player.connected) {
       this.disconnect(this.p2.player);
     }
-
-    this.setPhase(phase);
     this.game = new gc(true);
     if (turnHistory) this.game.turnHistory = turnHistory;
     if (stateHistory) {
       this.game.stateHistory = stateHistory;
       this.game.state = stateHistory[stateHistory.length - 1];
     }
+    this.setPhase(phase);
     this.game.onEvent(this.handleGameEvent);
     saveRoom(this);
   }
@@ -117,13 +116,15 @@ export class Room {
       player: toPlayerInfo(p2.player),
       opponent: toPlayerInfo(p1.player),
     });
-    this.game.onConnect();
-    this.sendTimers();
-    this.resetAllowedActions(this.p1, false);
-    this.resetAllowedActions(this.p2, false);
-    this.sendRanks();
-    this.sendPhase(p1.player.uuid);
-    this.sendPhase(p2.player.uuid);
+    setTimeout(() => {
+      this.game.onConnect();
+      this.sendTimers();
+      this.resetAllowedActions(this.p1, false);
+      this.resetAllowedActions(this.p2, false);
+      this.sendRanks();
+      this.sendPhase(p1.player.uuid);
+      this.sendPhase(p2.player.uuid);  
+    }, 100);
 
     log.get(this.p1.name).notice('playing variant', this.game.name);
     log.get(this.p2.name).notice('playing variant', this.game.name);
@@ -176,18 +177,21 @@ export class Room {
     };
     sendMessage(socket, rec);
     
-    this.sendTimers();
-    this.resetAllowedActions(me, true);
-    this.sendRanks();
-    this.sendPhase(me.player.uuid);
-    this.game.onConnect();
-
-    // Opponent needs to know player has reconnected
-    sendMessage(opponent.player.socket, {
-      type: 'playerInfo',
-      player: toPlayerInfo(opponent.player),
-      opponent: toPlayerInfo(me.player),
-    });
+    // HACK: Client is sometimes not ready to receive these
+    setTimeout( () => {
+      this.sendPhase(me.player.uuid);
+      this.sendTimers();
+      this.resetAllowedActions(me, true);
+      this.sendRanks();
+      this.game.onConnect();
+  
+      // Opponent needs to know player has reconnected
+      sendMessage(opponent.player.socket, {
+        type: 'playerInfo',
+        player: toPlayerInfo(opponent.player),
+        opponent: toPlayerInfo(me.player),
+      });
+    }, 500);
   }
 
   disconnect(player: Player) {

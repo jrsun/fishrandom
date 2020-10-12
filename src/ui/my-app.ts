@@ -25,10 +25,7 @@ export class MyApp extends LitElement {
     this.socket.on('connect', () => {
       console.log('socket connected');
       this.connected = true;
-      const myRoom = this.shadowRoot!.querySelector('my-room') as MyRoom;
-      if (myRoom) {
-        myRoom.initGame(); // reconnect
-      }
+      sendMessage(this.socket, {type: 'getGame'});
     });
     this.socket.on('disconnect', () => {
       console.log('socket disconnected');
@@ -68,6 +65,7 @@ export class MyApp extends LitElement {
   onSeek = () => {
     this.seeking = true;
     sendMessage(this.socket, {type: 'newGame'});
+    console.log('seeking new game');
   }
 
   onCancelSeek = () => {

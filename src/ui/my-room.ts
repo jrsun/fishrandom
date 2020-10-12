@@ -387,8 +387,6 @@ export class MyRoom extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback();
 
-    clearInterval(this.timerInterval);
-
     this.removeEventListener(
       'view-move-changed',
       this.handleViewMoveChanged.bind(this)
@@ -430,7 +428,7 @@ export class MyRoom extends LitElement {
   }
 
   handleSocketMessage(message: Message) {
-    if (message.type !== 'ping') console.log('my-room', message);
+    if (message.type !== 'ping') console.log('my-room', message.type, message);
     if (message.type === 'kick') {
       location.href = '/';
     }
@@ -552,7 +550,6 @@ export class MyRoom extends LitElement {
         composed: true,
       }
     ));
-    sendMessage(this.socket, {type: 'newGame'});
   };
 
   renderWaiting() {
