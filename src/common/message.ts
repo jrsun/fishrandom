@@ -18,18 +18,22 @@ import { Wolf } from '../chess/variants/werewolf';
 import { Nightrider } from '../chess/variants/knightrider';
 
 export type Message =
+  // Client
   | TurnMessage
   | ReplaceMessage
   | AppendMessage
   | RoomActionMessage
   | GetAllowedMessage
   | CancelSeekMessage
+  | SkipRulesMessage
+  // Server
   | NewGameMessage
   | InitGameMessage
   | GameOverMessage
   | TimerMessage
   | ReconnectMessage
   | GameEventMessage
+  | PhaseChangeMessage
   | KickMessage
   | UndoMessage
   | PingMessage
@@ -61,6 +65,10 @@ export interface GetAllowedMessage {
 
 export interface CancelSeekMessage {
   type: 'cancelSeek';
+}
+
+export interface SkipRulesMessage {
+  type: 'skipRules';
 }
 
 /*
@@ -130,6 +138,17 @@ export interface GameOverMessage {
 export interface GameEventMessage {
   type: 'gameEvent';
   content: GameEvent;
+}
+
+export enum PhaseEnum {
+  RULES = 'rules',
+  PLAYING = 'playing',
+  DONE = 'done',
+}
+
+export interface PhaseChangeMessage {
+  type: 'phaseChange';
+  phase: PhaseEnum;
 }
 
 export interface KickMessage {
@@ -248,6 +267,7 @@ export const addMessageHandler = (() => {
       socket.off('message', handlers[name]);
     }
     const fn = (data: any) => {
+      if (typeof window === undefined) console.log(data);
       let parsed;
       try {
         parsed = JSON.parse(data, reviver) as Message;

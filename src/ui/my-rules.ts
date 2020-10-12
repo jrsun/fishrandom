@@ -53,7 +53,7 @@ export class MyRules extends LitElement {
   render() {
     return html`
       <div id="rules">
-        <span id="title"><h3>Rules</h3></span>
+        <span id="title"><h3>${this.game.name} Rules</h3></span>
         <div class="body">
           ${html`${this.getVariantRules()}`}
         </div>

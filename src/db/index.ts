@@ -1,10 +1,11 @@
 import redis from 'redis';
-import {Room, Player, RoomState} from '../server/room';
+import {Room} from '../server/room';
 import {replacer, reviver} from '../common/message';
 import {ResolvePlugin} from 'webpack';
 import log from 'log';
 import zlib from 'zlib';
 import {RoomSchema} from './schema';
+import { Player } from '../server/player';
 
 const REDIS_CLIENT = redis.createClient() as RedisClient;
 const PLAYERS: {[uuid: string]: Player} = {};

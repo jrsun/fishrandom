@@ -102,6 +102,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
 export const DEMO_VARIANTS: {[name: string]: typeof Game} = {
   Atomic,
   Bario,
+  Chigorin,
   Knightmate,
   Horde,
   Grasshopper,

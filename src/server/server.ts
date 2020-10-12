@@ -10,8 +10,9 @@ import {
   replacer,
   broadcast,
   PingMessage,
+  PhaseEnum,
 } from '../common/message';
-import {Room, RoomState, Player} from './room';
+import {Room} from './room';
 import socketio from 'socket.io';
 import * as Variants from '../chess/variants/index';
 import {Color} from '../chess/const';
@@ -31,6 +32,7 @@ import customProfanity from './profanity';
 import {savePlayer, getPlayer, deleteRoom, getRoom, getTopK} from '../db';
 import BLACKLIST from './blacklist';
 import { SAVE_LAST_N_VARIANTS } from '../chess/variants/index';
+import { Player } from './player';
 logNode();
 
 var app = express();
@@ -249,29 +251,30 @@ const handleMessage = async function (
     playerLog.notice('tried to message nonexistent room');
     return;
   }
+  room.handleMessage(player.uuid, message);
 
-  if (message.type === 'turn') {
-    // sanitize
-    function tg(message: Message): message is TurnMessage {
-      return message.type === 'turn';
-    }
-    if (!tg(message)) {
-      log.warn('message is not valid turn message', message);
-      return;
-    }
-    try {
-      room.handleTurn(player.uuid, message.turn);
-    } catch (e) {
-      log.error('ERR: fatal turn error', e);
-    }
-  }
-  if (message.type === 'roomAction') {
-    room.handleAction(player.uuid, message.action);
-  }
-  if (message.type === 'getAllowed') {
-    room.handleGetAllowed(player.uuid);
-  }
-  if (room.state === RoomState.COMPLETED) {
+  // if (message.type === 'turn') {
+  //   // sanitize
+  //   function tg(message: Message): message is TurnMessage {
+  //     return message.type === 'turn';
+  //   }
+  //   if (!tg(message)) {
+  //     log.warn('message is not valid turn message', message);
+  //     return;
+  //   }
+  //   try {
+  //     room.handleTurn(player.uuid, message.turn);
+  //   } catch (e) {
+  //     log.error('ERR: fatal turn error', e);
+  //   }
+  // }
+  // if (message.type === 'roomAction') {
+  //   room.handleAction(player.uuid, message.action);
+  // }
+  // if (message.type === 'getAllowed') {
+  //   room.handleGetAllowed(player.uuid);
+  // }
+  if (room.phase === PhaseEnum.DONE) {
     playerLog.notice('game completed');
   }
 };

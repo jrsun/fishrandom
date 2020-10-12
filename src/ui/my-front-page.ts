@@ -1,3 +1,10 @@
+import '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
+import '@polymer/paper-item/paper-item.js';
+import '@polymer/paper-listbox/paper-listbox.js';
+import "@polymer/paper-button/paper-button";
+import '@polymer/paper-icon-button/paper-icon-button';
+import '@polymer/iron-icons/iron-icons';
+
 import {
   LitElement,
   html,
@@ -9,12 +16,8 @@ import {
 import { Game } from '../chess/game';
 import { DEMO_VARIANTS, VARIANTS } from '../chess/variants';
 import { Color, ROULETTE_SECONDS } from '../chess/const';
-import "@polymer/paper-button/paper-button";
 import "./my-game";
 import "./my-announce";
-import '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
-import '@polymer/paper-item/paper-item.js';
-import '@polymer/paper-listbox/paper-listbox.js';
 import "./my-spinner";
 import { GameListener } from './game-listener';
 import { Piece } from '../chess/piece';
@@ -119,6 +122,7 @@ export class MyFrontPage extends LitElement {
 
     /* Grid Areas */
 
+    /* Demo  */
     .demo {
       grid-area: demo;
       display: flex;
@@ -152,7 +156,22 @@ export class MyFrontPage extends LitElement {
       border-radius: 0 0 3px 3px;
       background-color: rgb(131 148 244);
     }
+    /* Demo dialog */
+    #demo-info {
+      background-color: rgba(239, 236, 224, 0.95);
+      font-size: large;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .demo-instructions {
+      font-family: 'JelleeBold';
+    }
+    .demo-instructions h2 {
+      margin: 0;
+    }
 
+    /* Login  */
     .login {
       grid-area: login;
       width: 100%;
@@ -197,7 +216,7 @@ export class MyFrontPage extends LitElement {
       transform: translate(-25%, -25%);
     }
 
-    /* Dialog */
+    /* Private Room Dialog */
     .room-container {
       display: flex;
       flex-direction: column;
@@ -280,12 +299,8 @@ export class MyFrontPage extends LitElement {
               <div class="demo-title">
                 ${game.name.toLocaleUpperCase()}
               </div>
-              <my-tooltip>
-                <div slot="tooltip" class="demo-tooltip">?</div>
-                <div slot="tooltiptext" class="demo-tooltiptext">
-                  You can play both sides in this practice mode.
-                </div>
-              </my-tooltip>
+              <paper-icon-button icon="info" .onclick=${this.openDemoInfo}>
+              </paper-icon-button>
             </div>
             <my-game
               .color=${Color.WHITE}
@@ -337,6 +352,7 @@ export class MyFrontPage extends LitElement {
           </div>
         </div>
         ${this.renderPrivateModal()}
+        ${this.renderDemoInfoModal()}
       </div>
     `;
   }
@@ -397,7 +413,23 @@ export class MyFrontPage extends LitElement {
     </paper-dialog>`;
   }
 
+  renderDemoInfoModal = () => {
+    return html`
+    <paper-dialog id="demo-info">
+      <div class="demo-instructions">
+        <h2>Practice mode (you can play both sides)</h2>
+      </div>
+      <hr>
+      <my-rules .game=${this.game} ?started=${true}></my-rules>
+    </paper-dialog>`;
+  }
+
   // methods
+
+  openDemoInfo = () => {
+    const demoInfoModal = this.shadowRoot!.querySelector('#demo-info') as PaperDialogElement;
+    demoInfoModal.open();
+  }
 
   reroll = () => {
     this.game = new (randomChoice(Object.values(DEMO_VARIANTS)))(true);

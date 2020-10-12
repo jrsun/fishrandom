@@ -1,6 +1,7 @@
 import {Color} from '../chess/const';
 import {Turn} from '../chess/turn';
 import {BoardState} from '../chess/state';
+import { PhaseEnum } from '../common/message';
 
 export interface RoomSchema {
   id: string;
@@ -15,4 +16,5 @@ export interface RoomSchema {
   turnHistory: Turn[];
   stateHistory: BoardState[];
   variant: string;
+  phase: PhaseEnum;
 }

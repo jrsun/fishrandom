@@ -20,6 +20,7 @@ import {
   TimerMessage,
   sendMessage,
   PlayerInfo,
+  PhaseEnum,
 } from '../common/message';
 import ConfettiGenerator from 'confetti-js';
 import './my-rules';
@@ -41,6 +42,7 @@ import Square from '../chess/square';
 import {SelectEventType, SelectEventDetail, SeekEventType} from './utils';
 import {equals, Pair} from '../chess/pair';
 import { GameListener } from './game-listener';
+import { RULES_SECONDS } from '../server/const';
 
 @customElement('my-room')
 export class MyRoom extends LitElement {
@@ -181,7 +183,6 @@ export class MyRoom extends LitElement {
       /* border: solid 1px gray; */
       /* margin: 15px; */
       /* max-width: 800px; */
-      background-color: #efece0;
       padding: 10px;
       padding-left: 60px;
       border-radius: 4px;
@@ -245,6 +246,40 @@ export class MyRoom extends LitElement {
       from {opacity: 0};
     }
 
+    /** Rules overlay */
+    .rules-overlay {
+      position:fixed;
+      padding:0;
+      margin:0;
+
+      top:0;
+      left:0;
+
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      background:rgba(0,0,0,0.3);
+    }
+    .rules-box {
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      top:50%;
+      left:50%;
+      transform:translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 4px;
+    }
+    .rules-footer {
+      display: flex;
+      align-items: center;
+    }
+    .skip-btn {
+      background-color: #bde6c0;
+    }
+
     /* CSS Grid */
     .grid {
       width: 100%;
@@ -291,9 +326,11 @@ export class MyRoom extends LitElement {
   @property({type: Object}) game?: Game;
   @property({type: Boolean}) seeking = false;
   @property({type: Object}) socket: SocketIO.Socket;
+  @property({type: String}) phase: PhaseEnum;
 
   // private
   @property({type: Number}) viewMoveIndex: number | undefined;
+  @property({type: Number}) rulesSeconds: number = RULES_SECONDS;
   @property({type: Number}) playerTimer?: number;
   @property({type: Object}) playerInfo?: PlayerInfo;
   @property({type: Object}) opponentInfo?: PlayerInfo;
@@ -302,16 +339,17 @@ export class MyRoom extends LitElement {
   @property({type: Object}) selectedPiece: Piece|undefined;
   @property({type: Object}) selectedSquare: Pair|undefined;
   @property({type: Boolean}) disconnected = true;
+  @property({type: Boolean}) skippedRules = false;
 
   private gameResult: GameResult | undefined;
   private color?: Color;
   private timerInterval;
   audio: {
     lowTimePlayed: boolean;
-    lowTime: HTMLAudioElement | null | undefined;
-    win: HTMLAudioElement | null | undefined;
-    lose: HTMLAudioElement | null | undefined;
-    roulette: HTMLAudioElement | null | undefined;
+    lowTime?: HTMLAudioElement | null | undefined;
+    win?: HTMLAudioElement | null | undefined;
+    lose?: HTMLAudioElement | null | undefined;
+    roulette?: HTMLAudioElement | null | undefined;
   };
   private gameListener: GameListener;
 
@@ -324,7 +362,9 @@ export class MyRoom extends LitElement {
     this.addEventListener('init-game', this.initGame);
     this.gameListener = new GameListener(this);
     this.gameListener.attach();
-    this.audio.lowTimePlayed = false;
+    this.audio = {
+      lowTimePlayed: false,
+    };
   }
 
   // TODO this.disconnect
@@ -404,33 +444,6 @@ export class MyRoom extends LitElement {
       this.selectedSquare = undefined;
 
       clearInterval(this.timerInterval);
-      this.timerInterval = setInterval(() => {
-        if (this.game?.state.whoseTurn === this.color) {
-          if (this.playerTimer) {
-            this.playerTimer = Math.max(this.playerTimer - 1000, 0);
-            if (this.playerTimer === 10 * 1000) {
-              const timerEl = this.shadowRoot?.querySelector('.timer.player');
-              timerEl?.classList.add('blinking');
-              const {lowTime, lowTimePlayed} = this.audio;
-              if (lowTime && !lowTimePlayed) {
-                this.audio.lowTimePlayed = true;
-
-                lowTime.volume = 0.6;
-                lowTime.play();
-                lowTime.volume = 1;
-              }
-            }
-          }
-        } else {
-          if (this.opponentTimer) {
-            this.opponentTimer = Math.max(this.opponentTimer - 1000, 0);
-            if (this.opponentTimer === 10 * 1000) {
-              const timerEl = this.shadowRoot?.querySelector('.timer.opponent');
-              timerEl?.classList.add('blinking');
-            }
-          }
-        }
-      }, 1000);
 
       if (message.type === 'reconnect') {
         this.started = true;
@@ -479,6 +492,47 @@ export class MyRoom extends LitElement {
     } else if (message.type === 'playerInfo') {
       this.playerInfo = message.player;
       this.opponentInfo = message.opponent;
+    } else if (message.type === 'phaseChange') {
+      this.phase = message.phase;
+      clearInterval(this.timerInterval);
+      switch (this.phase) {
+        case PhaseEnum.RULES:
+          this.rulesSeconds = RULES_SECONDS;
+          this.timerInterval = setInterval(() => {
+            this.rulesSeconds = Math.max(this.rulesSeconds - 1, 0);
+          }, 1000);
+          break;
+        case PhaseEnum.PLAYING:
+          this.timerInterval = setInterval(() => {
+            if (this.game?.state.whoseTurn === this.color) {
+              if (this.playerTimer) {
+                this.playerTimer = Math.max(this.playerTimer - 1000, 0);
+                if (this.playerTimer === 10 * 1000) {
+                  const timerEl = this.shadowRoot?.querySelector('.timer.player');
+                  timerEl?.classList.add('blinking');
+                  const {lowTime, lowTimePlayed} = this.audio;
+                  if (lowTime && !lowTimePlayed) {
+                    this.audio.lowTimePlayed = true;
+
+                    lowTime.volume = 0.6;
+                    lowTime.play();
+                    lowTime.volume = 1;
+                  }
+                }
+              }
+            } else {
+              if (this.opponentTimer) {
+                this.opponentTimer = Math.max(this.opponentTimer - 1000, 0);
+                if (this.opponentTimer === 10 * 1000) {
+                  const timerEl = this.shadowRoot?.querySelector('.timer.opponent');
+                  timerEl?.classList.add('blinking');
+                }
+              }
+            }
+          }, 1000);
+          break;
+        default:
+      }
     }
   }
 
@@ -493,6 +547,7 @@ export class MyRoom extends LitElement {
     this.gameResult = undefined;
     this.game = undefined;
     this.color = undefined;
+    this.skippedRules = false;
     this.dispatchEvent(new CustomEvent(
       SeekEventType,
       {
@@ -555,6 +610,27 @@ export class MyRoom extends LitElement {
           .selectedPiece=${this.selectedPiece}
         >
         </my-piece-picker>
+      </div>
+    </div>`;
+  }
+
+  skipRules = () => {
+    sendMessage(this.socket, {type: 'skipRules'});
+    this.skippedRules = true;
+  }
+
+  renderRulesOverlay() {
+    return html`<div class="rules-overlay">
+      <div class="rules-box">
+        <my-rules .game=${this.game} ?started=${true}></my-rules>
+        <div class="rules-footer">
+          <paper-button
+            class="skip-btn"
+            .onclick=${this.skipRules}
+            ?disabled=${this.skippedRules}
+          >${this.skippedRules ? 'Ready' : 'Ready?'}</paper-button>
+          <div class="timer rules-timer">${this.rulesSeconds}</div>
+        </div>
       </div>
     </div>`;
   }
@@ -699,6 +775,10 @@ export class MyRoom extends LitElement {
           </paper-button>
         </div>
       </paper-dialog>
+      ${
+        this.phase === PhaseEnum.RULES ?
+        this.renderRulesOverlay() : html``
+      }
     </div> `;
   }
 }
