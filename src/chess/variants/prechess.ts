@@ -3,7 +3,7 @@ import {BoardState, generateStartState, squaresFromPos, Phase} from '../state';
 import {Move, Turn, TurnType} from '../turn';
 import {Color} from '../const';
 import Square from '../square';
-import {randomChoice} from '../../utils';
+import {randomChoice} from '../../common/utils';
 import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from '../piece';
 
 const backRank = [0, 1, 2, 3, 4, 5, 6, 7]

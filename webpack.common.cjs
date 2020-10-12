@@ -3,7 +3,6 @@ const path = require('path');
 module.exports = {
   entry: {
     index: './dist/ui/my-app.js',
-    login: './dist/ui/my-login.js',
   },
   module: {
     rules: [

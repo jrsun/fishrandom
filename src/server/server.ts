@@ -10,13 +10,14 @@ import {
   replacer,
   broadcast,
   PingMessage,
+  PhaseEnum,
 } from '../common/message';
-import {Room, RoomState, Player} from './room';
+import {Room} from './room';
 import socketio from 'socket.io';
 import * as Variants from '../chess/variants/index';
 import {Color} from '../chess/const';
 import yargs from 'yargs';
-import {randomChoice, randomInt} from '../utils';
+import {randomChoice, randomInt} from '../common/utils';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import escape from 'validator/lib/escape';
@@ -31,6 +32,7 @@ import customProfanity from './profanity';
 import {savePlayer, getPlayer, deleteRoom, getRoom, getTopK} from '../db';
 import BLACKLIST from './blacklist';
 import { SAVE_LAST_N_VARIANTS } from '../chess/variants/index';
+import { Player } from './player';
 logNode();
 
 var app = express();
@@ -77,14 +79,6 @@ app.use(bodyParser.json());
 
 /** HTTP entry point */
 app.get('/', function (req, res) {
-  res.sendFile(path.join(path.resolve() + '/dist/login.html'));
-});
-
-app.get('/game', function (req, res) {
-  if (!req.cookies.uuid) {
-    res.redirect('/');
-    return;
-  }
   res.sendFile(path.join(path.resolve() + '/dist/index.html'));
 });
 
@@ -153,10 +147,6 @@ app.use(
   '/dist/index.bundle.js',
   express.static(path.join(path.resolve() + '/dist/index.bundle.js'))
 );
-app.use(
-  '/dist/login.bundle.js',
-  express.static(path.join(path.resolve() + '/dist/login.bundle.js'))
-);
 
 app.use('/img', express.static(path.join(path.resolve() + '/img')));
 app.use('/font', express.static(path.join(path.resolve() + '/font')));
@@ -168,8 +158,8 @@ app.listen(8080);
 const ioPort = process.env.NODE_ENV === 'development' ? 8081 : 8082;
 
 const io: SocketIO.Server = socketio(ioPort, {
-  pingInterval: 5000, // the sum of these should be < dcTimeout
-  pingTimeout: 7000,
+  pingInterval: 3000, // the sum of these should be < dcTimeout
+  pingTimeout: 2000,
 });
 
 /** Game server state */
@@ -236,10 +226,17 @@ const handleMessage = async function (
   const roomId = player.roomId;
   const room = await getRoom(roomId);
 
+  if (message.type === 'cancelSeek') {
+    const deleted = WAITING.deletePlayer(uuid);
+    if (deleted) {
+      log.notice('Cancelled seek:', player?.username);
+    }
+    return;
+  }
   if (message.type === 'newGame') {
     if (!!room) {
       // Handle existing room
-      playerLog.notice('already in a room, reconnecting');
+      playerLog.notice('new game when in a room, reconnecting');
       room.reconnect(player.uuid, ws);
       return;
     }
@@ -250,33 +247,22 @@ const handleMessage = async function (
     );
     return;
   }
+  if (message.type === 'getGame') {
+    if (!!room) {
+      playerLog.notice('getgame, reconnecting');
+      room.reconnect(player.uuid, ws);
+    } else {
+      kick(ws, player.uuid);
+    }
+    return;
+  }
   if (!room) {
     playerLog.notice('tried to message nonexistent room');
     return;
   }
+  room.handleMessage(player.uuid, message);
 
-  if (message.type === 'turn') {
-    // sanitize
-    function tg(message: Message): message is TurnMessage {
-      return message.type === 'turn';
-    }
-    if (!tg(message)) {
-      log.warn('message is not valid turn message', message);
-      return;
-    }
-    try {
-      room.handleTurn(player.uuid, message.turn);
-    } catch (e) {
-      log.error('ERR: fatal turn error', e);
-    }
-  }
-  if (message.type === 'roomAction') {
-    room.handleAction(player.uuid, message.action);
-  }
-  if (message.type === 'getAllowed') {
-    room.handleGetAllowed(player.uuid);
-  }
-  if (room.state === RoomState.COMPLETED) {
+  if (room.phase === PhaseEnum.DONE) {
     playerLog.notice('game completed');
   }
 };
@@ -289,6 +275,9 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
       !password ? 'open' : 'private'
     } game with variant ${variant ?? 'unspecified'}.`
   );
+  if (password) {
+    playerLog.notice(`password is ${password}`);
+  }
 
   let selectedVariant = (argv.game || variant) ?? '';
   selectedVariant =
@@ -382,6 +371,4 @@ const kick = async (ws: SocketIO.Socket, uuid?: string) => {
     delete gameSettings[uuid];
   }
   sendMessage(ws, {type: 'kick'});
-  // Close the connection
-  ws.disconnect(true);
 };

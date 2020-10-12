@@ -1,11 +1,12 @@
 import {Game, GameEventType, GameEventName} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
-import {Color, getOpponent, Pair} from '../const';
+import {Color, getOpponent} from '../const';
 import {BoardState, generateStartState, Phase} from '../state';
 import Square from '../square';
-import {randomChoice} from '../../utils';
+import {randomChoice} from '../../common/utils';
 import {Move, Turn, Activate, TurnType, Castle, Unknown} from '../turn';
 import {SecretPawnGame} from './pawngame';
+import { Pair } from '../pair';
 
 export class Stealthbomber extends SecretPawnGame {
   name = 'Stealthbomber';

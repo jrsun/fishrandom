@@ -17,9 +17,7 @@ import '@polymer/paper-listbox/paper-listbox.js';
 import {PaperDialogElement} from '@polymer/paper-dialog';
 import {VARIANTS} from '../chess/variants';
 import {PaperDropdownMenuElement} from '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
-import { randomChoice } from '../utils';
-
-const LIST_OF_FISH = ['fish', 'trout', 'anchovy', 'cod', 'tilapia', 'salmon', 'snapper', 'tuna', 'carp'];
+import { randomChoice } from '../common/utils';
 
 @customElement('my-login')
 export class MyLogin extends LitElement {
@@ -103,9 +101,6 @@ export class MyLogin extends LitElement {
       /* background-color: #fffeed; */
       border-radius: 4px;
       transform: translate(0, +50px);
-    }
-    #pet-select {
-      border: 1px solid #ccc;
     }
     .instructions {
       max-width: 40vw;
@@ -191,7 +186,6 @@ export class MyLogin extends LitElement {
             type="text"
             autocomplete="off"
             placeholder="Username"
-            value=${localStorage.getItem('name') ?? randomChoice(LIST_OF_FISH)}
           />
           <div class="buttons">
             <paper-button

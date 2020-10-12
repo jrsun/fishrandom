@@ -1,9 +1,9 @@
 import {Game, GameEventName, GameEventType, GameResult, GameResultType} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn, Mann} from '../piece';
-import {Color, getOpponent, Pair} from '../const';
+import {Color, getOpponent} from '../const';
 import {BoardState, generateStartState, generate960} from '../state';
 import Square from '../square';
-import {randomChoice} from '../../utils';
+import {randomChoice} from '../../common/utils';
 import {Move, Turn, Activate, TurnType, Castle} from '../turn';
 
 export class Losers extends Game {

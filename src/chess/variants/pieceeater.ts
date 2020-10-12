@@ -1,11 +1,11 @@
 import {Game} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
-import {Color, getOpponent, equals} from '../const';
+import {Color, getOpponent, } from '../const';
 import {BoardState, generateStartState} from '../state';
 import Square from '../square';
-import {randomChoice, cartesian} from '../../utils';
+import {randomChoice, cartesian} from '../../common/utils';
 import {Move, TurnType, Turn} from '../turn';
-import {dedup, Pair} from '../pair';
+import {dedup, Pair, equals} from '../pair';
 
 export class Gobbler extends Game {
   name = 'Gobbler';

@@ -2,7 +2,8 @@ import {BoardState, generateStartState} from './state';
 import {Move, TurnType, Castle, Turn, Drop, Promote} from './turn';
 import {Piece, King, Rook, Pawn, Knight, Bishop, Queen, Mann} from './piece';
 import Square from './square';
-import {Color, Pair, NotImplementedError, getOpponent, equals} from './const';
+import {Color, NotImplementedError, getOpponent} from './const';
+import { equals, Pair } from './pair';
 
 export class Game {
   // public

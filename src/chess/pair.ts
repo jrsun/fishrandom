@@ -23,3 +23,7 @@ export function dedup(l: Pair[]): Pair[] {
     col: parseInt(s.split(',')[1]),
   }));
 }
+
+export function unhash(s: string): Pair {
+  return {row: parseInt(s.split(',')[0]), col: parseInt(s.split(',')[1])};
+}

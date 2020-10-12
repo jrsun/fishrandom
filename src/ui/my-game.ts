@@ -4,7 +4,7 @@ import {
   customElement,
   property,
   css,
-} from '../../node_modules/lit-element';
+} from 'lit-element';
 import {Piece, King} from '../chess/piece';
 import Square from '../chess/square';
 // import {MoveMessage} from '../common/message';
@@ -43,8 +43,8 @@ import {selectPieceEvent, SelectEventType, SelectEventDetail, SQUARE_SIZE, drawA
  * @slot - This element has a slot
  * @csspart button - The button
  */
-@customElement('my-element')
-export class MyElement extends LitElement {
+@customElement('my-game')
+export class MyGame extends LitElement {
   static styles = css`
     :host {
       display: inline-block;
@@ -181,7 +181,7 @@ export class MyElement extends LitElement {
 
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
-      addMessageHandler(this.socket, 'my-element', this.handleSocketMessage);
+      addMessageHandler(this.socket, 'my-game', this.handleSocketMessage);
     }
     if (
       changedProperties.has('selectedSquare') ||
@@ -654,6 +654,6 @@ export class MyElement extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'my-element': MyElement;
+    'my-game': MyGame;
   }
 }

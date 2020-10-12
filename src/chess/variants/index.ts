@@ -30,9 +30,11 @@ import {Werewolf} from './werewolf';
 import {Pawnside} from './pawnside';
 import {Knightrider} from './knightrider';
 import {Absorption} from './absorption';
+import {Knighthood} from './knighthood';
 
-import {randomChoice, zip} from '../../utils';
+import {randomChoice, zip} from '../../common/utils';
 
+// Complete list of variants
 export const VARIANTS: {[name: string]: typeof Game} = {
   Atomic,
   Chess960,
@@ -67,32 +69,26 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Pawnside,
   Knightrider,
   Absorption,
+  Knighthood,
 };
 
+// Variants allowed in public games
 export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Atomic,
   Bario,
-  // Chigorin,
   Knightmate,
   Horde,
   Hiddenqueen,
   Royalpawn,
   Grasshopper,
   Dark,
-  // Dark2r,
-  // Pocketknight,
   Stealthbomber,
-  // Chess921600,
-  // Chess960,
   Gobbler,
   Football,
   Shooting,
-  // Prechess,
   Amazonarmy,
   Losers,
   Golemchess,
-  // Kungfu,
-  // Instagram,
   Gaychess,
   Monster,
   Veto,
@@ -100,6 +96,29 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Pawnside,
   Knightrider,
   Absorption,
+  Knighthood,
+};
+
+/** Variants allowed on the front page.
+ * Disallow hidden information ones, for instance.
+ */
+export const DEMO_VARIANTS: {[name: string]: typeof Game} = {
+  Atomic,
+  Bario,
+  Chigorin,
+  Knightmate,
+  Horde,
+  Grasshopper,
+  Football,
+  Shooting,
+  Amazonarmy,
+  Golemchess,
+  Gaychess,
+  Werewolf,
+  Pawnside,
+  Knightrider,
+  Absorption,
+  Knighthood,
 };
 
 // Takes two arrays of recently played variants ordered from most to least recent
@@ -133,7 +152,6 @@ export function Random(recent: string[], recent2: string[]): typeof Game {
   return VARIANTS[randomChoice(possibleVariants)];
 }
 export const SAVE_LAST_N_VARIANTS = 10;
-
 
 export {
   Losers,
@@ -169,4 +187,5 @@ export {
   Pawnside,
   Knightrider,
   Absorption,
+  Knighthood,
 };

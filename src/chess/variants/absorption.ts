@@ -1,9 +1,9 @@
 import {Game, GameEventName, GameEventType} from '../game';
 import {Rook, Knight, Bishop, King, Piece, Queen, Pawn, Amazon, Chancellor, Princess, ALL_PIECES} from '../piece';
-import {Color, getOpponent, Pair} from '../const';
+import {Color, getOpponent} from '../const';
 import {BoardState, generateStartState} from '../state';
 import Square from '../square';
-import {randomChoice} from '../../utils';
+import {randomChoice} from '../../common/utils';
 import {Move, Turn, Activate, TurnType, Castle} from '../turn';
 
 export class Absorption extends Game {

@@ -3,7 +3,7 @@ import {BoardState, generate960, generate9602, squaresFromPos, generateStartStat
 import {Move, Turn, TurnType} from '../turn';
 import {Color, getOpponent} from '../const';
 import Square from '../square';
-import {randomChoice} from '../../utils';
+import {randomChoice} from '../../common/utils';
 import {Piece, King, Rook, Pawn, Knight, Bishop, Queen} from '../piece';
 
 export class Pawnside extends Game {

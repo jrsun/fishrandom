@@ -6,7 +6,7 @@ import {
   css,
   TemplateResult,
 } from 'lit-element';
-import { randomInt } from '../utils';
+import { randomInt } from '../common/utils';
 import { addMessageHandler, Message, PlayerInfo } from '../common/message';
 
 interface RankScore {

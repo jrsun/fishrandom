@@ -3,7 +3,7 @@ import {BoardState} from '../chess/state';
 import Square from '../chess/square';
 import zlib from 'zlib';
 import {Turn} from '../chess/turn';
-import {Color, Pair, RoomAction} from '../chess/const';
+import {Color, RoomAction} from '../chess/const';
 import WS from 'ws';
 import {QueenPawn} from '../chess/variants/hiddenqueen';
 import {Hopper} from '../chess/variants/grasshopper';
@@ -18,17 +18,23 @@ import { Wolf } from '../chess/variants/werewolf';
 import { Nightrider } from '../chess/variants/knightrider';
 
 export type Message =
+  // Client
   | TurnMessage
   | ReplaceMessage
   | AppendMessage
   | RoomActionMessage
   | GetAllowedMessage
+  | CancelSeekMessage
+  | SkipRulesMessage
   | NewGameMessage
+  | GetGameMessage
+  // Server
   | InitGameMessage
   | GameOverMessage
   | TimerMessage
   | ReconnectMessage
   | GameEventMessage
+  | PhaseChangeMessage
   | KickMessage
   | UndoMessage
   | PingMessage
@@ -49,6 +55,10 @@ export interface NewGameMessage {
   password?: string;
 }
 
+export interface GetGameMessage {
+  type: 'getGame';
+}
+
 export interface RoomActionMessage {
   type: 'roomAction';
   action: RoomAction; // draw, resign, etc
@@ -56,6 +66,14 @@ export interface RoomActionMessage {
 
 export interface GetAllowedMessage {
   type: 'getAllowed';
+}
+
+export interface CancelSeekMessage {
+  type: 'cancelSeek';
+}
+
+export interface SkipRulesMessage {
+  type: 'skipRules';
 }
 
 /*
@@ -125,6 +143,17 @@ export interface GameOverMessage {
 export interface GameEventMessage {
   type: 'gameEvent';
   content: GameEvent;
+}
+
+export enum PhaseEnum {
+  RULES = 'rules',
+  PLAYING = 'playing',
+  DONE = 'done',
+}
+
+export interface PhaseChangeMessage {
+  type: 'phaseChange';
+  phase: PhaseEnum;
 }
 
 export interface KickMessage {
@@ -243,6 +272,7 @@ export const addMessageHandler = (() => {
       socket.off('message', handlers[name]);
     }
     const fn = (data: any) => {
+      if (typeof window === undefined) console.log(data);
       let parsed;
       try {
         parsed = JSON.parse(data, reviver) as Message;

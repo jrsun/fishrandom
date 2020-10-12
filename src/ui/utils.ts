@@ -1,6 +1,7 @@
 import {Piece} from '../chess/piece';
 import Square from '../chess/square';
 
+// Select events
 export enum SelectEventType {
   PIECE_TOGGLE = 'piece-toggle-event',
   PIECE_ON = 'piece-on-event',
@@ -20,6 +21,12 @@ export function selectPieceEvent(
   return {piece, square};
 }
 
+// Events
+export const SeekEventType = 'seek-game';
+export const CancelSeekEventType = 'cancel-seek-game';
+
+// Constants
+export const LIST_OF_FISH = ['fish', 'trout', 'anchovy', 'cod', 'tilapia', 'salmon', 'snapper', 'tuna', 'carp'];
 export const SQUARE_SIZE = Math.min(50, document.body.clientWidth / 8); //px
 
 export function drawArrow(
@@ -88,8 +95,4 @@ export function drawCircle(
 
   ctx.arc(x, y, r, 0, 2 * Math.PI);
   ctx.stroke();
-}
-
-export function memecase(s: string) {
-  return s.toUpperCase().split('').join(' ');
 }
