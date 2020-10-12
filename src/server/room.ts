@@ -207,10 +207,12 @@ export class Room {
     if (this.ranked) {
       // Give the other player the win after X seconds
       me.disconnectTimeout = setTimeout(() => {
-        // this.wins(opponent.player.uuid, {
-        //   type: GameResultType.WIN,
-        //   reason: 'disconnect timeout',
-        // })
+        // Handle as if resigned
+        this.setPhase(PhaseEnum.PLAYING);
+        this.phaseHandler.handleMessage(player.uuid, {
+          type: 'roomAction',
+          action: RoomAction.RESIGN,
+        });
       }, DISCONNECT_TIMEOUT_SECONDS * 1000);
     }
   }
@@ -293,7 +295,6 @@ export class Room {
     }
     this.phase = phase;
     this.phaseHandler = new Handler(this);
-    // TODO: send new phase and save room
 
     const m = {
       type: 'phaseChange' as const,
@@ -301,6 +302,7 @@ export class Room {
     }
     sendMessage(this.p1.player.socket, m);
     sendMessage(this.p2.player.socket, m);
+    saveRoom(this);
   }
 
   static freeze(r: Room): RoomSchema {
@@ -320,9 +322,9 @@ export class Room {
           color: p2.color,
         },
       },
-      turnHistory: game.turnHistory,
-      stateHistory: game.stateHistory,
-      variant: game.name,
+      turnHistory: game?.turnHistory,
+      stateHistory: game?.stateHistory,
+      variant: game?.name,
       phase,
     };
   }

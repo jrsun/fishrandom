@@ -390,9 +390,6 @@ export class Pawn extends Piece {
     }
     return;
   }
-  promote() {
-    // TODO
-  }
   get img(): string {
     if (this.color === Color.BLACK) {
       // return 'bpawn.svg';

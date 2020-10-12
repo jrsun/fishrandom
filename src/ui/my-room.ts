@@ -73,6 +73,7 @@ export class MyRoom extends LitElement {
       overflow: hidden;
       white-space: nowrap;
       font-size: 32px;
+      letter-spacing: 0.2em;
     }
     .card {
       display: block;
@@ -367,7 +368,6 @@ export class MyRoom extends LitElement {
     };
   }
 
-  // TODO this.disconnect
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
       addMessageHandler(this.socket, 'my-room', this.handleSocketMessage.bind(this));
@@ -420,7 +420,7 @@ export class MyRoom extends LitElement {
       clearInterval(titleScrambler);
       if (titleEl) {
         titleEl.innerHTML =
-          this.game?.name.toUpperCase().split('').join(' ') ?? '';
+          this.game?.name.toUpperCase() ?? '';
       }
     }, ROULETTE_SECONDS * 1000);
     if (this.audio.roulette) {
@@ -442,8 +442,6 @@ export class MyRoom extends LitElement {
       this.gameResult = undefined;
       this.selectedPiece = undefined;
       this.selectedSquare = undefined;
-
-      clearInterval(this.timerInterval);
 
       if (message.type === 'reconnect') {
         this.started = true;
@@ -467,7 +465,6 @@ export class MyRoom extends LitElement {
         this.game.stateHistory = stateHistory;
         this.game.state = stateHistory?.[stateHistory.length - 1];
       }
-      clearInterval(this.timerInterval);
 
       this.gameResult = result;
       const goDialog = this.shadowRoot?.querySelector('paper-dialog');
@@ -649,7 +646,7 @@ export class MyRoom extends LitElement {
       <div>
         <h1 class="title">
           ${this.started
-            ? this.game?.name.toUpperCase().split('').join(' ')
+            ? this.game?.name.toUpperCase()
             : ''}
         </h1>
       </div>
