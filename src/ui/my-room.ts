@@ -564,6 +564,7 @@ export class MyRoom extends LitElement {
         </h1>
       </div>
       <my-stats .socket=${this.socket}></my-stats>
+      <my-spinner></my-spinner>
       <my-release-notes></my-release-notes>
       <paper-button
         class="exit-while-waiting"

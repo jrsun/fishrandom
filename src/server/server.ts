@@ -287,6 +287,9 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
       !password ? 'open' : 'private'
     } game with variant ${variant ?? 'unspecified'}.`
   );
+  if (password) {
+    playerLog.notice(`password is ${password}`);
+  }
 
   let selectedVariant = (argv.game || variant) ?? '';
   selectedVariant =
