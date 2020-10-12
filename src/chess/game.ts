@@ -8,6 +8,7 @@ import { equals, Pair } from './pair';
 export class Game {
   // public
   name: string; // variant name
+  demo: boolean; // allows any turn
 
   // protected
   state: BoardState;
@@ -15,10 +16,11 @@ export class Game {
   stateHistory: BoardState[];
   eventHandler: ((ge: GameEvent) => void) | undefined;
 
-  constructor(public isServer: boolean, initial?: BoardState) {
+  constructor(public isServer: boolean, initial?: BoardState, demo = false) {
     this.state = initial ?? generateStartState();
     this.turnHistory = [];
     this.stateHistory = [this.state];
+    this.demo = demo;
   }
 
   onEvent(handler: (ge: GameEvent) => void) {
@@ -558,7 +560,7 @@ export class Game {
 
   // Server
   isWhoseTurn(color: Color, piece?: Piece): boolean {
-    if (process.env.NODE_ENV === 'development') return true;
+    if (this.demo) return true;
 
     let result = color === this.state.whoseTurn;
     if (piece) {
