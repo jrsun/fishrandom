@@ -36,9 +36,9 @@ import {Game, GameResult, GameResultType} from '../chess/game';
 import {BoardState} from '../chess/state';
 import {Color, getOpponent, ROULETTE_SECONDS, DISCONNECT_TIMEOUT_SECONDS} from '../chess/const';
 import {Knight, Piece} from '../chess/piece';
-import {randomChoice} from '../utils';
+import {randomChoice} from '../common/utils';
 import Square from '../chess/square';
-import {SelectEventType, SelectEventDetail} from './utils';
+import {SelectEventType, SelectEventDetail, SeekEventType} from './utils';
 import {equals, Pair} from '../chess/pair';
 import { GameListener } from './game-listener';
 
@@ -213,24 +213,6 @@ export class MyRoom extends LitElement {
       pointer-events: none;
       z-index: 2;
     }
-    .fish-con {
-      display: block;
-      height: 100px;
-      width: 50px;
-      margin-bottom: 50px;
-    }
-    .fish {
-      height: 50px;
-      width: 50px;
-      background-image: url(/img/svg/blt.svg);
-      background-size: cover;
-      transform: rotate(90deg);
-      animation:swim 2s linear infinite;
-
-      -webkit-animation-fill-mode:forwards;
-      -moz-animation-fill-mode:forwards;
-      animation-fill-mode:forwards;
-    }
     .exit-while-waiting {
       margin-top: 10px;
       background-color: #eee;
@@ -257,17 +239,7 @@ export class MyRoom extends LitElement {
       transition: 0.2s;
       background-color: #bde6c0;
     }
-    @keyframes swim {
-      from {transform: rotate(90deg)}
-      10% {transform: translate(0, 5px) rotate(120deg);}
-      25% {transform: translate(0, 25px) rotate(130deg);}
-      40% {transform: translate(0, 45px) rotate(120deg);}
-      50% {transform: translate(0, 50px) rotate(90deg);}
-      60% {transform: translate(0, 45px) rotate(60deg);}
-      75% {transform: translate(0, 25px) rotate(50deg);}
-      90% {transform: translate(0, 5px) rotate(60deg);}
-      to {transform: rotate(90deg)}
-    }
+    
     .blinking {animation: blink 0.5s linear 3;}
     @keyframes blink {
       from {opacity: 0};
@@ -521,6 +493,13 @@ export class MyRoom extends LitElement {
     this.gameResult = undefined;
     this.game = undefined;
     this.color = undefined;
+    this.dispatchEvent(new CustomEvent(
+      SeekEventType,
+      {
+        bubbles: true,
+        composed: true,
+      }
+    ));
     sendMessage(this.socket, {type: 'newGame'});
   };
 
@@ -533,7 +512,6 @@ export class MyRoom extends LitElement {
         </h1>
       </div>
       <my-stats .socket=${this.socket}></my-stats>
-      <div class="fish-con"><div class="fish"></div></div>
       <my-release-notes></my-release-notes>
       <paper-button
         class="exit-while-waiting"

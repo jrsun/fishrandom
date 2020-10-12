@@ -5,7 +5,7 @@ import {BoardState, generateStartState, Phase} from '../state';
 import Square from '../square';
 import {Turn, TurnType} from '../turn';
 import {equals, Pair} from '../pair';
-import {cartesian} from '../../utils';
+import {cartesian} from '../../common/utils';
 
 export class Veto extends Game {
   name = 'Veto';

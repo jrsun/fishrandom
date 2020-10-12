@@ -1,5 +1,5 @@
 import {Game, GameEvent, GameResult, GameResultType} from '../chess/game';
-import {randomChoice} from '../utils';
+import {randomChoice} from '../common/utils';
 import {Move, Turn, TurnType, toFEN} from '../chess/turn';
 import {Color, getOpponent, ROULETTE_SECONDS, DISCONNECT_TIMEOUT_SECONDS, FIRST_MOVE_ABORT_SECONDS, RoomAction} from '../chess/const';
 import {

@@ -82,7 +82,7 @@ export class MyControls extends LitElement {
   @property({type: Number}) viewMoveIndex: number | undefined;
   @property({type: Array}) allowedActions: RoomAction[] = [];
   @property({type: Boolean, reflect: true}) offeredDraw = false;
-  
+
   updated(changedProperties) {
     if (changedProperties.has('socket')) {
       addMessageHandler(this.socket, 'my-controls', this.handleSocketMessage);

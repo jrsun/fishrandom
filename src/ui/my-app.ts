@@ -22,8 +22,16 @@ export class MyApp extends LitElement {
     this.addEventListener(SeekEventType, this.onSeek);
     this.addEventListener(CancelSeekEventType, this.onCancelSeek);
     this.socket = io(':8081') as SocketIO.Socket;
-    this.socket.on('connect', () => {this.connected = true});
+    this.socket.on('connect', () => {
+      console.log('socket connected');
+      this.connected = true;
+      const myRoom = this.shadowRoot!.querySelector('my-room') as MyRoom;
+      if (myRoom) {
+        myRoom.initGame(); // reconnect
+      }
+    });
     this.socket.on('disconnect', () => {
+      console.log('socket disconnected');
       this.connected = false;
       this.seeking = false;
     });

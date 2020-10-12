@@ -25,10 +25,8 @@ export function selectPieceEvent(
 export const SeekEventType = 'seek-game';
 export const CancelSeekEventType = 'cancel-seek-game';
 
-// TODO: Seek event (sent from my-room and my-front-page to my-app)
-// then my-app sends a socket message to init-game (rename to seek?)
-// my-app also sets seeking property and passes it to children
-
+// Constants
+export const LIST_OF_FISH = ['fish', 'trout', 'anchovy', 'cod', 'tilapia', 'salmon', 'snapper', 'tuna', 'carp'];
 export const SQUARE_SIZE = Math.min(50, document.body.clientWidth / 8); //px
 
 export function drawArrow(

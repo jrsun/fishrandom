@@ -7,17 +7,23 @@ import {
   TemplateResult,
 } from 'lit-element';
 import { Game } from '../chess/game';
-import { DEMO_VARIANTS } from '../chess/variants';
+import { DEMO_VARIANTS, VARIANTS } from '../chess/variants';
 import { Color, ROULETTE_SECONDS } from '../chess/const';
 import "@polymer/paper-button/paper-button";
 import "./my-game";
 import "./my-announce";
+import '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
+import '@polymer/paper-item/paper-item.js';
+import '@polymer/paper-listbox/paper-listbox.js';
+import "./my-spinner";
 import { GameListener } from './game-listener';
 import { Piece } from '../chess/piece';
 import { Pair } from '../chess/pair';
-import { randomChoice } from '../utils';
+import { randomChoice } from '../common/utils';
 import "./my-tooltip";
-import { SeekEventType, CancelSeekEventType } from './utils';
+import { SeekEventType, CancelSeekEventType, LIST_OF_FISH } from './utils';
+import { PaperDialogElement } from '@polymer/paper-dialog';
+import {PaperDropdownMenuElement} from '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
 
 @customElement('my-front-page')
 export class MyFrontPage extends LitElement {
@@ -28,11 +34,7 @@ export class MyFrontPage extends LitElement {
       display: block;
       color: #eee;
       font-family: 'JelleeBold';
-      height: 100%;
       width: 100%;
-
-      background-size: 220%;
-      background-image: url('/img/bg-dark.svg');
     }
 
     .page-container {
@@ -75,6 +77,11 @@ export class MyFrontPage extends LitElement {
       border-color: #efece0;
     }
     input[type='text'] {
+      border-radius: 4px;
+      font-size: 25px;
+      text-align: center;
+      font-family: Verdana, sans-serif;
+      border: #888;
       outline: none;
     }
     input[type='text']::placeholder {
@@ -158,18 +165,18 @@ export class MyFrontPage extends LitElement {
       margin-right: 10px;
     }
     #username {
-      padding-left: 10px;
+      height: 100%;
       width: 100%;
-      font-size: large;
     }
-
     .play {
       grid-area: play;
       display: flex;
       width: 100%;
+      height: 100%;
     }
     .play paper-button {
       flex: 1;
+      height: 100%;
     }
 
     .play paper-button:first-child {
@@ -184,6 +191,40 @@ export class MyFrontPage extends LitElement {
       grid-area: info;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
+    /* Spinner */
+    .spinner {
+      position: absolute;
+      transform: translate(-25%, -25%);
+    }
+
+    /* Dialog */
+    .room-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: 'JelleeBold';
+    }
+    .room-container > * {
+      margin-bottom: 10px;
+    }
+    #password {
+      width: 40vw;
+      padding-left: 10px;
+      width: 100%;
+      font-size: large;
+      border: 1px solid #ccc;
+    }
+    #variant-menu {
+      width: 40vw;
+    }
+    paper-dialog {
+      /* background-color: #fffeed; */
+      border-radius: 4px;
+      transform: translate(0, +50px);
+    }
+    .instructions {
+      max-width: 40vw;
+    }
   `;
 
   // public
@@ -194,9 +235,11 @@ export class MyFrontPage extends LitElement {
   @property({type: Object}) selectedPiece: Piece|undefined;
   @property({type: Object}) selectedSquare: Pair|undefined;
   @property({type: Boolean}) rouletteToggle = true;
+  @property({type: Boolean}) privateModalOpened = false;
 
   private gameListener: GameListener;
   private audio: {roulette: HTMLAudioElement|null|undefined};
+  private roomModal: PaperDialogElement;
 
   // lifecycle
 
@@ -217,6 +260,7 @@ export class MyFrontPage extends LitElement {
     this.audio = {
       roulette: document.querySelector('#roulette-audio') as HTMLAudioElement,
     }
+    this.roomModal = this.shadowRoot!.querySelector('#room-modal') as PaperDialogElement;
   }
 
   // render
@@ -253,18 +297,27 @@ export class MyFrontPage extends LitElement {
             <paper-button .onclick=${this.reroll} raised class="reroll-btn">Reroll</paper-button>
           </div>
           <div class="login">
-            <form class="login-form" .onsubmit=${this.seek}>
+            <form class="login-form" .onsubmit=${(e: Event) => {
+              e.preventDefault();
+              this.seek();
+            }}>
               <input
                 id="username"
                 type="text"
                 autocomplete="off"
                 ?disabled=${seeking}
-                placeholder="Username" />
+                placeholder="Username"
+                value=${localStorage.getItem('name') ?? randomChoice(LIST_OF_FISH)} />
             </form>
-            <paper-button ?disabled=${seeking} raised class="g-signin-btn">G</paper-button>
+            <!-- <paper-button ?disabled=${seeking} raised class="g-signin-btn">G</paper-button> -->
           </div>
           <div class="play">
             ${this.renderPlay()}
+            ${this.seeking ?
+              html`<div class="spinner">
+                <my-spinner></my-spinner>
+              </div>` : html``
+            }
           </div>
           <div class="info card">
             <b>Fishrandom</b> is randomized chess variant roulette. Inspired by
@@ -283,6 +336,7 @@ export class MyFrontPage extends LitElement {
             <a target="_blank" href="mailto:admin@fishrandom.io">admin@fishrandom.io</a>.
           </div>
         </div>
+        ${this.renderPrivateModal()}
       </div>
     `;
   }
@@ -291,11 +345,56 @@ export class MyFrontPage extends LitElement {
     const {seeking} = this;
     return html`
       ${seeking ?
-        html`<paper-button .onclick=${this.cancelSeek}>Cancel</paper-button>`
-      : html`<paper-button .onclick=${this.seek} ?disabled=${seeking} raised class="seek-btn">Play</paper-button>`
+        html`<paper-button .onclick=${this.cancelSeek}>Seeking...</paper-button>`
+      : html`<paper-button .onclick=${() => this.seek()} ?disabled=${seeking} raised class="seek-btn">Play</paper-button>`
       }
-      <paper-button ?disabled=${seeking} raised class="private-btn">Private</paper-button>
+      <paper-button
+        ?disabled=${seeking}
+        .onclick=${() => {
+          this.roomModal?.open();
+        }}
+        raised class="private-btn"
+      >Private</paper-button>
     `;
+  }
+
+  renderPrivateModal = () => {
+    return html`
+    <paper-dialog id="room-modal">
+      <div class="room-container">
+        <div class="instructions">
+          Share password with a friend, or use the password shared with you
+          to join.
+        </div>
+        <input
+          id="password"
+          type="text"
+          autocomplete="off"
+          placeholder="Room password"
+        />
+        <paper-dropdown-menu
+          label="Vote for game (Opponent chooses too!)"
+          id="variant-menu"
+        >
+          <paper-listbox slot="dropdown-content" selected="0">
+            <paper-item>random</paper-item>
+            ${Object.keys(VARIANTS).sort().map((name: string) => {
+              return html`<paper-item>${name}</paper-item>`;
+            })}
+          </paper-listbox>
+        </paper-dropdown-menu>
+        <paper-button
+          class="seek-btn"
+          raised
+          .onclick=${() => {
+            if (!this.getInputContent('#password')) return;
+            this.roomModal.close();
+            this.seek(/*private*/true);
+          }}
+          >Play</paper-button
+        >
+      </div>
+    </paper-dialog>`;
   }
 
   // methods
@@ -327,19 +426,16 @@ export class MyFrontPage extends LitElement {
     }
   }
 
-  getUsernameContent = (): string|undefined => {
-    const usernameElement = this.shadowRoot?.querySelector(
-      '#username'
-    ) as HTMLInputElement;
-    return usernameElement?.value;
+  getInputContent = (selector: string): string|undefined => {
+    const el = this.shadowRoot?.querySelector(selector) as HTMLInputElement;
+    return el?.value;
   }
 
   // auth
-  seek = (e: Event) => {
-    console.log('fire seek');
-    e.preventDefault();
-
-    const username = this.getUsernameContent() || 'guest';
+  seek = (isPrivate=false) => {
+    const username = this.getInputContent('#username') || 'guest';
+    const password = isPrivate ? this.getInputContent('#password') : undefined;
+    const variant = isPrivate ? this.getInputContent('#variant-menu') : undefined;
 
     fetch('/login', {
       method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -353,8 +449,8 @@ export class MyFrontPage extends LitElement {
       referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       body: JSON.stringify({
         username: username,
-        // password: password.value,
-        // variant: variant,
+        password: password || undefined,
+        variant: variant || undefined,
       }),
     }).then(() => {
       // seek game

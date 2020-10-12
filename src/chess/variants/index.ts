@@ -31,7 +31,7 @@ import {Pawnside} from './pawnside';
 import {Knightrider} from './knightrider';
 import {Absorption} from './absorption';
 
-import {randomChoice, zip} from '../../utils';
+import {randomChoice, zip} from '../../common/utils';
 
 // Complete list of variants
 export const VARIANTS: {[name: string]: typeof Game} = {

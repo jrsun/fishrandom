@@ -16,7 +16,7 @@ import socketio from 'socket.io';
 import * as Variants from '../chess/variants/index';
 import {Color} from '../chess/const';
 import yargs from 'yargs';
-import {randomChoice, randomInt} from '../utils';
+import {randomChoice, randomInt} from '../common/utils';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import escape from 'validator/lib/escape';
@@ -156,8 +156,8 @@ app.listen(8080);
 const ioPort = process.env.NODE_ENV === 'development' ? 8081 : 8082;
 
 const io: SocketIO.Server = socketio(ioPort, {
-  pingInterval: 5000, // the sum of these should be < dcTimeout
-  pingTimeout: 7000,
+  pingInterval: 3000, // the sum of these should be < dcTimeout
+  pingTimeout: 2000,
 });
 
 /** Game server state */

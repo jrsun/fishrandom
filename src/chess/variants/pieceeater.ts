@@ -3,7 +3,7 @@ import {Rook, Knight, Bishop, King, Piece, Queen, Pawn} from '../piece';
 import {Color, getOpponent, } from '../const';
 import {BoardState, generateStartState} from '../state';
 import Square from '../square';
-import {randomChoice, cartesian} from '../../utils';
+import {randomChoice, cartesian} from '../../common/utils';
 import {Move, TurnType, Turn} from '../turn';
 import {dedup, Pair, equals} from '../pair';
 

@@ -10,7 +10,7 @@ import {
   Pawn,
 } from './piece';
 import {Color} from './const';
-import {randomChoice} from '../utils';
+import {randomChoice} from '../common/utils';
 import {Move, Turn} from './turn';
 
 type BoardJson = (string | null)[][];
