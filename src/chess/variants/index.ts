@@ -30,6 +30,7 @@ import {Werewolf} from './werewolf';
 import {Pawnside} from './pawnside';
 import {Knightrider} from './knightrider';
 import {Absorption} from './absorption';
+import {Knighthood} from './knighthood';
 
 import {randomChoice, zip} from '../../common/utils';
 
@@ -68,6 +69,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Pawnside,
   Knightrider,
   Absorption,
+  Knighthood,
 };
 
 // Variants allowed in public games
@@ -94,6 +96,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Pawnside,
   Knightrider,
   Absorption,
+  Knighthood,
 };
 
 /** Variants allowed on the front page.
@@ -115,6 +118,7 @@ export const DEMO_VARIANTS: {[name: string]: typeof Game} = {
   Pawnside,
   Knightrider,
   Absorption,
+  Knighthood,
 };
 
 // Takes two arrays of recently played variants ordered from most to least recent
@@ -183,4 +187,5 @@ export {
   Pawnside,
   Knightrider,
   Absorption,
+  Knighthood,
 };

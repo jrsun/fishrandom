@@ -366,8 +366,20 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
     <li>Knight and Rook make a (N + R) compound, and Knight and Bishop make a (N + B) compound.</li>
     <li>An Amazon (N + R + B) can be formed in multiple ways.</li>
     <li>When a pawn captures a piece, it becomes that piece.</li>
+  </ul>`,
+  Knighthood: html`Pieces can demote to Knights.
+  <ul>
+    <li>Any non-pawn piece can also move and capture as a Knight, but it becomes a Knight <b>permanently</b>.</li>
+    <li>King can move as a Knight and becomes a Royal Knight.</li>
+    <li>A <b>Royal Knight</b> is a Knight that has the obligations of a King
+      to move out of check, and you lose if it is checkmated.</li>
+    <br>
+    <li>Tip: Remember that it's illegal to move your King or Royal Knight
+      a Knight's move away from any non-pawn piece.</li>
   </ul>
-  `,
+  Pretentious chess, by Adrian Alvarez de la Campa (2006)
+  `
+  ,
 };
 
 declare global {
