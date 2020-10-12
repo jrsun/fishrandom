@@ -109,7 +109,6 @@ export const DEMO_VARIANTS: {[name: string]: typeof Game} = {
   Knightmate,
   Horde,
   Grasshopper,
-  Football,
   Shooting,
   Amazonarmy,
   Golemchess,
