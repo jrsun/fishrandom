@@ -16,11 +16,11 @@ export class Game {
   stateHistory: BoardState[];
   eventHandler: ((ge: GameEvent) => void) | undefined;
 
-  constructor(public isServer: boolean, initial?: BoardState, demo = false) {
+  constructor(public isServer: boolean, initial?: BoardState) {
     this.state = initial ?? generateStartState();
     this.turnHistory = [];
     this.stateHistory = [this.state];
-    this.demo = demo;
+    this.demo = false;
   }
 
   onEvent(handler: (ge: GameEvent) => void) {
@@ -29,6 +29,11 @@ export class Game {
 
   place(piece: Piece, row: number, col: number) {
     this.state.place(piece, row, col);
+  }
+
+  demoize(): Game {
+    this.demo = true;
+    return this;
   }
 
   /***********************
