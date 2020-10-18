@@ -16,6 +16,8 @@ export class MyTooltip extends LitElement {
     .tooltip {
       position: relative;
       display: inline-block;
+      width: 100%;
+      height: 100%;
     }
 
     /* Tooltip text */
@@ -53,6 +55,12 @@ export class MyTooltip extends LitElement {
     /* Show the tooltip text when you mouse over the tooltip container */
     .tooltip:hover .tooltiptext {
       visibility: visible;
+    }
+
+    /* Fill the whole space taken by the my-tooltip element */
+    ::slotted([slot="tooltip"]) {
+      width: 100%;
+      height: 100%;
     }
   `;
 
