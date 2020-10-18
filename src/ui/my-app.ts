@@ -87,7 +87,10 @@ export class MyApp extends LitElement {
         .disconnected=${!connected}
       ></my-room>`;
     } else {
-      return html`<my-front-page .seeking=${seeking}></my-front-page>`;
+      return html`<my-front-page
+      .seeking=${seeking}
+      .socket=${socket}
+      ></my-front-page>`;
     }
   }
 }

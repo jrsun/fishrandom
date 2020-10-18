@@ -296,7 +296,6 @@ export class MyRoom extends LitElement {
     @media (min-width: 600px) {
       .grid {
         grid-template-columns: auto 350px;
-        grid-template-rows: auto;
         justify-items: center;
         align-items: start;
         grid-template-areas:
