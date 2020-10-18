@@ -65,7 +65,6 @@ export class MyApp extends LitElement {
   onSeek = () => {
     this.seeking = true;
     sendMessage(this.socket, {type: 'newGame'});
-    console.log('seeking new game');
   }
 
   onCancelSeek = () => {

@@ -2,7 +2,7 @@ import log from 'log';
 
 import { Room } from "./room";
 import { Message, sendMessage, PhaseEnum } from "../common/message";
-import { RoomPlayer, toPlayerInfo } from "./player";
+import { RoomPlayer, toPlayerInfo, addResult } from "./player";
 import { Game, GameResultType, GameResult } from "../chess/game";
 import { Turn, TurnType, toFEN } from '../chess/turn';
 import { saveRoom, updateScore, savePlayer, deleteRoom } from '../db';
@@ -91,16 +91,12 @@ export class PlayingPhase extends Phase {
         && (me.time / 1000) < (PUBLIC_PLAY_SECONDS - FIRST_MOVE_ABORT_SECONDS)
       )
     ) {
-      if (!opponent.allowedActions.has(RoomAction.ABORT)) {
-        opponent.allowedActions.delete(RoomAction.RESIGN);
-        opponent.allowedActions.add(RoomAction.ABORT);
-        opponent.allowedActions.add(RoomAction.RESIGN);
+      opponent.allowedActions.add(RoomAction.ABORT);
 
-        sendMessage(opponent.player.socket, {
-          type: 'allowedActions',
-          actions: Array.from(opponent.allowedActions),
-        });
-      }
+      sendMessage(opponent.player.socket, {
+        type: 'allowedActions',
+        actions: Array.from(opponent.allowedActions),
+      });
     }
     if (me.time <= 0) {
       log.get(me.name).notice('ran out of time');
@@ -222,8 +218,8 @@ export class PlayingPhase extends Phase {
     await sendMessage(me.player.socket, rm);
     await sendMessage(opponent.player.socket, am);
     room.sendTimers();
-    room.resetAllowedActions(room.p1, false);
-    room.resetAllowedActions(room.p2, false);
+    room.resetAllowedActions(room.p1);
+    room.resetAllowedActions(room.p2);
 
     if (this.checkIfOver(me)) return;
 
@@ -313,11 +309,8 @@ export class PlayingPhase extends Phase {
 
     // Opponent cannot offer draw if you've already offered
     if (!opponent.allowedActions.has(RoomAction.CLAIM_DRAW)) {
-      // Reorder set
-      opponent.allowedActions.delete(RoomAction.RESIGN);
       opponent.allowedActions.delete(RoomAction.OFFER_DRAW);
       opponent.allowedActions.add(RoomAction.CLAIM_DRAW);
-      opponent.allowedActions.add(RoomAction.RESIGN);
       sendMessage(opponent.player.socket, {
         type: 'allowedActions',
         actions: Array.from(opponent.allowedActions),
@@ -414,6 +407,11 @@ export class PlayingPhase extends Phase {
       const rbn = Math.ceil(rb + ELO_K * (0 - eb));
       me.player.elo = ran;
       opponent.player.elo = rbn;
+
+      // Add resignation
+
+      addResult(me.player, room.id, result);
+      addResult(opponent.player, room.id, {...result, type: GameResultType.LOSS});
     }
 
     sendMessage(me.player.socket, {

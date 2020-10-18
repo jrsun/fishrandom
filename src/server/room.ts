@@ -21,7 +21,7 @@ import {RoomSchema} from '../db/schema';
 import {VARIANTS} from '../chess/variants';
 import {BoardState} from '../chess/state';
 import {saveRoom, savePlayer, deleteRoom, updateScore, getRevRank} from '../db';
-import { RoomPlayer, Player, toPlayerInfo } from './player';
+import { RoomPlayer, Player, toPlayerInfo, hasResignedRecently } from './player';
 import { PUBLIC_PLAY_SECONDS } from './const';
 import { Phase, PlayingPhase, PHASE_MAP } from './phase';
 
@@ -119,8 +119,8 @@ export class Room {
     setTimeout(() => {
       this.game.onConnect();
       this.sendTimers();
-      this.resetAllowedActions(this.p1, false);
-      this.resetAllowedActions(this.p2, false);
+      this.resetAllowedActions(this.p1);
+      this.resetAllowedActions(this.p2);
       this.sendRanks();
       this.sendPhase(p1.player.uuid);
       this.sendPhase(p2.player.uuid);  
@@ -181,7 +181,7 @@ export class Room {
     setTimeout( () => {
       this.sendPhase(me.player.uuid);
       this.sendTimers();
-      this.resetAllowedActions(me, true);
+      this.resetAllowedActions(me);
       this.sendRanks();
       this.game.onConnect();
   
@@ -239,19 +239,19 @@ export class Room {
 
   /** Allowed actions */
 
-  resetAllowedActions(rp: RoomPlayer, force: boolean) {
-    const listActions = Array.from(rp.allowedActions);
-    if (
-      listActions.length !== DEFAULT_ALLOWED_ACTIONS.length ||
-      !listActions.every(action => DEFAULT_ALLOWED_ACTIONS.includes(action)) ||
-      force
-    ) {
-      rp.allowedActions = new Set(DEFAULT_ALLOWED_ACTIONS);
-      sendMessage(rp.player.socket, {
-        type: 'allowedActions',
-        actions: Array.from(rp.allowedActions),
-      })
+  resetAllowedActions(rp: RoomPlayer) {
+    rp.allowedActions = new Set(DEFAULT_ALLOWED_ACTIONS);
+
+    if (hasResignedRecently(rp.player)) {
+      rp.allowedActions.delete(RoomAction.RESIGN);
+    } else {
+      rp.allowedActions.add(RoomAction.RESIGN);
     }
+
+    sendMessage(rp.player.socket, {
+      type: 'allowedActions',
+      actions: Array.from(rp.allowedActions),
+    });
   }
 
   /** Send ranks */

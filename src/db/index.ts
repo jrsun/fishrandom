@@ -4,8 +4,10 @@ import {replacer, reviver} from '../common/message';
 import {ResolvePlugin} from 'webpack';
 import log from 'log';
 import zlib from 'zlib';
+import LRU from 'lru-cache';
 import {RoomSchema} from './schema';
 import { Player } from '../server/player';
+import { GameResultType } from '../chess/game';
 
 const REDIS_CLIENT = redis.createClient() as RedisClient;
 const PLAYERS: {[uuid: string]: Player} = {};
@@ -123,7 +125,7 @@ export async function savePlayer(p: Player) {
   return await new Promise((resolve, reject) => {
     REDIS_CLIENT.set(
       `player:${p.uuid}`,
-      JSON.stringify({...p, socket: undefined}),
+      JSON.stringify({...p, socket: undefined, recentResults: undefined}),
       (err) => {
         if (err) {
           reject(err);
@@ -152,6 +154,7 @@ export async function getPlayer(id: string): Promise<Player | undefined> {
       resolve({
         ...player,
         socket: undefined,
+        recentResults: undefined,
       });
     });
   });
