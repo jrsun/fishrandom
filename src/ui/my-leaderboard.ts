@@ -89,7 +89,7 @@ export class MyLeaderboard extends LitElement {
       <div class="title">Leaderboard (wins in a row)</div>
       <div class="scores">
         ${this.topScores.map((score, i) => {
-          const isMe = score.name === name && score.score === player?.streak;
+          const isMe = score.name === player?.name && score.score === player?.streak;
           return html`<div class="score ${isMe ? 'me' : ''}">
             ${scoreString(score.name, score.score, i+1)}
           </div>`

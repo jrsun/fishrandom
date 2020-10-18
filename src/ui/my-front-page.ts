@@ -119,9 +119,9 @@ export class MyFrontPage extends LitElement {
         justify-items: center;
         align-items: center;
         grid-template-areas:
-          "champions champions"
           "demo login"
           "demo play"
+          "demo champions"
           "demo leaderboard"
           "demo info";
       }
@@ -231,7 +231,8 @@ export class MyFrontPage extends LitElement {
     }
 
     .seek-btn {
-      background-color: #82d7ba;
+      /* background-color: #82d7ba; */
+      background-color: rgb(48 227 166);
     }
 
     .info {
