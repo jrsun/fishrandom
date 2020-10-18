@@ -55,7 +55,9 @@ export const hasResignedRecently = (p: Player): boolean => {
   p.recentResults.forEach((result) => {
     if (result.reason === 'resignation' && result.type === GameResultType.LOSS) {
       resigns++;
+    } else {
+      return;
     }
   })
-  return resigns >= 2;
+  return resigns >= 5;
 }
