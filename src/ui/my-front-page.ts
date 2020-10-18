@@ -47,11 +47,11 @@ export class MyFrontPage extends LitElement {
     }
 
     .page-title {
-      font-size: 4vw;
+      font-size: 2.5em;
       letter-spacing: 0.2em;
     }
     .page-subtitle {
-      font-size: 2vw;
+      font-size: 1em;
       margin-bottom: 2vw;
     }
 
@@ -120,6 +120,17 @@ export class MyFrontPage extends LitElement {
       }
     }
 
+    @media (max-width: 600px) {
+      .page-container {
+        padding-top: 50px;
+      }
+      .grid {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
     /* Grid Areas */
 
     /* Demo  */
@@ -141,7 +152,7 @@ export class MyFrontPage extends LitElement {
       margin-right: 0;
     }
     .demo-title {
-      font-size: 2vw;
+      font-size: 1em;
       letter-spacing: 0.2em;
     }
     .demo-tooltip {
