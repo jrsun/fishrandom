@@ -1,3 +1,6 @@
+import '@polymer/paper-icon-button/paper-icon-button';
+import '@polymer/iron-icons/iron-icons';
+
 import {
   LitElement,
   html,
@@ -25,6 +28,9 @@ export class MyLeaderboard extends LitElement {
     }
     
     .title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 20px;
       background-color: rgb(109 111 209);
       color: #efefef;
@@ -32,6 +38,10 @@ export class MyLeaderboard extends LitElement {
       font-family: 'JelleeBold';
       padding: 10px;
       text-align: center;
+    }
+
+    paper-icon-button {
+      width: 2em;
     }
 
     .card {
@@ -86,7 +96,16 @@ export class MyLeaderboard extends LitElement {
     const {player} = this;
 
     return html`<div class="card">
-      <div class="title">Leaderboard (wins in a row)</div>
+      <div class="title">Weekly leaderboard
+        <my-tooltip>
+          <paper-icon-button slot="tooltip" icon="info">
+          </paper-icon-button>
+          <div slot="tooltiptext">Live updated leaderboard displaying
+            the players with the highest number of wins in a row this week.
+            Resets weekly on Sunday.
+          </div>
+        </my-tooltip>
+      </div>
       <div class="scores">
         ${this.topScores.map((score, i) => {
           const isMe = score.name === player?.name && score.score === player?.streak;

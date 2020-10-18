@@ -28,7 +28,7 @@ export class MyTooltip extends LitElement {
       left: 50%;
       transform: translate(-50%, 0);
 
-      min-width: 200px;
+      min-width: 300px;
 
       background-color: rgba(0, 0, 0, 0.75);
       color: #eee;
@@ -55,6 +55,7 @@ export class MyTooltip extends LitElement {
     /* Show the tooltip text when you mouse over the tooltip container */
     .tooltip:hover .tooltiptext {
       visibility: visible;
+      font-size: 1rem;
     }
 
     /* Fill the whole space taken by the my-tooltip element */
