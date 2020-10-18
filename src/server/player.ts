@@ -41,13 +41,13 @@ export const toPlayerInfo = (p: Player): PlayerInfo => {
 export const addResult = (p: Player, rid: string, r: GameResult) => {
   if (!p.recentResults) {
     p.recentResults = new LRU<string, GameResult>({
-      maxAge: randomInt(1000 * 60 * 2, 1000 * 60 * 4) // three minutes in ms
-      // maxAge: 1000 * 5 // three minutes in ms
+      maxAge: randomInt(1000 * 60 * 60) // one hour in ms
     });
   }
   p.recentResults.set(rid, r);
 }
 
+// last 5 games were resignations
 export const hasResignedRecently = (p: Player): boolean => {
   if (!(p.recentResults instanceof LRU)) return false;
 
