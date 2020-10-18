@@ -26,10 +26,6 @@ export class MyControls extends LitElement {
       display: flex;
       flex-direction: column;
     }
-    .buttons {
-      display: flex;
-      justify-content: space-between;
-    }
     .fen-display {
       display: flex;
       flex-wrap: wrap;
@@ -48,12 +44,21 @@ export class MyControls extends LitElement {
     .fen {
       margin-right: 10px;
     }
+    paper-button {
+      background-color: #fefdfa;
+      margin: 0;
+    }
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+    }
     .buttons * {
       flex: 1;
       min-width: 20px;
+      margin-right: 10px;
     }
-    paper-button {
-      background-color: #fefdfa;
+    .buttons *:last-child {
+      margin-right: 0;
     }
     .action-button.claim-draw {
       background-color: #fefdaa;

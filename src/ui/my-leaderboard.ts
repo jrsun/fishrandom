@@ -20,8 +20,8 @@ export class MyLeaderboard extends LitElement {
     :host {
       display: block;
       flex-direction: column;
-      /* font-family: "Lucida Console", Monaco, monospace; */
-      /* font-family: 'JelleeBold'; */
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
     }
     
     .title {
@@ -83,24 +83,22 @@ export class MyLeaderboard extends LitElement {
   }
 
   render() {
-    if (!this.player) return;
-
-    const {name, streak} = this.player;
-    const {myRank} = this;
+    const {player} = this;
 
     return html`<div class="card">
       <div class="title">Leaderboard (wins in a row)</div>
       <div class="scores">
         ${this.topScores.map((score, i) => {
-          const isMe = score.name === name && score.score === streak;
+          const isMe = score.name === name && score.score === player?.streak;
           return html`<div class="score ${isMe ? 'me' : ''}">
             ${scoreString(score.name, score.score, i+1)}
           </div>`
         })}
+        ${player ? html`
         <hr />
         <div class="score me">
-          Current wins: ${streak}
-        </div>
+          Current wins: ${player.streak}
+        </div>` : html``}
       </div>
     </div>`;
   }

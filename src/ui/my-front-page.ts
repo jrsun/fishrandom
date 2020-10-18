@@ -19,6 +19,8 @@ import { Color, ROULETTE_SECONDS } from '../chess/const';
 import "./my-game";
 import "./my-announce";
 import "./my-spinner";
+import "./my-leaderboard";
+import "./my-champions";
 import { GameListener } from './game-listener';
 import { Piece } from '../chess/piece';
 import { Pair } from '../chess/pair';
@@ -61,6 +63,7 @@ export class MyFrontPage extends LitElement {
       color: #223322;
       background-color: #ccc;
       font-family: 'JelleeBold';
+      margin: 0;
     }
 
     paper-button[disabled] {
@@ -103,7 +106,9 @@ export class MyFrontPage extends LitElement {
         "demo"
         "login"
         "play"
-        "info";
+        "info"
+        "champions"
+        "leaderboard";
     }
 
     @media (min-width: 600px) {
@@ -114,9 +119,15 @@ export class MyFrontPage extends LitElement {
         justify-items: center;
         align-items: center;
         grid-template-areas:
+          "champions champions"
           "demo login"
           "demo play"
+          "demo leaderboard"
           "demo info";
+      }
+      .demo {
+        /* Aligning to top, but in flex-direction: column, this means aligning to left */
+        align-self: flex-start; 
       }
     }
 
@@ -132,6 +143,12 @@ export class MyFrontPage extends LitElement {
     }
 
     /* Grid Areas */
+
+    /* Champions */
+    my-champions {
+      grid-area: champions;
+      width: 100%;
+    }
 
     /* Demo  */
     .demo {
@@ -192,7 +209,7 @@ export class MyFrontPage extends LitElement {
     .login-form {
       display: flex;
       flex: 1;
-      margin-right: 10px;
+      /* margin-right: 10px; */
     }
     #username {
       height: 100%;
@@ -221,6 +238,12 @@ export class MyFrontPage extends LitElement {
       grid-area: info;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
+    /* Leaderboard */
+    my-leaderboard {
+      grid-area: leaderboard;
+      width: 100%;
+    }
+
     /* Spinner */
     .spinner {
       position: absolute;
@@ -259,6 +282,7 @@ export class MyFrontPage extends LitElement {
 
   // public
   @property({type: Boolean}) seeking = false;
+  @property({type: Object}) socket: SocketIO.Socket;
 
   // protected
   @property({type: Object}) game: Game; // demo
@@ -305,6 +329,7 @@ export class MyFrontPage extends LitElement {
         <div class="page-title">FISHRANDOM</div>
         <div class="page-subtitle">Chess variant roulette</div>
         <div class="grid">
+          <my-champions></my-champions>
           <div class="demo">
             <div class="demo-header">
               <div class="demo-title">
@@ -361,6 +386,7 @@ export class MyFrontPage extends LitElement {
             <a target="_blank" href="https://discord.gg/DpWUJYt">Discord</a>, or email
             <a target="_blank" href="mailto:admin@fishrandom.io">admin@fishrandom.io</a>.
           </div>
+          <my-leaderboard .socket=${this.socket}></my-leaderboard>
         </div>
         ${this.renderPrivateModal()}
         ${this.renderDemoInfoModal()}
