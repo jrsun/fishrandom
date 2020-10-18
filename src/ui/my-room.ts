@@ -428,7 +428,6 @@ export class MyRoom extends LitElement {
   }
 
   handleSocketMessage(message: Message) {
-    if (message.type !== 'ping') console.log('my-room', message.type, message);
     if (message.type === 'kick') {
       location.href = '/';
     }

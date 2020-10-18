@@ -4,8 +4,10 @@ import {replacer, reviver} from '../common/message';
 import {ResolvePlugin} from 'webpack';
 import log from 'log';
 import zlib from 'zlib';
+import LRU from 'lru-cache';
 import {RoomSchema} from './schema';
 import { Player } from '../server/player';
+import { GameResultType } from '../chess/game';
 
 const REDIS_CLIENT = redis.createClient() as RedisClient;
 const PLAYERS: {[uuid: string]: Player} = {};
@@ -21,7 +23,7 @@ interface RedisClient {
   set: (key: string, value: string, f: RedisFn) => void;
   get: (key: string, f: RedisFn) => void;
   del: (key: string, f: RedisFn) => void;
-  zadd: (key: string, ...any) => void;
+  zadd: (...any) => void;
   zrevrange: (key: string, start: number, end: number, withScores: 'WITHSCORES', f: RedisFn) => void;
   zrevrank: (key: string, username: string, f: RedisFn) => void;
   zscore: (key: string, username: string, f: RedisFn) => void;
@@ -123,7 +125,7 @@ export async function savePlayer(p: Player) {
   return await new Promise((resolve, reject) => {
     REDIS_CLIENT.set(
       `player:${p.uuid}`,
-      JSON.stringify({...p, socket: undefined}),
+      JSON.stringify({...p, socket: undefined, recentResults: undefined}),
       (err) => {
         if (err) {
           reject(err);
@@ -152,23 +154,33 @@ export async function getPlayer(id: string): Promise<Player | undefined> {
       resolve({
         ...player,
         socket: undefined,
+        recentResults: undefined,
       });
     });
   });
 }
 
+// Updates score if new score exceeds previous
 export async function updateScore(username: string, score: number) {
   return await new Promise((resolve, reject) => {
-    REDIS_CLIENT.zadd(SCORES_KEY, score, username, (err, reply) => {
+    REDIS_CLIENT.zscore(SCORES_KEY, username, (err, prevScore) => {
       if (err) {
-        reject(err);
-        return;
-      }
-      if (!reply) {
+        log.warn('redis error:', err);
         resolve();
       }
-      resolve(reply);
-    });
+      if (score > prevScore) {
+        REDIS_CLIENT.zadd(SCORES_KEY, score, username, (err, reply) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          if (!reply) {
+            resolve();
+          }
+          resolve(reply);
+        })
+      }
+    })
   });
 }
 

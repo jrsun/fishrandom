@@ -16,7 +16,6 @@ export class GameListener {
   }
 
   attach() { 
-    console.log('attaching to', this.c);
     this.c.addEventListener(SelectEventType.PIECE_TOGGLE, this.onPieceToggle);
     this.c.addEventListener(SelectEventType.PIECE_ON, this.onPieceOn);
     this.c.addEventListener(SelectEventType.PIECE_OFF, this.onPieceOff);

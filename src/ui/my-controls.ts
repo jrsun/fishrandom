@@ -13,6 +13,7 @@ import {Message, addMessageHandler, sendMessage} from '../common/message';
 import '@polymer/paper-button';
 import {Move} from '../chess/turn';
 import {Color, RoomAction} from '../chess/const';
+import { Room } from '../server/room';
 
 @customElement('my-controls')
 export class MyControls extends LitElement {
@@ -47,7 +48,7 @@ export class MyControls extends LitElement {
     .fen {
       margin-right: 10px;
     }
-    .buttons > * {
+    .buttons * {
       flex: 1;
       min-width: 20px;
     }
@@ -142,6 +143,21 @@ export class MyControls extends LitElement {
     );
   }
 
+  tooltipText = (action: RoomAction): string => {
+    switch (action) {
+      case RoomAction.OFFER_DRAW:
+        return 'Offer a draw to the opponent. Opponent has the choice to accept or decline.';
+      case RoomAction.CLAIM_DRAW:
+        return 'Opponent has offered a draw. Accepting will end the game as a draw.';
+      case RoomAction.ABORT:
+        return 'Opponent may have disconnected. Aborting will exit the game without penalty.';
+      case RoomAction.RESIGN:
+        return 'Lose the game immediately. If you resign too frequently in public games, you may lose the ability to resign and in extreme cases, incur a temporary ban.';
+      default:
+        return '';
+    }
+  }
+
   renderMove(fen: string, index: number) {
     const styles = {
       cursor: 'pointer',
@@ -188,13 +204,17 @@ export class MyControls extends LitElement {
             ?disabled=${this.viewMoveIndex === undefined}
             >></paper-button
           >
-          ${this.playing ? this.allowedActions.map(action => {
+          ${this.playing ? Array.from(this.allowedActions).sort().map(action => {
             return html`
-              <paper-button
-              class="action-button ${action}"
-              raised
-              .onclick=${() => this.onClickAction(action)}
-              >${action.replace(/-/g, ' ')}</paper-button>
+              <my-tooltip>
+                <paper-button
+                slot="tooltip"
+                class="action-button ${action}"
+                raised
+                .onclick=${() => this.onClickAction(action)}
+                >${action.replace(/-/g, ' ')}</paper-button>
+                <div slot="tooltiptext">${this.tooltipText(action)}</div>
+              </my-tooltip>
             `;
           }) : html`
           <paper-button

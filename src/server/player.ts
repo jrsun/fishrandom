@@ -1,5 +1,8 @@
 import { Color, RoomAction } from "../chess/const";
 import { PlayerInfo } from "../common/message";
+import LRU from 'lru-cache';
+import { GameResult, GameResultType } from "../chess/game";
+import { randomInt } from "../common/utils";
 
 // Player outside room
 export interface Player {
@@ -11,6 +14,7 @@ export interface Player {
   streak: number;
   elo: number;
   connected?: boolean;
+  recentResults?: LRU<string /*roomid*/, GameResult>;
 }
 
 // Player inside room
@@ -33,3 +37,25 @@ export const toPlayerInfo = (p: Player): PlayerInfo => {
     connected: !!connected,
   };
 };
+
+export const addResult = (p: Player, rid: string, r: GameResult) => {
+  if (!p.recentResults) {
+    p.recentResults = new LRU<string, GameResult>({
+      maxAge: randomInt(1000 * 60 * 2, 1000 * 60 * 4) // three minutes in ms
+      // maxAge: 1000 * 5 // three minutes in ms
+    });
+  }
+  p.recentResults.set(rid, r);
+}
+
+export const hasResignedRecently = (p: Player): boolean => {
+  if (!(p.recentResults instanceof LRU)) return false;
+
+  let resigns = 0;
+  p.recentResults.forEach((result) => {
+    if (result.reason === 'resignation' && result.type === GameResultType.LOSS) {
+      resigns++;
+    }
+  })
+  return resigns >= 2;
+}
