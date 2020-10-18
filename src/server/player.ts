@@ -59,5 +59,8 @@ export const hasResignedRecently = (p: Player): boolean => {
       return;
     }
   })
+  if (resigns >= 5) {
+    console.log('Many resignations from', p.username, p.uuid);
+  }
   return resigns >= 5;
 }
