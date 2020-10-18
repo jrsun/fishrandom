@@ -193,12 +193,12 @@ export class MyFrontPage extends LitElement {
       width: 100%;
       height: 100%;
     }
-    .play paper-button {
+    .play my-tooltip {
       flex: 1;
       height: 100%;
     }
 
-    .play paper-button:first-child {
+    .play my-tooltip:first-child {
       margin-right: 10px;
     }
 
@@ -361,16 +361,39 @@ export class MyFrontPage extends LitElement {
     const {seeking} = this;
     return html`
       ${seeking ?
-        html`<paper-button .onclick=${this.cancelSeek}>Seeking...</paper-button>`
-      : html`<paper-button .onclick=${() => this.seek()} ?disabled=${seeking} raised class="seek-btn">Play</paper-button>`
+        html`
+          <my-tooltip class="cancel-seek-wrapper">
+            <paper-button
+              .onclick=${this.cancelSeek}
+              slot="tooltip">Seeking...</paper-button>
+            <div slot="tooltiptext">Cancel searching for a game.</div>
+          </my-tooltip>
+        `
+      : html`
+        <my-tooltip class="seek-btn-wrapper">
+          <paper-button
+            .onclick=${() => this.seek()}
+            ?disabled=${seeking}
+            raised
+            class="seek-btn"
+            slot="tooltip"
+          >Play random</paper-button>
+          <div slot="tooltiptext">Play a random variant against online players.
+          </div>
+        </my-tooltip>`
       }
-      <paper-button
-        ?disabled=${seeking}
-        .onclick=${() => {
-          this.roomModal?.open();
-        }}
-        raised class="private-btn"
-      >Private</paper-button>
+      <my-tooltip class="private-btn-wrapper">
+        <paper-button
+          ?disabled=${seeking}
+          .onclick=${() => {
+            this.roomModal?.open();
+          }}
+          slot="tooltip"
+          raised class="private-btn"
+        >Play friend</paper-button>
+        <div slot="tooltiptext">Choose variant and create a private game
+          with a friend using a shared room code.</div>
+      </my-tooltip>
     `;
   }
 
