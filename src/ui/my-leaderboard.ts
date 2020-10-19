@@ -101,7 +101,7 @@ export class MyLeaderboard extends LitElement {
           <paper-icon-button slot="tooltip" icon="info">
           </paper-icon-button>
           <div slot="tooltiptext">Live updated leaderboard displaying
-            the players with the highest number of wins in a row this week.
+            the players with the highest number of wins IN A ROW this week.
             Resets weekly on Sunday.
           </div>
         </my-tooltip>

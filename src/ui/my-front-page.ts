@@ -133,7 +133,7 @@ export class MyFrontPage extends LitElement {
 
     @media (max-width: 600px) {
       .page-container {
-        padding-top: 50px;
+        padding-top: 20px;
       }
       .grid {
         display: flex;
@@ -330,7 +330,6 @@ export class MyFrontPage extends LitElement {
         <div class="page-title">FISHRANDOM</div>
         <div class="page-subtitle">Chess variant roulette</div>
         <div class="grid">
-          <my-champions></my-champions>
           <div class="demo">
             <div class="demo-header">
               <div class="demo-title">
@@ -387,6 +386,7 @@ export class MyFrontPage extends LitElement {
             <a target="_blank" href="https://discord.gg/DpWUJYt">Discord</a>, or email
             <a target="_blank" href="mailto:admin@fishrandom.io">admin@fishrandom.io</a>.
           </div>
+          <my-champions></my-champions>
           <my-leaderboard .socket=${this.socket}></my-leaderboard>
         </div>
         ${this.renderPrivateModal()}
