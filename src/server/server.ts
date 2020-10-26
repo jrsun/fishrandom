@@ -179,6 +179,7 @@ io.on('connection', async function connection(socket: SocketIO.Socket) {
   const ip = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
   if (!uuid) {
     // This happens when a new user visits the front page
+    log.notice('No uuid present, not attaching listeners');
     return;
   }
   // Attach this early to be ready for client initGame
