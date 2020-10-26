@@ -191,9 +191,9 @@ io.on('connection', async function connection(socket: SocketIO.Socket) {
     });
   }
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', (reason) => {
     getPlayer(uuid).then((player) => {
-      log.notice('Client disconnected:', player?.username);
+      log.notice('Client disconnected:', player?.username, 'reason: ', reason);
       const deleted = WAITING.deletePlayer(uuid);
       if (deleted) {
         log.notice('Removed from waiting:', player?.username);
