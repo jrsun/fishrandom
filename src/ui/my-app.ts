@@ -68,11 +68,17 @@ export class MyApp extends LitElement {
   }
 
   onSeek = () => {
+    if (this.socket.disconnected) {
+      (this.socket as any).connect();
+    }
     this.seeking = true;
     sendMessage(this.socket, {type: 'newGame'});
   }
 
   onCancelSeek = () => {
+    if (this.socket.disconnected) {
+      (this.socket as any).connect();
+    }
     this.seeking = false;
     sendMessage(this.socket, {type: 'cancelSeek'})
   }
