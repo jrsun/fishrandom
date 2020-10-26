@@ -16,6 +16,7 @@ export class MyApp extends LitElement {
   @property({type: Boolean}) inRoom = false;
   @property({type: Boolean}) connected = false;
   @property({type: Object}) socket: SocketIO.Socket;
+  @property({type: Number}) countPlayers?: number;
 
   connectedCallback() {
     super.connectedCallback();
@@ -48,6 +49,10 @@ export class MyApp extends LitElement {
       this.inRoom = false;
       this.seeking = false;
     }
+    if (message.type === 'ping') {
+      // Probably move this to a component
+      this.countPlayers = message.p;
+    }
     if (message.type === 'initGame' || message.type === 'reconnect') {
       this.inRoom = true;
       this.seeking = false;
@@ -79,7 +84,7 @@ export class MyApp extends LitElement {
   }
 
   renderChild() {
-    const {inRoom, seeking, socket, connected} = this;
+    const {countPlayers, inRoom, seeking, socket, connected} = this;
     if (inRoom) {
       return html`<my-room
         .socket=${socket}
@@ -90,6 +95,7 @@ export class MyApp extends LitElement {
       return html`<my-front-page
       .seeking=${seeking}
       .socket=${socket}
+      .countPlayers=${countPlayers}
       ></my-front-page>`;
     }
   }

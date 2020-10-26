@@ -28,3 +28,7 @@ export function zip<T>(a: T[], b: T[]): [T, T][] {
     return [el, shorter[i]];
   })
 }
+
+export function pluralize(count: number, noun: string): string {
+  return `${count} ${count === 1 ? noun : noun + 's'}`;
+}

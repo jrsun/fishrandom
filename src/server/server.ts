@@ -36,7 +36,6 @@ import { Player } from './player';
 logNode();
 
 var app = express();
-var onlineCount = 0;
 
 // Profanity
 const profanityOptions = new ProfanityOptions();
@@ -46,7 +45,10 @@ const profanity = new Profanity(profanityOptions);
 profanity.addWords(customProfanity);
 
 setInterval(() => {
-  log.notice('Active websockets:', onlineCount);
+  log.notice(
+    'Active websockets:',
+    Object.keys(io.sockets.connected).length,
+  );
 }, 60 * 1000);
 
 // Update leaderboard
@@ -61,7 +63,11 @@ setInterval(() => {
       if (!player) continue;
       scores.push({name: player.username, score});
     }
-    broadcast(io.sockets, {type: 'ping', scores, p: onlineCount})
+    broadcast(io.sockets, {
+      type: 'ping',
+      scores,
+      p: Object.keys(io.sockets.connected).length,
+    });
   });
 }, 2 * 1000);
 
@@ -199,14 +205,12 @@ io.on('connection', async function connection(socket: SocketIO.Socket) {
         })
       }
     });
-    onlineCount--;
   });
   log.notice(
     'Socket connected',
     uuid,
     headers['x-forwarded-for'] || request.connection.remoteAddress,
   );
-  onlineCount++;
 });
 
 /** Handle websocket messages and delegate to room */
