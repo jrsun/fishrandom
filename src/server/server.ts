@@ -126,7 +126,7 @@ app.post('/login', function (req, res) {
 
   getPlayer(uuid).then((player) => {
     if (player) {
-      log.notice('User logged in :', escapedUser);
+      log.notice('User logged in :', escapedUser, uuid);
       savePlayer({
         ...player,
         username: escapedUser,
@@ -134,7 +134,7 @@ app.post('/login', function (req, res) {
       return;
     }
     // Account creation
-    log.notice('User signed up:', escapedUser);
+    log.notice('User signed up:', escapedUser, uuid);
     savePlayer({
       uuid,
       username: escapedUser,
@@ -252,11 +252,11 @@ const handleMessage = async function (
     return;
   }
   if (message.type === 'getGame') {
+    // This is called whenever the user reconnects,
+    // so don't kick them or anything.
     if (!!room) {
       playerLog.notice('getgame, reconnecting');
       room.reconnect(player.uuid, ws);
-    } else {
-      kick(ws, player.uuid);
     }
     return;
   }
@@ -360,10 +360,12 @@ const addLastVariant = (player: Player, variant: string) => {
 };
 
 const kick = async (ws: SocketIO.Socket, uuid?: string) => {
+  console.log('kicking user ====', uuid);
   if (uuid) {
     WAITING.deletePlayer(uuid);
     const player = await getPlayer(uuid);
     if (player) {
+      console.log(player.username);
       const roomId = player.roomId;
       if (roomId) {
         console.error('kicked someone out of existing room!!');
@@ -375,4 +377,5 @@ const kick = async (ws: SocketIO.Socket, uuid?: string) => {
     delete gameSettings[uuid];
   }
   sendMessage(ws, {type: 'kick'});
+  console.log('END kicking user ====', uuid);
 };
