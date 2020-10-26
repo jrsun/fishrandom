@@ -178,8 +178,7 @@ io.on('connection', async function connection(socket: SocketIO.Socket) {
     ?.split('=')?.[1];
   const ip = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
   if (!uuid) {
-    log.notice('connected without uuid, kicking');
-    kick(socket);
+    // This happens when a new user visits the front page
     return;
   }
   // Attach this early to be ready for client initGame
