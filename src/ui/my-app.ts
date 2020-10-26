@@ -5,12 +5,19 @@ import "./my-front-page";
 import { SeekEventType, CancelSeekEventType } from "./utils";
 import { addMessageHandler, sendMessage, Message } from "../common/message";
 import "./my-room";
+import "./my-status";
 import { MyRoom } from "./my-room";
 
 /** Entry point */
 @customElement('my-app')
 export class MyApp extends LitElement {
-  static styles = css``;
+  static styles = css`
+    #status-overlay {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+    }
+  `;
 
   @property({type: Boolean}) seeking = false;
   @property({type: Boolean}) inRoom = false;
@@ -86,6 +93,7 @@ export class MyApp extends LitElement {
   render() {
     return html`
       ${this.renderChild()}
+      ${this.renderStatus()}
     `;
   }
 
@@ -104,5 +112,14 @@ export class MyApp extends LitElement {
       .countPlayers=${countPlayers}
       ></my-front-page>`;
     }
+  }
+
+  renderStatus = () => {
+    // Sticky overlay w/ connection status etc
+    return html`
+      <div id="status-overlay">
+        <my-status .socket=${this.socket}></my-status>
+      </div>
+    `;
   }
 }
