@@ -1,8 +1,8 @@
 import { customElement, LitElement, css, html, property } from "lit-element";
 
-const GOLD = ['pipidiaper'];
-const SILVER = ['sharjeel'];
-const BRONZE = ['quars', 'protector'];
+const GOLD = ['once'];
+const SILVER = ['deepblue'];
+const BRONZE = ['booger'];
 
 @customElement('my-champions')
 export class MyChampions extends LitElement {

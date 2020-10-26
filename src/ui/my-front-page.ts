@@ -330,23 +330,6 @@ export class MyFrontPage extends LitElement {
         <div class="page-title">FISHRANDOM</div>
         <div class="page-subtitle">Chess variant roulette</div>
         <div class="grid">
-          <div class="demo">
-            <div class="demo-header">
-              <div class="demo-title">
-                ${game.name.toLocaleUpperCase()}
-              </div>
-              <paper-icon-button icon="info" .onclick=${this.openDemoInfo}>
-              </paper-icon-button>
-            </div>
-            <my-game
-              .color=${Color.WHITE}
-              .game=${game}
-              ?started=${rouletteToggle}
-              .selectedPiece=${selectedPiece}
-              .selectedSquare=${selectedSquare}
-            ></my-game>
-            <paper-button .onclick=${this.reroll} raised class="reroll-btn">Reroll</paper-button>
-          </div>
           <div class="login">
             <form class="login-form" .onsubmit=${(e: Event) => {
               e.preventDefault();
@@ -369,6 +352,23 @@ export class MyFrontPage extends LitElement {
                 <my-spinner></my-spinner>
               </div>` : html``
             }
+          </div>
+          <div class="demo">
+            <div class="demo-header">
+              <div class="demo-title">
+                ${game.name.toLocaleUpperCase()}
+              </div>
+              <paper-icon-button icon="info" .onclick=${this.openDemoInfo}>
+              </paper-icon-button>
+            </div>
+            <my-game
+              .color=${Color.WHITE}
+              .game=${game}
+              ?started=${rouletteToggle}
+              .selectedPiece=${selectedPiece}
+              .selectedSquare=${selectedSquare}
+            ></my-game>
+            <paper-button .onclick=${this.reroll} raised class="reroll-btn">Reroll</paper-button>
           </div>
           <div class="info card">
             <b>Fishrandom</b> is randomized chess variant roulette. Inspired by
