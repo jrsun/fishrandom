@@ -327,7 +327,7 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
 
   const randomNumber = Math.random().toString();
   const roomId = randomNumber.substring(2, randomNumber.length);
-  if (v && v in Variants.VARIANTS) {
+  if (password) {
     room = new Room(
       roomId,
       opponent,
