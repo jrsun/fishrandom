@@ -24,7 +24,7 @@ import "./my-champions";
 import { GameListener } from './game-listener';
 import { Piece } from '../chess/piece';
 import { Pair } from '../chess/pair';
-import { randomChoice } from '../common/utils';
+import { randomChoice, pluralize } from '../common/utils';
 import "./my-tooltip";
 import { SeekEventType, CancelSeekEventType, LIST_OF_FISH } from './utils';
 import { PaperDialogElement } from '@polymer/paper-dialog';
@@ -217,16 +217,22 @@ export class MyFrontPage extends LitElement {
     }
     .play {
       grid-area: play;
-      display: flex;
       width: 100%;
-      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    .play my-tooltip {
+    .play-buttons {
+      width: 100%;
+      display: flex;
+      margin-bottom: 10px;
+    }
+    .play-buttons my-tooltip {
       flex: 1;
       height: 100%;
     }
 
-    .play my-tooltip:first-child {
+    .play-buttons my-tooltip:first-child {
       margin-right: 10px;
     }
 
@@ -284,6 +290,7 @@ export class MyFrontPage extends LitElement {
   // public
   @property({type: Boolean}) seeking = false;
   @property({type: Object}) socket: SocketIO.Socket;
+  @property({type: Number}) countPlayers?: number;
 
   // protected
   @property({type: Object}) game: Game; // demo
@@ -320,7 +327,7 @@ export class MyFrontPage extends LitElement {
 
   // render
   render() {
-    const {seeking, game, selectedPiece, selectedSquare, rouletteToggle} = this;
+    const {countPlayers, seeking, game, selectedPiece, selectedSquare, rouletteToggle} = this;
 
     return html`
       <div class="header">
@@ -346,11 +353,15 @@ export class MyFrontPage extends LitElement {
             <!-- <paper-button ?disabled=${seeking} raised class="g-signin-btn">G</paper-button> -->
           </div>
           <div class="play">
-            ${this.renderPlay()}
+            ${this.renderPlayButtons()}
             ${this.seeking ?
               html`<div class="spinner">
                 <my-spinner></my-spinner>
               </div>` : html``
+            }
+            ${ countPlayers !== undefined ?
+              html`<div class="count-players">${pluralize(countPlayers, 'player')} online</div>` :
+              html``
             }
           </div>
           <div class="demo">
@@ -395,43 +406,45 @@ export class MyFrontPage extends LitElement {
     `;
   }
 
-  renderPlay = () => {
+  renderPlayButtons = () => {
     const {seeking} = this;
     return html`
-      ${seeking ?
-        html`
-          <my-tooltip class="cancel-seek-wrapper">
+      <div class="play-buttons">
+        ${seeking ?
+          html`
+            <my-tooltip class="cancel-seek-wrapper">
+              <paper-button
+                .onclick=${this.cancelSeek}
+                slot="tooltip">Seeking...</paper-button>
+              <div slot="tooltiptext">Cancel searching for a game.</div>
+            </my-tooltip>
+          `
+        : html`
+          <my-tooltip class="seek-btn-wrapper">
             <paper-button
-              .onclick=${this.cancelSeek}
-              slot="tooltip">Seeking...</paper-button>
-            <div slot="tooltiptext">Cancel searching for a game.</div>
-          </my-tooltip>
-        `
-      : html`
-        <my-tooltip class="seek-btn-wrapper">
+              .onclick=${() => this.seek()}
+              ?disabled=${seeking}
+              raised
+              class="seek-btn"
+              slot="tooltip"
+            >Play random</paper-button>
+            <div slot="tooltiptext">Play a random variant against online players.
+            </div>
+          </my-tooltip>`
+        }
+        <my-tooltip class="private-btn-wrapper">
           <paper-button
-            .onclick=${() => this.seek()}
             ?disabled=${seeking}
-            raised
-            class="seek-btn"
+            .onclick=${() => {
+              this.roomModal?.open();
+            }}
             slot="tooltip"
-          >Play random</paper-button>
-          <div slot="tooltiptext">Play a random variant against online players.
-          </div>
-        </my-tooltip>`
-      }
-      <my-tooltip class="private-btn-wrapper">
-        <paper-button
-          ?disabled=${seeking}
-          .onclick=${() => {
-            this.roomModal?.open();
-          }}
-          slot="tooltip"
-          raised class="private-btn"
-        >Play friend</paper-button>
-        <div slot="tooltiptext">Choose variant and create a private game
-          with a friend using a shared room code.</div>
-      </my-tooltip>
+            raised class="private-btn"
+          >Play friend</paper-button>
+          <div slot="tooltiptext">Choose variant and create a private game
+            with a friend using a shared room code.</div>
+        </my-tooltip>
+      </div>
     `;
   }
 
