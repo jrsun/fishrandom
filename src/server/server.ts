@@ -164,7 +164,7 @@ app.listen(8080);
 const ioPort = process.env.NODE_ENV === 'development' ? 8081 : 8082;
 
 const io: SocketIO.Server = socketio(ioPort, {
-  pingInterval: 4000, // the sum of these should be < dcTimeout
+  pingInterval: 2000, // the sum of these should be < dcTimeout
   pingTimeout: 5000,
 });
 
