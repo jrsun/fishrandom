@@ -83,8 +83,35 @@ const argv = yargs
 app.use(cookieParser());
 app.use(bodyParser.json());
 
+/** Sequence of events
+ * New player:
+ * 1. User lands on /, gets uuid
+ * 2. User connects to Socket.io, listeners are attached.
+ * 3. User clicks play, POSTs to /login. Saves player and creates gameSettings.
+ * 4. In the clientside callback, user sends a newGame message
+ * 
+ * Old player:
+ * 1. User lands on /, has uuid in cookies
+ * 2. ""
+ * 3. Same but gets existing player
+ * 4. ""
+ */
+
 /** HTTP entry point */
 app.get('/', function (req, res) {
+  let uuid = req.cookies.uuid;
+  if (!uuid) {
+    var randomNumber = Math.random().toString();
+    uuid = randomNumber.substring(2, randomNumber.length);
+    res.cookie('uuid', uuid, {
+      encode: String,
+      maxAge: 2147483647,
+    });
+    log.notice('GET /', uuid, 'new');
+  } else {
+    log.notice('GET /', uuid, 'returning');
+  }
+
   res.sendFile(path.join(path.resolve() + '/dist/index.html'));
 });
 
@@ -99,22 +126,15 @@ const gameSettings: {
 
 /** Login page */
 app.post('/login', function (req, res) {
-  if (!req.body.username || req.body.username !== escape(req.body.username)) {
+  const {body: {username, password, variant}, cookies: {uuid}} = req;
+  if (
+    !username
+    || username !== escape(username)
+    || !uuid) {
     return;
   }
 
-  let {username, password, variant} = req.body;
-
-  log.notice('logged in', username);
-  let uuid = req.cookies.uuid;
-  if (!uuid) {
-    var randomNumber = Math.random().toString();
-    uuid = randomNumber.substring(2, randomNumber.length);
-    res.cookie('uuid', uuid, {
-      encode: String,
-      maxAge: 2147483647,
-    });
-  }
+  log.notice('POST /login', uuid, username);
   let escapedUser =
     username
       .replace(/[^0-9A-Za-z]+/gi, '')
@@ -126,7 +146,7 @@ app.post('/login', function (req, res) {
 
   getPlayer(uuid).then((player) => {
     if (player) {
-      log.notice('User logged in :', escapedUser, uuid);
+      log.notice('Returning user /login', escapedUser, uuid);
       savePlayer({
         ...player,
         username: escapedUser,
@@ -134,7 +154,7 @@ app.post('/login', function (req, res) {
       return;
     }
     // Account creation
-    log.notice('User signed up:', escapedUser, uuid);
+    log.notice('New user /login', escapedUser, uuid);
     savePlayer({
       uuid,
       username: escapedUser,
@@ -179,7 +199,8 @@ io.on('connection', async function connection(socket: SocketIO.Socket) {
   const ip = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
   if (!uuid) {
     // This happens when a new user visits the front page
-    log.notice('No uuid present, not attaching listeners');
+    log.notice('No uuid present, this is a big problem because the listeners dont get attached. Kicking!');
+    kick(socket);
     return;
   }
   // Attach this early to be ready for client initGame
@@ -221,7 +242,7 @@ const handleMessage = async function (
 ) {
   const player = await getPlayer(uuid);
   if (!player) {
-    kick(ws, uuid);
+    log.notice(`UUID ${uuid} sent message ${message.type} with no player`);
     return;
   }
   player.socket = ws;
