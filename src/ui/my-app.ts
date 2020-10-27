@@ -55,6 +55,8 @@ export class MyApp extends LitElement {
     if (message.type === 'kick') {
       this.inRoom = false;
       this.seeking = false;
+      // Reload the page to try to get connected
+      location.href = '/';
     }
     if (message.type === 'ping') {
       // Probably move this to a component
