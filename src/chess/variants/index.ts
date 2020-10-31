@@ -70,6 +70,7 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Knightrider,
   Absorption,
   Knighthood,
+  // Darkgobbler,
 };
 
 // Variants allowed in public games
@@ -97,6 +98,7 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Knightrider,
   Absorption,
   Knighthood,
+  // Darkgobbler,
 };
 
 /** Variants allowed on the front page.
@@ -187,4 +189,5 @@ export {
   Knightrider,
   Absorption,
   Knighthood,
+  // Darkgobbler,
 };
