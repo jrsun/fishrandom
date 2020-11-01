@@ -72,37 +72,37 @@ export class PlayingPhase extends Phase {
     super(room);
     // set interval
     this.timerInterval = setInterval(() => {
-    const me =
-      this.game.state.whoseTurn === room.p1.color ? room.p1 : room.p2;
-    const opponent = me === room.p1 ? room.p2 : room.p1;
-    me.time -= 1000;
-    if (
-      (
-        // I'm letting my time tick as white, opponent can abort
-        opponent.color === Color.BLACK
-        && this.game.turnHistory.length === 0
-        && (me.time / 1000) < (PUBLIC_PLAY_SECONDS - FIRST_MOVE_ABORT_SECONDS)
-      ) || (
-        // Opponent has made a move as white, I'm letting my time tick as
-        // black, opponent can abort.
-        opponent.color === Color.WHITE
-        && this.game.turnHistory.some(turn => turn.piece.color === Color.WHITE)
-        && !this.game.turnHistory.some(turn => turn.piece.color === Color.BLACK)
-        && (me.time / 1000) < (PUBLIC_PLAY_SECONDS - FIRST_MOVE_ABORT_SECONDS)
-      )
-    ) {
-      opponent.allowedActions.add(RoomAction.ABORT);
+      const me =
+        this.game.state.whoseTurn === room.p1.color ? room.p1 : room.p2;
+      const opponent = me === room.p1 ? room.p2 : room.p1;
+      me.time -= 1000;
+      if (
+        (
+          // I'm letting my time tick as white, opponent can abort
+          opponent.color === Color.BLACK
+          && this.game.turnHistory.length === 0
+          && (me.time / 1000) < (PUBLIC_PLAY_SECONDS - FIRST_MOVE_ABORT_SECONDS)
+        ) || (
+          // Opponent has made a move as white, I'm letting my time tick as
+          // black, opponent can abort.
+          opponent.color === Color.WHITE
+          && this.game.turnHistory.some(turn => turn.piece.color === Color.WHITE)
+          && !this.game.turnHistory.some(turn => turn.piece.color === Color.BLACK)
+          && (me.time / 1000) < (PUBLIC_PLAY_SECONDS - FIRST_MOVE_ABORT_SECONDS)
+        )
+      ) {
+        opponent.allowedActions.add(RoomAction.ABORT);
 
-      sendMessage(opponent.player.socket, {
-        type: 'allowedActions',
-        actions: Array.from(opponent.allowedActions),
-      });
-    }
-    if (me.time <= 0) {
-      log.get(me.name).notice('ran out of time');
-      this.wins(opponent.player.uuid, {type: GameResultType.WIN, reason: 'timeout'});
-    }
-  }, 1000);
+        sendMessage(opponent.player.socket, {
+          type: 'allowedActions',
+          actions: Array.from(opponent.allowedActions),
+        });
+      }
+      if (me.time <= 0) {
+        log.get(me.name).notice('ran out of time');
+        this.wins(opponent.player.uuid, {type: GameResultType.WIN, reason: 'timeout'});
+      }
+    }, 1000);
   }
   advance = () => {
     clearInterval(this.timerInterval);

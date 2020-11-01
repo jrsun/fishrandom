@@ -309,6 +309,10 @@ export class Room {
 
   // Phase transitions
   setPhase = (phase: PhaseEnum) => {
+    if (phase === this.phase) {
+      return;
+    }
+    log.info('phase transition', this.p1.name, this.p2.name);
     const Handler = PHASE_MAP.get(phase);
     if (!Handler) {
       log.warn('unknown phase', phase);
