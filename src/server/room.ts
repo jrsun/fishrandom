@@ -228,6 +228,7 @@ export class Room {
       // Give the other player the win after X seconds
       me.disconnectTimeout = setTimeout(() => {
         // Handle as if resigned
+        log.warn('disconnect timeout hit and resigned', me.name);
         this.setPhase(PhaseEnum.PLAYING);
         this.phaseHandler.handleMessage(player.uuid, {
           type: 'roomAction',
