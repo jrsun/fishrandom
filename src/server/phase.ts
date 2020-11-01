@@ -12,6 +12,7 @@ import { PUBLIC_PLAY_SECONDS, ELO_K, RULES_SECONDS } from './const';
 export class Phase {
   game: Game;
   name: PhaseEnum;
+  timerInterval: any;
   constructor(public room: Room) {
     this.game = room.game;
   }
@@ -31,7 +32,6 @@ export class Phase {
 export class RulesPhase extends Phase {
   name = PhaseEnum.RULES;
   skips: Set<string>; // uuids that have requested a skip
-  timerInterval: any;
   secondsRemaining: number;
 
   constructor(room: Room) {
@@ -57,7 +57,6 @@ export class RulesPhase extends Phase {
     }
   }
   advance = () => {
-    clearInterval(this.timerInterval);
     this.room.setPhase(PhaseEnum.PLAYING);
   }
 }
@@ -66,7 +65,6 @@ export class PlayingPhase extends Phase {
   static INCREMENT_MS = 5 * 1000;
 
   name = PhaseEnum.PLAYING;
-  timerInterval: any;
 
   constructor(room: Room) {
     super(room);
@@ -105,7 +103,6 @@ export class PlayingPhase extends Phase {
     }, 1000);
   }
   advance = () => {
-    clearInterval(this.timerInterval);
     this.room.setPhase(PhaseEnum.DONE);
   };
   handleMessage = (uuid: string, m: Message) => {

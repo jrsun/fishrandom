@@ -318,6 +318,10 @@ export class Room {
       log.warn('unknown phase', phase);
       return;
     }
+    // Clear the interval from the previous phase
+    if (this.phaseHandler?.timerInterval) {
+      clearInterval(this.phaseHandler.timerInterval);
+    }
     this.phase = phase;
     this.phaseHandler = new Handler(this);
 
