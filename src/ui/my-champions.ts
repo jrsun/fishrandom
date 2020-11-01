@@ -1,8 +1,10 @@
 import { customElement, LitElement, css, html, property } from "lit-element";
 
-const GOLD = ['once'];
-const SILVER = ['deepblue'];
-const BRONZE = ['booger'];
+const KINGS = ['hey'];
+const QUEENS = ['anchovy'];
+const ROOKS = ['utku'];
+const BISHOPS = ['behind'];
+const KNIGHTS = ['deepblue'];
 
 @customElement('my-champions')
 export class MyChampions extends LitElement {
@@ -43,29 +45,41 @@ export class MyChampions extends LitElement {
   `;
 
   // protected
-  @property({type: Array}) gold: string[] = GOLD;
-  @property({type: Array}) silver: string[] = SILVER;
-  @property({type: Array}) bronze: string[] = BRONZE;
+  @property({type: Array}) kings: string[] = KINGS;
+  @property({type: Array}) queens: string[] = QUEENS;
+  @property({type: Array}) rooks: string[] = ROOKS;
+  @property({type: Array}) bishops: string[] = BISHOPS;
+  @property({type: Array}) knights: string[] = KNIGHTS;
 
   render() {
-    const {gold, silver, bronze} = this;
+    const {kings, queens, rooks, bishops, knights} = this;
     return html`<div class="container">
-      <div class="title">Congrats to last week's top three!</div>
+      <div class="title">Congrats to last week's top five!</div>
       <div class="ranks">
-        <div class="golds rank">
+        <div class="kings rank">
           <img src="/img/svg/klt.svg" /> 
-          ${gold.map(name => html`
-            <div class="gold name">${name}</div>
+          ${kings.map(name => html`
+            <div class="kings name">${name}</div>
           `)}</div>
-        <div class="silvers rank">
-        <img src="/img/svg/rlt.svg" /> 
-          ${silver.map(name => html`
-          <div class="silver name">${name}</div>
+        <div class="queens rank">
+        <img src="/img/svg/qlt.svg" /> 
+          ${queens.map(name => html`
+          <div class="queens name">${name}</div>
         `)}</div>
-        <div class="bronzes rank">
-        <img src="/img/svg/blt.svg" /> 
-          ${bronze.map(name => html`
-          <div class="bronze name">${name}</div>
+        <div class="rooks rank">
+          <img src="/img/svg/rlt.svg" /> 
+          ${rooks.map(name => html`
+          <div class="rooks name">${name}</div>
+        `)}</div>
+        <div class="bishops rank">
+          <img src="/img/svg/blt.svg" /> 
+          ${bishops.map(name => html`
+          <div class="bishops name">${name}</div>
+        `)}</div>
+        <div class="knights rank">
+          <img src="/img/svg/nlt.svg" /> 
+          ${knights.map(name => html`
+          <div class="knights name">${name}</div>
         `)}</div>
       </div>
     </div>`;
