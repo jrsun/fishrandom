@@ -8,7 +8,7 @@ import {
 } from 'lit-element';
 import '@polymer/paper-button';
 
-const ANNOUNCE_TEXT = '';
+const ANNOUNCE_TEXT = 'A new variant is now available, Follow the King!';
 
 @customElement('my-announce')
 export class MyAnnounce extends LitElement {

@@ -378,7 +378,23 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       a Knight's move away from any non-pawn piece.</li>
   </ul>
   Pretentious chess, by Adrian Alvarez de la Campa (2006)
-  `
+  `,
+  Followking: html`The whole army moves when the King does.
+    <ul>
+      <li>When the King makes a move, <b>all pieces of the same color
+        move one square in the same direction</b> (parallel to the King's move.)</li>
+      <li>If by doing so, any piece moves onto an opposing piece's square,
+        the opposing piece is <b>captured</b>.
+      </li>
+      <li>If a piece moves off of the board, it is <b>lost</b>.</li>
+      <li>No castling.</li>
+      <li>Tip: Having your King next to an opposing piece is <b>not</b>
+      considered check, even if your opponent could capture your King
+      using a whole-army King move. It's up to you to prevent this.
+      </li>
+    </ul>
+    Ed Pegg (1999)
+    `
   ,
 };
 
