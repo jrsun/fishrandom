@@ -88,6 +88,22 @@ export class Room {
   }
 
   handleMessage = (uuid: string, m: Message) => {
+    const me = this.uuidToRoomPlayer(uuid);
+    const opponent = me === this.p1 ? this.p2 : this.p1;
+    if (!me || !opponent) {
+      log.warn('handle room message with uuid that does not correspond to a player', uuid, opponent, m.type);
+      return;
+    }
+    if (me.disconnectTimeout) {
+      clearTimeout(me.disconnectTimeout);
+
+      // Opponent needs to know player has reconnected
+      sendMessage(opponent.player.socket, {
+        type: 'playerInfo',
+        player: toPlayerInfo(opponent.player),
+        opponent: toPlayerInfo(me.player),
+      });
+    }
     // Allow fall-through to phase handler
     switch (m.type) {
       case 'getAllowed':
