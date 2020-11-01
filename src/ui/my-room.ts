@@ -39,7 +39,7 @@ import {Color, getOpponent, ROULETTE_SECONDS, DISCONNECT_TIMEOUT_SECONDS} from '
 import {Knight, Piece} from '../chess/piece';
 import {randomChoice} from '../common/utils';
 import Square from '../chess/square';
-import {SelectEventType, SelectEventDetail, SeekEventType} from './utils';
+import {SelectEventType, SelectEventDetail, SeekEventType, getAvatarImg} from './utils';
 import {equals, Pair} from '../chess/pair';
 import { GameListener } from './game-listener';
 import { RULES_SECONDS } from '../server/const';
@@ -144,6 +144,7 @@ export class MyRoom extends LitElement {
     }
     .user-info {
       display: flex;
+      align-items: center;
       color: #eee;
       font-family: 'JelleeBold';
     }
@@ -653,7 +654,7 @@ export class MyRoom extends LitElement {
             <div class="user-info">
               <div
                 class="avatar"
-                style="background-image:url(../img/swoledoge.jpg)"
+                style="background-image:url(${getAvatarImg(this.opponentInfo?.name)})"
               ></div>
               <div class="user-capture">
                 <div>
@@ -701,7 +702,7 @@ export class MyRoom extends LitElement {
             <div class="user-info">
               <div
                 class="avatar"
-                style="background-image:url(../img/cheems.jpeg)"
+                style="background-image:url(${getAvatarImg(this.playerInfo?.name)})"
               ></div>
               <div class="user-capture">
                 <div>

@@ -31,6 +31,7 @@ import {Pawnside} from './pawnside';
 import {Knightrider} from './knightrider';
 import {Absorption} from './absorption';
 import {Knighthood} from './knighthood';
+import {Followking} from './followking';
 
 import {randomChoice, zip} from '../../common/utils';
 
@@ -70,6 +71,8 @@ export const VARIANTS: {[name: string]: typeof Game} = {
   Knightrider,
   Absorption,
   Knighthood,
+  // Darkgobbler,
+  Followking,
 };
 
 // Variants allowed in public games
@@ -97,6 +100,8 @@ export const RANDOM_VARIANTS: {[name: string]: typeof Game} = {
   Knightrider,
   Absorption,
   Knighthood,
+  // Darkgobbler,
+  Followking,
 };
 
 /** Variants allowed on the front page.
@@ -118,6 +123,7 @@ export const DEMO_VARIANTS: {[name: string]: typeof Game} = {
   Knightrider,
   Absorption,
   Knighthood,
+  Followking,
 };
 
 // Takes two arrays of recently played variants ordered from most to least recent
@@ -187,4 +193,6 @@ export {
   Knightrider,
   Absorption,
   Knighthood,
+  // Darkgobbler,
+  Followking,
 };

@@ -11,7 +11,7 @@ export class Gobbler extends Game {
   name = 'Gobbler';
   // canDrop = true;
   constructor(isServer: boolean) {
-    super(isServer, generateInitial());
+    super(isServer, generateInitialWithGobbler());
   }
   cpuTurn(): Turn | undefined {
     const square = this.state.squares
@@ -95,7 +95,7 @@ export class Elephant extends Piece {
   }
 }
 
-function generateInitial(): BoardState {
+export function generateInitialWithGobbler(): BoardState {
   const state = generateStartState();
   const squares = state.squares;
   for (let col = 0; col < 8; col++) {

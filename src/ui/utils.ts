@@ -1,5 +1,6 @@
 import {Piece} from '../chess/piece';
 import Square from '../chess/square';
+import { rollingHash } from '../common/utils';
 
 // Select events
 export enum SelectEventType {
@@ -95,4 +96,21 @@ export function drawCircle(
 
   ctx.arc(x, y, r, 0, 2 * Math.PI);
   ctx.stroke();
+}
+
+// Avatar
+
+const AVATAR_IMGS = [
+  'goldfish.svg',
+  'pufferfish.svg',
+  'bluefish.svg',
+  'shark.svg',
+].map(s => '/img/avatar/' + s);
+
+export function getAvatarImg(username?: string): string {
+  if (!username) return '';
+
+  const index = rollingHash(username, AVATAR_IMGS.length);
+
+  return AVATAR_IMGS[index];
 }

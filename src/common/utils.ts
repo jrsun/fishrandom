@@ -32,3 +32,11 @@ export function zip<T>(a: T[], b: T[]): [T, T][] {
 export function pluralize(count: number, noun: string): string {
   return `${count} ${count === 1 ? noun : noun + 's'}`;
 }
+
+// Deterministically map a string to a number between 0 and modulus-1
+export function rollingHash(s: string, modulus: number): number {
+  const sum = [...s]
+    .map((_, i) => s.charCodeAt(i))
+    .reduce((a, b) => a + b, 0);
+  return sum % modulus;
+}

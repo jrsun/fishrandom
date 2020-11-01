@@ -191,6 +191,7 @@ const io: SocketIO.Server = socketio(ioPort, {
 /** Game server state */
 
 io.on('connection', async function connection(socket: SocketIO.Socket) {
+  // If we don't attach the handlers in this method, we need to kick
   const {handshake: {headers}, request} = socket;
   const cookies = headers.cookie?.split(';') as string[];
   const uuid = cookies
@@ -198,12 +199,12 @@ io.on('connection', async function connection(socket: SocketIO.Socket) {
     ?.split('=')?.[1];
   const ip = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
   if (!uuid) {
-    // This happens when a new user visits the front page
     log.notice('No uuid present, this is a big problem because the listeners dont get attached. Kicking!');
     kick(socket);
     return;
   }
   // Attach this early to be ready for client initGame
+  // VERY IMPORTANT that these handlers get attached
   if (BLACKLIST.has(ip)) {
     console.warn('Caught in blacklist', ip);
   } else {
