@@ -105,7 +105,7 @@ app.get('/', function (req, res) {
     uuid = randomNumber.substring(2, randomNumber.length);
     res.cookie('uuid', uuid, {
       encode: String,
-      maxAge: 2147483647,
+      maxAge: 2147483647000,
     });
     log.notice('GET /', uuid, 'new');
   } else {
