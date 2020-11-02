@@ -7,7 +7,7 @@ enum Color {
   OTHER = 'other',
 }
 
-export const DISCONNECT_TIMEOUT_SECONDS = 15;
+export const DISCONNECT_TIMEOUT_SECONDS = 30;
 export const FIRST_MOVE_ABORT_SECONDS = 15;
 
 /** UI */
