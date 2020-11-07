@@ -185,7 +185,7 @@ const ioPort = process.env.NODE_ENV === 'development' ? 8081 : 8082;
 
 const io: SocketIO.Server = socketio(ioPort, {
   pingInterval: 2000, // the sum of these should be < dcTimeout
-  pingTimeout: 5000,
+  pingTimeout: 10000,
 });
 
 /** Game server state */
