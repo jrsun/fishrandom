@@ -151,8 +151,8 @@ app.get('/fen/merida', function (req, res) {
         const url = (char.toLowerCase() === char ? 'B' + char : char).toLowerCase() + '.png';
         images.push({
           input: path.join(prefix, url),
-          top: 10 + SQUARE_SIZE * i,
-          left: 8 + SQUARE_SIZE * j,
+          top: 265 + SQUARE_SIZE * i,
+          left: 263 + SQUARE_SIZE * j,
         });
         j += 1;
       } else {
@@ -161,7 +161,7 @@ app.get('/fen/merida', function (req, res) {
     }
   }
 
-  sharp(path.join(prefix, 'grid.png'))
+  sharp(path.join(prefix, 'grid-template.png'))
     .composite(images)
     .pipe(res);
 });
