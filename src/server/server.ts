@@ -26,6 +26,7 @@ const {Profanity, ProfanityOptions} = pPkg;
 
 import log from 'log';
 import logNode from 'log-node';
+import sharp from 'sharp';
 import {Game} from '../chess/game';
 import {WAITING} from './waiting';
 import customProfanity from './profanity';
@@ -113,6 +114,56 @@ app.get('/', function (req, res) {
   }
 
   res.sendFile(path.join(path.resolve() + '/dist/index.html'));
+});
+
+// Merida grid piece compositing
+app.get('/fen/merida', function (req, res) {
+  const fen = req.query.fen;
+  if (fen === undefined || typeof fen !== 'string') {
+    res.status(400).send('Invalid fen query param');
+    return;
+  }
+  const SQUARE_SIZE = 210; //px
+  const prefix = path.join(path.resolve(), '/img/merida');
+
+  const placement = decodeURIComponent(fen).split(' ')[0].split('/');
+  if (placement.length !== 8) {
+    res.status(400).send('FEN must contain 8 rows');
+    return;
+  }
+
+  const images: any[] = [];
+  for (let i=0; i < placement.length; i++) {
+    const row = placement[i];
+    let j = 0;
+    for (const char of row) {
+      if (j >= 8) break;
+      if (!isNaN(Number(char))) {
+        // is a number
+        const num = parseInt(char);
+        if (num > 8) {
+          res.status(400).send('FEN cannot contain numbers greater than number of files');
+          return;
+        }
+        j += num;
+      } else if ('kqrbnp'.includes(char.toLowerCase())) {
+        // is a piece
+        const url = (char.toLowerCase() === char ? 'B' + char : char).toLowerCase() + '.png';
+        images.push({
+          input: path.join(prefix, url),
+          top: 10 + SQUARE_SIZE * i,
+          left: 8 + SQUARE_SIZE * j,
+        });
+        j += 1;
+      } else {
+        res.status(400).send(`Invalid char ${char}`);
+      }
+    }
+  }
+
+  sharp(path.join(prefix, 'grid.png'))
+    .composite(images)
+    .pipe(res);
 });
 
 interface GameSettings {
