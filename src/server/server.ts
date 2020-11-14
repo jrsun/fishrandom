@@ -119,6 +119,7 @@ app.get('/', function (req, res) {
 // Merida grid piece compositing
 app.get('/fen/merida', function (req, res) {
   const fen = req.query.fen;
+  const inverse = req.query.inverse;
   if (fen === undefined || typeof fen !== 'string') {
     res.status(400).send('Invalid fen query param');
     return;
@@ -148,7 +149,14 @@ app.get('/fen/merida', function (req, res) {
         j += num;
       } else if ('kqrbnp'.includes(char.toLowerCase())) {
         // is a piece
-        const url = (char.toLowerCase() === char ? 'B' + char : char).toLowerCase() + '.png';
+        const url = (
+          (
+            (char.toLowerCase() === char && !inverse) ||
+            (char.toUpperCase() === char && inverse)
+          ) ?
+          'B' + char :
+          char
+        ).toLowerCase() + '.png';
         images.push({
           input: path.join(prefix, url),
           top: 265 + SQUARE_SIZE * i,
@@ -163,6 +171,7 @@ app.get('/fen/merida', function (req, res) {
 
   sharp(path.join(prefix, 'grid-template.png'))
     .composite(images)
+    .linear(0, 255 * Number(!!inverse))
     .pipe(res);
 });
 
