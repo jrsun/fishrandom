@@ -417,8 +417,10 @@ const newGame = async (player: Player, password?: string, variant?: string) => {
       NG,
       !password, // only ranked if open
       p1color,
-      99 * 60 * 1000,
-      99 * 60 * 1000,
+      // 99 * 60 * 1000,
+      // 99 * 60 * 1000,
+      3 * 60 * 1000,
+      3 * 60 * 1000,
     );
   } else {
     room = new Room(roomId, opponent, player, NG, /*ranked*/true, p1color);
