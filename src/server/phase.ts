@@ -62,7 +62,7 @@ export class RulesPhase extends Phase {
 }
 
 export class PlayingPhase extends Phase {
-  static INCREMENT_MS = 5 * 1000;
+  static INCREMENT_MS = 2 * 1000;
 
   name = PhaseEnum.PLAYING;
 
