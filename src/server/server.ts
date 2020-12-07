@@ -118,12 +118,31 @@ app.get('/', function (req, res) {
 
 // Merida grid piece compositing
 app.get('/fen/merida', function (req, res) {
-  const fen = req.query.fen;
-  const inverse = req.query.inverse;
+  const {fen, inverse, bottom, left} = req.query;
+
   if (fen === undefined || typeof fen !== 'string') {
-    res.status(400).send('Invalid fen query param');
+    res.status(400).send('Invalid query param');
     return;
   }
+
+  if (bottom && typeof bottom !== 'string') {
+    res.status(400).send('Invalid query param');
+    return;
+  }
+  if (left && typeof left !== 'string') {
+    res.status(400).send('Invalid query param');
+    return;
+  }
+
+  let b, l = 0;
+  try {
+    b = parseInt(bottom ?? '0') ?? 0;
+    l = parseInt(left ?? '0') ?? 0;
+  } catch {
+    res.status(400).send('Invalid query param 2');
+    return;
+  }
+
   const SQUARE_SIZE = 210; //px
   const prefix = path.join(path.resolve(), '/img/merida');
 
@@ -160,7 +179,7 @@ app.get('/fen/merida', function (req, res) {
         images.push({
           input: path.join(prefix, url),
           top: 265 + SQUARE_SIZE * i,
-          left: 263 + SQUARE_SIZE * j,
+          left: l + 263 + SQUARE_SIZE * j,
         });
         j += 1;
       } else {
@@ -172,6 +191,13 @@ app.get('/fen/merida', function (req, res) {
   sharp(path.join(prefix, 'grid-template.png'))
     .composite(images)
     .linear(0, 255 * Number(!!inverse))
+    .extend({
+      top: 0,
+      left: l,
+      right: 0,
+      bottom: b,
+      background: {r: 0, g: 0, b: 0, alpha: 0},
+    })
     .pipe(res);
 });
 
