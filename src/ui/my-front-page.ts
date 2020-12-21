@@ -30,6 +30,9 @@ import { SeekEventType, CancelSeekEventType, LIST_OF_FISH } from './utils';
 import { PaperDialogElement } from '@polymer/paper-dialog';
 import {PaperDropdownMenuElement} from '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
 
+// Facebook tracking
+declare var fbq: any;
+
 @customElement('my-front-page')
 export class MyFrontPage extends LitElement {
   static styles = css`
@@ -563,7 +566,6 @@ export class MyFrontPage extends LitElement {
     }).then(() => {
       // seek game
       localStorage.setItem('name', username);
-      console.log(username);
       this.dispatchEvent(new CustomEvent(
         SeekEventType,
         {
@@ -572,6 +574,7 @@ export class MyFrontPage extends LitElement {
         }
       ));
     });
+    fbq('track', 'Lead', {username, private: !!password, variant});
   }
 
   cancelSeek = () => {

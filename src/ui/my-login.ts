@@ -19,6 +19,8 @@ import {VARIANTS} from '../chess/variants';
 import {PaperDropdownMenuElement} from '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
 import { randomChoice } from '../common/utils';
 
+// UNUSED
+
 @customElement('my-login')
 export class MyLogin extends LitElement {
   static styles = css`
@@ -162,21 +164,12 @@ export class MyLogin extends LitElement {
     this.login(e);
   }
 
-  // onToggle(e) {
-  //   const roomInput = this.shadowRoot?.querySelector('#password')!;
-  //   if (e.target.checked) {
-  //     roomInput.removeAttribute('disabled');
-  //   } else {
-  //     roomInput.setAttribute('disabled', 'true');
-  //   }
-  // }
-
   openModal = () => {
     this.modal?.open();
   };
 
   render() {
-    return html` <my-announce></my-announce>
+    return html`<my-announce></my-announce>
       <form .onsubmit=${this.login.bind(this)}>
         <div class="container">
           <div class="title">FISHRANDOM</div>
