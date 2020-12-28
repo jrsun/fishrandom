@@ -41,6 +41,7 @@ export class Game {
    *************************/
   /** Shared */
   pawnHomeRanks: number[] = [1]; // 0 indexed from player's side
+  canCastle = true;
   castler: typeof Piece = King;
   canDrop = false;
   activate(
@@ -306,7 +307,7 @@ export class Game {
   ): Move | undefined {
     if (!this.isWhoseTurn(color, piece)) return;
 
-    const legalMoves = this.legalMovesFrom(this.state, srow, scol, true).filter(
+    const legalMoves = this.legalMovesFrom(this.state, srow, scol, this.canCastle).filter(
       (move) => {
         return (
           move.type === TurnType.MOVE &&
@@ -355,7 +356,7 @@ export class Game {
     col: number,
     kingside: boolean
   ): Castle | undefined {
-    if (!this.isWhoseTurn(color)) return;
+    if (!this.canCastle || !this.isWhoseTurn(color)) return;
 
     let target: Pair;
     const cols: number[] = [];

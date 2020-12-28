@@ -11,6 +11,8 @@ const OPTIONS = [Bishop, Bishop, Knight, Knight, Rook, Rook, Queen];
 
 export class Bario extends Game {
   name = 'Bario';
+  canCastle = false;
+  
   constructor(isServer: boolean) {
     super(isServer, generateInitial());
   }
