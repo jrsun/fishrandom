@@ -21,6 +21,7 @@ type RedisFn = (err: Error, res: any) => void;
 
 interface RedisClient {
   set: (key: string, value: string, f: RedisFn) => void;
+  setex: (key: string, ttl: string, value: string, f: RedisFn) => void;
   get: (key: string, f: RedisFn) => void;
   del: (key: string, f: RedisFn) => void;
   zadd: (...any) => void;
@@ -48,7 +49,8 @@ export async function saveRoom(r: Room) {
         console.error('Failed to compress and save message %s', s);
         return;
       }
-      REDIS_CLIENT.set(`room:${r.id}`, buffer.toString('base64'), (err) => {
+      // 300 = 5 * 60 seconds
+      REDIS_CLIENT.setex(`room:${r.id}`, '300', buffer.toString('base64'), (err) => {
         if (err) {
           reject(err);
           return;
