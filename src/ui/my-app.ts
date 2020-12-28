@@ -51,7 +51,7 @@ export class MyApp extends LitElement {
   }
 
   handleSocketMessage = (message: Message) => {
-    if (message.type !== 'ping') console.log('my-app', message);
+    // if (message.type !== 'ping') console.log('my-app', message);
     if (message.type === 'kick') {
       this.inRoom = false;
       this.seeking = false;
