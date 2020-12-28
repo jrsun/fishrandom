@@ -1,10 +1,10 @@
 import { customElement, LitElement, css, html, property } from "lit-element";
 
-const KINGS = ['petewah'];
-const QUEENS = ['deepblue'];
-const ROOKS = ['lmao'];
-const BISHOPS = ['ecclesiastic', 'carp'];
-const KNIGHTS = ['burakkeskingmdi'];
+const KINGS = ['deepblue', 'vladymirvlaches'];
+const QUEENS = ['petewah'];
+const ROOKS = ['bawacuda'];
+const BISHOPS = ['chori'];
+const KNIGHTS = ['urojony'];
 
 @customElement('my-champions')
 export class MyChampions extends LitElement {
