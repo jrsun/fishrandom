@@ -8,6 +8,8 @@ import {Move, Turn, Activate, TurnType, Castle} from '../turn';
 
 export class Losers extends Game {
   name = 'Losers';
+  canCastle = false;
+
   constructor(isServer: boolean) {
     super(isServer, genInitial());
   }

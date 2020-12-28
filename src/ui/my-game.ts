@@ -388,6 +388,7 @@ export class MyGame extends LitElement {
     }
     if (this.selectedPiece && this.selectedSquare) {
       if (
+        this.game.canCastle &&
         this.selectedPiece instanceof this.game.castler &&
         this.selectedSquare.row === row &&
         (Math.abs(this.selectedSquare.col - col) === 2 ||

@@ -9,6 +9,8 @@ import { Pair } from '../pair';
 
 export class Followking extends Game {
   name = 'Followking';
+  canCastle = false;
+
   constructor(isServer: boolean) {
     super(isServer, generateStartState());
   }

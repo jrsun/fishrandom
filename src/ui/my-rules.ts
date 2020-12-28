@@ -270,7 +270,7 @@ const VARIANT_INFO: {[variant: string]: TemplateResult} = {
       <li>Lose all your pieces or have no legal moves to win.</li>
       <li>You <b>must</b> make a capture if you can.</li>
       <li>No castling. King is not royal.</li>
-      <li>Pawn also promotes to King</li>
+      <li>Pawn may also promote to King.</li>
     </ul> `,
   Golemchess: html`So nice, you gotta capture twice.
     <ul>
