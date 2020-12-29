@@ -26,7 +26,6 @@ const {Profanity, ProfanityOptions} = pPkg;
 
 import log from 'log';
 import logNode from 'log-node';
-import sharp from 'sharp';
 import {Game} from '../chess/game';
 import {WAITING} from './waiting';
 import customProfanity from './profanity';
@@ -114,91 +113,6 @@ app.get('/', function (req, res) {
   }
 
   res.sendFile(path.join(path.resolve() + '/dist/index.html'));
-});
-
-// Merida grid piece compositing
-app.get('/fen/merida', function (req, res) {
-  const {fen, inverse, bottom, left} = req.query;
-
-  if (fen === undefined || typeof fen !== 'string') {
-    res.status(400).send('Invalid query param');
-    return;
-  }
-
-  if (bottom && typeof bottom !== 'string') {
-    res.status(400).send('Invalid query param');
-    return;
-  }
-  if (left && typeof left !== 'string') {
-    res.status(400).send('Invalid query param');
-    return;
-  }
-
-  let b, l = 0;
-  try {
-    b = parseInt(bottom ?? '0') ?? 0;
-    l = parseInt(left ?? '0') ?? 0;
-  } catch {
-    res.status(400).send('Invalid query param 2');
-    return;
-  }
-
-  const SQUARE_SIZE = 210; //px
-  const prefix = path.join(path.resolve(), '/img/merida');
-
-  const placement = decodeURIComponent(fen).split(' ')[0].split('/');
-  if (placement.length !== 8) {
-    res.status(400).send('FEN must contain 8 rows');
-    return;
-  }
-
-  const images: any[] = [];
-  for (let i=0; i < placement.length; i++) {
-    const row = placement[i];
-    let j = 0;
-    for (const char of row) {
-      if (j >= 8) break;
-      if (!isNaN(Number(char))) {
-        // is a number
-        const num = parseInt(char);
-        if (num > 8) {
-          res.status(400).send('FEN cannot contain numbers greater than number of files');
-          return;
-        }
-        j += num;
-      } else if ('kqrbnp'.includes(char.toLowerCase())) {
-        // is a piece
-        const url = (
-          (
-            (char.toLowerCase() === char && !inverse) ||
-            (char.toUpperCase() === char && inverse)
-          ) ?
-          'B' + char :
-          char
-        ).toLowerCase() + '.png';
-        images.push({
-          input: path.join(prefix, url),
-          top: 265 + SQUARE_SIZE * i,
-          left: l + 263 + SQUARE_SIZE * j,
-        });
-        j += 1;
-      } else {
-        res.status(400).send(`Invalid char ${char}`);
-      }
-    }
-  }
-
-  sharp(path.join(prefix, 'grid-template.png'))
-    .composite(images)
-    .linear(0, 255 * Number(!!inverse))
-    .extend({
-      top: 0,
-      left: l,
-      right: 0,
-      bottom: b,
-      background: {r: 0, g: 0, b: 0, alpha: 0},
-    })
-    .pipe(res);
 });
 
 interface GameSettings {
