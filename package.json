@@ -54,7 +54,6 @@
     "log-node": "^7.0.0",
     "lru-cache": "^6.0.0",
     "redis": "^3.0.2",
-    "sharp": "^0.26.2",
     "socketio": "^1.0.0",
     "validator": "^13.1.1",
     "yargs": "^15.4.1"
