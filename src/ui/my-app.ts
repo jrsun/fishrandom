@@ -29,7 +29,7 @@ export class MyApp extends LitElement {
     super.connectedCallback();
     this.addEventListener(SeekEventType, this.onSeek);
     this.addEventListener(CancelSeekEventType, this.onCancelSeek);
-    this.socket = io(':8880') as SocketIO.Socket;
+    this.socket = io(':8443') as SocketIO.Socket;
     this.socket.on('connect', () => {
       console.log('socket connected');
       this.connected = true;
