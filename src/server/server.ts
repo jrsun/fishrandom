@@ -182,7 +182,7 @@ log.notice('serving on 8080');
 app.listen(8080);
 
 // Haven't tested in dev
-const ioPort = process.env.NODE_ENV === 'development' ? 8880 : 8880;
+const ioPort = process.env.NODE_ENV === 'development' ? 8443 : 8443;
 
 const io: SocketIO.Server = socketio(ioPort, {
   pingInterval: 2000, // the sum of these should be < dcTimeout
