@@ -397,7 +397,7 @@ export class MyFrontPage extends LitElement {
             So every game is unexpected and new!
             <hr>
             Please feel free to leave feedback in the
-            <a target="_blank" href="https://discord.gg/DpWUJYt">Discord</a>, or email
+            <a target="_blank" href="https://discord.gg/sERxRBHb97">Discord</a>, or email
             <a target="_blank" href="mailto:admin@fishrandom.io">admin@fishrandom.io</a>.
           </div>
           <my-champions></my-champions>
