@@ -13,7 +13,7 @@ import {
   PhaseEnum,
 } from '../common/message';
 import {Room} from './room';
-import socketio from 'socket.io';
+import { Server } from 'socket.io';
 import * as Variants from '../chess/variants/index';
 import {Color} from '../chess/const';
 import yargs from 'yargs';
@@ -47,7 +47,7 @@ profanity.addWords(customProfanity);
 setInterval(() => {
   log.notice(
     'Active websockets:',
-    Object.keys(io.sockets.connected).length,
+    io.sockets.sockets.size,
   );
 }, 60 * 1000);
 
@@ -66,7 +66,7 @@ setInterval(() => {
     broadcast(io.sockets, {
       type: 'ping',
       scores,
-      p: Object.keys(io.sockets.connected).length,
+      p: io.sockets.sockets.size, 
     });
   });
 }, 2 * 1000);
@@ -184,9 +184,13 @@ app.listen(8080);
 // Haven't tested in dev
 const ioPort = process.env.NODE_ENV === 'development' ? 8443 : 8443;
 
-const io: SocketIO.Server = socketio(ioPort, {
+const io = new Server(ioPort, {
   pingInterval: 2000, // the sum of these should be < dcTimeout
   pingTimeout: 10000,
+  cors: {
+	  origin: "https://fishrandom.io",
+	  methods: ["GET", "POST"],
+  },
 });
 
 /** Game server state */

@@ -221,7 +221,7 @@ export class MyGame extends LitElement {
           for (const pair of pairs) {
             this.pairToClass[hash(pair)][name] = false;
           }
-          this.performUpdate();
+          this.requestUpdate();
         }, 200);
       }
     } else if (message.type === 'undo') {
@@ -233,7 +233,7 @@ export class MyGame extends LitElement {
     this.gameOver =
       !!(this.game.winCondition(Color.WHITE, this.game.state) ||
       this.game.winCondition(Color.BLACK, this.game.state));
-    this.performUpdate();
+    this.requestUpdate();
   };
 
   render() {
@@ -460,7 +460,7 @@ export class MyGame extends LitElement {
         this.audio.move?.play();
       }
     }
-    this.performUpdate();
+    this.requestUpdate();
   }
 
   onSquareDragStart = (e: CustomEvent) => {
@@ -495,7 +495,7 @@ export class MyGame extends LitElement {
       } else {
         this.audio.move?.play();
       }
-      this.performUpdate();
+      this.requestUpdate();
       return;
     }
     this.dispatchEvent(
@@ -524,7 +524,7 @@ export class MyGame extends LitElement {
 
     sendMessage(this.socket, {type: 'turn', turn});
     this.audio.move?.play();
-    this.performUpdate();
+    this.requestUpdate();
   };
 
   // Promotion
@@ -562,7 +562,7 @@ export class MyGame extends LitElement {
     );
     const promotionModal = this.shadowRoot!.querySelector('#promotion-modal');
     (promotionModal as PaperDialogElement).close();
-    this.performUpdate();
+    this.requestUpdate();
   };
 
   // Drawing arrows and circles

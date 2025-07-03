@@ -399,7 +399,7 @@ export class MyRoom extends LitElement {
   playRoulette() {
     // Reset animations in child elements
     this.started = false;
-    this.performUpdate();
+    this.requestUpdate();
 
     setTimeout(() => {
       this.started = true;
@@ -478,7 +478,7 @@ export class MyRoom extends LitElement {
       } else {
         this.audio.lose?.play();
       }
-      this.performUpdate();
+      this.requestUpdate();
     } else if (message.type === 'timer') {
       const tim = message as TimerMessage;
       this.playerTimer = tim.player;

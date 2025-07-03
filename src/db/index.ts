@@ -42,7 +42,7 @@ const SCORES_KEY = 'scores:streak';
 
 export async function saveRoom(r: Room) {
   ROOMS[r.id] = r;
-  return await new Promise((resolve, reject) => {
+  return await new Promise<void>((resolve, reject) => {
     const s = JSON.stringify(Room.freeze(r), replacer);
     zlib.gzip(s, (err, buffer) => {
       if (err) {
@@ -79,7 +79,7 @@ export async function getRoom(id?: string): Promise<Room | undefined> {
         return;
       }
       if (!reply) {
-        resolve();
+        resolve(undefined);
         return;
       }
       const zipped = Buffer.from(reply, 'base64');
@@ -96,7 +96,7 @@ export async function getRoom(id?: string): Promise<Room | undefined> {
           return;
         }
         if (!rs) {
-          resolve();
+          resolve(undefined);
           return;
         }
         const playerUuids = Object.keys(rs.players);
@@ -104,7 +104,7 @@ export async function getRoom(id?: string): Promise<Room | undefined> {
           (players) => {
             if (players.length !== 2 || !players[0] || !players[1]) {
               console.error('attempted to get room without 2 players');
-              resolve();
+              resolve(undefined);
               return;
             }
             try {
@@ -124,7 +124,7 @@ export async function getRoom(id?: string): Promise<Room | undefined> {
 
 export async function savePlayer(p: Player) {
   PLAYERS[p.uuid] = p;
-  return await new Promise((resolve, reject) => {
+  return await new Promise<void>((resolve, reject) => {
     REDIS_CLIENT.set(
       `player:${p.uuid}`,
       JSON.stringify({...p, socket: undefined, recentResults: undefined}),
@@ -142,14 +142,14 @@ export async function savePlayer(p: Player) {
 export async function getPlayer(id: string): Promise<Player | undefined> {
   if (id in PLAYERS) return Promise.resolve(PLAYERS[id]);
 
-  return await new Promise((resolve, reject) => {
+  return await new Promise<Player|undefined>((resolve, reject) => {
     REDIS_CLIENT.get(`player:${id}`, (err, reply) => {
       if (err) {
         reject(err);
         return;
       }
       if (!reply) {
-        resolve();
+        resolve(undefined);
       }
       const player = JSON.parse(reply) as Player;
       PLAYERS[id] = player;
@@ -168,7 +168,7 @@ export async function updateScore(username: string, score: number) {
     REDIS_CLIENT.zscore(SCORES_KEY, username, (err, prevScore) => {
       if (err) {
         log.warn('redis error:', err);
-        resolve();
+        resolve(undefined);
       }
       if (score > prevScore) {
         REDIS_CLIENT.zadd(SCORES_KEY, score, username, (err, reply) => {
@@ -177,7 +177,7 @@ export async function updateScore(username: string, score: number) {
             return;
           }
           if (!reply) {
-            resolve();
+            resolve(undefined);
           }
           resolve(reply);
         })
@@ -194,7 +194,7 @@ export async function getTopK(k: number): Promise<undefined|{[name: string]: num
         return;
       }
       if (!reply) {
-        resolve();
+        resolve(undefined);
       }
       const topKToScores = {};
       for (let i=0; i < reply.length; i +=2) {

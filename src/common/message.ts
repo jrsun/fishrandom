@@ -244,7 +244,7 @@ export function reviver(k: string, v: any): Piece | BoardState | Square {
   return v;
 }
 
-export function broadcast(sockets: SocketIO.Namespace, m: Message) {
+export function broadcast(sockets, m) {
   sockets.emit('message', JSON.stringify(m, replacer));
 }
 

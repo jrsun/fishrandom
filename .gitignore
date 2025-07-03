@@ -2,6 +2,7 @@
 /lib/
 /test/
 /build/
+/img/merida/
 
 /dist/*
 !/dist/index.html
