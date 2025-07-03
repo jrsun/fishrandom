@@ -19,8 +19,6 @@ import { Color, ROULETTE_SECONDS } from '../chess/const';
 import "./my-game";
 import "./my-announce";
 import "./my-spinner";
-import "./my-leaderboard";
-import "./my-champions";
 import { GameListener } from './game-listener';
 import { Piece } from '../chess/piece';
 import { Pair } from '../chess/pair';
@@ -109,9 +107,7 @@ export class MyFrontPage extends LitElement {
         "demo"
         "login"
         "play"
-        "info"
-        "champions"
-        "leaderboard";
+        "info";
     }
 
     @media (min-width: 600px) {
@@ -124,8 +120,6 @@ export class MyFrontPage extends LitElement {
         grid-template-areas:
           "demo login"
           "demo play"
-          "demo champions"
-          "demo leaderboard"
           "demo info";
       }
       .demo {
@@ -146,12 +140,6 @@ export class MyFrontPage extends LitElement {
     }
 
     /* Grid Areas */
-
-    /* Champions */
-    my-champions {
-      grid-area: champions;
-      width: 100%;
-    }
 
     /* Demo  */
     .demo {
@@ -247,11 +235,6 @@ export class MyFrontPage extends LitElement {
     .info {
       grid-area: info;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    /* Leaderboard */
-    my-leaderboard {
-      grid-area: leaderboard;
-      width: 100%;
     }
 
     /* Spinner */
@@ -400,8 +383,6 @@ export class MyFrontPage extends LitElement {
             <a target="_blank" href="https://discord.gg/sERxRBHb97">Discord</a>, or email
             <a target="_blank" href="mailto:admin@fishrandom.io">admin@fishrandom.io</a>.
           </div>
-          <my-champions></my-champions>
-          <my-leaderboard .socket=${this.socket}></my-leaderboard>
         </div>
         ${this.renderPrivateModal()}
         ${this.renderDemoInfoModal()}

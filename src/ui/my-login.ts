@@ -7,7 +7,6 @@ import {
   TemplateResult,
 } from 'lit-element';
 import '@polymer/paper-button';
-import './my-release-notes';
 import './my-announce';
 import '@polymer/paper-dialog';
 import '@polymer/paper-toggle-button';
@@ -192,7 +191,6 @@ export class MyLogin extends LitElement {
             >
           </div>
           <input type="submit" style="display: none" />
-          <my-release-notes></my-release-notes>
         </div>
         <paper-dialog id="room-modal">
           <div class="room-container">

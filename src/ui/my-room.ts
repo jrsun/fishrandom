@@ -7,7 +7,6 @@ import {
 } from 'lit-element';
 import '@polymer/paper-dialog';
 import './my-game';
-import './my-leaderboard';
 import './my-stats';
 import './my-announce';
 import {VARIANTS, Chess960, RANDOM_VARIANTS} from '../chess/variants/index';
@@ -27,7 +26,6 @@ import './my-rules';
 import './my-piece-picker';
 import './my-controls';
 import './my-captures';
-import './my-release-notes';
 import './my-game';
 
 // with ES6 import
@@ -290,7 +288,6 @@ export class MyRoom extends LitElement {
       grid-column-gap: 40px;
       grid-template-areas:
         "game"
-        "leaderboard"
         "controls"
         "rules";
     }
@@ -300,7 +297,6 @@ export class MyRoom extends LitElement {
         justify-items: center;
         align-items: start;
         grid-template-areas:
-          "game leaderboard"
           "game controls"
           "game rules";
       }
@@ -310,10 +306,6 @@ export class MyRoom extends LitElement {
     }
     .active-game-container {
       grid-area: game;
-    }
-    my-leaderboard {
-      grid-area: leaderboard;
-      width: 100%;
     }
     .controls {
       grid-area: controls;
@@ -561,7 +553,6 @@ export class MyRoom extends LitElement {
       </div>
       <my-stats .socket=${this.socket}></my-stats>
       <my-spinner></my-spinner>
-      <my-release-notes></my-release-notes>
       <paper-button
         class="exit-while-waiting"
         raised
@@ -732,10 +723,6 @@ export class MyRoom extends LitElement {
             </div>
           </div>
         </div>
-        <my-leaderboard class="grid-item"
-          .socket=${this.socket}
-          .player=${this.playerInfo}
-        ></my-leaderboard>
         <div class="controls grid-item">
           <my-controls
             class="card"
